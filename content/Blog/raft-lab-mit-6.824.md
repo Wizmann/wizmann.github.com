@@ -268,13 +268,23 @@ Raft的论文中，Leader需要维护`commitIndex`和`lastApplied`这两个状�
 
 为了不剧透，放到单独的链接里了：[剧透警告！][4]
 
+## 测试结果
+
+![tests][5]
+
+在Travis CI上面运行的测试。自我感觉实现的比较一般，所以你们的程序应该跑的比我快一点才正常。
+
 ## 总结
 
-想要完整正确的实现这个项目，首先一定要把论文读懂。并且划出实现上应该注意的重点。当遇到问题时，一定要回归论文，大部分的问题都可以获得解答。
+想要完整正确的实现这个项目，首先一定要把论文读懂。并且划出实现上应该注意的重点。
+
+当遇到正确性问题时，一定要回归论文，大部分的问题都可以获得解答。当遇到性能问题时，可以参考作业上面的Hints，里面也有非常有用的信息。
 
 MIT的这个课程还有基于raft实现kv storage的项目，后续如果有时间应该还会做吧。
+
 
   [1]: https://pdos.csail.mit.edu/6.824/labs/lab-raft.html
   [2]: https://raft.github.io/raft.pdf
   [3]: https://raw.githubusercontent.com/Wizmann/assets/3f1056d6f142755204092fb89a474dc964608bab/wizmann-pic/2019-05-02_14-40-52.png
   [4]: https://github.com/Wizmann/assets/blob/master/wizmann-pic/19-05-02/raft-hints.md
+  [5]: https://raw.githubusercontent.com/Wizmann/assets/e35dd59aa533ddd19065f070dcb85a3734cc035d/wizmann-pic/19-05-02/2019-05-02_21-37-14.png
