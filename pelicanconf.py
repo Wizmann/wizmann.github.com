@@ -17,15 +17,24 @@ FEED = 'feeds/all.rss.xml'
 
 PYGMENTS_STYLE = "solarizedlight"
 
+DISPLAY_CATEGORIES_ON_MENU = False
+DISPLAY_PAGES_ON_MENU = False
+
+MENUITEMS = (
+    ('Blog', '/category/blog.html'),
+    ('ForBeginners', 'http://forbeginners.wizmann.tk/')
+)
+
 # Blogroll
 LINKS =  (
-             ('Pelican', 'http://getpelican.com/'),
-         )
+    ('Pelican', 'http://getpelican.com/'),
+)
 
 # Social widget
-SOCIAL = (('github', 'https://github.com/wizmann'),
-          ('rss', 'http://wizmann.tk/feeds/all.atom.xml'),
-         )
+SOCIAL = (
+    ('github', 'https://github.com/wizmann'),
+    ('rss', 'http://wizmann.tk/feeds/all.atom.xml'),
+)
 
 DEFAULT_PAGINATION = 10
 
