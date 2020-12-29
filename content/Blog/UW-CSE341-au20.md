@@ -29,6 +29,10 @@ Repo地址：https://github.com/Wizmann/UW-CSE341-au20
 
 仅供参考。
 
+> 感谢华大（
+
+![](https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/20-12-29/2020-12-29_16-42-28.png)
+
 
 [1]: https://sites.google.com/cs.washington.edu/cse341au20/home
 [2]: https://www.coursera.org/learn/programming-languages
