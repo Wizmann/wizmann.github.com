@@ -97,6 +97,7 @@ void loop() {
 ```ahk
 #MaxHotkeysPerInterval 1000
 
+F18::Return
 F19::Return
 
 #If GetKeyState("F19", "P")
@@ -111,9 +112,6 @@ F19::Return
 	k::SendInput {Up}
 	l::SendInput {Right}
 	b::SendInput {Backspace}
-	
-	
-F18::Return
 
 #If GetKeyState("F18", "P")
 	a::SendInput {1}
