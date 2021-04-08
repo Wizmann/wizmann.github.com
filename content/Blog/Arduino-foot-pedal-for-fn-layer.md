@@ -96,56 +96,66 @@ void loop() {
 
 ```ahk
 #MaxHotkeysPerInterval 1000
+#NoEnv
+#UseHook On
+#SingleInstance force
+#InstallKeybdHook
+SendMode Input
 
 F18::Return
 F19::Return
 
-#If GetKeyState("F19", "P")
-	a::SendInput {Home}
-	e::SendInput {End}
-	x::SendInput {Delete}
-	d::SendInput {PgDn}
-	m::SendInput {AppsKey}
-	u::SendInput {PgUp}
-	h::SendInput {Left}
-	j::SendInput {Down}
-	k::SendInput {Up}
-	l::SendInput {Right}
-	b::SendInput {Backspace}
+F19 & h::SendInput {Left}
+F19 & j::SendInput {Down}
+F19 & k::SendInput {Up}
+F19 & l::SendInput {Right}
+F19 & a::SendInput {Home}
+F19 & e::SendInput {End}
+F19 & x::SendInput {Delete}
+F19 & d::SendInput {PgDn}
+F19 & m::SendInput {AppsKey}
+F19 & u::SendInput {PgUp}
+F19 & i::
+    if GetKeyState("LShift", "P")
+        SendInput +{Insert}
+    else
+        SendInput {Insert}
+    return
+F19 & b::SendInput {Backspace}
+F19 & w::SendInput ^{w}
 
-#If GetKeyState("F18", "P")
-	a::SendInput {1}
-	s::SendInput {2}
-	d::SendInput {3}
-	f::SendInput {4}
-	g::SendInput {5}
-	h::SendInput {6}
-	j::SendInput {7}
-	k::SendInput {8}
-	l::SendInput {9}
-	;::SendInput {0}
-	q::SendInput {!}
-	w::SendInput {@}
-	e::SendInput {#}
-	r::SendInput {$}
-	t::SendInput {`%}
-	y::SendInput {^}
-	u::SendInput {&}
-	i::SendInput {*}
-	o::SendInput {(}
-	p::SendInput {)}
-	1::SendInput {F1}
-	2::SendInput {F2}
-	3::SendInput {F3}
-	4::SendInput {F4}
-	5::SendInput {F5}
-	6::SendInput {F6}
-	7::SendInput {F7}
-	8::SendInput {F8}
-	9::SendInput {F9}
-	0::SendInput {F10}
-	-::SendInput {F11}
-	=::SendInput {F12}
+F18 & 1::SendInput {F1}
+F18 & 2::SendInput {F2}
+F18 & 3::SendInput {F3}
+F18 & 4::SendInput {F4}
+F18 & 5::SendInput {F5}
+F18 & 6::SendInput {F6}
+F18 & 7::SendInput {F7}
+F18 & 8::SendInput {F8}
+F18 & 9::SendInput {F9}
+F18 & 0::SendInput {F10}
+F18 & -::SendInput {F11}
+F18 & =::SendInput {F12}
+F18 & a::SendInput {1}
+F18 & s::SendInput {2}
+F18 & d::SendInput {3}
+F18 & f::SendInput {4}
+F18 & g::SendInput {5}
+F18 & h::SendInput {6}
+F18 & j::SendInput {7}
+F18 & k::SendInput {8}
+F18 & l::SendInput {9}
+F18 & `;::SendInput {0}
+F18 & q::SendInput {!}
+F18 & w::SendInput {@}
+F18 & e::SendInput {#}
+F18 & r::SendInput {$}
+F18 & t::SendInput {`%}
+F18 & y::SendInput {^}
+F18 & u::SendInput {&}
+F18 & i::SendInput {*}
+F18 & o::SendInput {(}
+F18 & p::SendInput {)}
 ```
 
 代码简单粗暴。
