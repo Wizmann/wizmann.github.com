@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="zhs" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>algorithm - Maerlyn's Rainbow</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+
+    <meta name="author" content="Wizmann" />
+    <meta name="keywords" content="algorithm" />
+
+    <!-- Open Graph tags -->
+        <meta property="og:site_name" content="Maerlyn's Rainbow" />
+        <meta property="og:type" content="website"/>
+        <meta property="og:title" content="Maerlyn's Rainbow"/>
+        <meta property="og:url" content=""/>
+        <meta property="og:description" content="Maerlyn's Rainbow"/>
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="/theme/css/bootstrap.flatly.min.css" type="text/css"/>
+    <link href="/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="/theme/css/pygments/solarizedlight.css" rel="stylesheet">
+    <link rel="stylesheet" href="/theme/css/style.css" type="text/css"/>
+
+        <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow ATOM Feed"/>
+
+
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="/" class="navbar-brand">
+Maerlyn's Rainbow            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="/category/blog.html">Blog</a></li>
+                    <li><a href="http://forbeginners.wizmann.tk/">ForBeginners</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+            <article>
+                <h2><a href="/hungary-algorithm.html">匈牙利算法</a></h2>
+                <div class="summary"><h2>概念</h2>
+<h3>交错路</h3>
+<blockquote>
+<p>交错路：设P是图G的一条路，如果P的任意两条相邻的边一定是一条属于M而另一条不属于M，就称P是一条交错路。</p>
+</blockquote>
+<p>通俗点来说，就是把一个图中的路径染成红黑两种。然后找出一条路，使这条路<strong>红黑交错</strong>。</p>
+<p>注：交错路是无向图，图中的箭头只是为了便于观察。</p>
+<p>例如下图中的：<code>(3) -&gt; (2) -&gt; (1)</code></p>
+<p><img alt="图1" src="https://github.com/Wizmann/assets/raw/master/wizmann-tk-pic/blog-hungary-1.png"></p>
+<h3>从端点扩张交错路</h3>
+<p>假设我们已经有一个红黑交错路<code>P</code>，其端点为<code>A</code>和<code>B</code>，其路径被标记为<code>黑红</code>。此时，我们向<code>P</code>中的一个端点（假设为<code>A</code>）加入一条边<code>T</code>。</p>
+<p>此时我们有<code>边T + 交错路P（黑红）</code>。当我们将边<code>T</code>标记为<code>黑色</code>时，我们就扩展了交错路<code>P</code>。
+如果我们要保持红黑交错路的<strong>性质</strong>。则我们必须将边<code>T …</code></p>
+                    <a class="btn btn-default btn-xs" href="/hungary-algorithm.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="/cf-3c-tic-tac-toe.html">Codeforces 3C - Tic-tac-toe</a></h2>
+                <div class="summary"><h2>啥？</h2>
+<p><a href="http://codeforces.com/problemset/problem/3/C">Tic-tac-toe</a>是我很久之前在CF上做的一道题。非常考细心的模拟题。</p>
+<p>最近有同学和我讨论过类似的问题。于是拿出来重新做一遍。练练手。</p>
+<h2>原题做法</h2>
+<p>没有任何“算法”成分。纯模拟。</p>
+<p>又由于数据量实在是太小（3 × 3的矩阵），所以只要是思路正确。代码怎么写都能过。</p>
+<p>于是在这里就不赘述。手快的众位10分钟切此题无压力。</p>
+<h2>What's new?</h2>
+<p>如果我们扩展一下这个问题。如果让你设计一个Tic-tac-toe的对战系统（人机对战、人人对战等），你将如何设计？</p>
+<h2>the STATE pattern</h2>
+<p>我们可以看出，这个对战系统其实可以用一个状态机来表示。</p>
+<p><img alt="https://github.com/Wizmann/assets/raw/master/wizmann-tk-pic/blog-tick-tac-toe.png" src="https://github.com/Wizmann/assets/raw/master/wizmann-tk-pic/blog-tick-tac-toe.png"></p>
+<p>于是我们的对战系统也可以写成一个状态机的模式。</p>
+<h2>show me the CODE</h2>
+<p>首先我们声明一个<code>State</code>接口类型。</p>
+<p>由于Tic-tac-toe游戏只有两种操作类型：<code>P1 move</code>和<code>P2 move</code>。</p>
+<p>所以我们的接口就很简单。</p>
+<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">State</span> <span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+    <span class="n">State …</span></pre></div>
+                    <a class="btn btn-default btn-xs" href="/cf-3c-tic-tac-toe.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="/how-to-rotate-image-leetcode.html">How to "Rotate Image"?</a></h2>
+                <div class="summary"><h2>啥？</h2>
+<p>原题<a href="http://oj.leetcode.com/problems/rotate-image/">戳我</a></p>
+<blockquote>
+<p>Rotate Image</p>
+<p>You are given an n x n 2D matrix representing an image.</p>
+<p>Rotate the image by 90 degrees (clockwise).</p>
+<p>Follow up:</p>
+<p>Could you do this in-place?</p>
+</blockquote>
+<p>示意图如下：</p>
+<p><img alt="rotate-image" src="https://github.com/Wizmann/assets/raw/master/wizmann-tk-pic/blog-rotate-image-leetcode.png"></p>
+<p>当然，矩阵中的数字<strong>不一定</strong>是规律的。</p>
+<h2>为什么要提出这个问题</h2>
+<p>自觉是一个<strong>不聪明</strong>的人（双低。。。&lt;(=＠_＠;=)?&gt;）。</p>
+<p>别人一下子就想明白的事，在我这里要计算好几个来回。</p>
+<p>所以努力想找到一个思维方法去弥补这个不足。</p>
+<p>就以这题为例，如何使用简单、直接的方法，迅速正确的找出变化的映射规律。</p>
+<h2>初步思路 …</h2>
+                    <a class="btn btn-default btn-xs" href="/how-to-rotate-image-leetcode.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="/cf-221-div-2.html">Codeforces Round #221 (Div. 2)不完全不正确题解</a></h2>
+                <div class="summary"><h2>A. Lever</h2>
+<p>水题，杠杆原理。</p>
+<p>用<code>^</code>把字符串分割开。然后分别计算两边的重量即可。</p>
+<div class="highlight"><pre><span></span><span class="c1">#Result: Dec 24, 2013 6:04:41 PM    Wizmann  A - Lever   Python 2   Accepted     312 ms  4200 KB</span>
+<span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="n">ss</span><span class="p">):</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">ss</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">item</span> <span class="o">!=</span> <span class="s1">&#39;=&#39;</span><span class="p">:</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="n">res</span> <span class="o">+=</span> <span class="n">t</span> <span class="o">*</span> <span class="n">p</span>
+        <span class="n">p</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">res</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">raw_input …</span></pre></div>
+                    <a class="btn btn-default btn-xs" href="/cf-221-div-2.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="/cf-218-div-2.html">Codeforces Round #218 (Div. 2)不完全不正确题解</a></h2>
+                <div class="summary"><h3>A. K-Periodic Array</h3>
+<p>将Array切片，然后按位统计某一位上1的个数C(1)和2的个数C(2)。然后在这一位上的操作数就为M = min(C(1), C(2))。</p>
+<p>简单题</p>
+<h3>B. Fox Dividing Cheese</h3>
+<p>傻逼才错的题，不幸中枪。</p>
+<p>不想多说了，直接看代码吧。手贱不是病，贱起来要人命。</p>
+<h3>C. Hamburgers</h3>
+<p>模拟 + 二分。</p>
+<p>和CJL还讨论过这题的纯模拟做法，看了半天代码没找到问题。于是刚才用Python自己实现了一个，在代码正确的情况下，没有WA，但是T在了22组上。</p>
+<p>所以这题最好使用二分，如果用模拟的话，需要考虑各种情况。代码见下，细节上注意就好。</p>
+<h3>D. Vessels</h3>
+<p>这题得好好讲一下～比赛时做出来了好得意～</p>
+<p><img alt="Vessels" src="https://github.com/Wizmann/assets/raw/master/wizmann-tk-pic/blog-cf-218-div-2-d-vessels.png"></p>
+<p>题意是给出一组层层叠的容器，每一个容器都有自己的容量。然后我们向某些容器里灌水，如果水的体积超过了某个容器的容量，则剩余的水溢出到下一个容器中。最后一个容器溢出的水会落到地面上 …</p>
+                    <a class="btn btn-default btn-xs" href="/cf-218-div-2.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="/cf-215-div-2.html">Codeforces Round #215 (Div. 2)不完全不正确题解</a></h2>
+                <div class="summary"><h3>A. Sereja and Coat Rack</h3>
+<p>傻逼才错的题。不幸中枪。</p>
+<p>没什么可说的。直接看代码就好。</p>
+<h3>B. Sereja and Suffixes</h3>
+<p>关键思想在于统计A[i...n-1]中有多少互不相同的数。</p>
+<p>使用离线思想，把查询按<code>greater&lt;int&gt;</code>排序，然后使用Hash表进行统计，简单题。</p>
+<h3>C. Sereja and Algorithm</h3>
+<p>思路题。</p>
+<p>我们容易想到如果可以交换相邻两个字母的位置，我们就可以获得这个字符串所有的排列。</p>
+<p>所以我们只需要统计出A[i...j]中x, y, z的个数。</p>
+<p>然后进行排列。</p>
+<p>我们可以推出，稳定的排列（即可以使算法停下来的排列）只有如下几种情况。</p>
+<div class="highlight"><pre><span></span><span class="n">zy</span><span class="o">[</span><span class="n">xzy</span><span class="o">][</span><span class="n">xzy</span><span class="o">]</span><span class="p">...</span><span class="w"></span>
+<span class="n">xz</span><span class="o">[</span><span class="n">yxz</span><span class="o">][</span><span class="n">yxz</span><span class="o">]</span><span class="p">...</span><span class="w"></span>
+<span class="n">yx</span><span class="o">[</span><span class="n">zyx …</span></pre></div>
+                    <a class="btn btn-default btn-xs" href="/cf-215-div-2.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+
+        <ul class="pagination">
+                <li class="prev"><a href="/tag/algorithm2.html">&laquo;</a>
+                </li>
+                    <li class=""><a
+                            href="/tag/algorithm.html">1</a></li>
+                    <li class=""><a
+                            href="/tag/algorithm2.html">2</a></li>
+                    <li class="active"><a
+                            href="/tag/algorithm3.html">3</a></li>
+                <li class="next disabled"><a href="#">&raquo;</a></li>
+        </ul>
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="https://github.com/wizmann"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://wizmann.tk/feeds/all.atom.xml"><i class="fa fa-rss-square fa-lg"></i> rss</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="/tag/algorithm.html">algorithm</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="/tag/ti-jie.html">题解</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="/tag/codeforces.html">codeforces</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="/tag/suan-fa.html">算法</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/udp.html">UDP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/xian-liao.html">闲聊</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/yi-zhi-xing.html">一致性</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/shu-ju-ku.html">数据库</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/protocol.html">protocol</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/system-design.html">System Design</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/python.html">python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/networking.html">networking</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/chrome-extension.html">chrome-extension</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/interview.html">interview</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/rpc.html">rpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/tcp.html">TCP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/stup.html">STUP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/leetcode.html">leetcode</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/fen-bu-shi-xi-tong.html">分布式系统</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/phxrpc.html">phxrpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/c.html">C++</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/cpp.html">cpp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/gong-kai-ke.html">公开课</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/basic-paxos.html">basic paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/flatbuffer.html">flatbuffer</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/thread.html">thread</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/async.html">async</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/azure.html">azure</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/raft.html">raft</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/keyboard.html">keyboard</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/she-ji-mo-shi.html">设计模式</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/stack.html">stack</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/protobuf.html">protobuf</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/google.html">google</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/ucontext.html">ucontext</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/microsoft.html">Microsoft</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/chuang-zao-li.html">创造力</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/distributed-system.html">Distributed System</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/storage.html">Storage</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/induction.html">induction</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/paxos.html">paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/cse351.html">CSE351</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/du-shu.html">读书</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/cas.html">cas</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/net.html">.NET</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/priority_queue.html">priority_queue</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/code-golf.html">code golf</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/cmpxchg.html">cmpxchg</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/pecifica.html">pecificA</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/ocaml.html">OCaml</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/zeromq.html">zeromq</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/css.html">css</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/cap.html">CAP</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/sort.html">sort</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/ot.html">ot</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/xie-cheng.html">协程</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/epoll.html">epoll</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/social-network.html">Social Network</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/autohotkey.html">autohotkey</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/parallel.html">parallel</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/pl.html">PL</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/arduino.html">Arduino</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/multi-paxos.html">multi paxos</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/mq.html">mq</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/was.html">WAS</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/tcpip.html">tcpip</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/ji-shu.html">计数</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/stdfunction.html">std::function</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/metaprogramming.html">Metaprogramming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/zhu-cong-fu-zhi.html">主从复制</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/poll.html">poll</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/defer.html">defer</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/workflowy.html">workflowy</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/front-end-development.html">front-end development</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/racket.html">Racket</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/b-tree.html">b-tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/rong-chi-yuan-li.html">容斥原理</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/streambuf.html">streambuf</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/functional-programming.html">Functional Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/stylish.html">stylish</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/gcj.html">GCJ</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/ahk.html">ahk</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/twisted.html">twisted</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/multi-thread.html">multi-thread</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/linkedin.html">Linkedin</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/consistency.html">Consistency</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/bw-tree.html">bw-tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/userscript.html">userscript</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/fn-layer.html">fn-layer</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/storage-system.html">Storage System</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/csharp.html">csharp</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/modern-c.html">modern C++</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/mosca.html">mosca</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/ceph.html">Ceph</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/message-queue.html">message queue</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/powershell.html">powershell</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/wsl.html">WSL</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/ergodone.html">ergodone</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/stl.html">STL</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/socket.html">socket</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Wizmann
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="/theme/js/respond.min.js"></script>
+
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-46053117-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+
+</body>
+</html>

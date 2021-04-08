@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zhs" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>rpc - Maerlyn's Rainbow</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+
+    <meta name="author" content="Wizmann" />
+    <meta name="keywords" content="rpc" />
+
+    <!-- Open Graph tags -->
+        <meta property="og:site_name" content="Maerlyn's Rainbow" />
+        <meta property="og:type" content="website"/>
+        <meta property="og:title" content="Maerlyn's Rainbow"/>
+        <meta property="og:url" content=""/>
+        <meta property="og:description" content="Maerlyn's Rainbow"/>
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="/theme/css/bootstrap.flatly.min.css" type="text/css"/>
+    <link href="/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="/theme/css/pygments/solarizedlight.css" rel="stylesheet">
+    <link rel="stylesheet" href="/theme/css/style.css" type="text/css"/>
+
+        <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow ATOM Feed"/>
+
+
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="/" class="navbar-brand">
+Maerlyn's Rainbow            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="/category/blog.html">Blog</a></li>
+                    <li><a href="http://forbeginners.wizmann.tk/">ForBeginners</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+            <article>
+                <h2><a href="/phxrpc-8.html">总结 - phxrpc代码阅读(8)</a></h2>
+                <div class="summary"><h2>写在前面</h2>
+<p>这应该是phxrpc代码阅读系列正文的最后一篇。通过阅读代码，发现了自己在知识上的若干不足。</p>
+<p>临渊羡鱼，不如退而结网。接下来可能会在网络编程方面再下一点工夫。请大家期待下一个系列吧。</p>
+<blockquote>
+<p>其实真没人读，我就是在骗自己。</p>
+</blockquote>
+<h2>先补充一点 - 代码生成</h2>
+<p>protobuf并不包含RPC的实现，但是它可以声明rpc。客户端和服务端需要实现RPC接口，来实现通信。</p>
+<p>phxrpc使用proto文件来定义接口，然后解析并使用代码模板进行生成。</p>
+<p>这里我们不讨论代码生成的细节，因为pb实在太过流行，代码生成的方法也有不少的流派。并且用C++来做代码生成，真心不是我的菜。</p>
+<p>想了解更多，可以参考<a href="http://codemacro.com/2014/08/31/protobuf-rpc/">这篇博客</a>。</p>
+<h2>工作流程 - 客户端</h2>
+<p>客户端与服务器的通信有如下的特点：</p>
+<ol>
+<li>连接少</li>
+<li>负载少</li>
+<li>通信的主动方</li>
+</ol>
+<p>所以，所有的网络交互相关的内容可以托管给网络库中的协程。每个协程主动运行一段时间后，主动放弃CPU时间，将控制权交还给主控制流的epoll。</p>
+<p>所以协程中不能有CPU密集的运算，幸好面对开发者，phxrpc并不暴露内部函数，而是将CPU密集的运算分配给工作线程来完成。</p>
+<h2>工作流程 - 服务端</h2>
+<p>服务器的通信有以下的特点：</p>
+<ol>
+<li>连接多</li>
+<li>负载多</li>
+<li>通信的被动方</li>
+<li>响应时间敏感</li>
+</ol>
+<p>这里说一下响应时间的问题 …</p>
+                    <a class="btn btn-default btn-xs" href="/phxrpc-8.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="/phxrpc-7.html">RPC - phxrpc代码阅读(7)</a></h2>
+                <div class="summary"><h2>前言</h2>
+<p>看了这么久代码，终于我们要接近phxrpc的核心部分了。</p>
+<p>但是出人意料的是，rpc部分并没有过多的概念和magic trick。而且因为ucontext已经被封装好了，所以在rpc里的操作，可以完全按照同步的写法来搞，开发者们不需要切换同步异步的思维模式，就可以在底层的封装之上，做自己想做的事了。</p>
+<h2>线程安全(?)的队列 - ThreadQueue</h2>
+<p>我不知道开发者为啥要起<code>ThdQueue</code>这样令人迷惑的名字，这种诡异的命名风格贯穿了整个代码。咋一看这个类是maintain一堆线程的，类似于线程池，但其实这个类就是一个<code>BlockingQueue</code>的实现。</p>
+<p>之后，这个队列有三种操作，<code>push</code>、<code>pluck</code>和<code>break_out</code>。push操作不用多说，pluck对应的我们所理解的pop操作，即从队列中弹出元素（pluck这个词貌似是从grpc里面来的，那我就不吐槽了，毕竟Google爸爸）。</p>
+<p>更令人疑惑的是<code>break_out</code>这个操作。从代码来看，像是清空队列，并且在dtor中也显式的调用了这个函数。</p>
+<p>但是有以下的几个问题。</p>
+<p>一，<code>break_out_</code>是一个bool变量，且在不同线程间共享，问题在于这个变量可能被cache住，直接访问可能会造成非预期的结果，可能需要 …</p>
+                    <a class="btn btn-default btn-xs" href="/phxrpc-7.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="/phxrpc-2.html">定时器以及其它 - phxrpc阅读笔记(2)</a></h2>
+                <div class="summary"><h2>写在前面</h2>
+<p>phxrpc使用了协程(ucontext)和IO复用技术(epoll)来实现网络通信。定时器在其中起到了非常重要的作用。下面我们就来分析一下phxrpc的<code>timer.[h|cpp]</code>中的代码。</p>
+<h2>system_clock vs steady_clock</h2>
+<p><code>system_clock</code>和<code>steadly_clock</code>都是来自<code>&lt;chrono&gt;</code>库，都是用来获取当前时间的。</p>
+<p><code>system_clock</code>用来从系统时钟获取时钟时间(wall clock time)，而<code>steadly_clock</code>获取的是时钟tick，而且保证随着时间的推移，时钟tick数不会变小。</p>
+<p>然而实际上，在某些系统下，这两个时钟的实现是一致的。详细信息可以参考<a href="http://stackoverflow.com/questions/13263277/difference-between-stdsystem-clock-and-stdsteady-clock">这里</a>。</p>
+<blockquote>
+<p>注：在clang++ 4.2.1, g++ 5.4 下实验，这两个时钟是不同的。所以个人认为在这里最好不要做任何无意义的假设。</p>
+</blockquote>
+<h2>几毫秒的安睡</h2>
+<div class="highlight"><pre><span></span><span class="kt">void …</span></pre></div>
+                    <a class="btn btn-default btn-xs" href="/phxrpc-2.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="/phxrpc-1.html">自定义你的stream buffer - phxrpc阅读笔记(1)</a></h2>
+                <div class="summary"><h2>写在前面</h2>
+<p><a href="https://github.com/tencent-wechat/phxrpc">phxrpc</a>是微信团队开源的一个轻量级RPC框架。</p>
+<p>我对RPC这些东西了解不多，看到phxrpc的代码相对简单，而且还在初步开发阶段（在本文写作时，版本号是0.8）。所以想读一读，提高一下姿势水平。</p>
+<p>就是这样。</p>
+<h2>自定义stream buffer</h2>
+<p><code>network/socket_stream_base.[h|cpp]</code>中的<code>class BaseTcpStreamBuf</code>继承了<code>std::streambuf</code>，自定义了一个流缓冲区，用于接收/发送TCP数据包。</p>
+<p>这个用法比较新颖（或者是我见识少），网上的资料也不多。这里翻译一篇<a href="http://www.mr-edd.co.uk/blog/beginners_guide_streambuf">介绍文章</a>，学习一下新姿势。</p>
+<h2>A beginner's guide to writing a custom stream buffer</h2>
+<p>流(streams)是STL中提供的一个重要的抽象概念。著名的“Hello world”程序，便是使用了std …</p>
+                    <a class="btn btn-default btn-xs" href="/phxrpc-1.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="https://github.com/wizmann"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://wizmann.tk/feeds/all.atom.xml"><i class="fa fa-rss-square fa-lg"></i> rss</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="/tag/algorithm.html">algorithm</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="/tag/ti-jie.html">题解</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="/tag/codeforces.html">codeforces</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="/tag/suan-fa.html">算法</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/udp.html">UDP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/xian-liao.html">闲聊</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/yi-zhi-xing.html">一致性</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/shu-ju-ku.html">数据库</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/protocol.html">protocol</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/system-design.html">System Design</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/python.html">python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/networking.html">networking</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/chrome-extension.html">chrome-extension</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/interview.html">interview</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/rpc.html">rpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/tcp.html">TCP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/stup.html">STUP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/leetcode.html">leetcode</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/fen-bu-shi-xi-tong.html">分布式系统</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/phxrpc.html">phxrpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/c.html">C++</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/cpp.html">cpp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/gong-kai-ke.html">公开课</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/basic-paxos.html">basic paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/flatbuffer.html">flatbuffer</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/thread.html">thread</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/async.html">async</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/azure.html">azure</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/raft.html">raft</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/keyboard.html">keyboard</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/she-ji-mo-shi.html">设计模式</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/stack.html">stack</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/protobuf.html">protobuf</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/google.html">google</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/ucontext.html">ucontext</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/microsoft.html">Microsoft</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/chuang-zao-li.html">创造力</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/distributed-system.html">Distributed System</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/storage.html">Storage</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/induction.html">induction</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/paxos.html">paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/cse351.html">CSE351</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/du-shu.html">读书</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/cas.html">cas</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/net.html">.NET</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/priority_queue.html">priority_queue</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/code-golf.html">code golf</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/cmpxchg.html">cmpxchg</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/pecifica.html">pecificA</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/ocaml.html">OCaml</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/zeromq.html">zeromq</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/css.html">css</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/cap.html">CAP</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/sort.html">sort</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/ot.html">ot</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/xie-cheng.html">协程</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/epoll.html">epoll</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/social-network.html">Social Network</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/autohotkey.html">autohotkey</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/parallel.html">parallel</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/pl.html">PL</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/arduino.html">Arduino</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/multi-paxos.html">multi paxos</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/mq.html">mq</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/was.html">WAS</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/tcpip.html">tcpip</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/ji-shu.html">计数</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/stdfunction.html">std::function</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/metaprogramming.html">Metaprogramming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/zhu-cong-fu-zhi.html">主从复制</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/poll.html">poll</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/defer.html">defer</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/workflowy.html">workflowy</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/front-end-development.html">front-end development</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/racket.html">Racket</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/b-tree.html">b-tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/rong-chi-yuan-li.html">容斥原理</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/streambuf.html">streambuf</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/functional-programming.html">Functional Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/stylish.html">stylish</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/gcj.html">GCJ</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/ahk.html">ahk</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/twisted.html">twisted</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/multi-thread.html">multi-thread</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/linkedin.html">Linkedin</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/consistency.html">Consistency</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/bw-tree.html">bw-tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/userscript.html">userscript</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/fn-layer.html">fn-layer</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/storage-system.html">Storage System</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/csharp.html">csharp</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/modern-c.html">modern C++</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/mosca.html">mosca</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/ceph.html">Ceph</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/message-queue.html">message queue</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/powershell.html">powershell</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/wsl.html">WSL</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/ergodone.html">ergodone</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/stl.html">STL</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/socket.html">socket</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2016 Wizmann
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="/theme/js/respond.min.js"></script>
+
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-46053117-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+
+</body>
+</html>

@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="zhs" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Blog - Maerlyn's Rainbow</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+
+    <meta name="author" content="Wizmann" />
+    <meta name="keywords" content="Blog" />
+
+    <!-- Open Graph tags -->
+        <meta property="og:site_name" content="Maerlyn's Rainbow" />
+        <meta property="og:type" content="website"/>
+        <meta property="og:title" content="Maerlyn's Rainbow"/>
+        <meta property="og:url" content=""/>
+        <meta property="og:description" content="Maerlyn's Rainbow"/>
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="/theme/css/bootstrap.flatly.min.css" type="text/css"/>
+    <link href="/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="/theme/css/pygments/solarizedlight.css" rel="stylesheet">
+    <link rel="stylesheet" href="/theme/css/style.css" type="text/css"/>
+
+        <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow ATOM Feed"/>
+
+        <link href="/feeds/blog.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow Blog ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="/" class="navbar-brand">
+Maerlyn's Rainbow            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="/category/blog.html">Blog</a></li>
+                    <li><a href="http://forbeginners.wizmann.tk/">ForBeginners</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+            <article>
+                <h2><a href="/thinking-in-induction-2.html">思维训练 - Thinkin' in induction 2</a></h2>
+                <div class="summary"><h2>最大导出子图（maximal induced graph）</h2>
+<blockquote>
+<p>你现在在组织一个学术会议。现在你有一份人员名单。假定名单中的每一个人都同意到达，并且有充足的时间交流意见。同时，每一个科学家都写下了他愿意与其进行交流的科学家的名字。</p>
+<p>现在，问题来了：<del>挖掘机技术哪家强？</del></p>
+<p>如果要保证每一位科学家至少能与k位到场的科学家进行深入的交♂流♂。那么我们最多可以邀请多少人到会？</p>
+<p>注：如果A愿意和B交流，AB一定会进行交流。反之亦然。</p>
+</blockquote>
+<p>我们可以把问题转化成数学语言：对于一个无向图<code>G=(V, E)</code>，试求得G的最大导出子图H，使得H中所有顶点的度大于或等于k，或者证明这样的子图是不存在的。</p>
+<p>我们继续使用归纳的思想来解决这个问题。</p>
+<p>易得，对于顶点数为k的图，如果存在k-导出子图，则该图必为一个完全图。</p>
+<p>假设，对于任意顶点数小于n的图，我们总可以找到图的k-最大导出子图。</p>
+<p>对于有n个顶点的图G来说，如果有任意顶点的度小于k，那么对于图G的任意子图，此顶点的度总小于k。</p>
+<p>所以，对于图中任意度小于k的点，必然不属于所求的子图。于是，我们每次删除一个不属于k-导出子图的点，就可以把有n个顶点的图问题化归为n-1顶点的图问题。</p>
+<h2>一对一映射</h2>
+<blockquote>
+<p>给定一个集合A和一个映射关系f。求A的一个子集S，使得f对于S是一个一对一映射 …</p></blockquote>
+                    <a class="btn btn-default btn-xs" href="/thinking-in-induction-2.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="/thinking-in-induction.html">思维训练 - Thinkin' in induction</a></h2>
+                <div class="summary"><h2>热身题 - 24Game</h2>
+<p><a href="http://codeforces.com/contest/469/problem/C">原题请戳我</a></p>
+<h3>题意</h3>
+<p>给你一个包含整数1...n的集合S。接下来进行n-1次操作，每次操作从集合S中选取两个数，在加、减、乘三种运算中选取一种，将结果放回再集合S。在n-1次操作完成后，集合S中只剩下一个数。求问一种取数和运算策略，使最后的结果为24。</p>
+<p>举例：</p>
+<p>S = [1, 2, 3, 4, 5]</p>
+<p>我们选取(2, 5)，并进行加法运算，获得结果7。再将7放回集合S中。</p>
+<p>此时，S = [1, 3, 4, 7]。</p>
+<h3>数据范围</h3>
+<p>1 &lt;= n &lt;= 100000</p>
+<h3>解答</h3>
+<blockquote>
+<p>建议：请思考10分钟后再来看答案</p>
+</blockquote>
+<p>我们日常写代码，往往是为了实现一个功能或者实现一套逻辑。这时候，我们做的事一般是从零开始，然后逐步迭代，最终实现目标。</p>
+<p>这是正常的一种思维方式，也是不错的思维 …</p>
+                    <a class="btn btn-default btn-xs" href="/thinking-in-induction.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="/read-flatbuffer-1.html">FlatBuffer代码阅读 - 1</a></h2>
+                <div class="summary"><h2>FlatBuffer白皮书</h2>
+<p>Flatbuffer是一个全新的序列化库。</p>
+<h3>动机</h3>
+<p>在远古时代，程序性能基本取决于你的指令和循环运行的有多快。但是，在如今的计算机上，计算组件的速度已经远远超过存储组件的速度。如果你想让你的程序飞起来，最重要的就是优化你的内存使用。例如，用多少内存，怎样布局内存，如何分配内存，何时拷贝内存等。</p>
+<p>序列化是在程序中非常常见的一种操作，并且通常是程序性能低下的主要原因。一是由于序列化需要额外的临时空间去解析和表示数据，二是由于不优雅的内存分配模式和局部性。</p>
+<p>如果一个序列化框架可以不使用额外的对象，没有额外的内存分配，没有内存拷贝，良好的数据局部性，这正是太好不过。不过当下的很多框架通常不能满足以上的条件，因为它们需要向前/向后兼容，需要兼容不同的平台，例如大端/小端和内存对齐都是需要进行兼容性处理的。</p>
+<p>FlatBuffer可以做到以上的一切。</p>
+<p>Flatbuffer尤其适合移动设备（内存容量和带宽比桌面设备的要低不少），以及需要高性能的应用：游戏。</p>
+<h3>FlatBuffers</h3>
+<h4>总述</h4>
+<p>Flatbuffer是一个二进制的buffer。Flatbuffer可以包含嵌套对象如struct、table、vector等并使用偏移量来进行寻址，这样一来，我们就可以像遍历基于指针的结构一样，对flatbuffer元素进行in-place的遍历。
+Flatbuffer使用严格的字节对齐和字节顺序（通常是小端）以保证可以跨平台使用。</p>
+<p>另外，像table这样的对象，Flatbuffer提供了向前 …</p>
+                    <a class="btn btn-default btn-xs" href="/read-flatbuffer-1.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="/minimal-round-string.html">最小表示法及其证明</a></h2>
+                <div class="summary"><h2>问题</h2>
+<blockquote>
+<p>对于一个字符串S，求S的循环的同构字符串S’中字典序最小的一个。</p>
+</blockquote>
+<p>我们举例说明，字符串"abcd"的循环同构字符串有：<code>["abcd", "bcda", "cdab", "dabc"]</code>。</p>
+<p>题目的目标是求这些字符串中字典序最小的那个。</p>
+<h2>暴力解法</h2>
+<p>暴力解法非常直观，直接枚举字符串的起点，然后找到构成最小字符串的那一个。</p>
+<p>代码就不在这里写了。</p>
+<h2>最小表示法</h2>
+<p>最小表示法是解决同构字符串最小表示的巧妙算法。</p>
+<p>其算法描述如下：</p>
+<div class="highlight"><pre><span></span><span class="n">令i</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="w"></span>
+<span class="n">如果S</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">S</span><span class="o">[</span><span class="n">j</span><span class="o">]</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="o">=</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="w"></span>
+<span class="n">如果S</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">S</span><span class="o">[</span><span class="n">j</span><span class="o">]</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="w"></span>
+<span class="n">如果S</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">S</span><span class="o">[</span><span class="n">j</span><span class="o">]</span><span class="w"> </span><span class="n">设指针k</span><span class="err">，</span><span class="n">分别从i和j位置向下比较</span><span class="err">，</span><span class="n">直到S</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">S</span><span class="o">[</span><span class="n">j</span><span class="o">]</span><span class="w"></span>
+<span class="w">         </span><span class="n">如果S …</span></pre></div>
+                    <a class="btn btn-default btn-xs" href="/minimal-round-string.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="/hottest-ip-address.html">System Design - 最热门的IP地址</a></h2>
+                <div class="summary"><h2>写在前面</h2>
+<p>问题是非常流行的，也确实流行了一阵的system-design问题。在<a href="http://www.zhihu.com/question/19805967">知乎</a>上再次被人提起。然后我非常欣赏<a href="http://zhi.hu/3gJb">陈硕的回答</a>。所以要写一篇文章，记下自己的感想。</p>
+<h2>问题</h2>
+<p>海量数据算法:如何从超过10G的记录IP地址的日志中，较快的找出登录次数最多的一个IP？</p>
+<h2>银弹？</h2>
+<p>面对这种system-design问题，尤其是这种，<strong>非高并发、非实时</strong>的问题，很多人会采用_map-reduce_ —— 解决system-design问题的银弹。</p>
+<p>我对map-reduce的理解非常肤浅，但是可以解释一下大概的流程。</p>
+<ol>
+<li>将日志进行分片。把hash(ip)相同的ip地址分到同一个片中。（注：这里的hash并不是签名函数，只是一个分片标示）</li>
+<li>分片后的日志的大小会小很多，可以方便的进行排序，记数。</li>
+<li>然后再从各个片中，统计出最热门的IP地址。（或TopK的IP地址）</li>
+</ol>
+<p>如果不满意我的答案的话，推荐<a href="http://book.douban.com/subject/19934150/">Mining of Massive Datasets</a>一书，其中对map-reduce算法做一番不错的介绍。</p>
+<h2>正确的分析姿势</h2>
+<h3>业务实体</h3>
+<blockquote>
+<p>业务实体拥有四种主要的组件： 信息模型、生命周期模型 …</p></blockquote>
+                    <a class="btn btn-default btn-xs" href="/hottest-ip-address.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="/single-number-in-the-array.html">Single Number Problem</a></h2>
+                <div class="summary"><h2>Introduction</h2>
+<p>There are a lot of interview problem based on the 1D-array, which is the one of the easiest "data structure".</p>
+<p>But the problem about that simple data structure might not be that simple. Here is the summary of the problem about 1D-array.</p>
+<p>Of course, most of them come from …</p>
+                    <a class="btn btn-default btn-xs" href="/single-number-in-the-array.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="/python-magic-2.html">简明Python魔法 - 2</a></h2>
+                <div class="summary"><h2>再说描述符 - Descriptor</h2>
+<h3>最简单的描述符</h3>
+<p>覆写类的<code>__get__</code>和<code>__setter__</code>函数就可以实现一个简单的描述符。对某个类型实例的读写进行额外的控制。</p>
+<div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">datetime</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">CurrentDate</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">owner</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="fm">__set__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Can&#39;t change the current date.&quot;</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Example</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">date</span> <span class="o">=</span> <span class="n">CurrentDate</span><span class="p">()</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">e</span> <span class="o">=</span> <span class="n">Example</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">e</span><span class="o">.</span><span class="n">date</span>
+<span class="go">datetime.date(2008, 11, 24 …</span></pre></div>
+                    <a class="btn btn-default btn-xs" href="/python-magic-2.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="/python-magic-1.html">简明Python魔法 - 1</a></h2>
+                <div class="summary"><h2>Python中类的实现</h2>
+<p>在Python的Web框架Django中，Python类的构造特性实现了它大部分的核心功能。</p>
+<p>当Python解释器遇到类声明时，会创建一个新的namespace ，并执行其内的所有代码，并将变量注册到这个namespace中。</p>
+<p>举例：</p>
+<div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Foo</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="nb">print</span> <span class="s1">&#39;Loading...&#39;</span>
+<span class="gp">... </span>    <span class="n">spam</span> <span class="o">=</span> <span class="s1">&#39;eggs&#39;</span>
+<span class="gp">... </span>    <span class="nb">print</span> <span class="s1">&#39;Done!&#39;</span>
+<span class="gp">... </span>
+<span class="go">Loading...</span>
+<span class="go">Done!</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">Foo</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span><span class="o">.</span><span class="n">spam</span>
+<span class="go">&#39;eggs&#39;</span>
+</pre></div>
+
+
+<h3>动态的实现一个类</h3>
+<p>使用type方法可以动态的代码中实现一个类，接受三个参数“类名”、“基类”、“属性”。</p>
+<div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Bar</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="s1">&#39;Bar&#39;</span><span class="p">,</span> <span class="p">(</span><span class="nb">object</span><span class="p">,),</span> <span class="p">{</span><span class="s1">&#39;spam&#39;</span><span class="p">:</span> <span class="s1">&#39;eggs&#39;</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Bar</span><span class="o">.</span><span class="n">spam</span>
+<span class="go">&#39;eggs&#39;</span>
+</pre></div>
+
+
+<h3>超类改变一切</h3>
+<p>“metaprogramming”是指一种在程序运行时创建或改变代码的编程手段。<code>type</code>是一个metaclass，一个创建其它类的metaclass。</p>
+<p>我们可以替换掉原生的<code>type</code>，使用我们自己的版本，从而控制创建类的过程。</p>
+<div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class …</span></pre></div>
+                    <a class="btn btn-default btn-xs" href="/python-magic-1.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="/cf-447d.html">Codeforces 447D DZY Loves Modification</a></h2>
+                <div class="summary"><h2>题意</h2>
+<p>给你一个n * m的矩阵，让你做K次操作，使得最后得到的值最大。</p>
+<p>操作有两种：</p>
+<p>一是<strong>在任意一行上</strong>操作，最终的结果值加上这一行数的和，然后这一行每一个数都要减去p。</p>
+<p>二是<strong>在任意一列上</strong>操作，最终的结果值加上这一列数的和，然后这一列每一个数都要减去p。</p>
+<p>数据范围：1 ≤ n, m ≤ 10^3; 1 ≤ k ≤ 10^6; 1 ≤ p ≤ 100</p>
+<h2>退化版的题目思路</h2>
+<p>如果我们只限定一种操作，此题就是简单题了。我们维护一个大根堆，堆中保存每一行（或列）之和。</p>
+<p>每次操作只需要取出最大值，加到最终结果上。之后将这个值减去对应的p * n（或p * m），再加入堆中。</p>
+<p>经过K次循环，就可以得到最后的答案了。</p>
+<h2>真正的题目思路</h2>
+<p>对于行和列同时操作，我们也可以套用这种方法。但是要解决对行操作后，对列上数字的值的影响 …</p>
+                    <a class="btn btn-default btn-xs" href="/cf-447d.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="/cpu-cache-miss.html">CPU cache引发的性能血案</a></h2>
+                <div class="summary"><p>在__<a href="http://evol128.is-programmer.com/posts/35453.html">为什么转置一个512x512的矩阵，会比513x513的矩阵慢很多？</a>__一文中，作者引用了一个矩阵转置的例子，来讲解由于CPU cache的失效而带来的性能损失。</p>
+<p>上面的文章对问题的解释与讨论都非常的透彻。我的这篇文章只是对上面文章的一篇读后感和实验报告。就酱。</p>
+<h2>CPU cache 之 组相联</h2>
+<p><img alt="组相联" src="https://github.com/Wizmann/assets/raw/master/wizmann-tk-pic/blog-cpu-cache-2-way-set-assosiate.jpg"></p>
+<p>组相联的实现和原理不必再赘述了。我想讨论的是，如何在编程中优化CPU的cache性能。</p>
+<h2>查看CPU信息</h2>
+<p>我的系统是Ubuntu 12.04，CPU是i5-3230M。（屌丝机 :D)</p>
+<div class="highlight"><pre><span></span><span class="err">wizmann@Wichmann:~$ ls /sys/devices/system/cpu/cpu0/cache/index0/</span>
+<span class="err">coherency_line_size  physical_line_partition  size</span>
+<span class="err">level                shared_cpu_list          type</span>
+<span class="err">number_of_sets       shared_cpu_map           ways_of_associativity</span>
+</pre></div>
+
+
+<p>使用cat命令查看文件内容，可以获得CPU L1 cache的一些信息。</p>
+<table class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>Key</th>
+ <th>Value</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>level …</td></tr></tbody></table>
+                    <a class="btn btn-default btn-xs" href="/cpu-cache-miss.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+
+        <ul class="pagination">
+                <li class="prev"><a href="/category/blog5.html">&laquo;</a>
+                </li>
+                    <li class=""><a
+                            href="/category/blog.html">1</a></li>
+                    <li class=""><a
+                            href="/category/blog2.html">2</a></li>
+                    <li class=""><a
+                            href="/category/blog3.html">3</a></li>
+                    <li class=""><a
+                            href="/category/blog4.html">4</a></li>
+                    <li class=""><a
+                            href="/category/blog5.html">5</a></li>
+                    <li class="active"><a
+                            href="/category/blog6.html">6</a></li>
+                    <li class=""><a
+                            href="/category/blog7.html">7</a></li>
+                    <li class=""><a
+                            href="/category/blog8.html">8</a></li>
+                    <li class=""><a
+                            href="/category/blog9.html">9</a></li>
+                    <li class=""><a
+                            href="/category/blog10.html">10</a></li>
+                <li class="next"><a
+                        href="/category/blog7.html">&raquo;</a></li>
+        </ul>
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="https://github.com/wizmann"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://wizmann.tk/feeds/all.atom.xml"><i class="fa fa-rss-square fa-lg"></i> rss</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="/tag/algorithm.html">algorithm</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="/tag/ti-jie.html">题解</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="/tag/codeforces.html">codeforces</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="/tag/suan-fa.html">算法</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/udp.html">UDP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/xian-liao.html">闲聊</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/yi-zhi-xing.html">一致性</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/shu-ju-ku.html">数据库</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/protocol.html">protocol</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/system-design.html">System Design</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/python.html">python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/networking.html">networking</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/chrome-extension.html">chrome-extension</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/interview.html">interview</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/rpc.html">rpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/tcp.html">TCP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/stup.html">STUP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/leetcode.html">leetcode</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/fen-bu-shi-xi-tong.html">分布式系统</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/phxrpc.html">phxrpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/c.html">C++</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/cpp.html">cpp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/gong-kai-ke.html">公开课</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/basic-paxos.html">basic paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/flatbuffer.html">flatbuffer</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/thread.html">thread</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/async.html">async</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/azure.html">azure</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/raft.html">raft</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/keyboard.html">keyboard</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/she-ji-mo-shi.html">设计模式</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/stack.html">stack</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/protobuf.html">protobuf</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/google.html">google</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/ucontext.html">ucontext</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/microsoft.html">Microsoft</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/chuang-zao-li.html">创造力</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/distributed-system.html">Distributed System</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/storage.html">Storage</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/induction.html">induction</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/paxos.html">paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/cse351.html">CSE351</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/du-shu.html">读书</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/cas.html">cas</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/net.html">.NET</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/priority_queue.html">priority_queue</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/code-golf.html">code golf</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/cmpxchg.html">cmpxchg</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/pecifica.html">pecificA</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/ocaml.html">OCaml</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/zeromq.html">zeromq</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/css.html">css</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/cap.html">CAP</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/sort.html">sort</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/ot.html">ot</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/xie-cheng.html">协程</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/epoll.html">epoll</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/social-network.html">Social Network</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/autohotkey.html">autohotkey</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/parallel.html">parallel</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/pl.html">PL</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/arduino.html">Arduino</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/multi-paxos.html">multi paxos</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/mq.html">mq</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/was.html">WAS</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/tcpip.html">tcpip</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/ji-shu.html">计数</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/stdfunction.html">std::function</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/metaprogramming.html">Metaprogramming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/zhu-cong-fu-zhi.html">主从复制</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/poll.html">poll</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/defer.html">defer</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/workflowy.html">workflowy</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/front-end-development.html">front-end development</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/racket.html">Racket</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/b-tree.html">b-tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/rong-chi-yuan-li.html">容斥原理</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/streambuf.html">streambuf</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/functional-programming.html">Functional Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/stylish.html">stylish</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/gcj.html">GCJ</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/ahk.html">ahk</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/twisted.html">twisted</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/multi-thread.html">multi-thread</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/linkedin.html">Linkedin</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/consistency.html">Consistency</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/bw-tree.html">bw-tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/userscript.html">userscript</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/fn-layer.html">fn-layer</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/storage-system.html">Storage System</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/csharp.html">csharp</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/modern-c.html">modern C++</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/mosca.html">mosca</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/ceph.html">Ceph</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/message-queue.html">message queue</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/powershell.html">powershell</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/wsl.html">WSL</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/ergodone.html">ergodone</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/stl.html">STL</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/socket.html">socket</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2021 Wizmann
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="/theme/js/respond.min.js"></script>
+
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-46053117-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+
+</body>
+</html>

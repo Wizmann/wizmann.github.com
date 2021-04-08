@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="zhs" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>破解节操的下限 - Maerlyn's Rainbow</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="/moujiecao.html">
+
+        <meta name="author" content="Wizmann" />
+        <meta name="keywords" content="crack,android,app,chrome-extension,protobuf,angularjs" />
+        <meta name="description" content="啥？ 节操精选是一个没有下限的文字图片聚合类移动应用，现在支持Android/iOS移动平台。 本人是一个非常懒的人，有电脑就不想碰手机。。。于是萌生了一个在PC端使用这个应用的想法。。。 HowTo 从界面上我们可以看出，这个App的逻辑其实比较简单。重要的部分有如下几个： 获取CS通信协议（最重要） 频道间切换（精选 - 热门 - 音频- 阅读） 展示某一条精选 在某一条精选中播放语音 获取通信协议 节操还是非常良心的！并没有在后台数据通信中进行任何加密的措施。 抓包工具我使用的是在Windows环境下的Fiddler。 这个工具可以建立一个HTTP代理，手机通过代理上网，在电脑上就可以截获所有的数据包进行分析。 在Linux下，可以使用TinyProxy + Wireshark进行抓包，不过配置小麻烦。不过我一直是在Windows下抓包，然后在Linux下做分析和开发的。=。=。。。 图就不上了，如果大家有兴趣自己来搞的话，可以抓来试试。 简而言之，我们从HTTP包中的Content-type字段中，发现了我们想要的信息 —— application/xprotobuf。 我去！真良心～ Protobuf简介 …" />
+
+        <meta property="og:site_name" content="Maerlyn's Rainbow" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="破解节操的下限"/>
+        <meta property="og:url" content="/moujiecao.html"/>
+        <meta property="og:description" content="啥？ 节操精选是一个没有下限的文字图片聚合类移动应用，现在支持Android/iOS移动平台。 本人是一个非常懒的人，有电脑就不想碰手机。。。于是萌生了一个在PC端使用这个应用的想法。。。 HowTo 从界面上我们可以看出，这个App的逻辑其实比较简单。重要的部分有如下几个： 获取CS通信协议（最重要） 频道间切换（精选 - 热门 - 音频- 阅读） 展示某一条精选 在某一条精选中播放语音 获取通信协议 节操还是非常良心的！并没有在后台数据通信中进行任何加密的措施。 抓包工具我使用的是在Windows环境下的Fiddler。 这个工具可以建立一个HTTP代理，手机通过代理上网，在电脑上就可以截获所有的数据包进行分析。 在Linux下，可以使用TinyProxy + Wireshark进行抓包，不过配置小麻烦。不过我一直是在Windows下抓包，然后在Linux下做分析和开发的。=。=。。。 图就不上了，如果大家有兴趣自己来搞的话，可以抓来试试。 简而言之，我们从HTTP包中的Content-type字段中，发现了我们想要的信息 —— application/xprotobuf。 我去！真良心～ Protobuf简介 …"/>
+        <meta property="article:published_time" content="2014-02-25" />
+            <meta property="article:section" content="Blog" />
+            <meta property="article:tag" content="crack" />
+            <meta property="article:tag" content="android" />
+            <meta property="article:tag" content="app" />
+            <meta property="article:tag" content="chrome-extension" />
+            <meta property="article:tag" content="protobuf" />
+            <meta property="article:tag" content="angularjs" />
+            <meta property="article:author" content="Wizmann" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="/theme/css/bootstrap.flatly.min.css" type="text/css"/>
+    <link href="/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="/theme/css/pygments/solarizedlight.css" rel="stylesheet">
+    <link rel="stylesheet" href="/theme/css/style.css" type="text/css"/>
+
+        <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow ATOM Feed"/>
+
+        <link href="/feeds/blog.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow Blog ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="/" class="navbar-brand">
+Maerlyn's Rainbow            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="/category/blog.html">Blog</a></li>
+                    <li><a href="http://forbeginners.wizmann.tk/">ForBeginners</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="/moujiecao.html"
+                       rel="bookmark"
+                       title="Permalink to 破解节操的下限">
+                        破解节操的下限
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2014-02-25T00:00:00+08:00"> 2014-02-25</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="/tag/crack.html">crack</a>
+        /
+	<a href="/tag/android.html">android</a>
+        /
+	<a href="/tag/app.html">app</a>
+        /
+	<a href="/tag/chrome-extension.html">chrome-extension</a>
+        /
+	<a href="/tag/protobuf.html">protobuf</a>
+        /
+	<a href="/tag/angularjs.html">angularjs</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h2>啥？</h2>
+<p><img alt="节操精选" src="https://github.com/Wizmann/assets/raw/master/wizmann-tk-pic/blog-jiecao-icon.png"></p>
+<p><a href="http://jiecao.fm/">节操精选</a>是一个<strong>没有下限</strong>的文字图片聚合类移动应用，现在支持Android/iOS移动平台。</p>
+<p><img alt="界面" src="https://github.com/Wizmann/assets/raw/master/wizmann-tk-pic/blog-jiecao-ui.png"></p>
+<p>本人是一个非常懒的人，有电脑就不想碰手机。。。于是萌生了一个在PC端使用这个应用的想法。。。</p>
+<h2>HowTo</h2>
+<p>从界面上我们可以看出，这个App的逻辑其实比较简单。重要的部分有如下几个：</p>
+<ul>
+<li>
+<p>获取CS通信协议<strong>（最重要）</strong></p>
+</li>
+<li>
+<p>频道间切换（精选 - 热门 - 音频- 阅读）</p>
+</li>
+<li>
+<p>展示某一条精选</p>
+</li>
+<li>
+<p>在某一条精选中播放语音</p>
+</li>
+</ul>
+<h2>获取通信协议</h2>
+<p>节操还是非常良心的！并没有在后台数据通信中进行任何加密的措施。</p>
+<p>抓包工具我使用的是在Windows环境下的<a href="http://www.telerik.com/fiddler">Fiddler</a>。</p>
+<p>这个工具可以建立一个HTTP代理，手机通过代理上网，在电脑上就可以截获所有的数据包进行分析。</p>
+<p>在Linux下，可以使用TinyProxy + Wireshark进行抓包，不过配置小麻烦。不过我一直是在Windows下抓包，然后在Linux下做分析和开发的。=。=。。。</p>
+<p>图就不上了，如果大家有兴趣自己来搞的话，可以抓来试试。</p>
+<p>简而言之，我们从HTTP包中的<code>Content-type</code>字段中，发现了我们想要的信息 —— <code>application/xprotobuf</code>。</p>
+<p>我去！真良心～</p>
+<h3>Protobuf简介</h3>
+<blockquote>
+<p>Protocol Buffers are a way of encoding structured data in an efficient yet extensible format. Google uses Protocol Buffers for almost all of its internal RPC protocols and file formats.</p>
+</blockquote>
+<p>简而言之，Protobuf是一个用于数据传输的DSL（Domain Specific Language）。Protobuf提供了一个编译器，开发者只需要声明需要传输的数据字义，就可以自动编译出适用多种语言的传输代码。</p>
+<p>Protobuf官方支持C++, Java, 和 Python。第三方开发者还提供了更多语言的支持。在我的开发中，我使用了<code>dcodeIO-ProtoBuf.js</code>，一个开源的JS的Protobuf库，有兴趣的话可以从Github中获取。</p>
+<div class="highlight"><pre><span></span><span class="err">message Person {</span>
+<span class="err">  required int32 id = 1;</span>
+<span class="err">  required string name = 2;</span>
+<span class="err">  optional string email = 3;</span>
+<span class="err">}</span>
+</pre></div>
+
+
+<h3>破解Protobuf报文</h3>
+<p>破解Protobuf报文其实就是用<code>明文攻击</code>获取Protobuf的传输数据定义。然后我们生成接受这个报文的Protobuf代码，就可以解析相应的报文了。</p>
+<p>有两种方法，一种简单的，一种难的。</p>
+<p>我们当然要从逼格高的困难方法开始讲。</p>
+<h4>A hard way to crack protobuf</h4>
+<p>重点参考：<a href="http://www.cnblogs.com/shitouer/archive/2013/04/12/google-protocol-buffers-encoding.html">Google Protocol Buffers 编码(Encoding)</a></p>
+<p>其思想就是找到Protobuf的编码规律，然后一个字段一个字段的反推，从而找到完整的数据定义。</p>
+<p>同时，Protobuf又有一个很好的兼容性，即如果我们的数据定义是原数据定义的子集，同样可以解析出子集中的所有字段。</p>
+<p>所以我们只需要找到重要的几个字段来搞就可以了。破解过程比较无趣，一个位一个位的检查，无脑推。</p>
+<h4>An easy way to crack protobuf</h4>
+<p>因为我们可以轻松的搞到节操的Apk包，又由于Apk包是可以<strong>反编译</strong>的！</p>
+<p>于是我们就可以直接看代码获得Protobuf的数据定义。</p>
+<p>这个才叫真无脑。</p>
+<p>反编译我使用的是<a href="https://code.google.com/p/dex2jar/">dex2jar</a>和<a href="http://jd.benow.ca/">jdgui</a>。</p>
+<p>虽然这两个工具都有其局限性，但是搞这个一个App还是轻轻松松。</p>
+<p>于是我们就获得了一个完整的数据定义。但是由于还是要给<a href="http://weibo.com/121100059">美丽的CEO姐姐</a>一点面子的～</p>
+<p>所以就不公开了～上一个高清有码大图～</p>
+<p><img alt="protobuf" src="https://github.com/Wizmann/assets/raw/master/wizmann-tk-pic/blog-jiecao-protobuf.png"></p>
+<h2>关于开发</h2>
+<p>无图无JJ，先上一张效果图。</p>
+<p>由于是个人开发，所以界面比较粗糙。如果有前端神牛，可以做出更炫的效果。</p>
+<p>还有一个原因是手机的dpi比电脑屏幕的要高一些（用retina屏幕的土豪们退散），所以同样大小的“窗口”，电脑的显示会粗糙很多。</p>
+<p><img alt="节操App" src="https://github.com/Wizmann/assets/raw/master/wizmann-tk-pic/blog-jiecao-app-ui.png"></p>
+<h3>应用载体</h3>
+<p>由于拉取数据的操作是HTTP POST。因为浏览器的安全策略，我们不能跨域POST。所以我使用了Chrome浏览器中的App插件。</p>
+<p>Chrome为App插件提供了相对宽松的安全策略，我们可以跨域POST，可以获得图像，可以修改一个webview里面的代码。。。</p>
+<p>更重要的是，我们可以把一个ChromeApp基本视为一个本地应用，放到桌面上或者启动栏上。</p>
+<p><img alt="启动器" src="https://github.com/Wizmann/assets/raw/master/wizmann-tk-pic/blog-jiecao-chrome-app-launcher.png"></p>
+<p>我用的是Xubuntu，在其它系统上，如Win、MacOS以及其它不同的Linux发行版，也可以达到类似的效果。</p>
+<h3>总体规划</h3>
+<p>从上面我们可以看出来，这一个页面主要分为三部分。</p>
+<p>第一个是Logo，一个<code>&lt;img&gt;</code>标签。</p>
+<p>第二个是一个按钮组，用来切换下面的内容列表的内容。</p>
+<p>第三个是内容列表，列表中的每一个元素都对应着一篇节操文章。</p>
+<p>于是，我选用了MVC模式来解决界面问题。</p>
+<ul>
+<li>
+<p>M - Model
+每一个节操文章，其中有<code>icon</code>, <code>title</code>, <code>channel</code>, <code>subcribe_num</code>几个字段。</p>
+</li>
+<li>
+<p>V - View
+前端展示</p>
+</li>
+<li>
+<p>C - Control
+控制器，切换频道、刷新以及下一页等与服务器端交互的功能。</p>
+</li>
+</ul>
+<p>说到前端MVC，我们就不能不说到一个JS框架 —— AngularJS。</p>
+<h4>AngularJS</h4>
+<p><img alt="AngularJS" src="https://github.com/Wizmann/assets/raw/master/wizmann-tk-pic/AngularJS-large.png"></p>
+<blockquote>
+<p>AngularJS是一款开源 JavaScript函式库，由Google维护，用来协助单一页面应用程式运行的。它的目标是透过MVC模式 (MVC) 功能增强基于浏览器的应用，使开发和测试变得更加容易。</p>
+</blockquote>
+<p>AngularJS是一个设计非常巧妙的JS框架。由于我是前端文盲，所以只使用了其中最基础的部分。</p>
+<p>在AngularJS上面我也不想多说什么，因为比较菜。大家可以参考AngularJS的文档以及Chrome Extension的文档。Chrome Extension官方给出的范例都有Javascript/AngularJS两个版本，非常值得学习。（亲儿子就是不一样 ^_^)</p>
+<h3>前端框架</h3>
+<p>上面说过了用做前端JS框架的AngularJS。</p>
+<p>这里再说一个我使用的前端CSS框架 —— Bootstrap3。</p>
+<p>同样，这个也不用多说，因为在开发者中，Bootstrap2/3已经非常流行了，可以极大的降低前端开发的门槛。</p>
+<h3>展示逻辑</h3>
+<p>我们已经讨论过首页的展示逻辑。当用户点击首页的一条记录时，我们就要为用户展现一篇节操文章。</p>
+<p>节操文章分为两种，一是图片，二是音频。</p>
+<p>由于上面说过的dpi差异的原因，我们使用一个相对比较大的新窗口来做展现。于是我们使用<code>webview</code>来展示服务器端的新页面。</p>
+<p>此时遇到了一个问题，由于服务器端的页面中没有对声音做支持。移动端App中的声音地址是使用Protobuf传输，然后在本地播放的。但是在我们的场景下，获得声音的窗口与展示页面的窗口不是同一个。</p>
+<p>对于这个问题的解决方案，我们有两个：</p>
+<h4>使用回调函数传入参数</h4>
+<p><code>chrome.app.window.create</code>中可以使用回调函数，传入音频地址。然后新窗口使用<code>&lt;audio&gt;</code>标签进行播放。</p>
+<h4>JS注入</h4>
+<p>由于良心的节操大大的好，在页面中提供了音频的播放地址。</p>
+<p>所以我们可以向webview里直接注入一段代码。先是创建一个不可见的<code>&lt;audio&gt;</code>标签，然后加入一段js，播放本页面的音频。</p>
+<h2>未来开发打算</h2>
+<p>节操的页面展示是检查<code>User-agent</code>的，对于PC端的页面，所有的推荐链接都是无效的。</p>
+<p>如果有可能的话，可以修改<code>webview</code>的<code>User-agent</code>为Android设备，这样就能有更好的用户体验。</p>
+<p>还有前端确实也是比较丑。。。<del>但是你来咬我呀～</del></p>
+<p>最后是我没有Visa卡，所以没法发布这个App。。。所以乃们哪个土豪有开发者账号的，可以把这个App搞走再开发做个发布。也是比较好的～</p>
+<h2>更多的废话</h2>
+<p>我原来和同学讨论过，有没有可能开发出一个叫<code>AVM</code>的东西，把Android应用迁移到PC端来用，这样Linux就不至于什么应用都没有了。但是现在我还没有看到除了超低效率的虚拟机之外的其它解法。</p>
+<p>不过Google正在试验一种叫<a href="https://developers.google.com/native-client/dev/">NaCl</a>的技术，支持一个轻量的虚拟机，运行一个本地应用并能与前端展现交互。</p>
+<p>我想，如果有一天，NaCl能统一Android与Chrome平台，成为了智能终端开发的主流，那么平台与平台之间的差异就更小了吧。。。</p>
+            </div>
+            <!-- /.entry-content -->
+    <hr/>
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+            var disqus_config = function () {
+                this.language = "zhs";
+
+                        this.page.identifier = '2014-02-25-moujiecao';
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="https://github.com/wizmann"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://wizmann.tk/feeds/all.atom.xml"><i class="fa fa-rss-square fa-lg"></i> rss</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="/tag/algorithm.html">algorithm</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="/tag/ti-jie.html">题解</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="/tag/codeforces.html">codeforces</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="/tag/suan-fa.html">算法</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/udp.html">UDP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/xian-liao.html">闲聊</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/yi-zhi-xing.html">一致性</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/shu-ju-ku.html">数据库</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/protocol.html">protocol</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/system-design.html">System Design</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/python.html">python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/networking.html">networking</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/chrome-extension.html">chrome-extension</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/interview.html">interview</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/rpc.html">rpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/tcp.html">TCP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/stup.html">STUP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/leetcode.html">leetcode</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/fen-bu-shi-xi-tong.html">分布式系统</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/phxrpc.html">phxrpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/c.html">C++</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/cpp.html">cpp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="/tag/gong-kai-ke.html">公开课</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/basic-paxos.html">basic paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/flatbuffer.html">flatbuffer</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/thread.html">thread</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/async.html">async</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/azure.html">azure</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/raft.html">raft</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/keyboard.html">keyboard</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/she-ji-mo-shi.html">设计模式</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/stack.html">stack</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/protobuf.html">protobuf</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/google.html">google</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/ucontext.html">ucontext</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/microsoft.html">Microsoft</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/chuang-zao-li.html">创造力</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/distributed-system.html">Distributed System</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/storage.html">Storage</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/induction.html">induction</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/paxos.html">paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/cse351.html">CSE351</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="/tag/du-shu.html">读书</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/cas.html">cas</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/net.html">.NET</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/priority_queue.html">priority_queue</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/code-golf.html">code golf</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/cmpxchg.html">cmpxchg</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/pecifica.html">pecificA</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/ocaml.html">OCaml</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/zeromq.html">zeromq</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/css.html">css</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/cap.html">CAP</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/sort.html">sort</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/ot.html">ot</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/xie-cheng.html">协程</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/epoll.html">epoll</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/social-network.html">Social Network</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/autohotkey.html">autohotkey</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/parallel.html">parallel</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/pl.html">PL</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/arduino.html">Arduino</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/multi-paxos.html">multi paxos</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/mq.html">mq</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/was.html">WAS</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/tcpip.html">tcpip</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/ji-shu.html">计数</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/stdfunction.html">std::function</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/metaprogramming.html">Metaprogramming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/zhu-cong-fu-zhi.html">主从复制</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/poll.html">poll</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/defer.html">defer</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/workflowy.html">workflowy</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/front-end-development.html">front-end development</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/racket.html">Racket</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/b-tree.html">b-tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/rong-chi-yuan-li.html">容斥原理</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/streambuf.html">streambuf</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/functional-programming.html">Functional Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/stylish.html">stylish</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/gcj.html">GCJ</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/ahk.html">ahk</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/twisted.html">twisted</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/multi-thread.html">multi-thread</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/linkedin.html">Linkedin</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/consistency.html">Consistency</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/bw-tree.html">bw-tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/userscript.html">userscript</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/fn-layer.html">fn-layer</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/storage-system.html">Storage System</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/csharp.html">csharp</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/modern-c.html">modern C++</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/mosca.html">mosca</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/ceph.html">Ceph</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/message-queue.html">message queue</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/powershell.html">powershell</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/wsl.html">WSL</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/ergodone.html">ergodone</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/stl.html">STL</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="/tag/socket.html">socket</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2021 Wizmann
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="/theme/js/respond.min.js"></script>
+
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-46053117-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+
+</body>
+</html>
