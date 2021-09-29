@@ -22,7 +22,8 @@ DISPLAY_PAGES_ON_MENU = False
 
 MENUITEMS = (
     ('Blog', '/category/blog.html'),
-    ('ForBeginners', 'http://forbeginners.wizmann.tk/')
+    ('ForBeginners', 'http://forbeginners.wizmann.tk/'),
+    ('Online Judge', 'https://vijos.org/d/wizmann/p'),
 )
 
 # Blogroll
