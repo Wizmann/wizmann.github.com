@@ -78,4 +78,85 @@ bb=b
 
 ## Cpt2. Keyword
 
+### 2-1. Hello World
+
+```
+=(return)helloworld
+```
+
+### 2-2. AAA
+
+```
+aaa=(return)true
+b=
+c=
+=(return)false
+```
+
+### 2-3. Exactly Three
+
+```
+b=a
+c=a
+aaaa=(return)false
+aaa=(return)true
+=(return)false
+```
+
+### 2-4. Remainder
+
+```
+b=a
+c=a
+aaa=
+aa=(return)2
+a=(return)1
+=(return)0
+```
+
+### 2-5. Odd
+
+```
+ba=ab
+ca=ac
+cb=bc
+aaa=a
+bbb=b
+ccc=c
+aa=(return)false
+bb=(return)false
+cc=(return)false
+=(return)true
+```
+
+* Sort the string to "aa...aabbb...bbbcc...cc" pattern.
+* Remove all "aaa", "bbb", "ccc" substring, this will keep the [parity][1] of each characters.
+* If theres "aa", "bb" or "cc" in the remaining string, it means that there's at least one type of character has even number of appearances.
+
+### 2-6. The Only
+
+```
+aaa=aa
+bbb=bb
+ccc=cc
+aa=X
+bb=X
+cc=X
+a=Y
+b=Y
+c=Y
+X=
+YY=(return)false
+Y=(return)true
+=(return)false
+```
+
+* Because for substring like "aaa..aa", all "a"s has at least 1 neighbour which is same to itself.
+* It means we can safely replace those substrings with a delimeter, marked as "X".
+* Check if the remaining string has exactly 1 character which is not "X".
+
+### 2-7. Ascend
+
 > To be continued...
+
+[1]: https://en.wikipedia.org/wiki/Parity_(mathematics)
