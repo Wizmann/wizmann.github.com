@@ -238,6 +238,42 @@ c=(return)c
 
 ### 2-9. Least
 
-> To be continued.
+#### Solution1 (11 Lines)
+
+```
+ba=ab
+ca=ac
+cb=bc
+b=xy
+yx=xy
+ax=
+yc=
+xy=
+ac=(return)b
+x=(return)a
+y=(return)c
+```
+
+* Similar idea from 2-8
+
+#### Solution2 (9 Lines)
+
+```
+ba=ab
+ca=ac
+cb=bc
+ab=x
+xb=bx
+xc=
+bc=(return)a
+x=(return)c
+ac=(return)b
+```
+
+* Similar idea from 2-7, solution2
+
+## Cpt3. Start and End
+
+> To be continued...
 
 [1]: https://en.wikipedia.org/wiki/Parity_(mathematics)
