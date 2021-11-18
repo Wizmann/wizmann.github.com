@@ -157,6 +157,87 @@ Y=(return)true
 
 ### 2-7. Ascend
 
-> To be continued...
+#### Solution1 (9 Lines)
+
+```
+ba=ab
+cb=bc
+ca=ac
+b=xy
+yx=xy
+ax=
+yc=
+xc=(return)true
+=(return)false
+```
+
+* Sort string to parttern "aa...bb..cc".
+* Split every character "b" to "xy", then sort the string to "aaa...xx...yy..cc".
+* Remove all the occurrences of "ax" and "yc".
+* If:
+  * there're remaining "a"s means `count(a) > count(b)`
+  * there're remaining "x"s means `count(b) > count(a)`
+  * there're remaining "y"s means `count(b) > count(c)`
+  * there're remaining "c"s means `count(b) > count(b)`
+* Only if there're any "xc"s in the remaining string, we'll return `true`.
+* Otherwise, return `false`.
+
+#### Solution2 (8 Lines)
+
+```
+ba=ab
+ca=ac
+bc=cb
+cb=x
+cx=xc
+ax=
+xc=(return)true
+=(return)false
+```
+
+* Sort string to pattern "aaa...cccc...bb".
+* For every occurrence of "cb", replace it with "x". If there're `n` "x"s, means there're `n` "b"s and `n` "c"s.
+* Move every "x" to the front of "c"s.
+* Eliminate every "a" with adjacent "x".
+* If:
+  * there're remaining "a"s means `count(a) > count(b)`
+  * there're remaining "x"s means `count(b) > count(a)`
+  * there's no remaining "c"s means `count(b) > count(a)`
+* We match the pattern "xc" as a signal for returning "true".
+* Otherwise, return "false".
+
+### 2-8. Most
+
+```
+ba=ab
+ca=ac
+cb=bc
+b=xy
+yx=xy
+ax=
+yc=
+ac=
+a=(return)a
+y=(return)b
+c=(return)c
+```
+
+* Similar idea from 2-7.
+* Sort then split, make the string like "aaa...xxx..yyy...ccc".
+* It's easy to know that `count(x) == count(y) == count(b)`.
+* Eliminate all occurances of "ax"s and "yc"s.
+* It means:
+  * `count(remaining a) = count(a) - count(b)` if there're remaining "a"s 
+  * `count(remaining x) = count(b) - count(a)` if there're remaining "x"s 
+  * `count(remaining y) = count(b) - count(c)` if there're remaining "y"s
+  * `count(remaining c) = count(c) - count(b)` if there're remaining "c"s
+* If there're only "x"s and "y"s remain, it means "b" has the largests count
+* If there're only "a"s or "ay"s remain, it means `count(a) > count(b) >= count(c)`
+* If there're only "c"s or "xc"s remain, it means `count(c) > count(b) >= count(a)`
+* If there're only "a"s and "c"s remain, we will eliminate all "ac"s, the type of character left is the final answer.
+
+### 2-9. Least
+
+> To be continued.
 
 [1]: https://en.wikipedia.org/wiki/Parity_(mathematics)
