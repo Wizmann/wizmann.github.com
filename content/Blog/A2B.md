@@ -459,6 +459,22 @@ cX=(end)c
 X=
 ```
 
+### 4-7. Cut 2
+
+```
+(once)=(start)XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXDXX
+Xa=(end)a
+Xb=(end)b
+Xc=(end)c
+Da=
+Db=
+Dc=
+```
+
+* "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXDXX" = 58 * "X" + "D" + 2 * "X".
+* 60 "X"s is the [LCM][2] of all possible length of the remaing string (2, 3, 4, 5, 6)
+
 > To be continued...
 
 [1]: https://en.wikipedia.org/wiki/Parity_(mathematics)
+[2]: https://en.wikipedia.org/wiki/Least_common_multiple
