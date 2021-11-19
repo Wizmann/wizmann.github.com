@@ -339,6 +339,25 @@ X=
 
 ### 3-6. Most 2
 
+### Solution1 (12 Lines)
+
+```
+ba=ab
+cb=bc
+ca=ac
+ab=(start)X
+Xa=aa
+X=b
+bc=(start)Y
+Yb=bb
+Y=c
+ac=(start)Z
+Za=aa
+Z=c
+```
+
+### Solution2 (11 Lines)
+
 ```
 ba=ab
 cb=bc
