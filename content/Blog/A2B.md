@@ -309,7 +309,80 @@ Xa=XX
 X=b
 ```
 
-> To be continued...
+### 3-4. Swap
 
+```
+(start)a=(end)XXXXXXXXa
+bX=(start)b
+X=
+```
+
+1. Move all starting "a"s to the end of the string, and make it "XXXXXXXXa". e.g. `aacbbb -> cbbbXXXXXXXXaXXXXXXXXa`.
+2. If there're "b"s at the end of the original string, it will definitely followed with "X". So we move "bX" to the beginning of the string.
+3. Remove all redundant "X"s.
+
+### 3-5. Match
+
+```
+(end)aXaY=(return)true
+(end)bXbY=(return)true
+(end)cXcY=(return)true
+(start)a=(end)XaY
+(start)b=(end)XbY
+(start)c=(end)XcY
+=(return)false
+```
+
+1. Say the original string is "uv...w" ("u", "v" and "w" could be arbitrary characters among "a", "b" and "c").
+2. Firstly move the starting "u" to the end of the string, added with "X" and "Y", i.e. `uv...w -> v...wXuY`.
+3. If "wXuY" is "aXaY", "bXbY" or "cXcY", return `true`. Otherwise, return `false`.
+
+### 3-6. Most 2
+
+```
+ba=ab
+cb=bc
+ca=ac
+ab=(start)X
+Xa=aa
+X=b
+bc=(start)Y
+Yc=cc
+ac=(start)Y
+Ya=aa
+Y=b
+```
+
+### 3-7. Palindrome
+
+#### Solution1 (10 Lines)
+
+```
+XaX=(return)false
+XbX=(return)false
+XcX=(return)false
+(end)aXa=
+(end)bXb=
+(end)cXc=
+(start)a=(end)Xa
+(start)b=(end)Xb
+(start)c=(end)Xc
+=(return)true
+```
+
+#### Solution2 (8 Lines)
+
+```
+(end)aXaX=
+(end)bXbX=
+(end)cXcX=
+(start)a=(end)XaX
+(start)b=(end)XbX
+(start)c=(end)XcX
+XX=(return)false
+=(return)true
+```
+
+> To be continued...
 
 [1]: https://en.wikipedia.org/wiki/Parity_(mathematics)
