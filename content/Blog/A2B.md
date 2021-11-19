@@ -402,6 +402,63 @@ XX=(return)false
 =(return)true
 ```
 
+## Cpt4. Once Upon A Time
+
+### 4-1. Hello 2
+
+```
+(once)=(start)hello
+```
+
+### 4-2. Remove 2
+
+```
+(once)a=
+(once)a=
+(once)a=
+```
+
+### 4-3. Cut
+
+```
+(once)=(start)XXX
+Xa=
+Xb=
+Xc=
+```
+
+### 4-4. Remove 3
+
+```
+(once)=(end)XXX
+bX=Xb
+cX=Xc
+aX=
+X=
+```
+
+### 4-5. Reverse
+
+```
+(once)=(start)X
+Xa=(end)Ya
+Xb=(end)Yb
+Xc=(end)Yc
+aY=(start)a
+bY=(start)b
+cY=(start)c
+```
+
+### 4-6. Reverse 2
+
+```
+(once)=(end)XXXXXXXXXX
+aX=(end)a
+bX=(end)b
+cX=(end)c
+X=
+```
+
 > To be continued...
 
 [1]: https://en.wikipedia.org/wiki/Parity_(mathematics)
