@@ -274,6 +274,40 @@ ac=(return)b
 
 ## Cpt3. Start and End
 
-> To be continued...
+### 3-1. Remove
 
+```
+(start)a=
+(end)a=
+```
+
+### 3-2. Spin
+
+```
+(start)b=(end)b
+(start)c=(end)c
+```
+
+### 3-3. A to B 2
+
+#### Solution1 (4 Lines)
+
+```
+(end)a=(start)A
+(start)A=(end)b
+(start)a=(end)A
+(end)A=(start)b
+```
+
+#### Solution2 (5 Lines)
+
+```
+(end)a=X
+aX=XX
+(start)a=X
+Xa=XX
+X=b
+```
+
+> To be continued...
 [1]: https://en.wikipedia.org/wiki/Parity_(mathematics)
