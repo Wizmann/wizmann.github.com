@@ -576,6 +576,19 @@ X=
 * "X" is the operator to keep current character and remove the next character.
 * This could help us to save 1 line of code.
 
+### 4-11. Clone 2
+
+```
+(once)=X
+(once)=(end)Z
+XZ=
+AY=(end)a
+BY=(end)b
+CY=(end)c
+Xa=AYaX
+Xb=BYbX
+Xc=CYcX
+```
 
 ## Cpt5. Math
 
