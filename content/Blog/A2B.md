@@ -579,6 +579,49 @@ X=
 
 ## Cpt5. Math
 
+### 5-1. Count
+
+#### Solution1 (11 Lines)
+
+```
+(once)=(end)XYXXYXXXYXXXXYXXXXXYXXXXXXY
+0X=0
+0Y=
+1XY=(start)a
+1XXY=(start)aa
+1XXXY=(start)aaaa
+1XXXXY=(start)aaaaaaaa
+1XXXXXY=(start)aaaaaaaaaaaaaaaa
+1XXXXXXY=(start)aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+aX=a
+Y=
+```
+
+#### Solution2 (8 Lines)
+
+```
+(once)=(end)XYXXYXXXXYXXXXXXXXYXXXXXXXXXXXXXXXXYXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXY
+0X=0
+0Y=
+1X=AX1
+1Y=
+AX=(start)a
+X=
+Y=
+```
+
+#### Solution3 (7 Lines)
+
+```
+(once)=(end)XYXXYXXXXYXXXXXXXXYXXXXXXXXXXXXXXXXYXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXY
+0X=0
+0Y=
+1X=aX1
+1Y=
+aX=(start)a
+Y=
+```
+
 ### 5-2. A + 1
 
 ```
