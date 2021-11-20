@@ -474,6 +474,109 @@ Dc=
 * "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXDXX" = 58 * "X" + "D" + 2 * "X".
 * 60 "X"s is the [LCM][2] of all possible length of the remaing string (2, 3, 4, 5, 6)
 
+### 4-8. Clone
+
+#### Solution1 (13 Lines)
+
+```
+(once)=(start)XXX
+Ya=(end)a
+Yb=(end)b
+Yc=(end)c
+XXXa=YaaXX
+XXXb=YbbXX
+XXXc=YccXX
+XXa=YaaX
+XXb=YbbX
+XXc=YccX
+Xa=Yaa
+Xb=Ybb
+Xc=Ycc
+```
+
+#### Solution2 (16 Lines)
+
+```
+(once)=(start)XXX
+Xa=(end)aA
+Xb=(end)bB
+Xc=(end)cC
+Aa=aA
+Ab=bA
+Ac=cA
+Ba=aB
+Bb=bB
+Bc=cB
+Cc=cC
+Cb=bC
+Ca=aC
+(end)A=(start)a
+(end)B=(start)b
+(end)C=(start)c
+```
+
+#### Solution3 (10 Lines)
+
+```
+(once)=(start)X
+A=(end)a
+B=(end)b
+C=(end)c
+Xa=AaY
+Xb=BbY
+Xc=CcY
+(once)Y=X
+(once)Y=X
+Y=
+```
+
+### 4-9. A to B 3
+
+```
+(once)=(start)X
+Xa=bX
+Xb=aX
+Xc=cX
+X=
+```
+
+### 4-10. Half
+
+#### Solution1 (9 Lines)
+
+```
+(once)=(start)X
+Xa=Y
+Xb=Y
+Xc=Y
+Ya=aX
+Yb=bX
+Yc=cX
+Y=
+X=
+```
+
+* "X" is the operator to remove the character.
+* "Y" is the operator to keep current character and remove the next character.
+
+#### Solution2 (8 Lines)
+
+```
+(once)=(start)XX
+XXa=X
+XXb=X
+XXc=X
+Xa=aXX
+Xb=bXX
+Xc=cXX
+X=
+```
+
+* "XX" is the operator to remove the character.
+* "X" is the operator to keep current character and remove the next character.
+* This could help us to save 1 line of code.
+
+
 > To be continued...
 
 [1]: https://en.wikipedia.org/wiki/Parity_(mathematics)
