@@ -577,6 +577,17 @@ X=
 * This could help us to save 1 line of code.
 
 
+## Cpt5. Math
+
+### 5-2. A + 1
+
+```
+(once)=(end)X
+0X=1
+1X=X0
+X=1
+```
+
 > To be continued...
 
 [1]: https://en.wikipedia.org/wiki/Parity_(mathematics)
