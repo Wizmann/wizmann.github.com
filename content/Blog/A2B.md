@@ -633,5 +633,16 @@ X=1
 
 > To be continued...
 
+## Appendix
+
+### Proof of Turing Completeness Explained
+
+[Ref][3]
+
+### Implement Your Own A2B Language
+
+
+
 [1]: https://en.wikipedia.org/wiki/Parity_(mathematics)
 [2]: https://en.wikipedia.org/wiki/Least_common_multiple
+[3]: https://web.stanford.edu/class/archive/cs/cs103/cs103.1176/lectures/20/Small20.pdf
