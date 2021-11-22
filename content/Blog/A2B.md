@@ -610,6 +610,16 @@ aX=a
 Y=
 ```
 
+#### Solution2 (5 Lines)
+
+```
+(once)=X
+X1=(start)aX
+X0=(start)X
+Xa=aaX
+X=
+```
+
 #### Solution2 (8 Lines)
 
 ```
