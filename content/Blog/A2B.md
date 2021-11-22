@@ -590,6 +590,34 @@ Xb=BYbX
 Xc=CYcX
 ```
 
+### 4-12. To B or not to B
+
+```
+(once)b=bX
+(once)=Y
+X=(start)Y
+YYa=bYY
+Yb=bY
+Yc=cY
+Ya=cY
+Y=
+```
+
+### 4-13. Center
+
+```
+(once)=(end)Y
+(start)aY=(return)a
+(start)bY=(return)b
+(start)cY=(return)c
+aYX=Y
+bYX=Y
+cYX=Y
+(start)a=(end)X
+(start)b=(end)X
+(start)c=(end)X
+```
+
 ## Cpt5. Math
 
 ### 5-1. Count
@@ -664,8 +692,9 @@ X=1
 
 ### Implement Your Own A2B Language
 
-
+[Wizmann/a2b-lang][4]
 
 [1]: https://en.wikipedia.org/wiki/Parity_(mathematics)
 [2]: https://en.wikipedia.org/wiki/Least_common_multiple
 [3]: https://web.stanford.edu/class/archive/cs/cs103/cs103.1176/lectures/20/Small20.pdf
+[4]: https://github.com/Wizmann/a2b-lang
