@@ -618,6 +618,22 @@ cYX=Y
 (start)c=(end)X
 ```
 
+### 4-15. Expansion
+
+```
+(once)=YYYYYYXXXXXYYYYYXXXXYYYYXXXYYYXXYYXY
+(once)=(end)E
+Xa=aa
+Xb=bb
+Xc=cc
+Ya=(end)a
+Yb=(end)b
+Yc=(end)c
+XE=E
+YE=E
+E=
+```
+
 ## Cpt5. Math
 
 ### 5-1. Count
