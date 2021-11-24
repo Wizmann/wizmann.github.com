@@ -618,6 +618,26 @@ cYX=Y
 (start)c=(end)X
 ```
 
+### 4-14. Center 2
+
+```
+(once)=Lx
+(once)=(end)R
+LxaR=
+LxbR=
+LxcR=
+Lxa=aLY
+Lxb=bLY
+Lxc=cLY
+Y=(end)x
+aRx=xRa
+bRx=xRb
+cRx=xRc
+ax=xa
+bx=xb
+cx=xc
+```
+
 ### 4-15. Expansion
 
 ```
