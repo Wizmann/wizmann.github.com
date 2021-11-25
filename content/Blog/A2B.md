@@ -749,6 +749,17 @@ X=
 X=1
 ```
 
+## Cpt6. Aftermath
+
+### 6-1. Hello Again
+
+```
+c=a
+b=a
+aa=a
+a=helloworld
+```
+
 > To be continued...
 
 ## Appendix
