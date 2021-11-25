@@ -654,6 +654,37 @@ YE=E
 E=
 ```
 
+### 4-16. Merge
+
+#### Solution1 (10 Lines)
+
+```
+(once),=XXXXXXXXXXXZ
+YXX=YX
+YX=
+Z=(start)Y
+Ya=(end)a
+Yb=(end)b
+Yc=(end)c
+Xa=(end)aZ
+Xb=(end)bZ
+Xc=(end)cZ
+```
+
+#### Solution2 (9 Lines)
+
+```
+(once)=(start)X
+(start)Xa=(end)a
+(start)Xb=(end)b
+(start)Xc=(end)c
+Xa=(start)XaX
+Xb=(start)XbX
+Xc=(start)XcX
+X,=
+,=,X
+```
+
 ## Cpt5. Math
 
 ### 5-1. Count
