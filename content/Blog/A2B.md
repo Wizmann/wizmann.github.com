@@ -749,6 +749,60 @@ X=
 X=1
 ```
 
+### 5-3. A + B
+
+> Not a good solution
+
+```
+(once)+=x+x+x+x+x+x+x+x+x+z
+(start)y=(end)y
+(end)0y=
+(end)1y=(start)1
+(end)y=
+0x+=(start)y|
+1x+=(start)y1|
+x+=(start)y|
+||z=|z0
+|1|z=|z1
+|11|z=1|z0
+|111|z=1|z1
+|z=
+(start)0=
+```
+
+### 5-4. A - B
+
+> Not a good solution, too
+
+```
+(once)-=x-x-x-x-x-x-x-x-x-z
+(start)y=(end)y
+(end)0y=
+(end)1y=(start)G
+(end)y=
+0x-=(start)y|
+1x-=(start)y1|
+x-=(start)y|
+||z=|z0
+1G=G1
+G1=
+|1|z=|z1
+|G|z=G|z1
+|G1|z=|z0
+|GG|z=G|z0
+|z=
+|=
+(start)0=
+```
+
+### 5-5. A * B
+
+> No solution yet
+
+### 5-6. A / B
+
+> No solution yet
+
 ## Cpt6. Aftermath
 
 ### 6-1. Hello Again
@@ -760,7 +814,13 @@ aa=a
 a=helloworld
 ```
 
-> To be continued...
+### 6-2. Palinedrome 2
+
+> No solution yet
+
+### 6-3. To B or not to B 2
+
+> No solution yet
 
 ## Appendix
 
