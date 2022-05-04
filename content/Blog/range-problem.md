@@ -3,6 +3,8 @@ Title: 一种区间交问题的奇怪姿势
 Tags: algorithm, leetcode, C++
 Slug: range-problem
 
+> Update[220504]: 原来这种数据结构叫[珂朵莉树][7]啊，真神奇。。。
+
 ## 我们要解决什么问题
 
 区间交问题，是我们在做题中经常遇到的问题。
@@ -249,3 +251,4 @@ private:
 [4]: http://www.cnblogs.com/grandyang/p/5244720.html
 [5]: https://leetcode.com/problems/merge-intervals/description/
 [6]: https://leetcode.com/problems/range-module/description/
+[7]: https://oi-wiki.org/ds/odt/
