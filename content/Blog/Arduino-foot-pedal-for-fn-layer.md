@@ -2,6 +2,7 @@ Date: 2021-04-08
 Title: 利用Arduino制作脚踏板Fn层开关
 Tags: Arduino, ahk, autohotkey, fn-layer, keyboard
 Slug: Arduino-foot-pedal-for-fn-layer
+status: draft
 
 ## 背景
 

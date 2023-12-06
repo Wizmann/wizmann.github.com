@@ -2,6 +2,7 @@ Date: 2014-07-27 14:23:10
 Title: 简明Python魔法 - 2
 Tags: python
 Slug: python-magic-2
+status: draft
 
 ## 再说描述符 - Descriptor
 

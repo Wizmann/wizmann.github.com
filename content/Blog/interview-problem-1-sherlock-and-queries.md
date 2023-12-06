@@ -2,6 +2,7 @@ Date: 2014-07-19 11:00:38
 Title: 玩玩算法题1：Sherlock and Queries
 Tags: algorithm, interview
 Slug: interview-problem-1-sherlock-and-queries
+status: draft
 
 ## 题目大意
 

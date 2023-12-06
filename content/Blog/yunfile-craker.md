@@ -2,7 +2,7 @@ Date: 2013-12-02 21:16
 Title: Yunfile下载破解[废弃]
 Tags: 创造力, Yunfile, Chrome-Extension
 Slug: yunfile-cracker
-
+status: draft
 
 ## 废弃原因
 

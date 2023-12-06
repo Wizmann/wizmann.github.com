@@ -2,6 +2,7 @@ Date: 2014-05-20 13:23:03
 Title: How to implement a queue with stack(s)?
 Tags: algorithm, stack, queue
 Slug: implement-queue-with-stacks
+status: draft
 
 This problem is from the book [_Algorithms, 4th Edition_][1].
 

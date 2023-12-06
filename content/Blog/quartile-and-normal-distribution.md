@@ -2,6 +2,7 @@ Date: 2014-03-09 22:44:15
 Title: Quartile and Normal Distribution
 Tags: quartile, normal-distribution
 Slug: quartile-and-normal-distribution
+status: draft
 
 ## What is Quartile?
 

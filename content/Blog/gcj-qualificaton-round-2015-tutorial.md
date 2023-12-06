@@ -2,6 +2,7 @@ Date: 2015-04-12
 Title: GCJ Qualification Round 2015 题解
 Tags: GCJ, algorithm, 算法, 题解, google
 Slug: gcj-qualification-round-2015-tutorial
+status: draft
 
 ## 前言
 

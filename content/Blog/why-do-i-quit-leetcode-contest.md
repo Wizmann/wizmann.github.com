@@ -2,6 +2,7 @@ date: 2017-06-07 01:53:42
 title: Why do I quit Leetcode contest?
 tags: leetcode
 slug: why-do-i-quit-leetcode-contest
+status: draft
 
 ## Foreword
 

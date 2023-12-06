@@ -2,6 +2,7 @@ Date: 2015-04-25 00:54:08
 Title: Beauty-of-Programming 2015 Qualification Round Tutorial
 Tags: algorithm, 算法, 题解, Microsoft
 Slug: beauty-of-programming-2015-qualification-round
+status: draft
 
 ## A. 2月29日 (Feb. 29th)
 

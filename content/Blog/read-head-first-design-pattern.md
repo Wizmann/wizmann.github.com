@@ -2,6 +2,7 @@ Date: 2014-01-03
 Title: 读书 - 《Head first 设计模式》
 Tags: 读书, head-first, 设计模式
 Slug: read-head-first-design-pattern
+status: draft
 
 ![Head first设计模式][2]
 

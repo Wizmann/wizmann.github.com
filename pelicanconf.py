@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 AUTHOR = u'Wizmann'
 SITENAME = u"Maerlyn's Rainbow"
-SITEURL = 'http://wizmann.tk'
+SITEURL = 'http://wizmann.top'
 
 PATH = 'content'
 
@@ -22,7 +22,6 @@ DISPLAY_PAGES_ON_MENU = False
 
 MENUITEMS = (
     ('Blog', '/category/blog.html'),
-    ('ForBeginners', 'http://forbeginners.wizmann.tk/'),
     ('Online Judge', 'https://vijos.org/d/wizmann/p'),
 )
 
@@ -34,7 +33,7 @@ LINKS =  (
 # Social widget
 SOCIAL = (
     ('github', 'https://github.com/wizmann'),
-    ('rss', 'http://wizmann.tk/feeds/all.atom.xml'),
+    ('rss', SITEURL + '/feeds/all.atom.xml'),
 )
 
 DEFAULT_PAGINATION = 10

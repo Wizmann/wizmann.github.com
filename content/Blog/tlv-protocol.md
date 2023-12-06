@@ -70,8 +70,6 @@ TLV同样也可以表示tag-length value，例如HTTP、FTP、POP3等协议都�
 
 * [Type-length-value][1]
 * [Google Protocol Buffers 编码(Encoding)][2]
-* [破解节操的下限][3]
 
 [1]: http://en.wikipedia.org/wiki/Type-length-value
 [2]: http://www.cnblogs.com/shitouer/archive/2013/04/12/google-protocol-buffers-encoding.html
-[3]: http://wizmann.tk/moujiecao.html

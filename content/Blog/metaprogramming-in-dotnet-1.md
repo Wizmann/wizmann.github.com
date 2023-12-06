@@ -2,6 +2,7 @@ Date: 2017-07-26
 Title: Metaprogramming in .NET 读书笔记 - 1
 Tags: Metaprogramming, .NET, C#
 Slug: metaprogramming-in-dotnet-1
+status: draft
 
 ## 什么是 Metaprogramming (元编程)
 

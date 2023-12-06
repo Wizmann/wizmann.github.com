@@ -2,7 +2,7 @@ Date: 2014-09-21
 Title: FlatBuffer代码阅读 - 1
 Tags: flatbuffer
 Slug: read-flatbuffer-1
-
+status: draft
 
 ## FlatBuffer白皮书
 

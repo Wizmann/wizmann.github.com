@@ -2,6 +2,7 @@ Date: 2013-11-29
 Title: 機器學習基石 - PLA算法初步
 Tags: 公开课, 分类器
 Slug: ml-foundations-pla
+status: draft
 
 ## 什么是PLA算法
 

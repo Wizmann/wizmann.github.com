@@ -14,4 +14,3 @@ void heapify(vector<int>& vec) {
 
 You can implement a "heapify" by only four lines of code. And the time complexity is `O(n)`.
 
-Fancy, right? :)

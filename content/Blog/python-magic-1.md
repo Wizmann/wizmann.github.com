@@ -2,6 +2,7 @@ Date: 2014-07-26 22:23:34
 Title: 简明Python魔法 - 1
 Tags: python
 Slug: python-magic-1
+status: draft
 
 ## Python中类的实现
 

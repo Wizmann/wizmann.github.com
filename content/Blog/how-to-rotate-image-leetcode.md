@@ -2,6 +2,7 @@ Date: 2013-12-28 14:42
 Title: How to "Rotate Image"?
 Tags: Leetcode, algorithm, 思维
 Slug: how-to-rotate-image-leetcode
+status: draft
 
 ## 啥？
 原题[戳我][1]

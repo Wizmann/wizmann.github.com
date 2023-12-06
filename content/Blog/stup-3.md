@@ -40,14 +40,5 @@ In STUPP, several features are to be added:
 * Monotonic strictly increasing sequence number to prevent replay attacks
 * Multiple socks5 connections share a single STUP connection
 
-## the end
-
-> You weren't rejected, you were betrayed.
->
-> _the Newsroom_, S01E09
-
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/j6KlNNEw9dg?ecver=1" frameborder="0" allowfullscreen></iframe>
-
 [1]: http://twistedmatrix.com/trac/wiki/Documentation
-[2]: http://wizmann.tk/twisted-defer-and-deferredqueue.html
+[2]: /twisted-defer-and-deferredqueue.html
