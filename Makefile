@@ -1,6 +1,7 @@
 PY?=python
 PELICAN?=pelican
 PELICANOPTS=
+GH_CUSTOM_DOMAIN=wizmann.top
 
 BASEDIR=$(CURDIR)
 INPUTDIR=$(BASEDIR)/content
