@@ -122,7 +122,7 @@ cf_upload: publish
 	cd $(OUTPUTDIR) && swift -v -A https://auth.api.rackspacecloud.com/v1.0 -U $(CLOUDFILES_USERNAME) -K $(CLOUDFILES_API_KEY) upload -c $(CLOUDFILES_CONTAINER) .
 
 github: publish
-	git config --global user.name "Wizmann @ Travis-ci"
+	git config --global user.name "Wizmann @ Github Action"
 	git config --global user.email "mail.kuuy@gmail.com"
 	echo "$(GH_CUSTOM_DOMAIN)" > $(OUTPUTDIR)/CNAME
 	ghp-import -n -r $(GITHUB_REMOTE_NAME) -b $(GITHUB_PAGES_BRANCH) -m "$(GITHUB_COMMIT_MSG)" $(OUTPUTDIR)  
