@@ -1,4 +1,4 @@
 pelican
 pelican-render-math
-bs
+bs4
 ghp-import
