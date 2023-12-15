@@ -2,7 +2,7 @@ Date: 2023-12-15
 Title: 在SPIN/Promela中模拟CAS（Compare-and-Swap）
 Tags: SPIN, Promela, SPIN/Promela, CAS, Compare-ans-Swap, 多线程
 Slug: simple-cas-model-in-spin-promela
-
+ 
 
 CAS（Compare-And-Swap）是一种在多线程编程中常用的数据同步方法，它通过比较和交换操作来保证数据的一致性。然而，在SPIN/Promela中没有直接的CAS对应实现。
 
