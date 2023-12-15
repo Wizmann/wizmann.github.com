@@ -1,4 +1,4 @@
-Date: 2023-12-08
+Date: 2023-12-15
 Title: 在SPIN/Promela中模拟CAS（Compare-and-Swap）
 Tags: SPIN, Promela, SPIN/Promela, CAS, Compare-ans-Swap, 多线程
 Slug: simple-cas-model-in-spin-promela
@@ -69,4 +69,4 @@ spin -a simple-cas.pml
 * 参考链接
   * [Concise Promela Reference > Executing a Promela system](https://spinroot.com/spin/Man/Quick.html)
 
-<div class="alert alert-info" role="alert">本文<del>大</del>部分内容由ChatGPT4生成</div>
+<div class="alert alert-info" role="alert">本文大（划掉）部分内容由ChatGPT4生成</div>
