@@ -3,8 +3,6 @@ Title: [tl;dr] 论文阅读：Rarest First and Choke Algorithms Are Enough
 Tags: BitTorrent, Distributed System
 Slug: tl-dr-Rarest-First-and-Choke-Algorithms-Are-Enough
 
-<div class="alert alert-info" role="alert">本文部分内容由ChatGPT4生成</div>
-
 - ## 基本概念
 	- **Peer**：BitTorrent P2P下载的参与者
 	- **Leecher**：“吸血者”，仍在下载过程中的peer
@@ -87,3 +85,6 @@ Slug: tl-dr-Rarest-First-and-Choke-Algorithms-Are-Enough
 			- 因为文件块可以被更平均的分配给了其它peer，在冷启动时的弹性更强，对于free riders的抵抗性也更强
 - Link
 	- [Rarest First and Choke Algorithms Are Enough](http://conferences.sigcomm.org/imc/2006/papers/p20-legout.pdf)
+
+
+<div class="alert alert-info" role="alert">本文部分内容由ChatGPT4生成</div>
