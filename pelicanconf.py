@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*- #
 from __future__ import unicode_literals
-
+ 
 AUTHOR = u'Wizmann'
 SITENAME = u"Maerlyn's Rainbow"
 SITEURL = 'https://wizmann.top/'
