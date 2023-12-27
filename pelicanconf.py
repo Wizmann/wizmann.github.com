@@ -6,7 +6,7 @@ AUTHOR = u'Wizmann'
 SITENAME = u"Maerlyn's Rainbow"
 SITEURL = 'https://wizmann.top/'
 
-PATH = 'content'
+PATH = 'content' 
 
 TIMEZONE = 'Asia/Shanghai'
 
