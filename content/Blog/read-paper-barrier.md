@@ -44,6 +44,7 @@ while (1) {
     variable1++;
     variable2++;
 }
+```
 
 ### 读线程示例
 
