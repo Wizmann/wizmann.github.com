@@ -1,5 +1,5 @@
 Date: 2014-05-08 19:05:26 
-Title: 逗比带你读论文之Barrier
+Title: 内存屏障入门
 Tags: cpp, memory-barrier, asm, multiprocess, multithread, thread, cocurrency
 Slug: read-paper-barrier
 status: draft
@@ -15,49 +15,44 @@ status: draft
 [Barrier February 17th, 2007](http://ridiculousfish.com/blog/posts/barrier.html)
 
 
-## 前言：我艹！好多核！
+## 前言：多核时代的挑战
 
-虽然80核心的浮点数运算巨兽离我们还有些遥远，但是多核处理器已经走进了我们的生活。
+尽管80核心的浮点运算巨兽仍然遥不可及，多核处理器的时代已经到来。多核处理器的概念并非新鲜事物，在Power Macintosh 9500中就已经采用了多核处理器技术。现在，让我们深入理解多核处理器的内在机制。
 
-其实多核处理器已经不是新鲜名词了，在Power Macintosh 9500中，就使用了多核处理器。
+## 线程技术探讨
 
-现在让我们深入了理解一下多核心处理器吧。
-
-## 线程技术
-
-### 一些名词定义
+### 名词解释
 
 #### 线程
 
-线程只是 **抢占调度的**（pre-emptively scheduled） **共享地址空间的** 执行上下文。
+线程是一种拥有共享地址空间的、能被抢占式调度的执行上下文。
 
 #### 多线程
 
-用来简化控制流和绕开阻塞的系统调用的方法，并非用来实现程序的并行化
+多线程是一种用于简化控制流、绕过阻塞系统调用的方法，并不专门用于实现程序的并行化。
 
 #### 并发多线程
 
-在物理上并发的线程，用来利用多核处理器来优化系统性能
+物理上并行执行的线程，旨在通过利用多核处理器优化系统性能。
 
-### 为什么“并发多线程”是个神坑
+### “并发多线程”的挑战
 
-人人都在说”并发多线程“是个神坑，但这种老生常谈并不是因为自然原因，而是因为我们亲手作下的死。其根本原因在于我们对于单线程下的程序的过分优化在多线程下并不适用。
+尽管并发多线程被广泛讨论，其挑战并非源自自然原因，而是我们自己的设计选择所造成的。主要问题在于，针对单线程程序的过度优化在多线程环境中不再适用。
 
-这是神马意思呢？由于CPU跑的太快以至于内存完全跟不上它的速度，于是我们开始猜测内存中的内容，使得CPU不必花时间再检查内存。”猜测“是通俗的说法，用专业名词讲，就是**CPU**和**编译器**对内存状态”做出越来越有侵略性的假设“。
+具体来说，由于CPU的执行速度远超内存响应速度，我们开始对内存内容进行“预测”，从而避免CPU等待内存检查。这里的“预测”实际上是CPU和编译器对内存状态做出的越来越激进的假设。
 
-## 举个栗子
+## 示例分析
 
-这个是写线程
+### 写线程示例
 
 ```cpp
-// variable1 = variable2 = 0;
+// 初始时 variable1 = variable2 = 0;
 while (1) {
     variable1++;
     variable2++;
 }
-```
 
-这个是读线程
+### 读线程示例
 
 ```cpp
 while (1) {
@@ -69,15 +64,14 @@ while (1) {
 }
 ```
 
-根据正常人的思绪，local2一定会小于local1，因为variable1一直比variable2要大。
+正常逻辑下，local2 应当始终小于或等于 local1，因为 variable1 总是在 variable2 之后增加。
 
-但是事实是不是这样的呢？
+然而，现实是否如此？
 
 ```cpp
 #include <cstdio>
 #include <iostream>
 #include <ctime>
-
 #include <pthread.h>
 #include <sys/time.h>
 #include <unistd.h>
@@ -101,9 +95,9 @@ void *reader(void *unused) {
     gettimeofday(&start, NULL);
     unsigned i, failureCount = 0;
     for (i=0; i < ITERATIONS; i++) {
-            unsigned v2 = variable2;
-            unsigned v1 = variable1;
-            if (v2 > v1) failureCount++;
+        unsigned v2 = variable2;
+        unsigned v1 = variable1;
+        if (v2 > v1) failureCount++;
     }
     gettimeofday(&end, NULL);
     double seconds = end.tv_sec + end.tv_usec / 1000000. - start.tv_sec - start.tv_usec / 1000000.;
@@ -123,7 +117,8 @@ int main(void) {
 }
 ```
 
-程序的输出为：``0 failures (0.0 percent of the time) in 1.2 seconds``
+输出结果：``0 failures (0.0 percent of the time) in 1.2 seconds``
+
 
 ### 貌似是正确的？
 
