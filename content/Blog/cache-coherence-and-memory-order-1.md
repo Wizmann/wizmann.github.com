@@ -75,12 +75,13 @@ MESI 的核心目标包括防止多个核心同时修改共享数据和延迟回
 
 失效队列提高了响应速度，但它也可能引入新的问题。失效队列允许CPU核心在确认接收到失效请求后，延迟处理这些请求。这种延迟可能导致数据在不同核心间的一致性问题，即一个核心可能会在短时间内继续使用已经失效的数据，而这段时间内其他核心已经修改了这部分数据。
 
-- ## 参考链接
-	- [MESI协议](https://zh.wikipedia.org/wiki/MESI%E5%8D%8F%E8%AE%AE)
-	- [Go 内存一致性模型](https://github.com/LeoYang90/Golang-Internal-Notes/blob/master/Go%20%E5%86%85%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7%E6%A8%A1%E5%9E%8B.md#go-%E5%86%85%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7%E6%A8%A1%E5%9E%8B)
-	- [12 张图看懂 CPU 缓存一致性与 MESI 协议，真的一致吗？](https://juejin.cn/post/7158395475362578462)
-	- [Cache一致性和内存一致性](https://wudaijun.com/2019/04/cache-coherence-and-memory-consistency/)
-	- [CPU缓存架构到内存屏障](https://blog.chongsheng.art/post/golang/cpu-cache-memory-barrier/)
+## 参考链接
+
+- [MESI协议](https://zh.wikipedia.org/wiki/MESI%E5%8D%8F%E8%AE%AE)
+- [Go 内存一致性模型](https://github.com/LeoYang90/Golang-Internal-Notes/blob/master/Go%20%E5%86%85%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7%E6%A8%A1%E5%9E%8B.md#go-%E5%86%85%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7%E6%A8%A1%E5%9E%8B)
+- [12 张图看懂 CPU 缓存一致性与 MESI 协议，真的一致吗？](https://juejin.cn/post/7158395475362578462)
+- [Cache一致性和内存一致性](https://wudaijun.com/2019/04/cache-coherence-and-memory-consistency/)
+- [CPU缓存架构到内存屏障](https://blog.chongsheng.art/post/golang/cpu-cache-memory-barrier/)
 
 
  <div class="alert alert-info" role="alert">本文大（划掉）部分内容由ChatGPT4生成</div>
