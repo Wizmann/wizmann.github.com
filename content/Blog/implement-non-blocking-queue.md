@@ -139,11 +139,13 @@ bool pop(T*& item) {
 ```cpp
 void push(const T* item) {
     assert (item != NULL);
+
     InnerNode* cur = NULL;
+    InnerNode* newNode = new InnerNode();
+
     while (true) {
         cur = ACCESS_ONCE(tail);
         if (__sync_bool_compare_and_swap(&(cur->value_ptr), NULL, item)) {
-            InnerNode* newNode = new InnerNode();
             cur->next = newNode;
             tail = tail->next;
             break;
