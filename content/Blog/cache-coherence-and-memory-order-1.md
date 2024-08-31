@@ -1,5 +1,5 @@
 Date: 2024-03-18 23:21:35
-Title: CPU缓存一致性与C++ Memory Order (第一部分-MESI协议)
+Title: CPU缓存一致性与内存一致性（第一部分-MESI协议）
 Tags: cpp, memory-barrier, multithread, thread, MESI
 Slug: cache-coherence-and-memory-order
 
