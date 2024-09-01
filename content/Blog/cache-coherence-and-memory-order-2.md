@@ -2,7 +2,6 @@ Date: 2024-09-01 00:24:00
 Title: CPU缓存一致性与内存一致性（第二部分-内存一致性）
 Tags: cpp, memory-barrier, multithread, litmus, herd7
 Slug: cache-coherence-and-memory-order-2
-Status: draft
 
 ## 缓存一致性与内存一致性
 
@@ -79,4 +78,94 @@ StoreStore 乱序涉及两个连续的存储操作，其中后一个存储操作
 
 ## 使用Litmus工具分析内存乱序 - 以x86-TSO为例
 
-> To be continue...
+在并发编程中，理解和验证内存模型的行为对于确保程序的正确性至关重要。以 x86 Total Store Order (x86-TSO) 为例，我们可以使用 Litmus 测试工具来分析内存乱序现象，并了解如何通过内存屏障来避免这种情况。
+
+> Litmus工具可以在[这里](https://developer.arm.com/herd7)在线试用，也可以安装到本地环境
+
+### x86 Total Store Order (x86-TSO)
+
+![](https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/24-09-01/1725159498577_mem-tso_1723970692408_0.png)
+
+在 x86 架构中，Store Buffer（存储缓冲区）用于暂时存放处理器的写操作，而不立即将其写入主存。这种机制提高了处理器的性能，因为它允许处理器在写操作尚未完成时继续执行后续指令。然而，Store Buffer 也导致了某些内存操作的可见性问题，特别是在多处理器环境中。
+
+x86 Total Store Order (x86-TSO) 模型的特性正是由这种 Store Buffer 机制决定的。由于写操作在 Store Buffer 中暂存，x86-TSO 模型保证了一些关键特性，同时也做出了一些基于性能的妥协：
+
+* 写操作顺序一致性：所有写操作按照程序的顺序执行，并对所有处理器可见，即写操作在 Store Buffer 刷新到主存之前，不会被其他处理器看到。
+* 读操作的自我可见性：处理器可以立即看到自己在 Store Buffer 中的最新写入，即本处理器的读操作可以从 Store Buffer 中读取未提交到主存的值。
+* 防止某些重排序：为了避免因 Store Buffer 导致的读写乱序，x86-TSO 禁止写操作与其后的读操作重排序，确保读写顺序一致。
+* 允许部分读操作重排序：为了进一步提升性能，处理器允许一些读操作的重排序，但仍然遵循严格的规则以保证程序的正确性。
+
+### 使用 Litmus 验证 x86 的 StoreLoad 乱序
+
+我们可以使用 Litmus 工具来验证在 x86-TSO 内存模型下的 StoreLoad 乱序行为。以下是一个示例代码：
+
+```litmus
+X86 SB
+{ x = 0; y = 0; }
+
+P0          | P1          ;
+MOV [y],$1  | MOV [x],$1  ;
+MOV EAX,[x] | MOV EAX,[y] ;
+exists
+(0:EAX=0 /\ 1:EAX=0)
+```
+
+在执行该代码后，Litmus 会生成四种可能的结果，分别对应不同的执行顺序。
+
+#### 结果1
+
+![](https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/24-09-01/1725159921512_graph3_1725095884015_0.png)
+
+在结果1中，程序按照严格的顺序执行，每个处理器的内存操作顺序与程序中的顺序一致。
+
+图中，po（Program Order）表示程序顺序，rf（Reads-From）表示每个读操作从哪个写操作中读取的值。由于内存操作按照预期顺序执行，这种情况没有进一步的乱序行为，因此不需要进一步分析
+
+#### 结果2/结果3
+
+![](https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/24-09-01/1725160079968_graph1_1725098202554_0.png)
+![](https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/24-09-01/1725160089725_graph2_1725098310293_0.png)
+
+结果2和结果3是对称的，表示在执行过程中，内存的读取发生了“乱序”，即读取操作被重排到了写入操作之前。在 Litmus 中，这种情况被标记为 fr（From-Read），表示一个写操作覆盖了一个读操作所读取的值，即这个写操作发生在读操作之后。这种“写读”操作的乱序可能是由于执行顺序的不同，也可能是内存模型的顺序造成的。
+
+#### 结果4
+
+![](https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/24-09-01/1725160171251_graph0_1725099005660_0.png)
+
+结果4表示两个线程各自都发生了 fr，即每个线程的读操作都被重排到了写操作之前。这种情况展示了最复杂的乱序行为，其中两个线程的读操作分别“超越”了各自的写操作。
+
+### 使用内存屏障（MFENCE）指令避免内存乱序
+
+为了避免这种乱序情况，可以使用 MFENCE（Memory Fence） 指令。在 x86 架构中，MFENCE 是一种强制内存屏障，确保所有在 MFENCE 之前的内存操作（无论是读还是写）在所有 MFENCE 之后的内存操作之前完成。这意味着在同一线程内，MFENCE 保证了内存操作的顺序性：MFENCE 之前的操作对其他线程可见后，才可以执行 MFENCE 之后的操作。
+
+我们可以将 Litmus 代码修改如下，以插入 MFENCE 指令：
+
+```litmus
+X86 SB
+{ x = 0; y = 0; }
+
+P0          | P1          ;
+MOV [y],$1  | MOV [x],$1  ;
+MFENCE      | MFENCE      ;
+MOV EAX,[x] | MOV EAX,[y] ;
+exists
+(0:EAX=0 /\ 1:EAX=0)
+```
+
+在加入内存屏障后，我们看到结果1到结果3依然会出现，但结果4因 MFENCE 的存在而被避免。通过 MFENCE 确保了内存操作的顺序性，从而防止了某些类型的内存乱序，保证了多线程程序的正确性和一致性。
+
+## 接下来...
+
+下一篇文章中，我们会介绍C++的内存顺序模型，并且分析更复杂的内存乱序问题
+
+## References
+
+- [硬件内存模型](https://colobu.com/2021/06/30/hwmm/)
+- [RISC-V体系结构编程与实践](https://book.douban.com/subject/36240082/)
+- [How to Make a Multiprocessor Computer That Correctly Executes Multiprocess Programs](https://www.microsoft.com/en-us/research/publication/make-multiprocessor-computer-correctly-executes-multiprocess-programs/)
+- [Memory access buffering in multiprocessors](https://dl.acm.org/doi/10.1145/285930.285991)
+- [Litmus: Running Tests Against Hardware](https://www.cl.cam.ac.uk/~pes20/weakmemory/tacas11.pdf)
+- [Herd7 Simulator](https://developer.arm.com/herd7)
+- [Memory Model Simulation Tool - Herd7](https://github.com/0voice/dpdk_engineer_manual/blob/main/%E5%A4%A7%E4%BC%9APPT/NA%202021-Memory%20Model%20Simulation%20Tool%20-%20Herd7.pdf)
+- [A working example of how to use the herd7 Memory Model Tool](https://community.arm.com/arm-community-blogs/b/architectures-and-processors-blog/posts/how-to-use-the-memory-model-tool#intuitively)
+
+ <div class="alert alert-info" role="alert">本文大（划掉）部分内容由ChatGPT4生成</div>
