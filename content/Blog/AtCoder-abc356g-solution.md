@@ -1,5 +1,5 @@
 Date: 2024-06-15
-Title: 2024-06-10 利用凸组合求解最优值（AtCoder abc356_g Freestyle 题解）
+Title: 利用凸组合求解最优值（AtCoder abc356_g Freestyle 题解）
 Tags: AtCoder, Solution, Computational geometry, geometry
 Slug: AtCoder-abc356g-solution
 
