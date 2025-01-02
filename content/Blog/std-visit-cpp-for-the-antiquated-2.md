@@ -61,19 +61,19 @@ int main() {
 ### 代码分析
 
 1. **`std::variant<int, float, std::string>`**  
-   - 这是一个类型安全的联合体，可以存储 `int`、`float` 或 `std::string` 中的任意一种类型。  
-   - 将多个 `std::variant` 存储在 `std::vector` 中，形成一个统一的容器。
+    - 这是一个类型安全的联合体，可以存储 `int`、`float` 或 `std::string` 中的任意一种类型。  
+    - 将多个 `std::variant` 存储在 `std::vector` 中，形成一个统一的容器。
 
 2. **`std::visit`**  
-   - 使用 `std::visit` 访问每个 `std::variant` 元素。  
-   - 传入一个**泛型 Lambda 表达式**，通过 `if constexpr` 在编译时分发到不同的分支，处理不同类型的值。
+    - 使用 `std::visit` 访问每个 `std::variant` 元素。  
+    - 传入一个**泛型 Lambda 表达式**，通过 `if constexpr` 在编译时分发到不同的分支，处理不同类型的值。
 
 3. **`if constexpr` 与 `std::is_same_v`**  
-   - 使用 `std::is_same_v` 判断存储的实际类型。  
-   - 根据类型进行不同的输出操作。
+    - 使用 `std::is_same_v` 判断存储的实际类型。  
+    - 根据类型进行不同的输出操作。
 
 4. **类型安全**  
-   - 如果添加一个未处理的类型，编译器会在 `static_assert` 中报错，提醒开发者补充处理逻辑。
+    - 如果添加一个未处理的类型，编译器会在 `static_assert` 中报错，提醒开发者补充处理逻辑。
 
 ## 使用传统C++实现std::visit
 
@@ -143,13 +143,13 @@ int main() {
 实现 `std::visit` 的关键在于以下几个方面：
 
 * **类型索引 (`index()`)**  
-  根据传入的 `std::variant` 参数类型，确定其在类型集合中的索引。
+    根据传入的 `std::variant` 参数类型，确定其在类型集合中的索引。
   
 * **类型访问 (`std::get<T>`)**  
-  根据传入的模板类型 `T`，获取存储的值。如果类型不匹配，抛出异常，确保类型安全。
+    根据传入的模板类型 `T`，获取存储的值。如果类型不匹配，抛出异常，确保类型安全。
   
 * **类型分派 (`std::visit`)**  
-  根据当前存储的类型，调用 `Visitor` 中对应的 `operator()` 方法。可以通过 `switch-case` 或模板匹配来实现类型分发。
+    根据当前存储的类型，调用 `Visitor` 中对应的 `operator()` 方法。可以通过 `switch-case` 或模板匹配来实现类型分发。
 
 ### 代码实现0 - 基本框架
 
