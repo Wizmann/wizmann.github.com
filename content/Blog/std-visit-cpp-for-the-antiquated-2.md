@@ -32,6 +32,9 @@ Slug: std-visit-cpp-for-the-antiquated-2
 #include <variant>
 #include <type_traits>
 
+template<typename T>
+inline constexpr bool always_false_v = false;
+
 int main() {
     std::vector<std::variant<int, float, std::string>> items {
         10,
@@ -49,7 +52,7 @@ int main() {
             } else if constexpr (std::is_same_v<T, std::string>) {
                 std::cout << "std::string: " << arg << std::endl;
             } else {
-                static_assert(always_false<T>::value, "Unhandled type!");
+                static_assert(always_false_v<>, "Unhandled type!");
             }
         }, item);
     }
