@@ -85,6 +85,7 @@ public:
     T* operator->() { return ptr; }
     T& operator*() { return *ptr; }
 };
+```
 
 ### `std::weak_ptr`的实现
 
@@ -99,7 +100,6 @@ public:
 `weak_ptr` 提供了一种访问 `shared_ptr` 的方式，但并不控制对象的销毁，因此它可以有效避免循环引用问题。
 
 通过 `weak_ptr`，我们可以在不延长对象生命周期的前提下，检查对象是否仍然存在，并访问它。具体来说，`weak_ptr` 可以通过调用 `lock()` 方法来创建一个 `shared_ptr`，如果对象还存在（即引用计数大于零），则返回一个有效的 `shared_ptr`，否则返回空指针。
-```
 
 #### 控制块的扩展
 
