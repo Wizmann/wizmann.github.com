@@ -2,6 +2,7 @@ Date: 2025-1-21
 Title: 动手实现智能指针 （上篇） - C++ for the Antiquated（之四）
 Tags: cpp, modern cpp
 Slug: std-smart-ptrs-cpp-for-the-antiquated-4
+status: draft
 
 智能指针（如 `std::shared_ptr` 和 `std::weak_ptr`）已经成为现代 C++ 编程的重要工具，尽管它们并不算是“新兴”的特性。在 C++11 标准之前，Boost 库就已经引入了智能指针的实现，特别是 `boost::shared_ptr` 和 `boost::weak_ptr`，它们为 C++11 的智能指针特性奠定了基础。因此，可以说智能指针在 C++ 中的发展历程已经有很长时间，而它们的引入极大地简化了内存管理和避免了常见的内存泄漏和悬挂指针问题。
 
