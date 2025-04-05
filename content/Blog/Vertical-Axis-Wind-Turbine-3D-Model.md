@@ -13,7 +13,7 @@ This is a vertical axis wind turbine (VAWT) 3D model, featuring a twisted helica
 
 The model was created using Fusion 360, and comes with both .f3d (Fusion 360 source file) and .3mf (widely compatible with slicer software) formats, making it easy to modify or print.
 
-![](/statistics/mini风力发电机.png)
+![](/statistics/Vertical-Axis-Wind-Turbine-3D-Model/mini风力发电机.png)
 
-* [mini风力发电机.3mf](/statistics/mini风力发电机.3mf)
-* [mini风力发电机.f3d](/statistics/mini风力发电机.f3d)
+* [mini风力发电机.3mf](/statistics/Vertical-Axis-Wind-Turbine-3D-Model/mini风力发电机.3mf)
+* [mini风力发电机.f3d](/statistics/Vertical-Axis-Wind-Turbine-3D-Model/mini风力发电机.f3d)
