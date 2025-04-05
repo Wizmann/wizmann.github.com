@@ -7,6 +7,7 @@ SITENAME = u"Maerlyn's Rainbow"
 SITEURL = 'https://wizmann.top/'
 
 PATH = 'content' 
+STATIC_PATHS = 'statistics'
 
 TIMEZONE = 'Asia/Shanghai'
 
