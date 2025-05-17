@@ -3,3 +3,4 @@ pelican-render-math
 bs4
 ghp-import
 markdown
+markdown2
