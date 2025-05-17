@@ -50,6 +50,11 @@ RELATIVE_URLS = True
 PLUGIN_PATH = ["pelican-plugins"]
 PLUGINS = ["sitemap", "summary", 'tag_cloud', 'i18n_subsites', "render_math"]
 
+MARKDOWN = {
+    'extensions': ['codehilite', 'extra', 'toc'],
+    'output_format': 'html5',
+}
+
 JINJA_ENVIRONMENT = {
     'extensions': ['jinja2.ext.i18n'],
 }
