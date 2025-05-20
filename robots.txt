@@ -1,0 +1,2 @@
+User-agent: *
+Sitemap: https://wizmann.top/sitemap.xml

@@ -1,0 +1,220 @@
+<!doctype html><html lang=zh-cn dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Maerlyn's Rainbow</title>
+<meta name=keywords content><meta name=description content="Date: 2014-07-26 22:23:34
+Title: 简明Python魔法 - 1
+Tags: python
+Slug: python-magic-1
+status: draft
+Python中类的实现
+在Python的Web框架Django中，Python类的构造特性实现了它大部分的核心功能。
+当Python解释器遇到类声明时，会创建一个新的namespace ，并执行其内的所有代码，并将变量注册到这个namespace中。"><meta name=author content="wizmann"><link rel=canonical href=https://wizmann.top/posts/python-magic-1/><link crossorigin=anonymous href=/assets/css/stylesheet.f49d66caae9ea0fd43f21f29e71a8d3e284517ed770f2aa86fa012953ad3c9ef.css integrity="sha256-9J1myq6eoP1D8h8p5xqNPihFF+13Dyqob6ASlTrTye8=" rel="preload stylesheet" as=style><link rel=icon href=https://wizmann.top/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://wizmann.top/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://wizmann.top/favicon-32x32.png><link rel=apple-touch-icon href=https://wizmann.top/apple-touch-icon.png><link rel=mask-icon href=https://wizmann.top/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh-cn href=https://wizmann.top/posts/python-magic-1/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><meta property="og:url" content="https://wizmann.top/posts/python-magic-1/"><meta property="og:site_name" content="Maerlyn's Rainbow"><meta property="og:title" content="Maerlyn's Rainbow"><meta property="og:description" content="Date: 2014-07-26 22:23:34 Title: 简明Python魔法 - 1 Tags: python Slug: python-magic-1 status: draft
+Python中类的实现 在Python的Web框架Django中，Python类的构造特性实现了它大部分的核心功能。
+当Python解释器遇到类声明时，会创建一个新的namespace ，并执行其内的所有代码，并将变量注册到这个namespace中。"><meta property="og:locale" content="zh-CN"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta name=twitter:card content="summary"><meta name=twitter:title content><meta name=twitter:description content="Date: 2014-07-26 22:23:34
+Title: 简明Python魔法 - 1
+Tags: python
+Slug: python-magic-1
+status: draft
+Python中类的实现
+在Python的Web框架Django中，Python类的构造特性实现了它大部分的核心功能。
+当Python解释器遇到类声明时，会创建一个新的namespace ，并执行其内的所有代码，并将变量注册到这个namespace中。"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Posts","item":"https://wizmann.top/posts/"},{"@type":"ListItem","position":2,"name":"","item":"https://wizmann.top/posts/python-magic-1/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"","name":"","description":"Date: 2014-07-26 22:23:34 Title: 简明Python魔法 - 1 Tags: python Slug: python-magic-1 status: draft\nPython中类的实现 在Python的Web框架Django中，Python类的构造特性实现了它大部分的核心功能。\n当Python解释器遇到类声明时，会创建一个新的namespace ，并执行其内的所有代码，并将变量注册到这个namespace中。\n","keywords":[],"articleBody":"Date: 2014-07-26 22:23:34 Title: 简明Python魔法 - 1 Tags: python Slug: python-magic-1 status: draft\nPython中类的实现 在Python的Web框架Django中，Python类的构造特性实现了它大部分的核心功能。\n当Python解释器遇到类声明时，会创建一个新的namespace ，并执行其内的所有代码，并将变量注册到这个namespace中。\n举例：\n\u003e\u003e\u003e class Foo(object): ... print 'Loading...' ... spam = 'eggs' ... print 'Done!' ... Loading... Done! \u003e\u003e\u003e f = Foo() \u003e\u003e\u003e f.spam 'eggs' 动态的实现一个类 使用type方法可以动态的代码中实现一个类，接受三个参数“类名”、“基类”、“属性”。\n\u003e\u003e\u003e Bar = type('Bar', (object,), {'spam': 'eggs'}) \u003e\u003e\u003e Bar.spam 'eggs' 超类改变一切 “metaprogramming”是指一种在程序运行时创建或改变代码的编程手段。type是一个metaclass，一个创建其它类的metaclass。\n我们可以替换掉原生的type，使用我们自己的版本，从而控制创建类的过程。\n\u003e\u003e\u003e class MetaClass(type): ... def __init__(cls, name, bases, attrs): ... print('Defining %s' % cls) ... print('Name: %s' % name) ... print('Bases: %s' % (bases,)) ... print('Attributes:') ... for (name, value) in attrs.items(): ... print(' %s: %r' % (name, value)) ... \u003e\u003e\u003e class RealClass(object, metaclass=MetaClass): ... spam = 'eggs' ... Defining ","wordCount":"1888","inLanguage":"zh-cn","datePublished":"0001-01-01T00:00:00Z","dateModified":"0001-01-01T00:00:00Z","author":{"@type":"Person","name":"wizmann"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://wizmann.top/posts/python-magic-1/"},"publisher":{"@type":"Organization","name":"Maerlyn's Rainbow","logo":{"@type":"ImageObject","url":"https://wizmann.top/favicon.ico"}}}</script></head><body id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://wizmann.top/ accesskey=h title="Maerlyn's Rainbow (Alt + H)">Maerlyn's Rainbow</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent"></h1><div class=post-meta>wizmann</div></header><div class=post-content><p>Date: 2014-07-26 22:23:34
+Title: 简明Python魔法 - 1
+Tags: python
+Slug: python-magic-1
+status: draft</p><h2 id=python中类的实现>Python中类的实现<a hidden class=anchor aria-hidden=true href=#python中类的实现>#</a></h2><p>在Python的Web框架Django中，Python类的构造特性实现了它大部分的核心功能。</p><p>当Python解释器遇到类声明时，会创建一个新的namespace ，并执行其内的所有代码，并将变量注册到这个namespace中。</p><p>举例：</p><pre tabindex=0><code class=language-pycon data-lang=pycon>&gt;&gt;&gt; class Foo(object):
+...     print &#39;Loading...&#39;
+...     spam = &#39;eggs&#39;
+...     print &#39;Done!&#39;
+... 
+Loading...
+Done!
+&gt;&gt;&gt; f = Foo()
+&gt;&gt;&gt; f.spam
+&#39;eggs&#39;
+</code></pre><h3 id=动态的实现一个类>动态的实现一个类<a hidden class=anchor aria-hidden=true href=#动态的实现一个类>#</a></h3><p>使用type方法可以动态的代码中实现一个类，接受三个参数“类名”、“基类”、“属性”。</p><pre tabindex=0><code class=language-pycon data-lang=pycon>&gt;&gt;&gt; Bar = type(&#39;Bar&#39;, (object,), {&#39;spam&#39;: &#39;eggs&#39;})
+&gt;&gt;&gt; Bar.spam
+&#39;eggs&#39;
+</code></pre><h3 id=超类改变一切>超类改变一切<a hidden class=anchor aria-hidden=true href=#超类改变一切>#</a></h3><p>“metaprogramming”是指一种在程序运行时创建或改变代码的编程手段。<code>type</code>是一个metaclass，一个创建其它类的metaclass。</p><p>我们可以替换掉原生的<code>type</code>，使用我们自己的版本，从而控制创建类的过程。</p><pre tabindex=0><code class=language-pycon data-lang=pycon>&gt;&gt;&gt; class MetaClass(type):
+...     def __init__(cls, name, bases, attrs):
+...         print(&#39;Defining %s&#39; % cls)
+...         print(&#39;Name: %s&#39; % name)
+...         print(&#39;Bases: %s&#39; % (bases,))
+...         print(&#39;Attributes:&#39;)
+...         for (name, value) in attrs.items():
+...             print(&#39;    %s: %r&#39; % (name, value))
+...
+&gt;&gt;&gt; class RealClass(object, metaclass=MetaClass):
+...     spam = &#39;eggs&#39;
+...
+Defining &lt;class &#39;__main__.RealClass&#39;&gt;
+Name: RealClass
+Bases: (&lt;class &#39;object&#39;&gt;,)
+Attributes:
+    spam: &#39;eggs&#39;
+    __module__: &#39;__main__&#39;
+    __qualname__: &#39;RealClass&#39;
+&gt;&gt;&gt; RealClass
+&lt;class &#39;__main__.RealClass&#39;&gt;
+</code></pre><p>每当一个新的类被创建时，都会触发metaclass的行为。</p><h3 id=基类与超类>基类与超类<a hidden class=anchor aria-hidden=true href=#基类与超类>#</a></h3><p>基类与超类一起使用可以实现类方法的复用，以及对于类创建的跟踪。</p><pre tabindex=0><code class=language-pycon data-lang=pycon> &gt;&gt;&gt; class SubClass(RealClass):  # Notice there&#39;s no metaclass here.
+...     pass
+...
+Defining &lt;class &#39;__main__.SubClass&#39;&gt;
+Name: SubClass
+Bases: (&lt;class &#39;__main__.RealClass&#39;&gt;,)
+Attributes:
+    __module__: &#39;__main__&#39;
+</code></pre><p>在这里，超类对于<code>SubClass</code>是完全透明的，<code>SubClass</code>只需要完成自己的工作，Python会在后台料理好一切。</p><h3 id=声明式语法>声明式语法<a hidden class=anchor aria-hidden=true href=#声明式语法>#</a></h3><blockquote><p>This syntax (Declarative Syntax) is designed to make minimize &ldquo;boilerplate&rdquo; repetitive syntax and provide elegant, readable code.</p></blockquote><p>声明式语法是一种把数据和逻辑分离的编程方式，面对经常变动的但是规律明显的需求，声明式编程可以解救你于水火之中。:-P</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>Contact</span>(models<span style=color:#f92672>.</span>Model):
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;&#34;&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    Contact information provided when sending messages to the owner of the site.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    &#34;&#34;&#34;</span>
+</span></span><span style=display:flex><span>    name <span style=color:#f92672>=</span> models<span style=color:#f92672>.</span>CharField(max_length<span style=color:#f92672>=</span><span style=color:#ae81ff>255</span>)
+</span></span><span style=display:flex><span>    email <span style=color:#f92672>=</span> models<span style=color:#f92672>.</span>EmailField()
+</span></span></code></pre></div><p>上面是Django的模型声明语法，简洁、明了、大气！</p><h2 id=让我们一起做鸭>让我们一起做鸭<a hidden class=anchor aria-hidden=true href=#让我们一起做鸭>#</a></h2><blockquote><p>Shakespeare: &ldquo;If it walks like a duck and talks like a duck, it&rsquo;s a Duck.&rdquo;</p></blockquote><h3 id=callables>Callables<a hidden class=anchor aria-hidden=true href=#callables>#</a></h3><h4 id=__call__>__call__<a hidden class=anchor aria-hidden=true href=#__call__>#</a></h4><pre tabindex=0><code class=language-pycon data-lang=pycon>&gt;&gt;&gt; class Multiplier(object):
+...     def __init__(self, factor):
+...         self.factor = factor
+...     def __call__(self, value):
+...         return value * self.factor
+...
+&gt;&gt;&gt; times2 = Multiplier(2)
+&gt;&gt;&gt; times2(5)
+10
+&gt;&gt;&gt; times2(10)
+20
+&gt;&gt;&gt; times3 = Multiplier(3)
+&gt;&gt;&gt; times3(10)
+30
+</code></pre><p>我们可以使用callable函数来构造”有状态的函数“，以及其它可以想的到的一些黑魔法。</p><h3 id=dictionaries>Dictionaries<a hidden class=anchor aria-hidden=true href=#dictionaries>#</a></h3><p>使用<code>__contains</code>、<code>__getitem__</code>和<code>__setitem__</code>内建函数，可以让一个类实例模拟字典的行为。</p><h3 id=file>File<a hidden class=anchor aria-hidden=true href=#file>#</a></h3><p>实现<code>read</code>、<code>write</code>和<code>close</code>，你们就可以把我当文件来用啦。</p><h3 id=iterable>Iterable<a hidden class=anchor aria-hidden=true href=#iterable>#</a></h3><pre tabindex=0><code class=language-pycon data-lang=pycon>&gt;&gt;&gt; class Fibonacci(object):
+...     def __init__(self, count):
+...         self.count = count
+...     def __iter__(self):
+...         a, b = 0, 1
+...         for x in range(self.count):
+...             if x &lt; 2:
+...                 yield x
+...             else:
+...                 c = a + b
+...                 yield c
+...                 a, b = b, c
+...
+&gt;&gt;&gt; for x in Fibonacci(5):
+...     print(x)
+...
+0
+1
+1
+2
+3
+</code></pre><h2 id=偏函数>偏函数<a hidden class=anchor aria-hidden=true href=#偏函数>#</a></h2><p>偏函数和函数式编程中的”柯里化“一样，都是通过填充函数中的一部分参数，从而实现一个新的函数。</p><pre tabindex=0><code class=language-pycon data-lang=pycon>&gt;&gt;&gt; import functools
+&gt;&gt;&gt; def add(a, b):
+...     return a + b
+...
+&gt;&gt;&gt; add(4, 2)
+6
+&gt;&gt;&gt; plus3 = functools.partial(add, 3)
+&gt;&gt;&gt; plus5 = functools.partial(add, 5)
+&gt;&gt;&gt; plus3(4)
+7
+&gt;&gt;&gt; plus3(7)
+10
+&gt;&gt;&gt; plus5(10)
+15
+</code></pre><h2 id=描述符>描述符<a hidden class=anchor aria-hidden=true href=#描述符>#</a></h2><p>描述符用来存取类属性，并且可以提供如下的便利：</p><ul><li>从复杂的对象中取出数据，例如数据库或是配置文件</li><li>把一个简单的值传入一个复杂对象中</li><li>对存取的值进行自定义操作</li><li>把值转化为易于写入数据库中的类型</li></ul><pre tabindex=0><code class=language-pycon data-lang=pycon>&gt;&gt;&gt; import datetime
+&gt;&gt;&gt; class CurrentDate(object):
+...     def __get__(self, instance, owner):
+...         return datetime.date.today()
+...     def __set__(self, instance, value):
+...         raise NotImplementedError(&#34;Can&#39;t change the current date.&#34;)
+...
+&gt;&gt;&gt; class Example(object):
+...     date = CurrentDate()
+...
+&gt;&gt;&gt; e = Example()
+&gt;&gt;&gt; e.date
+datetime.date(2008, 11, 24)
+&gt;&gt;&gt; e.date = datetime.date.today()
+Traceback (most recent call last):
+  ...
+NotImplementedError: Can&#39;t change the current date.
+</code></pre><h3 id=实现>实现<a hidden class=anchor aria-hidden=true href=#实现>#</a></h3><p>覆写类的<code>__get__</code>和<code>__set__</code>函数就可以实现类的描述符。</p><h2 id=实践一个简单的unittest框架>实践：一个简单的UnitTest框架<a hidden class=anchor aria-hidden=true href=#实践一个简单的unittest框架>#</a></h2><h3 id=设计思路>设计思路<a hidden class=anchor aria-hidden=true href=#设计思路>#</a></h3><p>对于每一个Case，只需要声明一个类。在类中声明要测试的函数以及测试的Input和预期Output。之后框架可以运行所有测试用例，并输出结果。</p><h3 id=接口设计>接口设计<a hidden class=anchor aria-hidden=true href=#接口设计>#</a></h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>import</span> PyUnitTest
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> PyUnitTest <span style=color:#f92672>import</span> BaseCase
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>func1</span>(a, b):
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> a <span style=color:#f92672>+</span> b
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>func2</span>(a, b):
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> a <span style=color:#f92672>*</span> b
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>TestFunc1</span>(BaseCase):
+</span></span><span style=display:flex><span>    FUNC <span style=color:#f92672>=</span> func1
+</span></span><span style=display:flex><span>    INPUT <span style=color:#f92672>=</span> [{<span style=color:#e6db74>&#39;a&#39;</span>: <span style=color:#ae81ff>1</span>, <span style=color:#e6db74>&#39;b&#39;</span>: <span style=color:#ae81ff>2</span>},
+</span></span><span style=display:flex><span>             {<span style=color:#e6db74>&#39;a&#39;</span>: <span style=color:#ae81ff>2</span>, <span style=color:#e6db74>&#39;b&#39;</span>: <span style=color:#ae81ff>3</span>},
+</span></span><span style=display:flex><span>             {<span style=color:#e6db74>&#39;a&#39;</span>: <span style=color:#ae81ff>3</span>, <span style=color:#e6db74>&#39;b&#39;</span>: <span style=color:#ae81ff>4</span>}]
+</span></span><span style=display:flex><span>    OUTPUT <span style=color:#f92672>=</span> [<span style=color:#ae81ff>3</span>, <span style=color:#ae81ff>5</span>, <span style=color:#ae81ff>8</span>]
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>TestFunc2</span>(BaseCase):
+</span></span><span style=display:flex><span>    FUNC <span style=color:#f92672>=</span> func2
+</span></span><span style=display:flex><span>    INPUT <span style=color:#f92672>=</span> [{<span style=color:#e6db74>&#39;a&#39;</span>: <span style=color:#ae81ff>1</span>, <span style=color:#e6db74>&#39;b&#39;</span>: <span style=color:#ae81ff>2</span>},
+</span></span><span style=display:flex><span>             {<span style=color:#e6db74>&#39;a&#39;</span>: <span style=color:#ae81ff>2</span>, <span style=color:#e6db74>&#39;b&#39;</span>: <span style=color:#ae81ff>3</span>},
+</span></span><span style=display:flex><span>             {<span style=color:#e6db74>&#39;a&#39;</span>: <span style=color:#ae81ff>3</span>, <span style=color:#e6db74>&#39;b&#39;</span>: <span style=color:#ae81ff>4</span>}]
+</span></span><span style=display:flex><span>    OUTPUT <span style=color:#f92672>=</span> [<span style=color:#ae81ff>2</span>, <span style=color:#ae81ff>8</span>, <span style=color:#ae81ff>12</span>]
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>if</span> __name__ <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;__main__&#39;</span>:
+</span></span><span style=display:flex><span>    PyUnitTest<span style=color:#f92672>.</span>run_all_test()
+</span></span></code></pre></div><p>在Case中，使用<code>FUNC</code>标明函数，使用<code>INPUT</code>和<code>OUTPUT</code>标明预期输入输出。</p><p>使用<code>PyUnitTest.run_all_test()</code>自动运行所有用例。</p><h3 id=casecontainer>CaseContainer<a hidden class=anchor aria-hidden=true href=#casecontainer>#</a></h3><p><code>Case</code>类获得<code>Case</code>名，待测试函数名，输入和输出数据。</p><p>并且实现<code>run()</code>方法，运行测试用例。</p><p>使用<code>assert</code>方法保证用例的正确性。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>Case</span>(object):
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> __init__(self, name, attrs):
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>name <span style=color:#f92672>=</span> name
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>in_data <span style=color:#f92672>=</span> attrs<span style=color:#f92672>.</span>get(<span style=color:#e6db74>&#39;INPUT&#39;</span>, <span style=color:#66d9ef>None</span>)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>out_data <span style=color:#f92672>=</span> attrs<span style=color:#f92672>.</span>get(<span style=color:#e6db74>&#39;OUTPUT&#39;</span>, <span style=color:#66d9ef>None</span>)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>func <span style=color:#f92672>=</span> attrs<span style=color:#f92672>.</span>get(<span style=color:#e6db74>&#39;FUNC&#39;</span>, <span style=color:#66d9ef>None</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>assert</span>(self<span style=color:#f92672>.</span>in_data)
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>assert</span>(self<span style=color:#f92672>.</span>out_data)
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>assert</span>(self<span style=color:#f92672>.</span>func)
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>assert</span>(len(self<span style=color:#f92672>.</span>in_data) <span style=color:#f92672>==</span> len(self<span style=color:#f92672>.</span>out_data))
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>run</span>(self):
+</span></span><span style=display:flex><span>        print <span style=color:#e6db74>&#39;running case: </span><span style=color:#e6db74>%s</span><span style=color:#e6db74> ...&#39;</span> <span style=color:#f92672>%</span> self<span style=color:#f92672>.</span>name
+</span></span><span style=display:flex><span>        data_pair <span style=color:#f92672>=</span> zip(self<span style=color:#f92672>.</span>in_data, self<span style=color:#f92672>.</span>out_data)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        cnt <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>
+</span></span><span style=display:flex><span>        ok <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> data_in, data_out <span style=color:#f92672>in</span> data_pair:
+</span></span><span style=display:flex><span>            res <span style=color:#f92672>=</span> self<span style=color:#f92672>.</span>func(<span style=color:#f92672>**</span>data_in)
+</span></span><span style=display:flex><span>            cnt <span style=color:#f92672>+=</span> <span style=color:#ae81ff>1</span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> data_out <span style=color:#f92672>==</span> res:
+</span></span><span style=display:flex><span>                ok <span style=color:#f92672>+=</span> <span style=color:#ae81ff>1</span>
+</span></span><span style=display:flex><span>                print <span style=color:#e6db74>&#39;[PASS </span><span style=color:#e6db74>%d</span><span style=color:#e6db74>]...&#39;</span> <span style=color:#f92672>%</span> cnt
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>else</span>:
+</span></span><span style=display:flex><span>                print <span style=color:#e6db74>&#39;[FAILED </span><span style=color:#e6db74>%d</span><span style=color:#e6db74>]...&#39;</span> <span style=color:#f92672>%</span> cnt
+</span></span><span style=display:flex><span>                print <span style=color:#e6db74>&#39;INPUT:&#39;</span>, repr(data_in)
+</span></span><span style=display:flex><span>                print <span style=color:#e6db74>&#39;OUTPUT:&#39;</span>, repr(res)
+</span></span><span style=display:flex><span>                print <span style=color:#e6db74>&#39;EXPECT:&#39;</span>, repr(data_out)
+</span></span><span style=display:flex><span>        print <span style=color:#e6db74>&#39;finish case: </span><span style=color:#e6db74>%s</span><span style=color:#e6db74> (</span><span style=color:#e6db74>%d</span><span style=color:#e6db74> / </span><span style=color:#e6db74>%d</span><span style=color:#e6db74>) ...&#39;</span> <span style=color:#f92672>%</span> (self<span style=color:#f92672>.</span>name, ok, cnt)
+</span></span><span style=display:flex><span>        print <span style=color:#e6db74>&#39;-&#39;</span> <span style=color:#f92672>*</span> <span style=color:#ae81ff>20</span>
+</span></span></code></pre></div><p>CaseContainer类实现了Case的收集。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>CaseContainer</span>(object):
+</span></span><span style=display:flex><span>    cases <span style=color:#f92672>=</span> []
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@classmethod</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>append</span>(self, <span style=color:#66d9ef>case</span>):
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>cases<span style=color:#f92672>.</span>append(<span style=color:#66d9ef>case</span>)
+</span></span></code></pre></div><h3 id=超类与基类>超类与基类<a hidden class=anchor aria-hidden=true href=#超类与基类>#</a></h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>from</span> CaseContainer <span style=color:#f92672>import</span> Case, CaseContainer
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>MetaCase</span>(type):
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> __init__(cls, name, bases, attrs):
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> name <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;BaseCase&#39;</span>:
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span>
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>case</span> <span style=color:#f92672>=</span> Case(name, attrs)
+</span></span><span style=display:flex><span>        CaseContainer<span style=color:#f92672>.</span>append(<span style=color:#66d9ef>case</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>BaseCase</span>(object):
+</span></span><span style=display:flex><span>    __metaclass__ <span style=color:#f92672>=</span> MetaCase
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pass</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>run_all_test</span>():
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> <span style=color:#66d9ef>case</span> <span style=color:#f92672>in</span> CaseContainer<span style=color:#f92672>.</span>cases:
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>case</span><span style=color:#f92672>.</span>run()
+</span></span></code></pre></div><p>超类中，声明Case的收集逻辑。而基类中的<code>__metaclass__</code>使所有Case子类的超类皆为<code>MetaCase</code>。</p><p>最后的<code>run_all_test</code>可以批处理所有的test case。</p><h3 id=后续>后续<a hidden class=anchor aria-hidden=true href=#后续>#</a></h3><p>这个小的单元测试框架并不完善，只是实现了最基本的测试功能。并且也没有完全应用上面所提到的所有Python的魔法特性。所以后续如果有时间和精力，应该继续完善吧。</p><h2 id=参考>参考<a hidden class=anchor aria-hidden=true href=#参考>#</a></h2><ul><li><a href=http://book.douban.com/subject/24806569/>Pro Django</a></li></ul></div><footer class=post-footer><ul class=post-tags></ul><nav class=paginav><a class=prev href=https://wizmann.top/posts/press-pad-3d-model/><span class=title>«</span><br><span></span>
+</a><a class=next href=https://wizmann.top/posts/python-magic-2/><span class=title>»</span><br><span></span></a></nav></footer><div id=disqus_thread></div><script>(function(){var e=document,t=e.createElement("script");t.src="https://wizmann.disqus.com/embed.js",t.setAttribute("data-timestamp",+new Date),(e.head||e.body).appendChild(t)})()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript></article></main><footer class=footer><span>&copy; 2025 <a href=https://wizmann.top/>Maerlyn's Rainbow</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>

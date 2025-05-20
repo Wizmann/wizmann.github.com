@@ -1,0 +1,195 @@
+<!doctype html><html lang=zh-cn dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Maerlyn's Rainbow</title>
+<meta name=keywords content><meta name=description content="Date: 2023-12-17
+Title: 使用 SPIN/Promela 对多线程 Concurrent FIFO Queue 进行建模与验证
+Tags: SPIN, Promela, SPIN/Promela, 多线程, multi-thread, Queue, FIFO
+Slug: SPIN-Promela-Concurrent-Queue-1
+引言
+并发编程中设计和验证多线程数据结构是一项极大的挑战，即使是实现一个简单的数据结构（见《实现一个无锁消息队列》一文），都需要不少的脑力、讨论与实践才可以尽可能保证其正确性。"><meta name=author content="wizmann"><link rel=canonical href=https://wizmann.top/posts/spin-promela-concurrent-queue-1/><link crossorigin=anonymous href=/assets/css/stylesheet.f49d66caae9ea0fd43f21f29e71a8d3e284517ed770f2aa86fa012953ad3c9ef.css integrity="sha256-9J1myq6eoP1D8h8p5xqNPihFF+13Dyqob6ASlTrTye8=" rel="preload stylesheet" as=style><link rel=icon href=https://wizmann.top/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://wizmann.top/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://wizmann.top/favicon-32x32.png><link rel=apple-touch-icon href=https://wizmann.top/apple-touch-icon.png><link rel=mask-icon href=https://wizmann.top/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh-cn href=https://wizmann.top/posts/spin-promela-concurrent-queue-1/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><meta property="og:url" content="https://wizmann.top/posts/spin-promela-concurrent-queue-1/"><meta property="og:site_name" content="Maerlyn's Rainbow"><meta property="og:title" content="Maerlyn's Rainbow"><meta property="og:description" content="Date: 2023-12-17 Title: 使用 SPIN/Promela 对多线程 Concurrent FIFO Queue 进行建模与验证 Tags: SPIN, Promela, SPIN/Promela, 多线程, multi-thread, Queue, FIFO Slug: SPIN-Promela-Concurrent-Queue-1
+引言 并发编程中设计和验证多线程数据结构是一项极大的挑战，即使是实现一个简单的数据结构（见《实现一个无锁消息队列》一文），都需要不少的脑力、讨论与实践才可以尽可能保证其正确性。"><meta property="og:locale" content="zh-CN"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta name=twitter:card content="summary"><meta name=twitter:title content><meta name=twitter:description content="Date: 2023-12-17
+Title: 使用 SPIN/Promela 对多线程 Concurrent FIFO Queue 进行建模与验证
+Tags: SPIN, Promela, SPIN/Promela, 多线程, multi-thread, Queue, FIFO
+Slug: SPIN-Promela-Concurrent-Queue-1
+引言
+并发编程中设计和验证多线程数据结构是一项极大的挑战，即使是实现一个简单的数据结构（见《实现一个无锁消息队列》一文），都需要不少的脑力、讨论与实践才可以尽可能保证其正确性。"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Posts","item":"https://wizmann.top/posts/"},{"@type":"ListItem","position":2,"name":"","item":"https://wizmann.top/posts/spin-promela-concurrent-queue-1/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"","name":"","description":"Date: 2023-12-17 Title: 使用 SPIN/Promela 对多线程 Concurrent FIFO Queue 进行建模与验证 Tags: SPIN, Promela, SPIN/Promela, 多线程, multi-thread, Queue, FIFO Slug: SPIN-Promela-Concurrent-Queue-1\n引言 并发编程中设计和验证多线程数据结构是一项极大的挑战，即使是实现一个简单的数据结构（见《实现一个无锁消息队列》一文），都需要不少的脑力、讨论与实践才可以尽可能保证其正确性。\n","keywords":[],"articleBody":"Date: 2023-12-17 Title: 使用 SPIN/Promela 对多线程 Concurrent FIFO Queue 进行建模与验证 Tags: SPIN, Promela, SPIN/Promela, 多线程, multi-thread, Queue, FIFO Slug: SPIN-Promela-Concurrent-Queue-1\n引言 并发编程中设计和验证多线程数据结构是一项极大的挑战，即使是实现一个简单的数据结构（见《实现一个无锁消息队列》一文），都需要不少的脑力、讨论与实践才可以尽可能保证其正确性。\n本文尝试使用 SPIN/Promela 对多线程环境下的 Concurrent FIFO Queue 的一种实现进行建模与验证。\nConcurrent FIFO Queue 的设计 为了保证多线程操作的正确性，我们采用了以下关键设计：\nDummy Head 和 Dummy Tail 节点：引入这两个节点简化了队列操作逻辑，降低并发中的复杂性 Dummy Tail Data 指针作为“锁”：这个方法确保多个线程不会同时操作尾节点，降低了对锁的依赖 利用指针赋值的原子性：通过这种方式，减少了锁的使用，提高了效率 SPIN/Promela 建模中的考虑因素 在使用 SPIN/Promela 建模时，我们面临了几个挑战：\n静态内存管理：SPIN/Promela 缺乏动态内存操作，因此我们实现了一个极简的手动管理的静态内存堆栈。 减少状态空间：队列的长度可以是无限的，这也就意味着无限的状态空间。因此，我们将队列的最大长度设为3，以减少状态的穷举空间。 模拟CAS操作：由于缺少CAS指令，我们使用 do 循环和 atomic 块来模拟，同时开启 weak fairness 避免无限循环。（见《在SPIN/Promela中模拟CAS》一文） LTL表达式的使用：使用 LTL 表达式来穷举检查所有可能的程序状态，包括边缘情况。 LTL表达式偶尔会有一些”反直觉“的情况出现 例如在程序验证路径中，虽然理论上队列大小可以为0~3当中的任意数。但是也存在一种可能，即队列大小可以在2和3之间反复变化。如果我们声明“永远 最终 一定存在 queue size==1” 的表达式会失败，因为队列大小在这种“人造场景”下永远不会为1。 这种情况要求我们非常精确地设计 LTL 表达式 代码与断言的结合：因为 LTL 表达式的表达能力有限，需要结合代码中的 assert 语句来进行更全面的验证 代码示例 下面是我们用于建模和验证 Concurrent FIFO Queue 的 Promela 代码示例：\n#define MAX_CAPACITY 3 #define NUM_NODES MAX_CAPACITY + 2 #define EMPTY -1 #define INVALID_PTR -1 #define QUEUE_NOT_FULL (memptr \u003e 0) #define QUEUE_NOT_EMPTY (memptr \u003c MAX_CAPACITY) #define QUEUE_IS_EMPTY (memptr == MAX_CAPACITY) #define QUEUE_IS_FULL (memptr == 0) #define HEAD 0 typedef QueueNode { int nextptr; int data; }; // 1 dummy head + 1 dummy tail + #(data nodes) QueueNode nodes[NUM_NODES]; // data nodes + dummy tail int memory[MAX_CAPACITY + 1]; int memptr = MAX_CAPACITY; int tail; int queue_size = 0; bool running = false; init { int i = 0; for (i : 0 .. NUM_NODES - 1) { nodes[i].nextptr = INVALID_PTR; nodes[i].data = EMPTY; } for (i : 0 .. MAX_CAPACITY - 1) { memory[i] = i + 2; } memory[MAX_CAPACITY] = -1; nodes[HEAD].nextptr = HEAD + 1; tail = HEAD + 1; atomic { run worker(0); run worker(1); } running = true; } inline update_queue_size() { d_step { int cur = HEAD; int size = 0; do :: nodes[cur].nextptr != INVALID_PTR -\u003e { size++; assert(cur != INVALID_PTR); cur = nodes[cur].nextptr } :: else -\u003e break; od assert(nodes[cur].nextptr == INVALID_PTR); size--; // remove HEAD assert(size \u003e= 0 \u0026\u0026 size \u003c= MAX_CAPACITY); queue_size = size; } } inline enqueue(workerId) { int cur1 = INVALID_PTR; atomic { if :: (memptr - 1 \u003e= 0) -\u003e { cur1 = memory[memptr - 1]; memory[memptr - 1] = -1; memptr--; assert(nodes[cur1].data == EMPTY); assert(nodes[cur1].nextptr == INVALID_PTR); } :: else -\u003e skip fi } if :: cur1 != INVALID_PTR -\u003e { do :: (true) -\u003e { // CAS atomic { if :: (nodes[tail].data == EMPTY) -\u003e { nodes[tail].data = workerId; break } :: else -\u003e skip; fi } update_queue_size(); } od nodes[tail].nextptr = cur1; tail = cur1; } :: else -\u003e skip fi } inline dequeue(workerId) { int cur2 = INVALID_PTR; do :: (true) -\u003e { int nxt2 = nodes[HEAD].nextptr; cur2 = INVALID_PTR; if :: (nxt2 != tail) -\u003e { cur2 = nxt2; atomic { update_queue_size(); if :: (nodes[HEAD].nextptr == nxt2 \u0026\u0026 nxt2 != tail) -\u003e { nodes[HEAD].nextptr = nodes[cur2].nextptr; nodes[cur2].nextptr = INVALID_PTR; nodes[cur2].data = EMPTY; update_queue_size(); break } :: else -\u003e skip; fi } } :: else -\u003e break fi } od if :: (cur2 != INVALID_PTR) -\u003e { d_step { assert(nodes[cur2].nextptr == INVALID_PTR); assert(nodes[cur2].data == EMPTY); assert(memptr + 1 \u003c= MAX_CAPACITY); int i; for (i : 0 .. memptr - 1) { assert(memory[i] != cur2); } assert(memory[memptr] == -1); memory[memptr] = cur2; memptr++; } } :: else -\u003e skip fi } proctype worker(int workerId) { end: do :: (QUEUE_NOT_FULL) -\u003e enqueue(workerId); :: (QUEUE_NOT_EMPTY) -\u003e dequeue(workerId); od } ltl valid_first_node { []( running -\u003e ((nodes[HEAD].nextptr != INVALID_PTR) \u0026\u0026 (nodes[HEAD].nextptr \u003c NUM_NODES)) ); } ltl not_always_empty { [](running -\u003e (QUEUE_IS_EMPTY -\u003e \u003c\u003eQUEUE_NOT_EMPTY)); }; ltl not_always_full { [](running -\u003e (QUEUE_IS_FULL -\u003e \u003c\u003eQUEUE_NOT_FULL)); }; ltl size_change_by_1 { [](running -\u003e ( (queue_size == 0 U queue_size == 1) || (queue_size == 1 U (queue_size == 0 || queue_size == 2)) || (queue_size == 2 U (queue_size == 1 || queue_size == 3)) || (queue_size == 3 U queue_size == 2))) } 讨论 混合编程的可能性 我们是否可以通过 Promela 与 C/C++ 的混合编程来解决模型中的一些困难？这种方法或许能提供更加灵活的解决方案，但代价又是什么呢？\nLTL语句的合理性 在多线程环境下验证数据结构的正确性始终是一项艰巨的任务。对于代码中使用的LTL语句，是否需要继续完善以保证其在更多（甚至所有）场景下的正确性?\n对于其他实现的验证 在《实现一个无锁消息队列》一文中，涉及了更多的多线程队列模型，后续会对其进行验证。\n","wordCount":"1459","inLanguage":"zh-cn","datePublished":"0001-01-01T00:00:00Z","dateModified":"0001-01-01T00:00:00Z","author":{"@type":"Person","name":"wizmann"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://wizmann.top/posts/spin-promela-concurrent-queue-1/"},"publisher":{"@type":"Organization","name":"Maerlyn's Rainbow","logo":{"@type":"ImageObject","url":"https://wizmann.top/favicon.ico"}}}</script></head><body id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://wizmann.top/ accesskey=h title="Maerlyn's Rainbow (Alt + H)">Maerlyn's Rainbow</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent"></h1><div class=post-meta>wizmann</div></header><div class=post-content><p>Date: 2023-12-17
+Title: 使用 SPIN/Promela 对多线程 Concurrent FIFO Queue 进行建模与验证
+Tags: SPIN, Promela, SPIN/Promela, 多线程, multi-thread, Queue, FIFO
+Slug: SPIN-Promela-Concurrent-Queue-1</p><h2 id=引言>引言<a hidden class=anchor aria-hidden=true href=#引言>#</a></h2><p>并发编程中设计和验证多线程数据结构是一项极大的挑战，即使是实现一个简单的数据结构（见<a href=/implement-non-blocking-queue.html>《实现一个无锁消息队列》</a>一文），都需要不少的脑力、讨论与实践才可以尽可能保证其正确性。</p><p>本文尝试使用 SPIN/Promela 对多线程环境下的 Concurrent FIFO Queue 的一种实现进行建模与验证。</p><h2 id=concurrent-fifo-queue-的设计>Concurrent FIFO Queue 的设计<a hidden class=anchor aria-hidden=true href=#concurrent-fifo-queue-的设计>#</a></h2><p>为了保证多线程操作的正确性，我们采用了以下关键设计：</p><ul><li>Dummy Head 和 Dummy Tail 节点：引入这两个节点简化了队列操作逻辑，降低并发中的复杂性</li><li>Dummy Tail Data 指针作为“锁”：这个方法确保多个线程不会同时操作尾节点，降低了对锁的依赖</li><li>利用指针赋值的原子性：通过这种方式，减少了锁的使用，提高了效率</li></ul><h2 id=spinpromela-建模中的考虑因素>SPIN/Promela 建模中的考虑因素<a hidden class=anchor aria-hidden=true href=#spinpromela-建模中的考虑因素>#</a></h2><p>在使用 SPIN/Promela 建模时，我们面临了几个挑战：</p><ul><li>静态内存管理：SPIN/Promela 缺乏动态内存操作，因此我们实现了一个极简的手动管理的静态内存堆栈。</li><li>减少状态空间：队列的长度可以是无限的，这也就意味着无限的状态空间。因此，我们将队列的最大长度设为3，以减少状态的穷举空间。</li><li>模拟CAS操作：由于缺少CAS指令，我们使用 do 循环和 atomic 块来模拟，同时开启 weak fairness 避免无限循环。（见<a href=/simple-cas-model-in-spin-promela.html>《在SPIN/Promela中模拟CAS》</a>一文）</li><li>LTL表达式的使用：使用 LTL 表达式来穷举检查所有可能的程序状态，包括边缘情况。<ul><li>LTL表达式偶尔会有一些”反直觉“的情况出现</li><li>例如在程序验证路径中，虽然理论上队列大小可以为0~3当中的任意数。但是也存在一种可能，即队列大小可以在2和3之间反复变化。如果我们声明“<strong>永远</strong> <strong>最终</strong> 一定存在 queue size==1” 的表达式会失败，因为队列大小在这种“人造场景”下永远不会为1。</li><li>这种情况要求我们非常精确地设计 LTL 表达式</li></ul></li><li>代码与断言的结合：因为 LTL 表达式的表达能力有限，需要结合代码中的 assert 语句来进行更全面的验证</li></ul><h2 id=代码示例>代码示例<a hidden class=anchor aria-hidden=true href=#代码示例>#</a></h2><p>下面是我们用于建模和验证 Concurrent FIFO Queue 的 Promela 代码示例：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-promela data-lang=promela><span style=display:flex><span><span style=color:#75715e>#define MAX_CAPACITY 3
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#define NUM_NODES MAX_CAPACITY + 2
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#define EMPTY -1
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#define INVALID_PTR -1
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
+</span></span><span style=display:flex><span><span style=color:#75715e>#define QUEUE_NOT_FULL (memptr &gt; 0)
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#define QUEUE_NOT_EMPTY (memptr &lt; MAX_CAPACITY)
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#define QUEUE_IS_EMPTY (memptr == MAX_CAPACITY)
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#define QUEUE_IS_FULL (memptr == 0)
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
+</span></span><span style=display:flex><span><span style=color:#75715e>#define HEAD 0
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>typedef</span> QueueNode {
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>int</span> nextptr;
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>int</span> data;
+</span></span><span style=display:flex><span>};
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// 1 dummy head + 1 dummy tail + #(data nodes)
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>QueueNode nodes[NUM_NODES];
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// data nodes + dummy tail
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>int</span> memory[MAX_CAPACITY <span style=color:#f92672>+</span> <span style=color:#ae81ff>1</span>];
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> memptr <span style=color:#f92672>=</span> MAX_CAPACITY;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> tail;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> queue_size <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>bool</span> running <span style=color:#f92672>=</span> false;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>init</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> (i <span style=color:#f92672>:</span> <span style=color:#ae81ff>0</span> ..  NUM_NODES <span style=color:#f92672>-</span> <span style=color:#ae81ff>1</span>) {
+</span></span><span style=display:flex><span>        nodes[i]<span style=color:#f92672>.</span><span style=color:#a6e22e>nextptr</span> <span style=color:#f92672>=</span> INVALID_PTR;
+</span></span><span style=display:flex><span>        nodes[i]<span style=color:#f92672>.</span><span style=color:#a6e22e>data</span> <span style=color:#f92672>=</span> EMPTY;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> (i <span style=color:#f92672>:</span> <span style=color:#ae81ff>0</span> ..  MAX_CAPACITY <span style=color:#f92672>-</span> <span style=color:#ae81ff>1</span>) {
+</span></span><span style=display:flex><span>        memory[i] <span style=color:#f92672>=</span> i <span style=color:#f92672>+</span> <span style=color:#ae81ff>2</span>;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    memory[MAX_CAPACITY] <span style=color:#f92672>=</span> <span style=color:#ae81ff>-1</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    nodes[HEAD]<span style=color:#f92672>.</span><span style=color:#a6e22e>nextptr</span> <span style=color:#f92672>=</span> HEAD <span style=color:#f92672>+</span> <span style=color:#ae81ff>1</span>;
+</span></span><span style=display:flex><span>    tail <span style=color:#f92672>=</span> HEAD <span style=color:#f92672>+</span> <span style=color:#ae81ff>1</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>atomic</span> {
+</span></span><span style=display:flex><span>      <span style=color:#f92672>run</span> worker(<span style=color:#ae81ff>0</span>);
+</span></span><span style=display:flex><span>      <span style=color:#f92672>run</span> worker(<span style=color:#ae81ff>1</span>);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    running <span style=color:#f92672>=</span> true;
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>inline</span> update_queue_size() {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>d_step</span> {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>int</span> cur <span style=color:#f92672>=</span> HEAD;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>int</span> size <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>do</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>::</span> nodes[cur]<span style=color:#f92672>.</span><span style=color:#a6e22e>nextptr</span> <span style=color:#f92672>!=</span> INVALID_PTR <span style=color:#f92672>-&gt;</span> {
+</span></span><span style=display:flex><span>                size<span style=color:#f92672>++</span>;
+</span></span><span style=display:flex><span>                <span style=color:#a6e22e>assert</span>(cur <span style=color:#f92672>!=</span> INVALID_PTR);
+</span></span><span style=display:flex><span>                cur <span style=color:#f92672>=</span> nodes[cur]<span style=color:#f92672>.</span><span style=color:#a6e22e>nextptr</span>
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>            <span style=color:#f92672>::</span> else <span style=color:#f92672>-&gt;</span> <span style=color:#66d9ef>break</span>;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>od</span>
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>assert</span>(nodes[cur]<span style=color:#f92672>.</span><span style=color:#a6e22e>nextptr</span> <span style=color:#f92672>==</span> INVALID_PTR);
+</span></span><span style=display:flex><span>        size<span style=color:#f92672>--</span>; <span style=color:#75715e>// remove HEAD
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#a6e22e>assert</span>(size <span style=color:#f92672>&gt;=</span> <span style=color:#ae81ff>0</span> <span style=color:#f92672>&amp;&amp;</span> size <span style=color:#f92672>&lt;=</span> MAX_CAPACITY);
+</span></span><span style=display:flex><span>        queue_size <span style=color:#f92672>=</span> size;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>inline</span> enqueue(workerId) {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> cur1 <span style=color:#f92672>=</span> INVALID_PTR;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>atomic</span> {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>::</span> (memptr <span style=color:#f92672>-</span> <span style=color:#ae81ff>1</span> <span style=color:#f92672>&gt;=</span> <span style=color:#ae81ff>0</span>) <span style=color:#f92672>-&gt;</span> {
+</span></span><span style=display:flex><span>            cur1 <span style=color:#f92672>=</span> memory[memptr <span style=color:#f92672>-</span> <span style=color:#ae81ff>1</span>];
+</span></span><span style=display:flex><span>            memory[memptr <span style=color:#f92672>-</span> <span style=color:#ae81ff>1</span>] <span style=color:#f92672>=</span> <span style=color:#ae81ff>-1</span>;
+</span></span><span style=display:flex><span>            memptr<span style=color:#f92672>--</span>;
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>assert</span>(nodes[cur1]<span style=color:#f92672>.</span><span style=color:#a6e22e>data</span> <span style=color:#f92672>==</span> EMPTY);
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>assert</span>(nodes[cur1]<span style=color:#f92672>.</span><span style=color:#a6e22e>nextptr</span> <span style=color:#f92672>==</span> INVALID_PTR);
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#f92672>::</span> else <span style=color:#f92672>-&gt;</span> <span style=color:#66d9ef>skip</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>fi</span>
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>::</span> cur1 <span style=color:#f92672>!=</span> INVALID_PTR <span style=color:#f92672>-&gt;</span> {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>do</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>::</span> (true) <span style=color:#f92672>-&gt;</span> {
+</span></span><span style=display:flex><span>            <span style=color:#75715e>// CAS
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>            <span style=color:#66d9ef>atomic</span> {
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>if</span>
+</span></span><span style=display:flex><span>                <span style=color:#f92672>::</span> (nodes[tail]<span style=color:#f92672>.</span><span style=color:#a6e22e>data</span> <span style=color:#f92672>==</span> EMPTY) <span style=color:#f92672>-&gt;</span> {
+</span></span><span style=display:flex><span>                    nodes[tail]<span style=color:#f92672>.</span><span style=color:#a6e22e>data</span> <span style=color:#f92672>=</span> workerId;
+</span></span><span style=display:flex><span>                    <span style=color:#66d9ef>break</span>
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>                <span style=color:#f92672>::</span> else <span style=color:#f92672>-&gt;</span> <span style=color:#66d9ef>skip</span>;
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>fi</span>
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>            update_queue_size();
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>od</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        nodes[tail]<span style=color:#f92672>.</span><span style=color:#a6e22e>nextptr</span> <span style=color:#f92672>=</span> cur1;
+</span></span><span style=display:flex><span>        tail <span style=color:#f92672>=</span> cur1;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#f92672>::</span> else <span style=color:#f92672>-&gt;</span> <span style=color:#66d9ef>skip</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>fi</span>
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>inline</span> dequeue(workerId) {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> cur2 <span style=color:#f92672>=</span> INVALID_PTR;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>do</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>::</span> (true) <span style=color:#f92672>-&gt;</span> {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>int</span> nxt2 <span style=color:#f92672>=</span> nodes[HEAD]<span style=color:#f92672>.</span><span style=color:#a6e22e>nextptr</span>;
+</span></span><span style=display:flex><span>        cur2 <span style=color:#f92672>=</span> INVALID_PTR;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>::</span> (nxt2 <span style=color:#f92672>!=</span> tail) <span style=color:#f92672>-&gt;</span> {
+</span></span><span style=display:flex><span>            cur2 <span style=color:#f92672>=</span> nxt2;
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>atomic</span> {
+</span></span><span style=display:flex><span>                update_queue_size();
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>if</span>
+</span></span><span style=display:flex><span>                <span style=color:#f92672>::</span> (nodes[HEAD]<span style=color:#f92672>.</span><span style=color:#a6e22e>nextptr</span> <span style=color:#f92672>==</span> nxt2 <span style=color:#f92672>&amp;&amp;</span> nxt2 <span style=color:#f92672>!=</span> tail) <span style=color:#f92672>-&gt;</span> {
+</span></span><span style=display:flex><span>                    nodes[HEAD]<span style=color:#f92672>.</span><span style=color:#a6e22e>nextptr</span> <span style=color:#f92672>=</span> nodes[cur2]<span style=color:#f92672>.</span><span style=color:#a6e22e>nextptr</span>;
+</span></span><span style=display:flex><span>                    nodes[cur2]<span style=color:#f92672>.</span><span style=color:#a6e22e>nextptr</span> <span style=color:#f92672>=</span> INVALID_PTR;
+</span></span><span style=display:flex><span>                    nodes[cur2]<span style=color:#f92672>.</span><span style=color:#a6e22e>data</span> <span style=color:#f92672>=</span> EMPTY;
+</span></span><span style=display:flex><span>                    update_queue_size();
+</span></span><span style=display:flex><span>                    <span style=color:#66d9ef>break</span>
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>                <span style=color:#f92672>::</span> else <span style=color:#f92672>-&gt;</span> <span style=color:#66d9ef>skip</span>;
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>fi</span>
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#f92672>::</span> else <span style=color:#f92672>-&gt;</span> <span style=color:#66d9ef>break</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>fi</span>
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>od</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>::</span> (cur2 <span style=color:#f92672>!=</span> INVALID_PTR) <span style=color:#f92672>-&gt;</span> {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>d_step</span> {
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>assert</span>(nodes[cur2]<span style=color:#f92672>.</span><span style=color:#a6e22e>nextptr</span> <span style=color:#f92672>==</span> INVALID_PTR);
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>assert</span>(nodes[cur2]<span style=color:#f92672>.</span><span style=color:#a6e22e>data</span> <span style=color:#f92672>==</span> EMPTY);
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>assert</span>(memptr <span style=color:#f92672>+</span> <span style=color:#ae81ff>1</span> <span style=color:#f92672>&lt;=</span> MAX_CAPACITY);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>int</span> i;
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>for</span> (i <span style=color:#f92672>:</span> <span style=color:#ae81ff>0</span> ..  memptr <span style=color:#f92672>-</span> <span style=color:#ae81ff>1</span>) {
+</span></span><span style=display:flex><span>                <span style=color:#a6e22e>assert</span>(memory[i] <span style=color:#f92672>!=</span> cur2);
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>assert</span>(memory[memptr] <span style=color:#f92672>==</span> <span style=color:#ae81ff>-1</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            memory[memptr] <span style=color:#f92672>=</span> cur2;
+</span></span><span style=display:flex><span>            memptr<span style=color:#f92672>++</span>;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#f92672>::</span> else <span style=color:#f92672>-&gt;</span> <span style=color:#66d9ef>skip</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>fi</span>
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>proctype</span> worker(<span style=color:#66d9ef>int</span> workerId) {
+</span></span><span style=display:flex><span>end:
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>do</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>::</span> (QUEUE_NOT_FULL) <span style=color:#f92672>-&gt;</span> enqueue(workerId);
+</span></span><span style=display:flex><span>    <span style=color:#f92672>::</span> (QUEUE_NOT_EMPTY) <span style=color:#f92672>-&gt;</span> dequeue(workerId);
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>od</span>
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>ltl</span> valid_first_node { <span style=color:#f92672>[]</span>( running <span style=color:#f92672>-&gt;</span> ((nodes[HEAD]<span style=color:#f92672>.</span><span style=color:#a6e22e>nextptr</span> <span style=color:#f92672>!=</span> INVALID_PTR) <span style=color:#f92672>&amp;&amp;</span> (nodes[HEAD]<span style=color:#f92672>.</span><span style=color:#a6e22e>nextptr</span> <span style=color:#f92672>&lt;</span> NUM_NODES)) ); }
+</span></span><span style=display:flex><span><span style=color:#66d9ef>ltl</span> not_always_empty { <span style=color:#f92672>[]</span>(running <span style=color:#f92672>-&gt;</span> (QUEUE_IS_EMPTY <span style=color:#f92672>-&gt;</span> <span style=color:#f92672>&lt;&gt;</span>QUEUE_NOT_EMPTY)); };
+</span></span><span style=display:flex><span><span style=color:#66d9ef>ltl</span> not_always_full { <span style=color:#f92672>[]</span>(running <span style=color:#f92672>-&gt;</span> (QUEUE_IS_FULL <span style=color:#f92672>-&gt;</span> <span style=color:#f92672>&lt;&gt;</span>QUEUE_NOT_FULL)); };
+</span></span><span style=display:flex><span><span style=color:#66d9ef>ltl</span> size_change_by_1 { <span style=color:#f92672>[]</span>(running <span style=color:#f92672>-&gt;</span> (
+</span></span><span style=display:flex><span>                            (queue_size <span style=color:#f92672>==</span> <span style=color:#ae81ff>0</span> <span style=color:#f92672>U</span> queue_size <span style=color:#f92672>==</span> <span style=color:#ae81ff>1</span>) <span style=color:#f92672>||</span>
+</span></span><span style=display:flex><span>                            (queue_size <span style=color:#f92672>==</span> <span style=color:#ae81ff>1</span> <span style=color:#f92672>U</span> (queue_size <span style=color:#f92672>==</span> <span style=color:#ae81ff>0</span> <span style=color:#f92672>||</span> queue_size <span style=color:#f92672>==</span> <span style=color:#ae81ff>2</span>)) <span style=color:#f92672>||</span>
+</span></span><span style=display:flex><span>                            (queue_size <span style=color:#f92672>==</span> <span style=color:#ae81ff>2</span> <span style=color:#f92672>U</span> (queue_size <span style=color:#f92672>==</span> <span style=color:#ae81ff>1</span> <span style=color:#f92672>||</span> queue_size <span style=color:#f92672>==</span> <span style=color:#ae81ff>3</span>)) <span style=color:#f92672>||</span>
+</span></span><span style=display:flex><span>                            (queue_size <span style=color:#f92672>==</span> <span style=color:#ae81ff>3</span> <span style=color:#f92672>U</span> queue_size <span style=color:#f92672>==</span> <span style=color:#ae81ff>2</span>))) }
+</span></span></code></pre></div><h2 id=讨论>讨论<a hidden class=anchor aria-hidden=true href=#讨论>#</a></h2><h3 id=混合编程的可能性>混合编程的可能性<a hidden class=anchor aria-hidden=true href=#混合编程的可能性>#</a></h3><p>我们是否可以通过 Promela 与 C/C++ 的混合编程来解决模型中的一些困难？这种方法或许能提供更加灵活的解决方案，但代价又是什么呢？</p><h3 id=ltl语句的合理性>LTL语句的合理性<a hidden class=anchor aria-hidden=true href=#ltl语句的合理性>#</a></h3><p>在多线程环境下验证数据结构的正确性始终是一项艰巨的任务。对于代码中使用的LTL语句，是否需要继续完善以保证其在更多（甚至所有）场景下的正确性?</p><h3 id=对于其他实现的验证>对于其他实现的验证<a hidden class=anchor aria-hidden=true href=#对于其他实现的验证>#</a></h3><p>在<a href=/implement-non-blocking-queue.html>《实现一个无锁消息队列》</a>一文中，涉及了更多的多线程队列模型，后续会对其进行验证。</p></div><footer class=post-footer><ul class=post-tags></ul><nav class=paginav><a class=prev href=https://wizmann.top/posts/snake-problem/><span class=title>«</span><br><span></span>
+</a><a class=next href=https://wizmann.top/posts/std-smart-ptrs-cpp-for-the-antiquated-4/><span class=title>»</span><br><span></span></a></nav></footer><div id=disqus_thread></div><script>(function(){var e=document,t=e.createElement("script");t.src="https://wizmann.disqus.com/embed.js",t.setAttribute("data-timestamp",+new Date),(e.head||e.body).appendChild(t)})()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript></article></main><footer class=footer><span>&copy; 2025 <a href=https://wizmann.top/>Maerlyn's Rainbow</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>

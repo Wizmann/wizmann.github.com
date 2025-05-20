@@ -1,0 +1,273 @@
+<!doctype html><html lang=zh-cn dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Maerlyn's Rainbow</title>
+<meta name=keywords content><meta name=description content='Date: 2023-12-08
+Title: [tl;dr] 论文阅读：Rarest First and Choke Algorithms Are Enough
+Tags: BitTorrent, Distributed System
+Slug: tl-dr-Rarest-First-and-Choke-Algorithms-Are-Enough
+
+
+基本概念
+
+Peer：BitTorrent P2P下载的参与者
+Leecher：“吸血者”，仍在下载过程中的peer
+Seeder：做种者，下载完成后还在继续做种的peer
+Piece：Piece是文件的数据单元。当文件被分享时，它被分割成多个大小相等的片段，称为"pieces"。这些pieces是peer间传输的基本单位
+
+
+
+&ldquo;最稀有优先算法&rdquo;（Rarest First Algorithm）
+
+&ldquo;最稀有优先算法&rdquo;（Rarest First Algorithm）是BitTorrent协议中的一个关键策略，用于决定哪些数据块（piece）首先被下载和分享。这个算法的核心目标是优化整个网络中数据的分布，确保更快的下载速度和更高的效率。
+
+基本原理
+
+数据块的稀有度
+
+在BitTorrent网络中，文件被分割成许多小的数据块。
+
+“最稀有优先”算法的目的是优先下载那些网络中数量最少的数据块。
+
+
+
+
+选择下载的块：
+
+当一个peer加入Torrent网络，并开始下载文件时，它首先会从所有连接的peer那里获取有关哪些数据块是稀有的信息。
+
+然后，它优先请求下载那些最稀有的数据块。
+
+
+
+
+动态调整：
+
+随着下载的进行，每个peer会不断更新和重新评估网络中每个数据块的稀有度，并相应地调整其下载优先级。
+
+
+
+算法的重要性
+
+提高效率：通过优先下载最稀有的块，这个算法帮助加快了文件的整体下载速度。一旦最稀有的块被更多peer获取，它们就更容易被进一步分享和分发。
+防止瓶颈：如果没有这个算法，某些数据块可能会变得很难获得，导致下载过程在接近完成时放慢，这被称为“最后一块问题”（Last Piece Problem）。
+促进平等分享：这种方法鼓励peer分享它们拥有的稀有块，从而提高了整个网络中的合作和资源共享。
+
+
+
+
+
+实际应用
+
+在BitTorrent网络中，这个算法对于确保高效的数据分发至关重要。它不仅提高了单个用户的下载速度，而且还提高了整个网络的效率，确保了资源在用户之间的均衡分配。通过这种方式，BitTorrent网络能够有效地避免瓶颈和提高数据的可用性，即使在面对大量用户的情况下也是如此。
+
+
+
+结论
+
+最稀有优先算法是BitTorrent网络高效运行的关键组成部分。它通过智能地选择下载和分享网络中最稀有的数据块，提高了资源的整体分布和可用性，确保了快速、平衡的文件共享。
+
+
+
+
+
+&ldquo;窒息算法&rdquo;（Choking Algorithm）
+
+&ldquo;窒息算法&rdquo;（Choking Algorithm）是BitTorrent协议中的一个关键组成部分，用于管理多个peer之间的数据传输。这个算法帮助优化带宽的使用，确保网络中的资源被高效合理地分配。其核心目的是促进peer间的合作和数据的快速分发。
+
+窒息算法的基本原理
+
+选择和窒息（Choking and Unchoking）
+
+在BitTorrent网络中，每个peer同时维护着一组“窒息”（choked）和“未窒息”（unchoked）的peer名单。
+
+被“窒息”的peer无法从窒息方接收文件数据，而“未窒息”的peer可以进行数据交换。
+这种状态是动态的，peer根据算法定期更新它们的窒息/未窒息peer名单。
+
+
+
+
+利益驱动的决策
+
+算法核心是“利益驱动”（tit-for-tat）策略，即peer更倾向于向那些能给它提供数据的peer提供数据。
+
+这种方法鼓励peer分享数据，因为分享越多，获得数据的机会也越大。
+
+
+
+
+优化器：
+
+除了基于交换数据的量来决定窒息状态外，大多数BitTorrent客户端还实现了一个“优化器”（Optimizer），用于探索新的peer。
+
+通常，这是通过定期“未窒息”一个随机选择的peer来实现的，即使它在过去的数据交换中表现不佳或没有数据交换。
+
+
+
+
+窒息周期：
+
+peer定期评估其连接，并根据从其他peer接收到的数据速率来更新其窒息/未窒息名单
+
+
+
+
+
+窒息算法的重要性
+
+合作促进：通过奖励那些分享资源的peer，窒息算法鼓励合作，提高了网络中的资源共享效率。
+防止自私行为：算法减少了自私peer（只下载不上传的）的优势，因为这些peer不太可能被其他peer“未窒息”。
+网络拥塞控制：它帮助控制网络拥塞，通过限制peer的连接数量和数据传输，优化带宽使用。
+
+
+
+结论
+
+窒息算法是BitTorrent协议高效性的关键，它通过一种简单但有效的方式来鼓励数据共享和合作，保证了整个网络的健康和高效运行。通过这种动态的窒息/未窒息机制，BitTorrent网络能够有效地管理带宽和连接，确保资源在网络中的快速且公平的分配。
+
+
+
+
+
+为什么说“已经足够了”
+
+
+
+因为这是一门实验科学'><meta name=author content="wizmann"><link rel=canonical href=https://wizmann.top/posts/tl-dr-rarest-first-and-choke-algorithms-are-enough/><link crossorigin=anonymous href=/assets/css/stylesheet.f49d66caae9ea0fd43f21f29e71a8d3e284517ed770f2aa86fa012953ad3c9ef.css integrity="sha256-9J1myq6eoP1D8h8p5xqNPihFF+13Dyqob6ASlTrTye8=" rel="preload stylesheet" as=style><link rel=icon href=https://wizmann.top/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://wizmann.top/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://wizmann.top/favicon-32x32.png><link rel=apple-touch-icon href=https://wizmann.top/apple-touch-icon.png><link rel=mask-icon href=https://wizmann.top/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh-cn href=https://wizmann.top/posts/tl-dr-rarest-first-and-choke-algorithms-are-enough/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><meta property="og:url" content="https://wizmann.top/posts/tl-dr-rarest-first-and-choke-algorithms-are-enough/"><meta property="og:site_name" content="Maerlyn's Rainbow"><meta property="og:title" content="Maerlyn's Rainbow"><meta property="og:description" content='Date: 2023-12-08 Title: [tl;dr] 论文阅读：Rarest First and Choke Algorithms Are Enough Tags: BitTorrent, Distributed System Slug: tl-dr-Rarest-First-and-Choke-Algorithms-Are-Enough
+基本概念 Peer：BitTorrent P2P下载的参与者 Leecher：“吸血者”，仍在下载过程中的peer Seeder：做种者，下载完成后还在继续做种的peer Piece：Piece是文件的数据单元。当文件被分享时，它被分割成多个大小相等的片段，称为"pieces"。这些pieces是peer间传输的基本单位 “最稀有优先算法”（Rarest First Algorithm） “最稀有优先算法”（Rarest First Algorithm）是BitTorrent协议中的一个关键策略，用于决定哪些数据块（piece）首先被下载和分享。这个算法的核心目标是优化整个网络中数据的分布，确保更快的下载速度和更高的效率。 基本原理 数据块的稀有度 在BitTorrent网络中，文件被分割成许多小的数据块。 “最稀有优先”算法的目的是优先下载那些网络中数量最少的数据块。 选择下载的块： 当一个peer加入Torrent网络，并开始下载文件时，它首先会从所有连接的peer那里获取有关哪些数据块是稀有的信息。 然后，它优先请求下载那些最稀有的数据块。 动态调整： 随着下载的进行，每个peer会不断更新和重新评估网络中每个数据块的稀有度，并相应地调整其下载优先级。 算法的重要性 提高效率：通过优先下载最稀有的块，这个算法帮助加快了文件的整体下载速度。一旦最稀有的块被更多peer获取，它们就更容易被进一步分享和分发。 防止瓶颈：如果没有这个算法，某些数据块可能会变得很难获得，导致下载过程在接近完成时放慢，这被称为“最后一块问题”（Last Piece Problem）。 促进平等分享：这种方法鼓励peer分享它们拥有的稀有块，从而提高了整个网络中的合作和资源共享。 实际应用 在BitTorrent网络中，这个算法对于确保高效的数据分发至关重要。它不仅提高了单个用户的下载速度，而且还提高了整个网络的效率，确保了资源在用户之间的均衡分配。通过这种方式，BitTorrent网络能够有效地避免瓶颈和提高数据的可用性，即使在面对大量用户的情况下也是如此。 结论 最稀有优先算法是BitTorrent网络高效运行的关键组成部分。它通过智能地选择下载和分享网络中最稀有的数据块，提高了资源的整体分布和可用性，确保了快速、平衡的文件共享。 “窒息算法”（Choking Algorithm） “窒息算法”（Choking Algorithm）是BitTorrent协议中的一个关键组成部分，用于管理多个peer之间的数据传输。这个算法帮助优化带宽的使用，确保网络中的资源被高效合理地分配。其核心目的是促进peer间的合作和数据的快速分发。 窒息算法的基本原理 选择和窒息（Choking and Unchoking） 在BitTorrent网络中，每个peer同时维护着一组“窒息”（choked）和“未窒息”（unchoked）的peer名单。 被“窒息”的peer无法从窒息方接收文件数据，而“未窒息”的peer可以进行数据交换。 这种状态是动态的，peer根据算法定期更新它们的窒息/未窒息peer名单。 利益驱动的决策 算法核心是“利益驱动”（tit-for-tat）策略，即peer更倾向于向那些能给它提供数据的peer提供数据。 这种方法鼓励peer分享数据，因为分享越多，获得数据的机会也越大。 优化器： 除了基于交换数据的量来决定窒息状态外，大多数BitTorrent客户端还实现了一个“优化器”（Optimizer），用于探索新的peer。 通常，这是通过定期“未窒息”一个随机选择的peer来实现的，即使它在过去的数据交换中表现不佳或没有数据交换。 窒息周期： peer定期评估其连接，并根据从其他peer接收到的数据速率来更新其窒息/未窒息名单 窒息算法的重要性 合作促进：通过奖励那些分享资源的peer，窒息算法鼓励合作，提高了网络中的资源共享效率。 防止自私行为：算法减少了自私peer（只下载不上传的）的优势，因为这些peer不太可能被其他peer“未窒息”。 网络拥塞控制：它帮助控制网络拥塞，通过限制peer的连接数量和数据传输，优化带宽使用。 结论 窒息算法是BitTorrent协议高效性的关键，它通过一种简单但有效的方式来鼓励数据共享和合作，保证了整个网络的健康和高效运行。通过这种动态的窒息/未窒息机制，BitTorrent网络能够有效地管理带宽和连接，确保资源在网络中的快速且公平的分配。 为什么说“已经足够了” 因为这是一门实验科学'><meta property="og:locale" content="zh-CN"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta name=twitter:card content="summary"><meta name=twitter:title content><meta name=twitter:description content='Date: 2023-12-08
+Title: [tl;dr] 论文阅读：Rarest First and Choke Algorithms Are Enough
+Tags: BitTorrent, Distributed System
+Slug: tl-dr-Rarest-First-and-Choke-Algorithms-Are-Enough
+
+
+基本概念
+
+Peer：BitTorrent P2P下载的参与者
+Leecher：“吸血者”，仍在下载过程中的peer
+Seeder：做种者，下载完成后还在继续做种的peer
+Piece：Piece是文件的数据单元。当文件被分享时，它被分割成多个大小相等的片段，称为"pieces"。这些pieces是peer间传输的基本单位
+
+
+
+&ldquo;最稀有优先算法&rdquo;（Rarest First Algorithm）
+
+&ldquo;最稀有优先算法&rdquo;（Rarest First Algorithm）是BitTorrent协议中的一个关键策略，用于决定哪些数据块（piece）首先被下载和分享。这个算法的核心目标是优化整个网络中数据的分布，确保更快的下载速度和更高的效率。
+
+基本原理
+
+数据块的稀有度
+
+在BitTorrent网络中，文件被分割成许多小的数据块。
+
+“最稀有优先”算法的目的是优先下载那些网络中数量最少的数据块。
+
+
+
+
+选择下载的块：
+
+当一个peer加入Torrent网络，并开始下载文件时，它首先会从所有连接的peer那里获取有关哪些数据块是稀有的信息。
+
+然后，它优先请求下载那些最稀有的数据块。
+
+
+
+
+动态调整：
+
+随着下载的进行，每个peer会不断更新和重新评估网络中每个数据块的稀有度，并相应地调整其下载优先级。
+
+
+
+算法的重要性
+
+提高效率：通过优先下载最稀有的块，这个算法帮助加快了文件的整体下载速度。一旦最稀有的块被更多peer获取，它们就更容易被进一步分享和分发。
+防止瓶颈：如果没有这个算法，某些数据块可能会变得很难获得，导致下载过程在接近完成时放慢，这被称为“最后一块问题”（Last Piece Problem）。
+促进平等分享：这种方法鼓励peer分享它们拥有的稀有块，从而提高了整个网络中的合作和资源共享。
+
+
+
+
+
+实际应用
+
+在BitTorrent网络中，这个算法对于确保高效的数据分发至关重要。它不仅提高了单个用户的下载速度，而且还提高了整个网络的效率，确保了资源在用户之间的均衡分配。通过这种方式，BitTorrent网络能够有效地避免瓶颈和提高数据的可用性，即使在面对大量用户的情况下也是如此。
+
+
+
+结论
+
+最稀有优先算法是BitTorrent网络高效运行的关键组成部分。它通过智能地选择下载和分享网络中最稀有的数据块，提高了资源的整体分布和可用性，确保了快速、平衡的文件共享。
+
+
+
+
+
+&ldquo;窒息算法&rdquo;（Choking Algorithm）
+
+&ldquo;窒息算法&rdquo;（Choking Algorithm）是BitTorrent协议中的一个关键组成部分，用于管理多个peer之间的数据传输。这个算法帮助优化带宽的使用，确保网络中的资源被高效合理地分配。其核心目的是促进peer间的合作和数据的快速分发。
+
+窒息算法的基本原理
+
+选择和窒息（Choking and Unchoking）
+
+在BitTorrent网络中，每个peer同时维护着一组“窒息”（choked）和“未窒息”（unchoked）的peer名单。
+
+被“窒息”的peer无法从窒息方接收文件数据，而“未窒息”的peer可以进行数据交换。
+这种状态是动态的，peer根据算法定期更新它们的窒息/未窒息peer名单。
+
+
+
+
+利益驱动的决策
+
+算法核心是“利益驱动”（tit-for-tat）策略，即peer更倾向于向那些能给它提供数据的peer提供数据。
+
+这种方法鼓励peer分享数据，因为分享越多，获得数据的机会也越大。
+
+
+
+
+优化器：
+
+除了基于交换数据的量来决定窒息状态外，大多数BitTorrent客户端还实现了一个“优化器”（Optimizer），用于探索新的peer。
+
+通常，这是通过定期“未窒息”一个随机选择的peer来实现的，即使它在过去的数据交换中表现不佳或没有数据交换。
+
+
+
+
+窒息周期：
+
+peer定期评估其连接，并根据从其他peer接收到的数据速率来更新其窒息/未窒息名单
+
+
+
+
+
+窒息算法的重要性
+
+合作促进：通过奖励那些分享资源的peer，窒息算法鼓励合作，提高了网络中的资源共享效率。
+防止自私行为：算法减少了自私peer（只下载不上传的）的优势，因为这些peer不太可能被其他peer“未窒息”。
+网络拥塞控制：它帮助控制网络拥塞，通过限制peer的连接数量和数据传输，优化带宽使用。
+
+
+
+结论
+
+窒息算法是BitTorrent协议高效性的关键，它通过一种简单但有效的方式来鼓励数据共享和合作，保证了整个网络的健康和高效运行。通过这种动态的窒息/未窒息机制，BitTorrent网络能够有效地管理带宽和连接，确保资源在网络中的快速且公平的分配。
+
+
+
+
+
+为什么说“已经足够了”
+
+
+
+因为这是一门实验科学'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Posts","item":"https://wizmann.top/posts/"},{"@type":"ListItem","position":2,"name":"","item":"https://wizmann.top/posts/tl-dr-rarest-first-and-choke-algorithms-are-enough/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"","name":"","description":"Date: 2023-12-08 Title: [tl;dr] 论文阅读：Rarest First and Choke Algorithms Are Enough Tags: BitTorrent, Distributed System Slug: tl-dr-Rarest-First-and-Choke-Algorithms-Are-Enough\n基本概念 Peer：BitTorrent P2P下载的参与者 Leecher：“吸血者”，仍在下载过程中的peer Seeder：做种者，下载完成后还在继续做种的peer Piece：Piece是文件的数据单元。当文件被分享时，它被分割成多个大小相等的片段，称为\u0026quot;pieces\u0026quot;。这些pieces是peer间传输的基本单位 \u0026ldquo;最稀有优先算法\u0026rdquo;（Rarest First Algorithm） \u0026ldquo;最稀有优先算法\u0026rdquo;（Rarest First Algorithm）是BitTorrent协议中的一个关键策略，用于决定哪些数据块（piece）首先被下载和分享。这个算法的核心目标是优化整个网络中数据的分布，确保更快的下载速度和更高的效率。 基本原理 数据块的稀有度 在BitTorrent网络中，文件被分割成许多小的数据块。 “最稀有优先”算法的目的是优先下载那些网络中数量最少的数据块。 选择下载的块： 当一个peer加入Torrent网络，并开始下载文件时，它首先会从所有连接的peer那里获取有关哪些数据块是稀有的信息。 然后，它优先请求下载那些最稀有的数据块。 动态调整： 随着下载的进行，每个peer会不断更新和重新评估网络中每个数据块的稀有度，并相应地调整其下载优先级。 算法的重要性 提高效率：通过优先下载最稀有的块，这个算法帮助加快了文件的整体下载速度。一旦最稀有的块被更多peer获取，它们就更容易被进一步分享和分发。 防止瓶颈：如果没有这个算法，某些数据块可能会变得很难获得，导致下载过程在接近完成时放慢，这被称为“最后一块问题”（Last Piece Problem）。 促进平等分享：这种方法鼓励peer分享它们拥有的稀有块，从而提高了整个网络中的合作和资源共享。 实际应用 在BitTorrent网络中，这个算法对于确保高效的数据分发至关重要。它不仅提高了单个用户的下载速度，而且还提高了整个网络的效率，确保了资源在用户之间的均衡分配。通过这种方式，BitTorrent网络能够有效地避免瓶颈和提高数据的可用性，即使在面对大量用户的情况下也是如此。 结论 最稀有优先算法是BitTorrent网络高效运行的关键组成部分。它通过智能地选择下载和分享网络中最稀有的数据块，提高了资源的整体分布和可用性，确保了快速、平衡的文件共享。 \u0026ldquo;窒息算法\u0026rdquo;（Choking Algorithm） \u0026ldquo;窒息算法\u0026rdquo;（Choking Algorithm）是BitTorrent协议中的一个关键组成部分，用于管理多个peer之间的数据传输。这个算法帮助优化带宽的使用，确保网络中的资源被高效合理地分配。其核心目的是促进peer间的合作和数据的快速分发。 窒息算法的基本原理 选择和窒息（Choking and Unchoking） 在BitTorrent网络中，每个peer同时维护着一组“窒息”（choked）和“未窒息”（unchoked）的peer名单。 被“窒息”的peer无法从窒息方接收文件数据，而“未窒息”的peer可以进行数据交换。 这种状态是动态的，peer根据算法定期更新它们的窒息/未窒息peer名单。 利益驱动的决策 算法核心是“利益驱动”（tit-for-tat）策略，即peer更倾向于向那些能给它提供数据的peer提供数据。 这种方法鼓励peer分享数据，因为分享越多，获得数据的机会也越大。 优化器： 除了基于交换数据的量来决定窒息状态外，大多数BitTorrent客户端还实现了一个“优化器”（Optimizer），用于探索新的peer。 通常，这是通过定期“未窒息”一个随机选择的peer来实现的，即使它在过去的数据交换中表现不佳或没有数据交换。 窒息周期： peer定期评估其连接，并根据从其他peer接收到的数据速率来更新其窒息/未窒息名单 窒息算法的重要性 合作促进：通过奖励那些分享资源的peer，窒息算法鼓励合作，提高了网络中的资源共享效率。 防止自私行为：算法减少了自私peer（只下载不上传的）的优势，因为这些peer不太可能被其他peer“未窒息”。 网络拥塞控制：它帮助控制网络拥塞，通过限制peer的连接数量和数据传输，优化带宽使用。 结论 窒息算法是BitTorrent协议高效性的关键，它通过一种简单但有效的方式来鼓励数据共享和合作，保证了整个网络的健康和高效运行。通过这种动态的窒息/未窒息机制，BitTorrent网络能够有效地管理带宽和连接，确保资源在网络中的快速且公平的分配。 为什么说“已经足够了” 因为这是一门实验科学\n","keywords":[],"articleBody":"Date: 2023-12-08 Title: [tl;dr] 论文阅读：Rarest First and Choke Algorithms Are Enough Tags: BitTorrent, Distributed System Slug: tl-dr-Rarest-First-and-Choke-Algorithms-Are-Enough\n基本概念 Peer：BitTorrent P2P下载的参与者 Leecher：“吸血者”，仍在下载过程中的peer Seeder：做种者，下载完成后还在继续做种的peer Piece：Piece是文件的数据单元。当文件被分享时，它被分割成多个大小相等的片段，称为\"pieces\"。这些pieces是peer间传输的基本单位 “最稀有优先算法”（Rarest First Algorithm） “最稀有优先算法”（Rarest First Algorithm）是BitTorrent协议中的一个关键策略，用于决定哪些数据块（piece）首先被下载和分享。这个算法的核心目标是优化整个网络中数据的分布，确保更快的下载速度和更高的效率。 基本原理 数据块的稀有度 在BitTorrent网络中，文件被分割成许多小的数据块。 “最稀有优先”算法的目的是优先下载那些网络中数量最少的数据块。 选择下载的块： 当一个peer加入Torrent网络，并开始下载文件时，它首先会从所有连接的peer那里获取有关哪些数据块是稀有的信息。 然后，它优先请求下载那些最稀有的数据块。 动态调整： 随着下载的进行，每个peer会不断更新和重新评估网络中每个数据块的稀有度，并相应地调整其下载优先级。 算法的重要性 提高效率：通过优先下载最稀有的块，这个算法帮助加快了文件的整体下载速度。一旦最稀有的块被更多peer获取，它们就更容易被进一步分享和分发。 防止瓶颈：如果没有这个算法，某些数据块可能会变得很难获得，导致下载过程在接近完成时放慢，这被称为“最后一块问题”（Last Piece Problem）。 促进平等分享：这种方法鼓励peer分享它们拥有的稀有块，从而提高了整个网络中的合作和资源共享。 实际应用 在BitTorrent网络中，这个算法对于确保高效的数据分发至关重要。它不仅提高了单个用户的下载速度，而且还提高了整个网络的效率，确保了资源在用户之间的均衡分配。通过这种方式，BitTorrent网络能够有效地避免瓶颈和提高数据的可用性，即使在面对大量用户的情况下也是如此。 结论 最稀有优先算法是BitTorrent网络高效运行的关键组成部分。它通过智能地选择下载和分享网络中最稀有的数据块，提高了资源的整体分布和可用性，确保了快速、平衡的文件共享。 “窒息算法”（Choking Algorithm） “窒息算法”（Choking Algorithm）是BitTorrent协议中的一个关键组成部分，用于管理多个peer之间的数据传输。这个算法帮助优化带宽的使用，确保网络中的资源被高效合理地分配。其核心目的是促进peer间的合作和数据的快速分发。 窒息算法的基本原理 选择和窒息（Choking and Unchoking） 在BitTorrent网络中，每个peer同时维护着一组“窒息”（choked）和“未窒息”（unchoked）的peer名单。 被“窒息”的peer无法从窒息方接收文件数据，而“未窒息”的peer可以进行数据交换。 这种状态是动态的，peer根据算法定期更新它们的窒息/未窒息peer名单。 利益驱动的决策 算法核心是“利益驱动”（tit-for-tat）策略，即peer更倾向于向那些能给它提供数据的peer提供数据。 这种方法鼓励peer分享数据，因为分享越多，获得数据的机会也越大。 优化器： 除了基于交换数据的量来决定窒息状态外，大多数BitTorrent客户端还实现了一个“优化器”（Optimizer），用于探索新的peer。 通常，这是通过定期“未窒息”一个随机选择的peer来实现的，即使它在过去的数据交换中表现不佳或没有数据交换。 窒息周期： peer定期评估其连接，并根据从其他peer接收到的数据速率来更新其窒息/未窒息名单 窒息算法的重要性 合作促进：通过奖励那些分享资源的peer，窒息算法鼓励合作，提高了网络中的资源共享效率。 防止自私行为：算法减少了自私peer（只下载不上传的）的优势，因为这些peer不太可能被其他peer“未窒息”。 网络拥塞控制：它帮助控制网络拥塞，通过限制peer的连接数量和数据传输，优化带宽使用。 结论 窒息算法是BitTorrent协议高效性的关键，它通过一种简单但有效的方式来鼓励数据共享和合作，保证了整个网络的健康和高效运行。通过这种动态的窒息/未窒息机制，BitTorrent网络能够有效地管理带宽和连接，确保资源在网络中的快速且公平的分配。 为什么说“已经足够了” 因为这是一门实验科学\n“最稀有优先算法”（Rarest First Algorithm） 种子的熵 描述了种子中各个数据块在所有peer间的分布情况 高熵意味着数据块在所有peer中分布得很均匀，peer之间更有可能拥有彼此尚未下载的块 高熵的种子通常意味着更高的数据交换效率 理想熵（Ideal Entrophy） 是指网络中的数据块（pieces）在所有leechers之间均匀分布 每个leechers都持有一些其他leechers需要的数据块，从而确保了网络中的每个leechers都对其他leechers感兴趣。 冷启动（Transient State） 当种子刚开始传播时的动态，优先传播稀有块，提高下载效率 Rarest First Algorithm解决了种子的冷启动问题，确保了最不常见的块被优先传播，提高了整个网络的下载效率 稳定态（Steady State） 网络中的大部分块已经被比较均匀地传播。最稀有优先算法在这一阶段继续确保数据块的多样性，从而减少了任何特定块成为瓶颈的可能性 算法鼓励peer间的有效合作，因为每个peer都可能持有其他peer需要的稀有块 “最后一块”问题（Last Pieces Problem） 下载接近完成时，某些块变得非常稀有，从而延缓整个下载过程 算法确保即使在下载的后期，所有参与的peer仍然有激励去交换彼此之间缺少的块 避免了下载末期的稀有块瓶颈 “窒息算法”（Choking Algorithm） “对等原则”（Tit-for-tat Fairness） 如果A从B下载的数据少于B从A下载的数据，A会拒绝继续与B分享数据 用来保证公平性，杜绝free rider 在动态或非对称网络环境中可能效率低下 会导致网络空闲资源的浪费 旧版窒息算法 旧版窒息算法只考虑了peer之间的下载速度，而不是它们的上传贡献 少量上传速度快的leecher会占据大量带宽，不利于种子熵的增加 下载速度快的free riders得到了比实际贡献更多的回报 基于更宏观的性能指标（如整体上传贡献）的策略能够更好地适应这些变化 新版窒息算法 上传速度快的leecher一定比上传速度慢的leecher获得更多的下载速度，保证了近似的对等原则 对于seed（做种者）而言，应该对每个leecher提供相同的服务时间。保证了网络中的公平性和效率 因为文件块可以被更平均的分配给了其它peer，在冷启动时的弹性更强，对于free riders的抵抗性也更强 Link Rarest First and Choke Algorithms Are Enough ","wordCount":"2905","inLanguage":"zh-cn","datePublished":"0001-01-01T00:00:00Z","dateModified":"0001-01-01T00:00:00Z","author":{"@type":"Person","name":"wizmann"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://wizmann.top/posts/tl-dr-rarest-first-and-choke-algorithms-are-enough/"},"publisher":{"@type":"Organization","name":"Maerlyn's Rainbow","logo":{"@type":"ImageObject","url":"https://wizmann.top/favicon.ico"}}}</script></head><body id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://wizmann.top/ accesskey=h title="Maerlyn's Rainbow (Alt + H)">Maerlyn's Rainbow</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent"></h1><div class=post-meta>wizmann</div></header><div class=post-content><p>Date: 2023-12-08
+Title: [tl;dr] 论文阅读：Rarest First and Choke Algorithms Are Enough
+Tags: BitTorrent, Distributed System
+Slug: tl-dr-Rarest-First-and-Choke-Algorithms-Are-Enough</p><ul><li><h2 id=基本概念>基本概念<a hidden class=anchor aria-hidden=true href=#基本概念>#</a></h2><ul><li><strong>Peer</strong>：BitTorrent P2P下载的参与者</li><li><strong>Leecher</strong>：“吸血者”，仍在下载过程中的peer</li><li><strong>Seeder</strong>：做种者，下载完成后还在继续做种的peer</li><li><strong>Piece</strong>：Piece是文件的数据单元。当文件被分享时，它被分割成多个大小相等的片段，称为"pieces"。这些pieces是peer间传输的基本单位</li></ul></li><li><h2 id=最稀有优先算法rarest-first-algorithm>&ldquo;最稀有优先算法&rdquo;（Rarest First Algorithm）<a hidden class=anchor aria-hidden=true href=#最稀有优先算法rarest-first-algorithm>#</a></h2><ul><li>&ldquo;最稀有优先算法&rdquo;（Rarest First Algorithm）是BitTorrent协议中的一个关键策略，用于决定哪些数据块（piece）首先被下载和分享。这个算法的核心目标是优化整个网络中数据的分布，确保更快的下载速度和更高的效率。</li><li><h3 id=基本原理>基本原理<a hidden class=anchor aria-hidden=true href=#基本原理>#</a></h3><ul><li><strong>数据块的稀有度</strong><ul><li>在BitTorrent网络中，文件被分割成许多小的数据块。<ul><li>“最稀有优先”算法的目的是优先下载那些网络中数量最少的数据块。</li></ul></li></ul></li><li><strong>选择下载的块</strong>：<ul><li>当一个peer加入Torrent网络，并开始下载文件时，它首先会从所有连接的peer那里获取有关哪些数据块是稀有的信息。<ul><li>然后，它优先请求下载那些最稀有的数据块。</li></ul></li></ul></li><li><strong>动态调整</strong>：<ul><li>随着下载的进行，每个peer会不断更新和重新评估网络中每个数据块的稀有度，并相应地调整其下载优先级。</li></ul></li><li><h3 id=算法的重要性>算法的重要性<a hidden class=anchor aria-hidden=true href=#算法的重要性>#</a></h3><ul><li><strong>提高效率</strong>：通过优先下载最稀有的块，这个算法帮助加快了文件的整体下载速度。一旦最稀有的块被更多peer获取，它们就更容易被进一步分享和分发。</li><li><strong>防止瓶颈</strong>：如果没有这个算法，某些数据块可能会变得很难获得，导致下载过程在接近完成时放慢，这被称为“最后一块问题”（Last Piece Problem）。</li><li><strong>促进平等分享</strong>：这种方法鼓励peer分享它们拥有的稀有块，从而提高了整个网络中的合作和资源共享。</li></ul></li></ul></li><li><h3 id=实际应用>实际应用<a hidden class=anchor aria-hidden=true href=#实际应用>#</a></h3><ul><li>在BitTorrent网络中，这个算法对于确保高效的数据分发至关重要。它不仅提高了单个用户的下载速度，而且还提高了整个网络的效率，确保了资源在用户之间的均衡分配。通过这种方式，BitTorrent网络能够有效地避免瓶颈和提高数据的可用性，即使在面对大量用户的情况下也是如此。</li></ul></li><li><h3 id=结论>结论<a hidden class=anchor aria-hidden=true href=#结论>#</a></h3><ul><li>最稀有优先算法是BitTorrent网络高效运行的关键组成部分。它通过智能地选择下载和分享网络中最稀有的数据块，提高了资源的整体分布和可用性，确保了快速、平衡的文件共享。</li></ul></li></ul></li><li><h2 id=窒息算法choking-algorithm>&ldquo;窒息算法&rdquo;（Choking Algorithm）<a hidden class=anchor aria-hidden=true href=#窒息算法choking-algorithm>#</a></h2><ul><li>&ldquo;窒息算法&rdquo;（Choking Algorithm）是BitTorrent协议中的一个关键组成部分，用于管理多个peer之间的数据传输。这个算法帮助优化带宽的使用，确保网络中的资源被高效合理地分配。其核心目的是促进peer间的合作和数据的快速分发。</li><li><h3 id=窒息算法的基本原理>窒息算法的基本原理<a hidden class=anchor aria-hidden=true href=#窒息算法的基本原理>#</a></h3><ul><li><strong>选择和窒息（Choking and Unchoking）</strong><ul><li>在BitTorrent网络中，每个peer同时维护着一组“窒息”（choked）和“未窒息”（unchoked）的peer名单。<ul><li>被“窒息”的peer无法从窒息方接收文件数据，而“未窒息”的peer可以进行数据交换。</li><li>这种状态是动态的，peer根据算法定期更新它们的窒息/未窒息peer名单。</li></ul></li></ul></li><li><strong>利益驱动的决策</strong><ul><li>算法核心是“利益驱动”（tit-for-tat）策略，即peer更倾向于向那些能给它提供数据的peer提供数据。<ul><li>这种方法鼓励peer分享数据，因为分享越多，获得数据的机会也越大。</li></ul></li></ul></li><li><strong>优化器</strong>：<ul><li>除了基于交换数据的量来决定窒息状态外，大多数BitTorrent客户端还实现了一个“优化器”（Optimizer），用于探索新的peer。<ul><li>通常，这是通过定期“未窒息”一个随机选择的peer来实现的，即使它在过去的数据交换中表现不佳或没有数据交换。</li></ul></li></ul></li><li><strong>窒息周期</strong>：<ul><li>peer定期评估其连接，并根据从其他peer接收到的数据速率来更新其窒息/未窒息名单</li></ul></li></ul></li><li><h3 id=窒息算法的重要性>窒息算法的重要性<a hidden class=anchor aria-hidden=true href=#窒息算法的重要性>#</a></h3><ul><li><strong>合作促进</strong>：通过奖励那些分享资源的peer，窒息算法鼓励合作，提高了网络中的资源共享效率。</li><li><strong>防止自私行为</strong>：算法减少了自私peer（只下载不上传的）的优势，因为这些peer不太可能被其他peer“未窒息”。</li><li><strong>网络拥塞控制</strong>：它帮助控制网络拥塞，通过限制peer的连接数量和数据传输，优化带宽使用。</li></ul></li><li><h3 id=结论-1>结论<a hidden class=anchor aria-hidden=true href=#结论-1>#</a></h3><ul><li>窒息算法是BitTorrent协议高效性的关键，它通过一种简单但有效的方式来鼓励数据共享和合作，保证了整个网络的健康和高效运行。通过这种动态的窒息/未窒息机制，BitTorrent网络能够有效地管理带宽和连接，确保资源在网络中的快速且公平的分配。</li></ul></li></ul></li><li><h2 id=为什么说已经足够了>为什么说“已经足够了”<a hidden class=anchor aria-hidden=true href=#为什么说已经足够了>#</a></h2><ul><li><blockquote><p>因为这是一门实验科学</p></blockquote></li><li><h3 id=最稀有优先算法rarest-first-algorithm-1>&ldquo;最稀有优先算法&rdquo;（Rarest First Algorithm）<a hidden class=anchor aria-hidden=true href=#最稀有优先算法rarest-first-algorithm-1>#</a></h3><ul><li><h3 id=种子的熵>种子的熵<a hidden class=anchor aria-hidden=true href=#种子的熵>#</a></h3><ul><li>描述了种子中各个数据块在所有peer间的分布情况</li><li>高熵意味着数据块在所有peer中分布得很均匀，peer之间更有可能拥有彼此尚未下载的块</li><li>高熵的种子通常意味着更高的数据交换效率</li></ul></li><li><h3 id=理想熵ideal-entrophy>理想熵（Ideal Entrophy）<a hidden class=anchor aria-hidden=true href=#理想熵ideal-entrophy>#</a></h3><ul><li>是指网络中的数据块（pieces）在所有leechers之间均匀分布</li><li>每个leechers都持有一些其他leechers需要的数据块，从而确保了网络中的每个leechers都对其他leechers感兴趣。</li></ul></li><li><h3 id=冷启动transient-state>冷启动（Transient State）<a hidden class=anchor aria-hidden=true href=#冷启动transient-state>#</a></h3><ul><li>当种子刚开始传播时的动态，优先传播稀有块，提高下载效率</li><li>Rarest First Algorithm解决了种子的冷启动问题，确保了最不常见的块被优先传播，提高了整个网络的下载效率</li></ul></li><li><h3 id=稳定态steady-state>稳定态（Steady State）<a hidden class=anchor aria-hidden=true href=#稳定态steady-state>#</a></h3><ul><li>网络中的大部分块已经被比较均匀地传播。最稀有优先算法在这一阶段继续确保数据块的多样性，从而减少了任何特定块成为瓶颈的可能性</li><li>算法鼓励peer间的有效合作，因为每个peer都可能持有其他peer需要的稀有块</li></ul></li><li><h3 id=最后一块问题last-pieces-problem>“最后一块”问题（Last Pieces Problem）<a hidden class=anchor aria-hidden=true href=#最后一块问题last-pieces-problem>#</a></h3><ul><li>下载接近完成时，某些块变得非常稀有，从而延缓整个下载过程</li><li>算法确保即使在下载的后期，所有参与的peer仍然有激励去交换彼此之间缺少的块</li><li>避免了下载末期的稀有块瓶颈</li></ul></li></ul></li><li><h3 id=窒息算法choking-algorithm-1>&ldquo;窒息算法&rdquo;（Choking Algorithm）<a hidden class=anchor aria-hidden=true href=#窒息算法choking-algorithm-1>#</a></h3><ul><li><h3 id=对等原则tit-for-tat-fairness>“对等原则”（Tit-for-tat Fairness）<a hidden class=anchor aria-hidden=true href=#对等原则tit-for-tat-fairness>#</a></h3><ul><li>如果A从B下载的数据少于B从A下载的数据，A会拒绝继续与B分享数据</li><li>用来保证公平性，杜绝free rider</li><li>在动态或非对称网络环境中可能效率低下</li><li>会导致网络空闲资源的浪费</li></ul></li><li><h3 id=旧版窒息算法>旧版窒息算法<a hidden class=anchor aria-hidden=true href=#旧版窒息算法>#</a></h3><ul><li>旧版窒息算法只考虑了peer之间的下载速度，而不是它们的上传贡献<ul><li>少量上传速度快的leecher会占据大量带宽，不利于种子熵的增加</li><li>下载速度快的free riders得到了比实际贡献更多的回报</li></ul></li><li>基于更宏观的性能指标（如整体上传贡献）的策略能够更好地适应这些变化</li></ul></li><li><h3 id=新版窒息算法>新版窒息算法<a hidden class=anchor aria-hidden=true href=#新版窒息算法>#</a></h3><ul><li>上传速度快的leecher一定比上传速度慢的leecher获得更多的下载速度，保证了近似的对等原则</li><li>对于seed（做种者）而言，应该对每个leecher提供相同的服务时间。保证了网络中的公平性和效率</li><li>因为文件块可以被更平均的分配给了其它peer，在冷启动时的弹性更强，对于free riders的抵抗性也更强</li></ul></li></ul></li></ul></li><li>Link<ul><li><a href=http://conferences.sigcomm.org/imc/2006/papers/p20-legout.pdf>Rarest First and Choke Algorithms Are Enough</a></li></ul></li></ul></div><footer class=post-footer><ul class=post-tags></ul><nav class=paginav><a class=prev href=https://wizmann.top/posts/tl-dr-borg/><span class=title>«</span><br><span></span>
+</a><a class=next href=https://wizmann.top/posts/tlv-protocol/><span class=title>»</span><br><span></span></a></nav></footer><div id=disqus_thread></div><script>(function(){var e=document,t=e.createElement("script");t.src="https://wizmann.disqus.com/embed.js",t.setAttribute("data-timestamp",+new Date),(e.head||e.body).appendChild(t)})()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript></article></main><footer class=footer><span>&copy; 2025 <a href=https://wizmann.top/>Maerlyn's Rainbow</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>

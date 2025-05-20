@@ -1,0 +1,260 @@
+<!doctype html><html lang=zh-cn dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Maerlyn's Rainbow</title>
+<meta name=keywords content><meta name=description content="Date: 2014-06-21 19:24:37
+Title: Codeforces Round #253 Tutorial
+Tags: codeforces, algorithm
+Slug: cf-253
+
+443A - Anton and Letters
+Simple and easy, solved by two lines of python code.
+ls = filter(lambda y: y, map(lambda x: x.strip(), raw_input()[1:-1].split(&#34;,&#34;)))
+print len(set(ls))
+443B - Kolya and Tandem Repeat
+Brute force. Just enumerate the beginning and the end of the substring, and check if that substring is tandem repeat.
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <iostream>
+#include <algorithm>
+
+using namespace std;
+
+#define print(x) cout << x << endl
+#define input(x) cin >> x
+
+string str;
+int k;
+
+int main()
+{
+    freopen(&#34;input.txt&#34;, &#34;r&#34;, stdin);
+    input(str >> k);
+    for (int i = 0; i < k; i++) {
+        str += '?';
+    }
+    int len = str.length();
+
+    int ans = 0;
+    for (int i = 0; i < len; i++) {
+        if (str[i] == '?') {
+            break;
+        }
+        for (int j = 1; i + j < len; j += 2) {
+            int slip = (j + 1) / 2;
+            for (int k = 0; k < slip; k++) {
+                if (str[i + k] == str[i + k + slip] || str[i + k + slip] == '?') {
+                    /* pass */;
+                }
+                else {
+                    goto fail;
+                }
+            }
+            ans = max(ans, j + 1);
+fail:       /*pass*/;
+        }
+    }
+    print(ans);
+    return 0;
+}
+442A - Borya and Hanabig
+Because Borya knows about the color and value of all his cards, he just need to distinguish each card from the others."><meta name=author content="wizmann"><link rel=canonical href=https://wizmann.top/posts/cf-253/><link crossorigin=anonymous href=/assets/css/stylesheet.f49d66caae9ea0fd43f21f29e71a8d3e284517ed770f2aa86fa012953ad3c9ef.css integrity="sha256-9J1myq6eoP1D8h8p5xqNPihFF+13Dyqob6ASlTrTye8=" rel="preload stylesheet" as=style><link rel=icon href=https://wizmann.top/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://wizmann.top/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://wizmann.top/favicon-32x32.png><link rel=apple-touch-icon href=https://wizmann.top/apple-touch-icon.png><link rel=mask-icon href=https://wizmann.top/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh-cn href=https://wizmann.top/posts/cf-253/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><meta property="og:url" content="https://wizmann.top/posts/cf-253/"><meta property="og:site_name" content="Maerlyn's Rainbow"><meta property="og:title" content="Maerlyn's Rainbow"><meta property="og:description" content="Date: 2014-06-21 19:24:37 Title: Codeforces Round #253 Tutorial Tags: codeforces, algorithm Slug: cf-253
+443A - Anton and Letters Simple and easy, solved by two lines of python code.
+ls = filter(lambda y: y, map(lambda x: x.strip(), raw_input()[1:-1].split(&#34;,&#34;))) print len(set(ls)) 443B - Kolya and Tandem Repeat Brute force. Just enumerate the beginning and the end of the substring, and check if that substring is tandem repeat.
+#include <cstdio> #include <cstdlib> #include <cstring> #include <iostream> #include <algorithm> using namespace std; #define print(x) cout << x << endl #define input(x) cin >> x string str; int k; int main() { freopen(&#34;input.txt&#34;, &#34;r&#34;, stdin); input(str >> k); for (int i = 0; i < k; i++) { str += '?'; } int len = str.length(); int ans = 0; for (int i = 0; i < len; i++) { if (str[i] == '?') { break; } for (int j = 1; i + j < len; j += 2) { int slip = (j + 1) / 2; for (int k = 0; k < slip; k++) { if (str[i + k] == str[i + k + slip] || str[i + k + slip] == '?') { /* pass */; } else { goto fail; } } ans = max(ans, j + 1); fail: /*pass*/; } } print(ans); return 0; } 442A - Borya and Hanabig Because Borya knows about the color and value of all his cards, he just need to distinguish each card from the others."><meta property="og:locale" content="zh-CN"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta name=twitter:card content="summary"><meta name=twitter:title content><meta name=twitter:description content="Date: 2014-06-21 19:24:37
+Title: Codeforces Round #253 Tutorial
+Tags: codeforces, algorithm
+Slug: cf-253
+
+443A - Anton and Letters
+Simple and easy, solved by two lines of python code.
+ls = filter(lambda y: y, map(lambda x: x.strip(), raw_input()[1:-1].split(&#34;,&#34;)))
+print len(set(ls))
+443B - Kolya and Tandem Repeat
+Brute force. Just enumerate the beginning and the end of the substring, and check if that substring is tandem repeat.
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <iostream>
+#include <algorithm>
+
+using namespace std;
+
+#define print(x) cout << x << endl
+#define input(x) cin >> x
+
+string str;
+int k;
+
+int main()
+{
+    freopen(&#34;input.txt&#34;, &#34;r&#34;, stdin);
+    input(str >> k);
+    for (int i = 0; i < k; i++) {
+        str += '?';
+    }
+    int len = str.length();
+
+    int ans = 0;
+    for (int i = 0; i < len; i++) {
+        if (str[i] == '?') {
+            break;
+        }
+        for (int j = 1; i + j < len; j += 2) {
+            int slip = (j + 1) / 2;
+            for (int k = 0; k < slip; k++) {
+                if (str[i + k] == str[i + k + slip] || str[i + k + slip] == '?') {
+                    /* pass */;
+                }
+                else {
+                    goto fail;
+                }
+            }
+            ans = max(ans, j + 1);
+fail:       /*pass*/;
+        }
+    }
+    print(ans);
+    return 0;
+}
+442A - Borya and Hanabig
+Because Borya knows about the color and value of all his cards, he just need to distinguish each card from the others."><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Posts","item":"https://wizmann.top/posts/"},{"@type":"ListItem","position":2,"name":"","item":"https://wizmann.top/posts/cf-253/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"","name":"","description":"Date: 2014-06-21 19:24:37 Title: Codeforces Round #253 Tutorial Tags: codeforces, algorithm Slug: cf-253\n443A - Anton and Letters Simple and easy, solved by two lines of python code.\nls = filter(lambda y: y, map(lambda x: x.strip(), raw_input()[1:-1].split(\u0026#34;,\u0026#34;))) print len(set(ls)) 443B - Kolya and Tandem Repeat Brute force. Just enumerate the beginning and the end of the substring, and check if that substring is tandem repeat.\n#include \u0026lt;cstdio\u0026gt; #include \u0026lt;cstdlib\u0026gt; #include \u0026lt;cstring\u0026gt; #include \u0026lt;iostream\u0026gt; #include \u0026lt;algorithm\u0026gt; using namespace std; #define print(x) cout \u0026lt;\u0026lt; x \u0026lt;\u0026lt; endl #define input(x) cin \u0026gt;\u0026gt; x string str; int k; int main() { freopen(\u0026#34;input.txt\u0026#34;, \u0026#34;r\u0026#34;, stdin); input(str \u0026gt;\u0026gt; k); for (int i = 0; i \u0026lt; k; i++) { str += \u0026#39;?\u0026#39;; } int len = str.length(); int ans = 0; for (int i = 0; i \u0026lt; len; i++) { if (str[i] == \u0026#39;?\u0026#39;) { break; } for (int j = 1; i + j \u0026lt; len; j += 2) { int slip = (j + 1) / 2; for (int k = 0; k \u0026lt; slip; k++) { if (str[i + k] == str[i + k + slip] || str[i + k + slip] == \u0026#39;?\u0026#39;) { /* pass */; } else { goto fail; } } ans = max(ans, j + 1); fail: /*pass*/; } } print(ans); return 0; } 442A - Borya and Hanabig Because Borya knows about the color and value of all his cards, he just need to distinguish each card from the others.\n","keywords":[],"articleBody":"Date: 2014-06-21 19:24:37 Title: Codeforces Round #253 Tutorial Tags: codeforces, algorithm Slug: cf-253\n443A - Anton and Letters Simple and easy, solved by two lines of python code.\nls = filter(lambda y: y, map(lambda x: x.strip(), raw_input()[1:-1].split(\",\"))) print len(set(ls)) 443B - Kolya and Tandem Repeat Brute force. Just enumerate the beginning and the end of the substring, and check if that substring is tandem repeat.\n#include #include #include #include #include using namespace std; #define print(x) cout \u003c\u003c x \u003c\u003c endl #define input(x) cin \u003e\u003e x string str; int k; int main() { freopen(\"input.txt\", \"r\", stdin); input(str \u003e\u003e k); for (int i = 0; i \u003c k; i++) { str += '?'; } int len = str.length(); int ans = 0; for (int i = 0; i \u003c len; i++) { if (str[i] == '?') { break; } for (int j = 1; i + j \u003c len; j += 2) { int slip = (j + 1) / 2; for (int k = 0; k \u003c slip; k++) { if (str[i + k] == str[i + k + slip] || str[i + k + slip] == '?') { /* pass */; } else { goto fail; } } ans = max(ans, j + 1); fail: /*pass*/; } } print(ans); return 0; } 442A - Borya and Hanabig Because Borya knows about the color and value of all his cards, he just need to distinguish each card from the others.\nDistinguish one card from all others seems difficult, but distinguish one card from ONE other card is simple enough. So if we can tell the difference between one card and any other, it can be determined from all pairs which contain this card. At last, if all pairs of cards can be distinguished, we can claim that we can distinguish all cards.\nIt’s easy to find out that we have 10 different kind of hints in total(5 colors and 5 values) and 1024 different combination of all that hints(1 « 10). As a result, we can enumerate all combinations, and try to indicate whether this batch of hints can distinguish all these cards.\n#include #include #include #include #include #include #include #include #include using namespace std; #define print(x) cout \u003c\u003c x \u003c\u003c endl #define input(x) cin \u003e\u003e x const int SIZE = 5; const int INF = 1 \u003c\u003c 29; int n; char instr[10]; int mp[256]; void init() { const char _str[] = \"12345RGBYW\"; for (int i = 0; _str[i]; i++) { mp[int(_str[i])] = i; } } int conv(char x) { return mp[int(x)]; } int main() { freopen(\"input.txt\", \"r\", stdin); init(); while (input(n)) { set\u003cint\u003e st; vector\u003cint\u003e vec; for (int i = 0; i \u003c n; i++) { scanf(\"%s\", instr); int a = conv(instr[0]); int b = conv(instr[1]); int v = (1 \u003c\u003c a) | (1 \u003c\u003c b); // print(a \u003c\u003c ' ' \u003c\u003c b \u003c\u003c ' ' \u003c\u003c v); if (st.find(v) != st.end()) { continue; } st.insert(v); vec.push_back(v); } int ans = INF; for (int i = 0; i \u003c (1 \u003c\u003c 10); i++) { for (int j = 0; j \u003c (int)vec.size(); j++) { for (int k = j + 1; k \u003c (int)vec.size(); k++) { int diff = vec[j] ^ vec[k]; if (!(i \u0026 diff)) { goto fail; } } } ans = min(ans, __builtin_popcount(i)); fail: /*pass*/; } print(ans); } return 0; } 442B - Andrey and Problem Assuming that the possibility of getting exactly one problem from some of Andrey’s friends is p1 and get no problem is p0. So, if we want to add one friend whose possibility of comming up a problem is pa to this very friend set, we can get next_p1 = p1 * (1 - pa) + p0 * pa and next_p0 = p0 * (1 - pa). And it easy to indicate that a greater pa will lead to a greater next_p1.\nThe initial value is that p0 == 1; p1 == 0. And we add the friends one by one ordered by the possibilites reversely. At last, the max p1 is the final result.\nn = int(raw_input()) ps = map(float, raw_input().split()) ps.sort(reverse=True) good = ps[0] bad = 1 - good ans = good for p in ps[1:]: good, bad = good * (1 - p) + p * bad, bad * (1 - p) ans = max(ans, good) print ans ","wordCount":"733","inLanguage":"zh-cn","datePublished":"0001-01-01T00:00:00Z","dateModified":"0001-01-01T00:00:00Z","author":{"@type":"Person","name":"wizmann"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://wizmann.top/posts/cf-253/"},"publisher":{"@type":"Organization","name":"Maerlyn's Rainbow","logo":{"@type":"ImageObject","url":"https://wizmann.top/favicon.ico"}}}</script></head><body id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://wizmann.top/ accesskey=h title="Maerlyn's Rainbow (Alt + H)">Maerlyn's Rainbow</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent"></h1><div class=post-meta>wizmann</div></header><div class=post-content><p>Date: 2014-06-21 19:24:37
+Title: Codeforces Round #253 Tutorial
+Tags: codeforces, algorithm
+Slug: cf-253</p><hr><h2 id=443a---anton-and-letters>443A - Anton and Letters<a hidden class=anchor aria-hidden=true href=#443a---anton-and-letters>#</a></h2><p>Simple and easy, solved by two lines of python code.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span>ls <span style=color:#f92672>=</span> filter(<span style=color:#66d9ef>lambda</span> y: y, map(<span style=color:#66d9ef>lambda</span> x: x<span style=color:#f92672>.</span>strip(), raw_input()[<span style=color:#ae81ff>1</span>:<span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>]<span style=color:#f92672>.</span>split(<span style=color:#e6db74>&#34;,&#34;</span>)))
+</span></span><span style=display:flex><span>print len(set(ls))
+</span></span></code></pre></div><h2 id=443b---kolya-and-tandem-repeat>443B - Kolya and Tandem Repeat<a hidden class=anchor aria-hidden=true href=#443b---kolya-and-tandem-repeat>#</a></h2><p>Brute force. Just enumerate the beginning and the end of the substring, and check if that substring is <strong>tandem repeat</strong>.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;cstdio&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;cstdlib&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;cstring&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;iostream&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;algorithm&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>using</span> <span style=color:#66d9ef>namespace</span> std;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>#define print(x) cout &lt;&lt; x &lt;&lt; endl
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#define input(x) cin &gt;&gt; x
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
+</span></span><span style=display:flex><span>string str;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> k;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> <span style=color:#a6e22e>main</span>()
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    freopen(<span style=color:#e6db74>&#34;input.txt&#34;</span>, <span style=color:#e6db74>&#34;r&#34;</span>, stdin);
+</span></span><span style=display:flex><span>    input(str <span style=color:#f92672>&gt;&gt;</span> k);
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; i <span style=color:#f92672>&lt;</span> k; i<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>        str <span style=color:#f92672>+=</span> <span style=color:#e6db74>&#39;?&#39;</span>;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> len <span style=color:#f92672>=</span> str.length();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> ans <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; i <span style=color:#f92672>&lt;</span> len; i<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> (str[i] <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;?&#39;</span>) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>break</span>;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> j <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>; i <span style=color:#f92672>+</span> j <span style=color:#f92672>&lt;</span> len; j <span style=color:#f92672>+=</span> <span style=color:#ae81ff>2</span>) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>int</span> slip <span style=color:#f92672>=</span> (j <span style=color:#f92672>+</span> <span style=color:#ae81ff>1</span>) <span style=color:#f92672>/</span> <span style=color:#ae81ff>2</span>;
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> k <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; k <span style=color:#f92672>&lt;</span> slip; k<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>if</span> (str[i <span style=color:#f92672>+</span> k] <span style=color:#f92672>==</span> str[i <span style=color:#f92672>+</span> k <span style=color:#f92672>+</span> slip] <span style=color:#f92672>||</span> str[i <span style=color:#f92672>+</span> k <span style=color:#f92672>+</span> slip] <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;?&#39;</span>) {
+</span></span><span style=display:flex><span>                    <span style=color:#75715e>/* pass */</span>;
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>else</span> {
+</span></span><span style=display:flex><span>                    <span style=color:#66d9ef>goto</span> fail;
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>            ans <span style=color:#f92672>=</span> max(ans, j <span style=color:#f92672>+</span> <span style=color:#ae81ff>1</span>);
+</span></span><span style=display:flex><span>fail:       <span style=color:#75715e>/*pass*/</span>;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    print(ans);
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h2 id=442a---borya-and-hanabig>442A - Borya and Hanabig<a hidden class=anchor aria-hidden=true href=#442a---borya-and-hanabig>#</a></h2><p>Because Borya knows about the color and value of all his cards, he just need to distinguish each card from the others.</p><p>Distinguish one card from all others seems difficult, but distinguish one card from <em>ONE</em> other card is simple enough. So if we can tell the difference between one card and any other, it can be determined from all pairs which contain this card. At last, if all pairs of cards can be distinguished, we can claim that we can distinguish all cards.</p><p>It&rsquo;s easy to find out that we have 10 different kind of hints in total(5 colors and 5 values) and 1024 different combination of all that hints(1 &#171; 10). As a result, we can enumerate all combinations, and try to indicate whether this batch of hints can distinguish all these cards.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;cstdio&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;cstdlib&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;cstring&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;iostream&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;algorithm&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;vector&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;cassert&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;map&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;set&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>using</span> <span style=color:#66d9ef>namespace</span> std;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>#define print(x) cout &lt;&lt; x &lt;&lt; endl
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#define input(x) cin &gt;&gt; x
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>const</span> <span style=color:#66d9ef>int</span> SIZE <span style=color:#f92672>=</span> <span style=color:#ae81ff>5</span>;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>const</span> <span style=color:#66d9ef>int</span> INF <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span> <span style=color:#f92672>&lt;&lt;</span> <span style=color:#ae81ff>29</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> n;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>char</span> instr[<span style=color:#ae81ff>10</span>];
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> mp[<span style=color:#ae81ff>256</span>];
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>void</span> <span style=color:#a6e22e>init</span>()
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>const</span> <span style=color:#66d9ef>char</span> _str[] <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;12345RGBYW&#34;</span>;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; _str[i]; i<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>        mp[<span style=color:#66d9ef>int</span>(_str[i])] <span style=color:#f92672>=</span> i;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}   
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> <span style=color:#a6e22e>conv</span>(<span style=color:#66d9ef>char</span> x)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> mp[<span style=color:#66d9ef>int</span>(x)];
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> <span style=color:#a6e22e>main</span>()
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    freopen(<span style=color:#e6db74>&#34;input.txt&#34;</span>, <span style=color:#e6db74>&#34;r&#34;</span>, stdin);
+</span></span><span style=display:flex><span>    init();
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>while</span> (input(n)) {
+</span></span><span style=display:flex><span>        set<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>int</span><span style=color:#f92672>&gt;</span> st;
+</span></span><span style=display:flex><span>        vector<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>int</span><span style=color:#f92672>&gt;</span> vec;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; i <span style=color:#f92672>&lt;</span> n; i<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>            scanf(<span style=color:#e6db74>&#34;%s&#34;</span>, instr);
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>int</span> a <span style=color:#f92672>=</span> conv(instr[<span style=color:#ae81ff>0</span>]);
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>int</span> b <span style=color:#f92672>=</span> conv(instr[<span style=color:#ae81ff>1</span>]);
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>int</span> v <span style=color:#f92672>=</span> (<span style=color:#ae81ff>1</span> <span style=color:#f92672>&lt;&lt;</span> a) <span style=color:#f92672>|</span> (<span style=color:#ae81ff>1</span> <span style=color:#f92672>&lt;&lt;</span> b);
+</span></span><span style=display:flex><span>            <span style=color:#75715e>// print(a &lt;&lt; &#39; &#39; &lt;&lt; b &lt;&lt; &#39; &#39; &lt;&lt; v);
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>            <span style=color:#66d9ef>if</span> (st.find(v) <span style=color:#f92672>!=</span> st.end()) {
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>continue</span>;
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>            st.insert(v);
+</span></span><span style=display:flex><span>            vec.push_back(v);
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>int</span> ans <span style=color:#f92672>=</span> INF;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; i <span style=color:#f92672>&lt;</span> (<span style=color:#ae81ff>1</span> <span style=color:#f92672>&lt;&lt;</span> <span style=color:#ae81ff>10</span>); i<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> j <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; j <span style=color:#f92672>&lt;</span> (<span style=color:#66d9ef>int</span>)vec.size(); j<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> k <span style=color:#f92672>=</span> j <span style=color:#f92672>+</span> <span style=color:#ae81ff>1</span>; k <span style=color:#f92672>&lt;</span> (<span style=color:#66d9ef>int</span>)vec.size(); k<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>                    <span style=color:#66d9ef>int</span> diff <span style=color:#f92672>=</span> vec[j] <span style=color:#f92672>^</span> vec[k];
+</span></span><span style=display:flex><span>                    <span style=color:#66d9ef>if</span> (<span style=color:#f92672>!</span>(i <span style=color:#f92672>&amp;</span> diff)) {
+</span></span><span style=display:flex><span>                        <span style=color:#66d9ef>goto</span> fail;
+</span></span><span style=display:flex><span>                    }
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>            ans <span style=color:#f92672>=</span> min(ans, __builtin_popcount(i));
+</span></span><span style=display:flex><span>fail:       <span style=color:#75715e>/*pass*/</span>;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        print(ans);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h2 id=442b---andrey-and-problem>442B - Andrey and Problem<a hidden class=anchor aria-hidden=true href=#442b---andrey-and-problem>#</a></h2><p>Assuming that the possibility of getting exactly one problem from some of Andrey&rsquo;s friends is <code>p1</code> and get no problem is <code>p0</code>. So, if we want to add one friend whose possibility of comming up a problem is <code>pa</code> to this very friend set, we can get <code>next_p1 = p1 * (1 - pa) + p0 * pa</code> and <code>next_p0 = p0 * (1 - pa)</code>. And it easy to indicate that a greater <code>pa</code> will lead to a greater <code>next_p1</code>.</p><p>The initial value is that <code>p0 == 1; p1 == 0</code>. And we add the friends one by one ordered by the possibilites reversely. At last, the max <code>p1</code> is the final result.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span>n <span style=color:#f92672>=</span> int(raw_input())
+</span></span><span style=display:flex><span>ps <span style=color:#f92672>=</span> map(float, raw_input()<span style=color:#f92672>.</span>split())
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>ps<span style=color:#f92672>.</span>sort(reverse<span style=color:#f92672>=</span><span style=color:#66d9ef>True</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>good <span style=color:#f92672>=</span> ps[<span style=color:#ae81ff>0</span>]
+</span></span><span style=display:flex><span>bad <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span> <span style=color:#f92672>-</span> good
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>ans <span style=color:#f92672>=</span> good
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>for</span> p <span style=color:#f92672>in</span> ps[<span style=color:#ae81ff>1</span>:]:
+</span></span><span style=display:flex><span>    good, bad <span style=color:#f92672>=</span> good <span style=color:#f92672>*</span> (<span style=color:#ae81ff>1</span> <span style=color:#f92672>-</span> p) <span style=color:#f92672>+</span> p <span style=color:#f92672>*</span> bad, bad <span style=color:#f92672>*</span> (<span style=color:#ae81ff>1</span> <span style=color:#f92672>-</span> p)
+</span></span><span style=display:flex><span>    ans <span style=color:#f92672>=</span> max(ans, good)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>print ans
+</span></span></code></pre></div></div><footer class=post-footer><ul class=post-tags></ul><nav class=paginav><a class=prev href=https://wizmann.top/posts/cf-242-div-2/><span class=title>«</span><br><span></span>
+</a><a class=next href=https://wizmann.top/posts/cf-288-div-2/><span class=title>»</span><br><span></span></a></nav></footer><div id=disqus_thread></div><script>(function(){var e=document,t=e.createElement("script");t.src="https://wizmann.disqus.com/embed.js",t.setAttribute("data-timestamp",+new Date),(e.head||e.body).appendChild(t)})()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript></article></main><footer class=footer><span>&copy; 2025 <a href=https://wizmann.top/>Maerlyn's Rainbow</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>

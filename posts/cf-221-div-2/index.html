@@ -1,0 +1,397 @@
+<!doctype html><html lang=zh-cn dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Maerlyn's Rainbow</title>
+<meta name=keywords content><meta name=description content="Date: 2013-12-25 19:05
+Title: Codeforces Round #221 (Div. 2)不完全不正确题解
+Tags: codeforces, algorithm, 算法, 题解
+Slug: cf-221-div-2
+A. Lever
+水题，杠杆原理。
+用^把字符串分割开。然后分别计算两边的重量即可。
+#Result: Dec 24, 2013 6:04:41 PM    Wizmann  A - Lever   Python 2   Accepted     312 ms  4200 KB
+def calc(ss):
+    res = 0
+    p = 1
+    for item in ss:
+        if item != '=':
+            t = int(item)
+            res += t * p
+        p += 1
+    return res
+
+s = raw_input()
+
+(a, b) = s.split('^')
+
+left = calc(a[::-1])
+right = calc(b)
+
+if left == right:
+    print 'balance'
+elif left > right:
+    print 'left'
+else:
+    print 'right'
+B. I.O.U.
+水题，算出每个人负债和贷出（这个词的现学的~）的绝对值差。"><meta name=author content="wizmann"><link rel=canonical href=https://wizmann.top/posts/cf-221-div-2/><link crossorigin=anonymous href=/assets/css/stylesheet.f49d66caae9ea0fd43f21f29e71a8d3e284517ed770f2aa86fa012953ad3c9ef.css integrity="sha256-9J1myq6eoP1D8h8p5xqNPihFF+13Dyqob6ASlTrTye8=" rel="preload stylesheet" as=style><link rel=icon href=https://wizmann.top/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://wizmann.top/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://wizmann.top/favicon-32x32.png><link rel=apple-touch-icon href=https://wizmann.top/apple-touch-icon.png><link rel=mask-icon href=https://wizmann.top/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh-cn href=https://wizmann.top/posts/cf-221-div-2/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><meta property="og:url" content="https://wizmann.top/posts/cf-221-div-2/"><meta property="og:site_name" content="Maerlyn's Rainbow"><meta property="og:title" content="Maerlyn's Rainbow"><meta property="og:description" content="Date: 2013-12-25 19:05 Title: Codeforces Round #221 (Div. 2)不完全不正确题解 Tags: codeforces, algorithm, 算法, 题解 Slug: cf-221-div-2
+A. Lever 水题，杠杆原理。
+用^把字符串分割开。然后分别计算两边的重量即可。
+#Result: Dec 24, 2013 6:04:41 PM Wizmann A - Lever Python 2 Accepted 312 ms 4200 KB def calc(ss): res = 0 p = 1 for item in ss: if item != '=': t = int(item) res += t * p p += 1 return res s = raw_input() (a, b) = s.split('^') left = calc(a[::-1]) right = calc(b) if left == right: print 'balance' elif left > right: print 'left' else: print 'right' B. I.O.U. 水题，算出每个人负债和贷出（这个词的现学的~）的绝对值差。"><meta property="og:locale" content="zh-CN"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta name=twitter:card content="summary"><meta name=twitter:title content><meta name=twitter:description content="Date: 2013-12-25 19:05
+Title: Codeforces Round #221 (Div. 2)不完全不正确题解
+Tags: codeforces, algorithm, 算法, 题解
+Slug: cf-221-div-2
+A. Lever
+水题，杠杆原理。
+用^把字符串分割开。然后分别计算两边的重量即可。
+#Result: Dec 24, 2013 6:04:41 PM    Wizmann  A - Lever   Python 2   Accepted     312 ms  4200 KB
+def calc(ss):
+    res = 0
+    p = 1
+    for item in ss:
+        if item != '=':
+            t = int(item)
+            res += t * p
+        p += 1
+    return res
+
+s = raw_input()
+
+(a, b) = s.split('^')
+
+left = calc(a[::-1])
+right = calc(b)
+
+if left == right:
+    print 'balance'
+elif left > right:
+    print 'left'
+else:
+    print 'right'
+B. I.O.U.
+水题，算出每个人负债和贷出（这个词的现学的~）的绝对值差。"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Posts","item":"https://wizmann.top/posts/"},{"@type":"ListItem","position":2,"name":"","item":"https://wizmann.top/posts/cf-221-div-2/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"","name":"","description":"Date: 2013-12-25 19:05 Title: Codeforces Round #221 (Div. 2)不完全不正确题解 Tags: codeforces, algorithm, 算法, 题解 Slug: cf-221-div-2\nA. Lever 水题，杠杆原理。\n用^把字符串分割开。然后分别计算两边的重量即可。\n#Result: Dec 24, 2013 6:04:41 PM Wizmann A - Lever Python 2 Accepted 312 ms 4200 KB def calc(ss): res = 0 p = 1 for item in ss: if item != \u0026#39;=\u0026#39;: t = int(item) res += t * p p += 1 return res s = raw_input() (a, b) = s.split(\u0026#39;^\u0026#39;) left = calc(a[::-1]) right = calc(b) if left == right: print \u0026#39;balance\u0026#39; elif left \u0026gt; right: print \u0026#39;left\u0026#39; else: print \u0026#39;right\u0026#39; B. I.O.U. 水题，算出每个人负债和贷出（这个词的现学的~）的绝对值差。\n","keywords":[],"articleBody":"Date: 2013-12-25 19:05 Title: Codeforces Round #221 (Div. 2)不完全不正确题解 Tags: codeforces, algorithm, 算法, 题解 Slug: cf-221-div-2\nA. Lever 水题，杠杆原理。\n用^把字符串分割开。然后分别计算两边的重量即可。\n#Result: Dec 24, 2013 6:04:41 PM Wizmann A - Lever Python 2 Accepted 312 ms 4200 KB def calc(ss): res = 0 p = 1 for item in ss: if item != '=': t = int(item) res += t * p p += 1 return res s = raw_input() (a, b) = s.split('^') left = calc(a[::-1]) right = calc(b) if left == right: print 'balance' elif left \u003e right: print 'left' else: print 'right' B. I.O.U. 水题，算出每个人负债和贷出（这个词的现学的~）的绝对值差。\n然后再求和除2。\n#Result: Dec 24, 2013 6:12:53 PM Wizmann B - I.O.U. Python 2 Accepted 46 ms 0 KB (n, m) = map(int, raw_input().split()) inv = [0 for i in xrange(n + 5)] outv = [0 for i in xrange(n + 5)] for i in xrange(m): (a, b, c) = map(int, raw_input().split()) outv[a] += c inv[b] += c res = 0 for i in xrange(n + 5): res += abs(inv[i] - outv[i]) while res % 2 != 0: #Trick，如果res % 2 != 0的话，我的算法就是完全错误的 #此时返回TLE而不是WA pass print res / 2 C. Divisible by Seven 脑筋急转弯。\n通过打表，我们可以看出。permutation(1, 6, 8, 9) % 7 == [0 ... 6]。\n由此我们就可以看出，无论其它数字排列如何，只要在其后面补上1, 6, 8, 9的一个排列。就可以使其模7得0。\n对于只有1，6, 8, 9和很多0的情况。我们就把0放在1, 6，8，9后面。\n代码比较乱。不过思路很明显:)\n//Result: Dec 24, 2013 7:48:42 PM Wizmann C - Divisible by Seven GNU C++ Accepted 140 ms 1000 KB #include #include #include #include #include #include #include using namespace std; #define print(x) cout \u003c\u003c x \u003c\u003c endl #define input(x) cin \u003e\u003e x const int SIZE = 1001000; int g[12]; char buffer[SIZE]; int main() { freopen(\"input.txt\", \"r\", stdin); while (scanf(\"%s\", buffer) != EOF) { memset(g, 0, sizeof(g)); int all = 0; for (int i = 0; buffer[i]; i++) { int t = buffer[i] - '0'; g[t]++; all++; } g[1]--; g[6]--; g[8]--; g[9]--; all -= 4; if (all == g[0]) { printf(\"1869\"); for (int i = 0; i \u003c all; i++) { printf(\"0\"); } puts(\"\"); } else { int mod = 0; for (int i = 1; i \u003c= 10; i++) { int ii = i % 10; for (int j = 0; j \u003c g[ii]; j++) { printf(\"%d\", ii); mod = mod * 10 + ii; mod %= 7; } } mod *= 10000; mod %= 7; mod = (7 - mod)% 7; switch(mod) { case 0: printf(\"1869\"); break; case 1: printf(\"6819\"); break; case 2: printf(\"6918\"); break; case 3: printf(\"6891\"); break; case 4: printf(\"8691\"); break; case 5: printf(\"1986\"); break; case 6: printf(\"8196\"); break; } puts(\"\"); } } return 0; } D. Maximum Submatrix 2 其实这题也应该是水题。\n给你一个0/1矩阵，可以做行交换，让你求出交换后能获得的最大由1组成的子阵。\n这个题和两个题很相似，一个是经典的最大子阵和问题，另一个是不太经典的直方图中最大矩形问题。\n我们可以看出，因为只有行变换，所以对列上的0/1分布没有任何影响。于是我们可以处理出以某列为基准时，某行的最大子阵。\n如图所示，我们计算到第二列的时候。可以处理出每一行的最大子阵。由于我们可以进行行变换，于是我们将每行的最大子阵进行排序。然后遍历求出当前的最大子阵，从而得出答案。\n代码简单。不过有性能问题。没有充分使用cache，不过100+ms就过了，懒得优化了。\n#include #include #include #include #include #include #include using namespace std; #define print(x) cout \u003c\u003c x \u003c\u003c endl #define input(x) cin \u003e\u003e x const int SIZE = 5120; int g[SIZE][SIZE]; char buffer[SIZE]; int n, m; stack\u003cint\u003e st; int main() { freopen(\"input.txt\", \"r\", stdin); while (input(n \u003e\u003e m)) { memset(g, 0, sizeof(g)); memset(buffer, 0, sizeof(buffer)); st = stack\u003cint\u003e(); for (int i = 0; i \u003c n; i++) { scanf(\"%s\", buffer); int p = 0; for (int j = m - 1; j \u003e= 0; j--) { buffer[j] -= '0'; if (buffer[j] == 1) { p++; } else { p = 0; } g[i][j] = p; } } int ans = 0; for (int i = 0; i \u003c m; i++) { vector\u003cint\u003e vec; for (int j = 0; j \u003c n; j++) { vec.push_back(g[j][i]); } sort(vec.begin(), vec.end()); int t = 0; for (int j = 0; j \u003c n; j++) { t = max(t, vec[j] * (n - j)); } ans = max(ans, t); } print(ans); } return 0; } E. Circling Round Treasures 赛后学习来的代码。状压DP。\n题目描述超级复杂，其实在题目中已经暗示了做法。\n不过以这个代码复杂程度，比赛时能做出来也是比较牛的人了。\n不想赘述解法了，只说一个关键点：\nLet’s draw a ray that starts from point p and does not intersect other points of the table (such ray must exist).\nLet’s count the number of segments of the polyline that intersect the painted ray. If this number is odd, we assume that point p (and consequently, the table cell) lie inside the polyline (path). Otherwise, we assume that it lies outside.\n题目中给出了判断一个宝藏是否在路径中的一个判断算法。即判断点是否在多边形中的经典射线法。\n我们可以记录某一步是否在某个宝藏的射线上。而射线的方向则可以自定。代码中的射线方向是+x方向。如果某一条边经过了这条射线，则修改当前状态。\n//Result: Dec 25, 2013 2:22:27 PM Wizmann E - Circling Round Treasures GNU C++ Accepted 31 ms 1400 KB #include #include #include #include #include #include #include #include using namespace std; #define print(x) cout \u003c\u003c x \u003c\u003c endl #define input(x) cin \u003e\u003e x const int mx[] = {1, 0, -1, 0}; const int my[] = {0, 1, 0, -1}; const int SIZE = 30; const int GOLD = 8; struct point { int x, y; point(){} point(int ix, int iy): x(ix), y(iy){} }; struct node { point p; int status; node(){} node(int ix, int iy, int istatus): p(ix, iy), status(istatus) {}; }; int n,m; int gold, bomb; char maze[SIZE][SIZE]; int status[SIZE][SIZE]; char visit[SIZE][SIZE][1 \u003c\u003c GOLD]; int step[SIZE][SIZE][1 \u003c\u003c GOLD]; int sum[1 \u003c\u003c GOLD]; int v[SIZE]; point st; void bfs() { queue\u003cnode\u003e q; visit[st.y][st.x][0] = 1; q.push(node(st.x, st.y, 0)); while (!q.empty()) { node now = q.front(); q.pop(); int x = now.p.x, y = now.p.y, nowst = now.status; for (int i = 0; i \u003c 4; i++) { int nx = x + mx[i], ny = y + my[i]; if (nx \u003c 0 || nx == m || ny \u003c 0 || ny == n || maze[ny][nx] != '.') continue; int nst = nowst; if (my[i] == 1) nst ^= status[ny][nx]; else if (my[i] == -1) nst ^= status[y][x]; if (visit[ny][nx][nst]) { continue; } visit[ny][nx][nst] = 1; q.push(node(nx, ny, nst)); step[ny][nx][nst] = step[y][x][nowst] + 1; } } } int main() { freopen(\"input.txt\", \"r\", stdin); input(n \u003e\u003e m); gold = bomb = 0; for (int i = 0; i \u003c n; i++) { scanf(\"%s\", maze[i]); for (int j = 0; j \u003c m; j++) { if (maze[i][j] == 'S') { st = point(j, i); maze[i][j] = '.'; } else if (isdigit(maze[i][j])) { gold++; int nr = maze[i][j] - '1'; for (int k = j + 1; k \u003c m; k++) status[i][k] |= 1 \u003c\u003c nr; } } } for (int i = 0; i \u003c gold; i++) { input(v[i]); } for (int i = 0; i \u003c (1 \u003c\u003c gold); i++) { for (int j = 0; j \u003c gold; j++) { if (i \u0026 (1 \u003c\u003c j)) sum[i] += v[j]; } } bomb = gold; for (int i = 0; i \u003c n; i++) { for (int j = 0; j \u003c m; j++) { if (maze[i][j] == 'B') { for (int k = j + 1; k \u003c m; k++) { status[i][k] |= 1 \u003c\u003c bomb; } bomb++; } } } bfs(); int ans = 0; for (int i = 0; i \u003c (1 \u003c\u003c gold); i++) { if (visit[st.y][st.x][i]) { ans = max(ans, sum[i] - step[st.y][st.x][i]); } } print(ans); return 0; } 最后，炫耀一下 ","wordCount":"1833","inLanguage":"zh-cn","datePublished":"0001-01-01T00:00:00Z","dateModified":"0001-01-01T00:00:00Z","author":{"@type":"Person","name":"wizmann"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://wizmann.top/posts/cf-221-div-2/"},"publisher":{"@type":"Organization","name":"Maerlyn's Rainbow","logo":{"@type":"ImageObject","url":"https://wizmann.top/favicon.ico"}}}</script></head><body id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://wizmann.top/ accesskey=h title="Maerlyn's Rainbow (Alt + H)">Maerlyn's Rainbow</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent"></h1><div class=post-meta>wizmann</div></header><div class=post-content><p>Date: 2013-12-25 19:05
+Title: Codeforces Round #221 (Div. 2)不完全不正确题解
+Tags: codeforces, algorithm, 算法, 题解
+Slug: cf-221-div-2</p><h2 id=a-lever>A. Lever<a hidden class=anchor aria-hidden=true href=#a-lever>#</a></h2><p>水题，杠杆原理。</p><p>用<code>^</code>把字符串分割开。然后分别计算两边的重量即可。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#75715e>#Result: Dec 24, 2013 6:04:41 PM    Wizmann  A - Lever   Python 2   Accepted     312 ms  4200 KB</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>calc</span>(ss):
+</span></span><span style=display:flex><span>    res <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>
+</span></span><span style=display:flex><span>    p <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> item <span style=color:#f92672>in</span> ss:
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> item <span style=color:#f92672>!=</span> <span style=color:#e6db74>&#39;=&#39;</span>:
+</span></span><span style=display:flex><span>            t <span style=color:#f92672>=</span> int(item)
+</span></span><span style=display:flex><span>            res <span style=color:#f92672>+=</span> t <span style=color:#f92672>*</span> p
+</span></span><span style=display:flex><span>        p <span style=color:#f92672>+=</span> <span style=color:#ae81ff>1</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> res
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>s <span style=color:#f92672>=</span> raw_input()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>(a, b) <span style=color:#f92672>=</span> s<span style=color:#f92672>.</span>split(<span style=color:#e6db74>&#39;^&#39;</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>left <span style=color:#f92672>=</span> calc(a[::<span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>])
+</span></span><span style=display:flex><span>right <span style=color:#f92672>=</span> calc(b)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>if</span> left <span style=color:#f92672>==</span> right:
+</span></span><span style=display:flex><span>    print <span style=color:#e6db74>&#39;balance&#39;</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>elif</span> left <span style=color:#f92672>&gt;</span> right:
+</span></span><span style=display:flex><span>    print <span style=color:#e6db74>&#39;left&#39;</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>else</span>:
+</span></span><span style=display:flex><span>    print <span style=color:#e6db74>&#39;right&#39;</span>
+</span></span></code></pre></div><h2 id=b-iou>B. I.O.U.<a hidden class=anchor aria-hidden=true href=#b-iou>#</a></h2><p>水题，算出每个人负债和贷出（这个词的现学的~）的绝对值差。</p><p>然后再求和除2。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#75715e>#Result: Dec 24, 2013 6:12:53 PM    Wizmann  B - I.O.U.  Python 2   Accepted     46 ms   0 KB</span>
+</span></span><span style=display:flex><span>(n, m) <span style=color:#f92672>=</span> map(int, raw_input()<span style=color:#f92672>.</span>split())
+</span></span><span style=display:flex><span>inv <span style=color:#f92672>=</span> [<span style=color:#ae81ff>0</span> <span style=color:#66d9ef>for</span> i <span style=color:#f92672>in</span> xrange(n <span style=color:#f92672>+</span> <span style=color:#ae81ff>5</span>)]
+</span></span><span style=display:flex><span>outv <span style=color:#f92672>=</span> [<span style=color:#ae81ff>0</span> <span style=color:#66d9ef>for</span> i <span style=color:#f92672>in</span> xrange(n <span style=color:#f92672>+</span> <span style=color:#ae81ff>5</span>)]
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>for</span> i <span style=color:#f92672>in</span> xrange(m):
+</span></span><span style=display:flex><span>    (a, b, c) <span style=color:#f92672>=</span> map(int, raw_input()<span style=color:#f92672>.</span>split())
+</span></span><span style=display:flex><span>    outv[a] <span style=color:#f92672>+=</span> c
+</span></span><span style=display:flex><span>    inv[b] <span style=color:#f92672>+=</span> c
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>res <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>for</span> i <span style=color:#f92672>in</span> xrange(n <span style=color:#f92672>+</span> <span style=color:#ae81ff>5</span>):
+</span></span><span style=display:flex><span>    res <span style=color:#f92672>+=</span> abs(inv[i] <span style=color:#f92672>-</span> outv[i])
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>while</span> res <span style=color:#f92672>%</span> <span style=color:#ae81ff>2</span> <span style=color:#f92672>!=</span> <span style=color:#ae81ff>0</span>:
+</span></span><span style=display:flex><span>    <span style=color:#75715e>#Trick，如果res % 2 != 0的话，我的算法就是完全错误的</span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>#此时返回TLE而不是WA</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pass</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>print res <span style=color:#f92672>/</span> <span style=color:#ae81ff>2</span>
+</span></span></code></pre></div><h2 id=c-divisible-by-seven>C. Divisible by Seven<a hidden class=anchor aria-hidden=true href=#c-divisible-by-seven>#</a></h2><p>脑筋急转弯。</p><p>通过打表，我们可以看出。<code>permutation(1, 6, 8, 9) % 7 == [0 ... 6]</code>。</p><p>由此我们就可以看出，无论其它数字排列如何，只要在其后面补上<code>1, 6, 8, 9</code>的一个排列。就可以使其模7得0。</p><p>对于只有<code>1，6, 8, 9</code>和很多<code>0</code>的情况。我们就把<code>0</code>放在<code>1, 6，8，9</code>后面。</p><p>代码比较乱。不过思路很明显:)</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#75715e>//Result: Dec 24, 2013 7:48:42 PM   Wizmann  C - Divisible by Seven  GNU C++    Accepted     140 ms  1000 KB
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;cstdio&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;cstdlib&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;cstring&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;iostream&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;algorithm&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;vector&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;stack&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>using</span> <span style=color:#66d9ef>namespace</span> std;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>#define print(x) cout &lt;&lt; x &lt;&lt; endl
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#define input(x) cin &gt;&gt; x
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>const</span> <span style=color:#66d9ef>int</span> SIZE <span style=color:#f92672>=</span> <span style=color:#ae81ff>1001000</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> g[<span style=color:#ae81ff>12</span>];
+</span></span><span style=display:flex><span><span style=color:#66d9ef>char</span> buffer[SIZE];
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> <span style=color:#a6e22e>main</span>()
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    freopen(<span style=color:#e6db74>&#34;input.txt&#34;</span>, <span style=color:#e6db74>&#34;r&#34;</span>, stdin);
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>while</span> (scanf(<span style=color:#e6db74>&#34;%s&#34;</span>, buffer) <span style=color:#f92672>!=</span> EOF) {
+</span></span><span style=display:flex><span>        memset(g, <span style=color:#ae81ff>0</span>, <span style=color:#66d9ef>sizeof</span>(g));
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>int</span> all <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; buffer[i]; i<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>int</span> t <span style=color:#f92672>=</span> buffer[i] <span style=color:#f92672>-</span> <span style=color:#e6db74>&#39;0&#39;</span>;
+</span></span><span style=display:flex><span>            g[t]<span style=color:#f92672>++</span>;
+</span></span><span style=display:flex><span>            all<span style=color:#f92672>++</span>;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        g[<span style=color:#ae81ff>1</span>]<span style=color:#f92672>--</span>;
+</span></span><span style=display:flex><span>        g[<span style=color:#ae81ff>6</span>]<span style=color:#f92672>--</span>;
+</span></span><span style=display:flex><span>        g[<span style=color:#ae81ff>8</span>]<span style=color:#f92672>--</span>;
+</span></span><span style=display:flex><span>        g[<span style=color:#ae81ff>9</span>]<span style=color:#f92672>--</span>;
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        all <span style=color:#f92672>-=</span> <span style=color:#ae81ff>4</span>;
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> (all <span style=color:#f92672>==</span> g[<span style=color:#ae81ff>0</span>]) {
+</span></span><span style=display:flex><span>            printf(<span style=color:#e6db74>&#34;1869&#34;</span>);
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; i <span style=color:#f92672>&lt;</span> all; i<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>                printf(<span style=color:#e6db74>&#34;0&#34;</span>);
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>            puts(<span style=color:#e6db74>&#34;&#34;</span>);
+</span></span><span style=display:flex><span>        } <span style=color:#66d9ef>else</span> {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>int</span> mod <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>; i <span style=color:#f92672>&lt;=</span> <span style=color:#ae81ff>10</span>; i<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>int</span> ii <span style=color:#f92672>=</span> i <span style=color:#f92672>%</span> <span style=color:#ae81ff>10</span>;
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> j <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; j <span style=color:#f92672>&lt;</span> g[ii]; j<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>                    printf(<span style=color:#e6db74>&#34;%d&#34;</span>, ii);
+</span></span><span style=display:flex><span>                    mod <span style=color:#f92672>=</span> mod <span style=color:#f92672>*</span> <span style=color:#ae81ff>10</span> <span style=color:#f92672>+</span> ii;
+</span></span><span style=display:flex><span>                    mod <span style=color:#f92672>%=</span> <span style=color:#ae81ff>7</span>;
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>            mod <span style=color:#f92672>*=</span> <span style=color:#ae81ff>10000</span>;
+</span></span><span style=display:flex><span>            mod <span style=color:#f92672>%=</span> <span style=color:#ae81ff>7</span>;
+</span></span><span style=display:flex><span>            mod <span style=color:#f92672>=</span> (<span style=color:#ae81ff>7</span> <span style=color:#f92672>-</span> mod)<span style=color:#f92672>%</span> <span style=color:#ae81ff>7</span>;
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>switch</span>(mod) {
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>case</span> <span style=color:#ae81ff>0</span><span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>                    printf(<span style=color:#e6db74>&#34;1869&#34;</span>);
+</span></span><span style=display:flex><span>                    <span style=color:#66d9ef>break</span>;
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>case</span> <span style=color:#ae81ff>1</span><span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>                    printf(<span style=color:#e6db74>&#34;6819&#34;</span>);
+</span></span><span style=display:flex><span>                    <span style=color:#66d9ef>break</span>;
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>case</span> <span style=color:#ae81ff>2</span><span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>                    printf(<span style=color:#e6db74>&#34;6918&#34;</span>);
+</span></span><span style=display:flex><span>                    <span style=color:#66d9ef>break</span>;
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>case</span> <span style=color:#ae81ff>3</span><span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>                    printf(<span style=color:#e6db74>&#34;6891&#34;</span>);
+</span></span><span style=display:flex><span>                    <span style=color:#66d9ef>break</span>;
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>case</span> <span style=color:#ae81ff>4</span><span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>                    printf(<span style=color:#e6db74>&#34;8691&#34;</span>);
+</span></span><span style=display:flex><span>                    <span style=color:#66d9ef>break</span>;
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>case</span> <span style=color:#ae81ff>5</span><span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>                    printf(<span style=color:#e6db74>&#34;1986&#34;</span>);
+</span></span><span style=display:flex><span>                    <span style=color:#66d9ef>break</span>;
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>case</span> <span style=color:#ae81ff>6</span><span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>                    printf(<span style=color:#e6db74>&#34;8196&#34;</span>);
+</span></span><span style=display:flex><span>                    <span style=color:#66d9ef>break</span>;
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>            puts(<span style=color:#e6db74>&#34;&#34;</span>);
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h2 id=d-maximum-submatrix-2>D. Maximum Submatrix 2<a hidden class=anchor aria-hidden=true href=#d-maximum-submatrix-2>#</a></h2><p>其实这题也应该是水题。</p><p>给你一个<code>0/1</code>矩阵，可以做行交换，让你求出交换后能获得的最大由<code>1</code>组成的子阵。</p><p>这个题和两个题很相似，一个是经典的<code>最大子阵和</code>问题，另一个是不太经典的<code>直方图中最大矩形</code>问题。</p><p>我们可以看出，因为只有行变换，所以对列上的<code>0/1</code>分布没有任何影响。于是我们可以处理出以某列为基准时，某行的最大子阵。</p><p><img alt=子阵 loading=lazy src=https://github.com/Wizmann/assets/raw/master/wizmann-tk-pic/blog-cf221-div2-d.png></p><p>如图所示，我们计算到第二列的时候。可以处理出每一行的最大子阵。由于我们可以进行行变换，于是我们将每行的最大子阵进行排序。然后遍历求出当前的最大子阵，从而得出答案。</p><p>代码简单。不过有性能问题。没有充分使用cache，不过100+ms就过了，懒得优化了。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;cstdio&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;cstdlib&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;cstring&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;iostream&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;algorithm&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;vector&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;stack&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>using</span> <span style=color:#66d9ef>namespace</span> std;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>#define print(x) cout &lt;&lt; x &lt;&lt; endl
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#define input(x) cin &gt;&gt; x
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>const</span> <span style=color:#66d9ef>int</span> SIZE <span style=color:#f92672>=</span> <span style=color:#ae81ff>5120</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> g[SIZE][SIZE];
+</span></span><span style=display:flex><span><span style=color:#66d9ef>char</span> buffer[SIZE];
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> n, m;
+</span></span><span style=display:flex><span>stack<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>int</span><span style=color:#f92672>&gt;</span> st;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> <span style=color:#a6e22e>main</span>()
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    freopen(<span style=color:#e6db74>&#34;input.txt&#34;</span>, <span style=color:#e6db74>&#34;r&#34;</span>, stdin);
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>while</span> (input(n <span style=color:#f92672>&gt;&gt;</span> m)) {
+</span></span><span style=display:flex><span>        memset(g, <span style=color:#ae81ff>0</span>, <span style=color:#66d9ef>sizeof</span>(g));
+</span></span><span style=display:flex><span>        memset(buffer, <span style=color:#ae81ff>0</span>, <span style=color:#66d9ef>sizeof</span>(buffer));
+</span></span><span style=display:flex><span>        st <span style=color:#f92672>=</span> stack<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>int</span><span style=color:#f92672>&gt;</span>();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; i <span style=color:#f92672>&lt;</span> n; i<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>            scanf(<span style=color:#e6db74>&#34;%s&#34;</span>, buffer);
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>int</span> p <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> j <span style=color:#f92672>=</span> m <span style=color:#f92672>-</span> <span style=color:#ae81ff>1</span>; j <span style=color:#f92672>&gt;=</span> <span style=color:#ae81ff>0</span>; j<span style=color:#f92672>--</span>) {
+</span></span><span style=display:flex><span>                buffer[j] <span style=color:#f92672>-=</span> <span style=color:#e6db74>&#39;0&#39;</span>;
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>if</span> (buffer[j] <span style=color:#f92672>==</span> <span style=color:#ae81ff>1</span>) {
+</span></span><span style=display:flex><span>                    p<span style=color:#f92672>++</span>;
+</span></span><span style=display:flex><span>                } <span style=color:#66d9ef>else</span> {
+</span></span><span style=display:flex><span>                    p <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>                g[i][j] <span style=color:#f92672>=</span> p;
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>int</span> ans <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; i <span style=color:#f92672>&lt;</span> m; i<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>            vector<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>int</span><span style=color:#f92672>&gt;</span> vec;
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> j <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; j <span style=color:#f92672>&lt;</span> n; j<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>                vec.push_back(g[j][i]);
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>            sort(vec.begin(), vec.end());
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>int</span> t <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> j <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; j <span style=color:#f92672>&lt;</span> n; j<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>                t <span style=color:#f92672>=</span> max(t, vec[j] <span style=color:#f92672>*</span> (n <span style=color:#f92672>-</span> j));
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            ans <span style=color:#f92672>=</span> max(ans, t);
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        print(ans);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h2 id=e-circling-round-treasures>E. Circling Round Treasures<a hidden class=anchor aria-hidden=true href=#e-circling-round-treasures>#</a></h2><p>赛后学习来的代码。状压DP。</p><p>题目描述超级复杂，其实在题目中已经暗示了做法。</p><p>不过以这个代码复杂程度，比赛时能做出来也是比较牛的人了。</p><p>不想赘述解法了，只说一个关键点：</p><blockquote><p>Let&rsquo;s draw a ray that starts from point p and does not intersect other points of the table (such ray must exist).</p></blockquote><blockquote><p>Let&rsquo;s count the number of segments of the polyline that intersect the painted ray. If this number is odd, we assume that point p (and consequently, the table cell) lie inside the polyline (path). Otherwise, we assume that it lies outside.</p></blockquote><p>题目中给出了判断一个宝藏是否在路径中的一个判断算法。即判断点是否在多边形中的经典射线法。</p><p>我们可以记录某一步是否在某个宝藏的<code>射线</code>上。而射线的方向则可以自定。代码中的射线方向是<code>+x</code>方向。如果某一条边经过了这条射线，则修改当前状态。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#75715e>//Result: Dec 25, 2013 2:22:27 PM   Wizmann  E - Circling Round Treasures    GNU C++    Accepted    31 ms   1400 KB
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;cstdio&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;cstdlib&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;cstring&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;iostream&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;algorithm&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;stack&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;queue&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;vector&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>using</span> <span style=color:#66d9ef>namespace</span> std;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>#define print(x) cout &lt;&lt; x &lt;&lt; endl
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#define input(x) cin &gt;&gt; x
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>const</span> <span style=color:#66d9ef>int</span> mx[] <span style=color:#f92672>=</span> {<span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>};
+</span></span><span style=display:flex><span><span style=color:#66d9ef>const</span> <span style=color:#66d9ef>int</span> my[] <span style=color:#f92672>=</span> {<span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>};
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>const</span> <span style=color:#66d9ef>int</span> SIZE <span style=color:#f92672>=</span> <span style=color:#ae81ff>30</span>;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>const</span> <span style=color:#66d9ef>int</span> GOLD <span style=color:#f92672>=</span> <span style=color:#ae81ff>8</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>struct</span> <span style=color:#a6e22e>point</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> x, y;
+</span></span><span style=display:flex><span>    point(){}
+</span></span><span style=display:flex><span>    point(<span style=color:#66d9ef>int</span> ix, <span style=color:#66d9ef>int</span> iy)<span style=color:#f92672>:</span> x(ix), y(iy){}
+</span></span><span style=display:flex><span>};
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>struct</span> <span style=color:#a6e22e>node</span> {
+</span></span><span style=display:flex><span>    point p;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> status;
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    node(){}
+</span></span><span style=display:flex><span>    node(<span style=color:#66d9ef>int</span> ix, <span style=color:#66d9ef>int</span> iy, <span style=color:#66d9ef>int</span> istatus)<span style=color:#f92672>:</span> p(ix, iy), status(istatus) {};
+</span></span><span style=display:flex><span>};
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> n,m;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> gold, bomb;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>char</span> maze[SIZE][SIZE];
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> status[SIZE][SIZE];
+</span></span><span style=display:flex><span><span style=color:#66d9ef>char</span> visit[SIZE][SIZE][<span style=color:#ae81ff>1</span> <span style=color:#f92672>&lt;&lt;</span> GOLD];
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> step[SIZE][SIZE][<span style=color:#ae81ff>1</span> <span style=color:#f92672>&lt;&lt;</span> GOLD];
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> sum[<span style=color:#ae81ff>1</span> <span style=color:#f92672>&lt;&lt;</span> GOLD];
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> v[SIZE];
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>point st;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>void</span> <span style=color:#a6e22e>bfs</span>()
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    queue<span style=color:#f92672>&lt;</span>node<span style=color:#f92672>&gt;</span> q;
+</span></span><span style=display:flex><span>    visit[st.y][st.x][<span style=color:#ae81ff>0</span>] <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>;
+</span></span><span style=display:flex><span>    q.push(node(st.x, st.y, <span style=color:#ae81ff>0</span>));
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>while</span> (<span style=color:#f92672>!</span>q.empty()) {
+</span></span><span style=display:flex><span>        node now <span style=color:#f92672>=</span> q.front();
+</span></span><span style=display:flex><span>        q.pop();
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>int</span> x <span style=color:#f92672>=</span> now.p.x, y <span style=color:#f92672>=</span> now.p.y, nowst <span style=color:#f92672>=</span> now.status;
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; i <span style=color:#f92672>&lt;</span> <span style=color:#ae81ff>4</span>; i<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>int</span> nx <span style=color:#f92672>=</span> x <span style=color:#f92672>+</span> mx[i], ny <span style=color:#f92672>=</span> y <span style=color:#f92672>+</span> my[i];
+</span></span><span style=display:flex><span>            
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> (nx <span style=color:#f92672>&lt;</span> <span style=color:#ae81ff>0</span> <span style=color:#f92672>||</span> nx <span style=color:#f92672>==</span> m <span style=color:#f92672>||</span> 
+</span></span><span style=display:flex><span>                    ny <span style=color:#f92672>&lt;</span> <span style=color:#ae81ff>0</span> <span style=color:#f92672>||</span> ny <span style=color:#f92672>==</span> n <span style=color:#f92672>||</span> 
+</span></span><span style=display:flex><span>                    maze[ny][nx] <span style=color:#f92672>!=</span> <span style=color:#e6db74>&#39;.&#39;</span>) <span style=color:#66d9ef>continue</span>;
+</span></span><span style=display:flex><span>            
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>int</span> nst <span style=color:#f92672>=</span> nowst;
+</span></span><span style=display:flex><span>            
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> (my[i] <span style=color:#f92672>==</span> <span style=color:#ae81ff>1</span>) nst <span style=color:#f92672>^=</span> status[ny][nx];
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>else</span> <span style=color:#66d9ef>if</span> (my[i] <span style=color:#f92672>==</span> <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>) nst <span style=color:#f92672>^=</span> status[y][x];
+</span></span><span style=display:flex><span>            
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> (visit[ny][nx][nst]) {
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>continue</span>;
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>            
+</span></span><span style=display:flex><span>            visit[ny][nx][nst] <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>;
+</span></span><span style=display:flex><span>            q.push(node(nx, ny, nst));
+</span></span><span style=display:flex><span>            
+</span></span><span style=display:flex><span>            step[ny][nx][nst] <span style=color:#f92672>=</span> step[y][x][nowst] <span style=color:#f92672>+</span> <span style=color:#ae81ff>1</span>;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> <span style=color:#a6e22e>main</span>()
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    freopen(<span style=color:#e6db74>&#34;input.txt&#34;</span>, <span style=color:#e6db74>&#34;r&#34;</span>, stdin);
+</span></span><span style=display:flex><span>    input(n <span style=color:#f92672>&gt;&gt;</span> m);
+</span></span><span style=display:flex><span>    gold <span style=color:#f92672>=</span> bomb <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; i <span style=color:#f92672>&lt;</span> n; i<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>        scanf(<span style=color:#e6db74>&#34;%s&#34;</span>, maze[i]);
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> j <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; j <span style=color:#f92672>&lt;</span> m; j<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> (maze[i][j] <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;S&#39;</span>) {
+</span></span><span style=display:flex><span>                st <span style=color:#f92672>=</span> point(j, i);
+</span></span><span style=display:flex><span>                maze[i][j] <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;.&#39;</span>;
+</span></span><span style=display:flex><span>            } <span style=color:#66d9ef>else</span> <span style=color:#66d9ef>if</span> (isdigit(maze[i][j])) {
+</span></span><span style=display:flex><span>                gold<span style=color:#f92672>++</span>;
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>int</span> nr <span style=color:#f92672>=</span> maze[i][j] <span style=color:#f92672>-</span> <span style=color:#e6db74>&#39;1&#39;</span>;
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> k <span style=color:#f92672>=</span> j <span style=color:#f92672>+</span> <span style=color:#ae81ff>1</span>; k <span style=color:#f92672>&lt;</span> m; k<span style=color:#f92672>++</span>)
+</span></span><span style=display:flex><span>                    status[i][k] <span style=color:#f92672>|=</span> <span style=color:#ae81ff>1</span> <span style=color:#f92672>&lt;&lt;</span> nr;
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; i <span style=color:#f92672>&lt;</span> gold; i<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>        input(v[i]);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; i <span style=color:#f92672>&lt;</span> (<span style=color:#ae81ff>1</span> <span style=color:#f92672>&lt;&lt;</span> gold); i<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> j <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; j <span style=color:#f92672>&lt;</span> gold; j<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> (i <span style=color:#f92672>&amp;</span> (<span style=color:#ae81ff>1</span> <span style=color:#f92672>&lt;&lt;</span> j)) sum[i] <span style=color:#f92672>+=</span> v[j];
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    bomb <span style=color:#f92672>=</span> gold;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; i <span style=color:#f92672>&lt;</span> n; i<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> j <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; j <span style=color:#f92672>&lt;</span> m; j<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> (maze[i][j] <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;B&#39;</span>) {
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> k <span style=color:#f92672>=</span> j <span style=color:#f92672>+</span> <span style=color:#ae81ff>1</span>; k <span style=color:#f92672>&lt;</span> m; k<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>                    status[i][k] <span style=color:#f92672>|=</span> <span style=color:#ae81ff>1</span> <span style=color:#f92672>&lt;&lt;</span> bomb;
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>                bomb<span style=color:#f92672>++</span>;
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    bfs();
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> ans <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; i <span style=color:#f92672>&lt;</span> (<span style=color:#ae81ff>1</span> <span style=color:#f92672>&lt;&lt;</span> gold); i<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> (visit[st.y][st.x][i]) {
+</span></span><span style=display:flex><span>            ans <span style=color:#f92672>=</span> max(ans, sum[i] <span style=color:#f92672>-</span> step[st.y][st.x][i]);
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    print(ans);
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h2 id=最后炫耀一下>最后，炫耀一下<a hidden class=anchor aria-hidden=true href=#最后炫耀一下>#</a></h2><p><img alt=rank loading=lazy src=https://github.com/Wizmann/assets/raw/master/wizmann-tk-pic/blog-cf221-div2-rank.png></p></div><footer class=post-footer><ul class=post-tags></ul><nav class=paginav><a class=prev href=https://wizmann.top/posts/cf-218-div-2/><span class=title>«</span><br><span></span>
+</a><a class=next href=https://wizmann.top/posts/cf-223-div-2/><span class=title>»</span><br><span></span></a></nav></footer><div id=disqus_thread></div><script>(function(){var e=document,t=e.createElement("script");t.src="https://wizmann.disqus.com/embed.js",t.setAttribute("data-timestamp",+new Date),(e.head||e.body).appendChild(t)})()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript></article></main><footer class=footer><span>&copy; 2025 <a href=https://wizmann.top/>Maerlyn's Rainbow</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>

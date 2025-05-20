@@ -1,0 +1,386 @@
+<!doctype html><html lang=zh-cn dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Maerlyn's Rainbow</title>
+<meta name=keywords content><meta name=description content="Date: 2013-12-29 20:23
+Title: Codeforces 3C - Tic-tac-toe
+Tags: codeforces, algorithm, 算法, 设计模式
+Slug: cf-3c-tic-tac-toe
+啥？
+Tic-tac-toe是我很久之前在CF上做的一道题。非常考细心的模拟题。
+最近有同学和我讨论过类似的问题。于是拿出来重新做一遍。练练手。
+原题做法
+没有任何“算法”成分。纯模拟。
+又由于数据量实在是太小（3 × 3的矩阵），所以只要是思路正确。代码怎么写都能过。"><meta name=author content="wizmann"><link rel=canonical href=https://wizmann.top/posts/cf-3c-tic-tac-toe/><link crossorigin=anonymous href=/assets/css/stylesheet.f49d66caae9ea0fd43f21f29e71a8d3e284517ed770f2aa86fa012953ad3c9ef.css integrity="sha256-9J1myq6eoP1D8h8p5xqNPihFF+13Dyqob6ASlTrTye8=" rel="preload stylesheet" as=style><link rel=icon href=https://wizmann.top/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://wizmann.top/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://wizmann.top/favicon-32x32.png><link rel=apple-touch-icon href=https://wizmann.top/apple-touch-icon.png><link rel=mask-icon href=https://wizmann.top/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh-cn href=https://wizmann.top/posts/cf-3c-tic-tac-toe/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><meta property="og:url" content="https://wizmann.top/posts/cf-3c-tic-tac-toe/"><meta property="og:site_name" content="Maerlyn's Rainbow"><meta property="og:title" content="Maerlyn's Rainbow"><meta property="og:description" content="Date: 2013-12-29 20:23 Title: Codeforces 3C - Tic-tac-toe Tags: codeforces, algorithm, 算法, 设计模式 Slug: cf-3c-tic-tac-toe
+啥？ Tic-tac-toe是我很久之前在CF上做的一道题。非常考细心的模拟题。
+最近有同学和我讨论过类似的问题。于是拿出来重新做一遍。练练手。
+原题做法 没有任何“算法”成分。纯模拟。
+又由于数据量实在是太小（3 × 3的矩阵），所以只要是思路正确。代码怎么写都能过。"><meta property="og:locale" content="zh-CN"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta name=twitter:card content="summary"><meta name=twitter:title content><meta name=twitter:description content="Date: 2013-12-29 20:23
+Title: Codeforces 3C - Tic-tac-toe
+Tags: codeforces, algorithm, 算法, 设计模式
+Slug: cf-3c-tic-tac-toe
+啥？
+Tic-tac-toe是我很久之前在CF上做的一道题。非常考细心的模拟题。
+最近有同学和我讨论过类似的问题。于是拿出来重新做一遍。练练手。
+原题做法
+没有任何“算法”成分。纯模拟。
+又由于数据量实在是太小（3 × 3的矩阵），所以只要是思路正确。代码怎么写都能过。"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Posts","item":"https://wizmann.top/posts/"},{"@type":"ListItem","position":2,"name":"","item":"https://wizmann.top/posts/cf-3c-tic-tac-toe/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"","name":"","description":"Date: 2013-12-29 20:23 Title: Codeforces 3C - Tic-tac-toe Tags: codeforces, algorithm, 算法, 设计模式 Slug: cf-3c-tic-tac-toe\n啥？ Tic-tac-toe是我很久之前在CF上做的一道题。非常考细心的模拟题。\n最近有同学和我讨论过类似的问题。于是拿出来重新做一遍。练练手。\n原题做法 没有任何“算法”成分。纯模拟。\n又由于数据量实在是太小（3 × 3的矩阵），所以只要是思路正确。代码怎么写都能过。\n","keywords":[],"articleBody":"Date: 2013-12-29 20:23 Title: Codeforces 3C - Tic-tac-toe Tags: codeforces, algorithm, 算法, 设计模式 Slug: cf-3c-tic-tac-toe\n啥？ Tic-tac-toe是我很久之前在CF上做的一道题。非常考细心的模拟题。\n最近有同学和我讨论过类似的问题。于是拿出来重新做一遍。练练手。\n原题做法 没有任何“算法”成分。纯模拟。\n又由于数据量实在是太小（3 × 3的矩阵），所以只要是思路正确。代码怎么写都能过。\n于是在这里就不赘述。手快的众位10分钟切此题无压力。\nWhat’s new? 如果我们扩展一下这个问题。如果让你设计一个Tic-tac-toe的对战系统（人机对战、人人对战等），你将如何设计？\nthe STATE pattern 我们可以看出，这个对战系统其实可以用一个状态机来表示。\n于是我们的对战系统也可以写成一个状态机的模式。\nshow me the CODE 首先我们声明一个State接口类型。\n由于Tic-tac-toe游戏只有两种操作类型：P1 move和P2 move。\n所以我们的接口就很简单。\nclass State { public: State(){} int set_game(Game* igame) { game = igame; return 0; } virtual int first(int x, int y) = 0; virtual int second(int x, int y) = 0; virtual void show_state() = 0; virtual ~State(){} protected: Game *game; private: State(const State\u0026); }; 那么FirstState的实现如下：\nclass FirstState: public State { public: virtual int first(int x, int y); virtual int second(int x, int y); virtual void show_state() { print(\"FirstState\"); } }; int FirstState::first(int x, int y) { int res = game -\u003e make_move(x, y, FIRST); if (res == ILLEGAL) { game -\u003e set_state(ILLEGAL); return ILLEGAL; } int next = game -\u003e next(); switch(next) { case SECOND: game -\u003e set_state(SECOND); break; case FIRST_WIN: game -\u003e set_state(FIRST_WIN); break; case DRAW: game -\u003e set_state(DRAW); break; default: game -\u003e set_state(ILLEGAL); break; } return 0; } int FirstState::second(int x, int y) { // P2不能操作 return ILLEGAL; } 同理，SecondState的实现：\nclass SecondState: public State { public: virtual int first(int x, int y); virtual int second(int x, int y); virtual void show_state() { print(\"SecondState\"); } }; int SecondState::first(int x, int y) { // P1不能操作 return ILLEGAL; } int SecondState::second(int x, int y) { int res = game -\u003e make_move(x, y, SECOND); if (res == ILLEGAL) { return ILLEGAL; } int next = game -\u003e next(); switch(next) { case FIRST: game -\u003e set_state(FIRST); break; case SECOND_WIN: game -\u003e set_state(SECOND_WIN); break; case DRAW: game -\u003e set_state(DRAW); break; default: game -\u003e set_state(ILLEGAL); } return 0; } 对于结束状态，因为所有的操作都是非法的。我们可以如下实现：\nclass EndState: public State { public: virtual int first(int x, int y) { return ILLEGAL; } virtual int second(int x,int y) { return ILLEGAL; } }; class FirstWinState: public EndState { virtual void show_state() { print(\"FirstWinState\"); } }; class SecondWinState: public EndState { virtual void show_state() { print(\"SecondWinState\"); } }; class DrawState: public EndState { virtual void show_state() { print(\"DrawState\"); } }; class IllegalState: public EndState { virtual void show_state() { print(\"IllegalState\"); } }; 到这里，状态机里的所有状态我们都已经声明好了。\n于是我们开始实现Game类。因为是示例代码，所以有的函数都内联了。\nclass Game { public: Game(); int set_state(int next_state); int get_state(); int make_move(int x, int y, int player); int next(); int first(int x, int y) { return state_ptr -\u003e first(x, y); } int second(int x, int y) { return state_ptr -\u003e second(x, y); } private: int state; State* state_ptr; char board[3][3]; FirstState firststate; SecondState secondstate; FirstWinState firstwinstate ; SecondWinState secondwinstate; DrawState drawstate; IllegalState illegalstate; }; Game::Game() { for (int i = 0; i \u003c 3; i++) { for (int j = 0; j \u003c 3; j++) { board[i][j] = '.'; } } firststate .set_game((Game*)this); secondstate .set_game((Game*)this); firstwinstate .set_game((Game*)this); secondwinstate.set_game((Game*)this); drawstate .set_game((Game*)this); illegalstate .set_game((Game*)this); // 在开始的时候，要P1先手 set_state(FIRST); } int Game::set_state(int next_state) { state = next_state; switch(next_state) { case(DRAW): state_ptr = \u0026drawstate; break; case(FIRST): state_ptr = \u0026firststate; break; case(SECOND): state_ptr = \u0026secondstate; break; case(FIRST_WIN): state_ptr = \u0026firstwinstate; break; case(SECOND_WIN): state_ptr = \u0026secondwinstate; break; default: case(ILLEGAL): state_ptr = \u0026illegalstate; break; } return 0; } int Game::get_state() { state_ptr -\u003eshow_state(); return state; } int Game::make_move(int x, int y, int player) { char c; switch(player) { case FIRST: c = 'X'; break; case SECOND: c = '0'; break; default: return ILLEGAL; break; } if (board[y][x] != '.') { return ILLEGAL; } board[y][x] = c; return 0; } int Game::next() { return judge(board); } // 这个函数写的太屎了，不忍直视 void check_win(char board[3][3], int\u0026 a_cnt, int\u0026 b_cnt) { a_cnt = b_cnt = 0; for (int i = 0; i \u003c 3; i++) { char type = board[i][0]; int cnt = 0; for (int j = 0; j \u003c 3; j++) { if (board[i][j] == type) { cnt++; } else { break; } } if (cnt == 3) { if (type == 'X') a_cnt++; else if (type == '0') b_cnt++; } } for (int i = 0; i \u003c 3; i++) { char type = board[0][i]; int cnt = 0; for (int j = 0; j \u003c 3; j++) { if (board[j][i] == type) { cnt++; } else { break; } } if (cnt == 3) { if (type == 'X') a_cnt++; else if (type == '0') b_cnt++; } } do { char type = board[0][0]; int cnt = 0; for (int i = 0; i \u003c 3; i++) { if (board[i][i] == type) { cnt++; } else { break; } } if (cnt == 3) { if (type == 'X') a_cnt++; else if (type == '0') b_cnt++; } } while(0); do { char type = board[0][2]; int cnt = 0; for (int i = 0; i \u003c 3; i++) { if (board[2 - i][i] == type) { cnt++; } else { break; } } if (cnt == 3) { if (type == 'X') a_cnt++; else if (type == '0') b_cnt++; } } while(0); } // 同上。。。模拟题就是那么恶心。。。_(:з」∠)_ // 也许我会有机会重构一下。。。 int judge(char board[3][3]) { int next = -1; int a_cnt = 0, b_cnt = 0; for (int i = 0; i \u003c 3; i++) { for (int j = 0; j \u003c 3; j++) { if (board[i][j] == 'X') a_cnt++; else if (board[i][j] == '0') b_cnt++; } } if (a_cnt \u003c b_cnt || a_cnt - b_cnt \u003e 1) { return ILLEGAL; } if (a_cnt + b_cnt == 9) { // PASS } else if (a_cnt == b_cnt) { next = 1; } else { next = 2; } a_cnt = b_cnt = 0; check_win(board, a_cnt, b_cnt); if (a_cnt == 0 \u0026\u0026 b_cnt == 0) { //nobody wins and the board is full switch(next) { case -1: return DRAW; case 1: return FIRST; case 2: return SECOND; } } else if (b_cnt \u0026\u0026 a_cnt) { return ILLEGAL; } else if (b_cnt \u0026\u0026 !a_cnt) { if (next == 2) { return ILLEGAL; } else { return SECOND_WIN; } } else if (a_cnt \u0026\u0026 !b_cnt) { if (next == 1) { return ILLEGAL; } else { return FIRST_WIN; } } else { // NO ELSE HERE; } return next == 1? FIRST : SECOND; } 最后补上我们的常量声明：\nconst int ILLEGAL = -1; const int DRAW = 0; const int FIRST = 1; const int SECOND = 2; const int FIRST_WIN = 100; const int SECOND_WIN = 200; how it works 状态模式： 允许对象在内部状态改变时改变它的行为，对象看起来好象修改了它的类\nclass Game中的state_ptr指针标示了当然自动机的状态。从class Game调用first和second函数的行为被委托给了当前的State，产生了不同的动作。\n为什么要这么写 从上面的代码可以看出，除了那两个写的像屎一样的函数，我们写了好多看起来无用的代码。如果用别的方法，我们也许在200行之内就可以完成现有的功能。\n但是。。。\n世界上唯一不变的，就是一切都在变\n使用状态模式，我们可以轻松的扩展现有的状态。并且，对于类的内部动作有一个良好的封装。\n这样，用户在使用我们的状态机时只需要根据需要改变它的状态，并不需要知道它是如何变化的。\n例如，《领域特定语言》一书中，就有使用状态模式构建易于被领域专家理解和使用的DSL。\n（p.s. DSL我了解不多，如果理解有偏差，请谅解）\n参考资料 Codeforces 3C - Tic-tac-toe Head First 设计模式 代码下载 云诺网盘 - 戳我\n","wordCount":"1937","inLanguage":"zh-cn","datePublished":"0001-01-01T00:00:00Z","dateModified":"0001-01-01T00:00:00Z","author":{"@type":"Person","name":"wizmann"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://wizmann.top/posts/cf-3c-tic-tac-toe/"},"publisher":{"@type":"Organization","name":"Maerlyn's Rainbow","logo":{"@type":"ImageObject","url":"https://wizmann.top/favicon.ico"}}}</script></head><body id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://wizmann.top/ accesskey=h title="Maerlyn's Rainbow (Alt + H)">Maerlyn's Rainbow</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent"></h1><div class=post-meta>wizmann</div></header><div class=post-content><p>Date: 2013-12-29 20:23
+Title: Codeforces 3C - Tic-tac-toe
+Tags: codeforces, algorithm, 算法, 设计模式
+Slug: cf-3c-tic-tac-toe</p><h2 id=啥>啥？<a hidden class=anchor aria-hidden=true href=#啥>#</a></h2><p><a href=http://codeforces.com/problemset/problem/3/C>Tic-tac-toe</a>是我很久之前在CF上做的一道题。非常考细心的模拟题。</p><p>最近有同学和我讨论过类似的问题。于是拿出来重新做一遍。练练手。</p><h2 id=原题做法>原题做法<a hidden class=anchor aria-hidden=true href=#原题做法>#</a></h2><p>没有任何“算法”成分。纯模拟。</p><p>又由于数据量实在是太小（3 × 3的矩阵），所以只要是思路正确。代码怎么写都能过。</p><p>于是在这里就不赘述。手快的众位10分钟切此题无压力。</p><h2 id=whats-new>What&rsquo;s new?<a hidden class=anchor aria-hidden=true href=#whats-new>#</a></h2><p>如果我们扩展一下这个问题。如果让你设计一个Tic-tac-toe的对战系统（人机对战、人人对战等），你将如何设计？</p><h2 id=the-state-pattern>the STATE pattern<a hidden class=anchor aria-hidden=true href=#the-state-pattern>#</a></h2><p>我们可以看出，这个对战系统其实可以用一个状态机来表示。</p><p><img alt=https://github.com/Wizmann/assets/raw/master/wizmann-tk-pic/blog-tick-tac-toe.png loading=lazy src=https://github.com/Wizmann/assets/raw/master/wizmann-tk-pic/blog-tick-tac-toe.png></p><p>于是我们的对战系统也可以写成一个状态机的模式。</p><h2 id=show-me-the-code>show me the CODE<a hidden class=anchor aria-hidden=true href=#show-me-the-code>#</a></h2><p>首先我们声明一个<code>State</code>接口类型。</p><p>由于Tic-tac-toe游戏只有两种操作类型：<code>P1 move</code>和<code>P2 move</code>。</p><p>所以我们的接口就很简单。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>State</span> {
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span><span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>    State(){}
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> <span style=color:#a6e22e>set_game</span>(Game<span style=color:#f92672>*</span> igame) {
+</span></span><span style=display:flex><span>        game <span style=color:#f92672>=</span> igame;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>virtual</span> <span style=color:#66d9ef>int</span> <span style=color:#a6e22e>first</span>(<span style=color:#66d9ef>int</span> x, <span style=color:#66d9ef>int</span> y) <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>virtual</span> <span style=color:#66d9ef>int</span> <span style=color:#a6e22e>second</span>(<span style=color:#66d9ef>int</span> x, <span style=color:#66d9ef>int</span> y) <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>virtual</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>show_state</span>() <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>virtual</span> <span style=color:#f92672>~</span>State(){}
+</span></span><span style=display:flex><span><span style=color:#66d9ef>protected</span><span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>    Game <span style=color:#f92672>*</span>game;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>private</span><span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>    State(<span style=color:#66d9ef>const</span> State<span style=color:#f92672>&amp;</span>);
+</span></span><span style=display:flex><span>};
+</span></span></code></pre></div><p>那么<code>FirstState</code>的实现如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>FirstState</span><span style=color:#f92672>:</span> <span style=color:#66d9ef>public</span> State {
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span><span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>virtual</span> <span style=color:#66d9ef>int</span> first(<span style=color:#66d9ef>int</span> x, <span style=color:#66d9ef>int</span> y);
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>virtual</span> <span style=color:#66d9ef>int</span> <span style=color:#a6e22e>second</span>(<span style=color:#66d9ef>int</span> x, <span style=color:#66d9ef>int</span> y);
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>virtual</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>show_state</span>() {
+</span></span><span style=display:flex><span>        print(<span style=color:#e6db74>&#34;FirstState&#34;</span>);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>};
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> FirstState<span style=color:#f92672>::</span>first(<span style=color:#66d9ef>int</span> x, <span style=color:#66d9ef>int</span> y) {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> res <span style=color:#f92672>=</span> game <span style=color:#f92672>-&gt;</span> make_move(x, y, FIRST);
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> (res <span style=color:#f92672>==</span> ILLEGAL) {
+</span></span><span style=display:flex><span>        game <span style=color:#f92672>-&gt;</span> set_state(ILLEGAL);
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> ILLEGAL;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> next <span style=color:#f92672>=</span> game <span style=color:#f92672>-&gt;</span> next();
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>switch</span>(next) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>case</span> SECOND:
+</span></span><span style=display:flex><span>            game <span style=color:#f92672>-&gt;</span> set_state(SECOND);
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>break</span>;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>case</span> FIRST_WIN:
+</span></span><span style=display:flex><span>            game <span style=color:#f92672>-&gt;</span> set_state(FIRST_WIN);
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>break</span>;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>case</span> DRAW:
+</span></span><span style=display:flex><span>            game <span style=color:#f92672>-&gt;</span> set_state(DRAW);
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>break</span>;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>default</span><span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>            game <span style=color:#f92672>-&gt;</span> set_state(ILLEGAL);
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>break</span>;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> FirstState<span style=color:#f92672>::</span>second(<span style=color:#66d9ef>int</span> x, <span style=color:#66d9ef>int</span> y) {
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// P2不能操作
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#66d9ef>return</span> ILLEGAL;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>同理，<code>SecondState</code>的实现：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>SecondState</span><span style=color:#f92672>:</span> <span style=color:#66d9ef>public</span> State {
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span><span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>virtual</span> <span style=color:#66d9ef>int</span> first(<span style=color:#66d9ef>int</span> x, <span style=color:#66d9ef>int</span> y); 
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>virtual</span> <span style=color:#66d9ef>int</span> <span style=color:#a6e22e>second</span>(<span style=color:#66d9ef>int</span> x, <span style=color:#66d9ef>int</span> y);
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>virtual</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>show_state</span>() {
+</span></span><span style=display:flex><span>        print(<span style=color:#e6db74>&#34;SecondState&#34;</span>);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>};
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> SecondState<span style=color:#f92672>::</span>first(<span style=color:#66d9ef>int</span> x, <span style=color:#66d9ef>int</span> y) {
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// P1不能操作
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#66d9ef>return</span> ILLEGAL;
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> SecondState<span style=color:#f92672>::</span>second(<span style=color:#66d9ef>int</span> x, <span style=color:#66d9ef>int</span> y) {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> res <span style=color:#f92672>=</span> game <span style=color:#f92672>-&gt;</span> make_move(x, y, SECOND);
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> (res <span style=color:#f92672>==</span> ILLEGAL) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> ILLEGAL;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> next <span style=color:#f92672>=</span> game <span style=color:#f92672>-&gt;</span> next();
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>switch</span>(next) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>case</span> FIRST:
+</span></span><span style=display:flex><span>            game <span style=color:#f92672>-&gt;</span> set_state(FIRST);
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>break</span>;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>case</span> SECOND_WIN:
+</span></span><span style=display:flex><span>            game <span style=color:#f92672>-&gt;</span> set_state(SECOND_WIN);
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>break</span>;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>case</span> DRAW:
+</span></span><span style=display:flex><span>            game <span style=color:#f92672>-&gt;</span> set_state(DRAW);
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>break</span>;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>default</span><span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>            game <span style=color:#f92672>-&gt;</span> set_state(ILLEGAL);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>对于结束状态，因为所有的操作都是非法的。我们可以如下实现：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>EndState</span><span style=color:#f92672>:</span> <span style=color:#66d9ef>public</span> State {
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span><span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>virtual</span> <span style=color:#66d9ef>int</span> first(<span style=color:#66d9ef>int</span> x, <span style=color:#66d9ef>int</span> y) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> ILLEGAL;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>virtual</span> <span style=color:#66d9ef>int</span> <span style=color:#a6e22e>second</span>(<span style=color:#66d9ef>int</span> x,<span style=color:#66d9ef>int</span> y) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> ILLEGAL;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>};
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>FirstWinState</span><span style=color:#f92672>:</span>  <span style=color:#66d9ef>public</span> EndState {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>virtual</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>show_state</span>() {
+</span></span><span style=display:flex><span>        print(<span style=color:#e6db74>&#34;FirstWinState&#34;</span>);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>};
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>SecondWinState</span><span style=color:#f92672>:</span> <span style=color:#66d9ef>public</span> EndState {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>virtual</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>show_state</span>() {
+</span></span><span style=display:flex><span>        print(<span style=color:#e6db74>&#34;SecondWinState&#34;</span>);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>};
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>DrawState</span><span style=color:#f92672>:</span>      <span style=color:#66d9ef>public</span> EndState {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>virtual</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>show_state</span>() {
+</span></span><span style=display:flex><span>        print(<span style=color:#e6db74>&#34;DrawState&#34;</span>);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>};
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>IllegalState</span><span style=color:#f92672>:</span>   <span style=color:#66d9ef>public</span> EndState {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>virtual</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>show_state</span>() {
+</span></span><span style=display:flex><span>        print(<span style=color:#e6db74>&#34;IllegalState&#34;</span>);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>};
+</span></span></code></pre></div><p>到这里，状态机里的所有状态我们都已经声明好了。</p><p>于是我们开始实现<code>Game</code>类。因为是示例代码，所以有的函数都内联了。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>Game</span> {
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span><span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>    Game();
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> <span style=color:#a6e22e>set_state</span>(<span style=color:#66d9ef>int</span> next_state);
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> <span style=color:#a6e22e>get_state</span>();
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> <span style=color:#a6e22e>make_move</span>(<span style=color:#66d9ef>int</span> x, <span style=color:#66d9ef>int</span> y, <span style=color:#66d9ef>int</span> player);
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> <span style=color:#a6e22e>next</span>();
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> <span style=color:#a6e22e>first</span>(<span style=color:#66d9ef>int</span> x, <span style=color:#66d9ef>int</span> y) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> state_ptr <span style=color:#f92672>-&gt;</span> first(x, y);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> <span style=color:#a6e22e>second</span>(<span style=color:#66d9ef>int</span> x, <span style=color:#66d9ef>int</span> y) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> state_ptr <span style=color:#f92672>-&gt;</span> second(x, y);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span><span style=color:#66d9ef>private</span><span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> state;
+</span></span><span style=display:flex><span>    State<span style=color:#f92672>*</span> state_ptr;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>char</span> board[<span style=color:#ae81ff>3</span>][<span style=color:#ae81ff>3</span>];
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    FirstState      firststate;
+</span></span><span style=display:flex><span>    SecondState     secondstate;
+</span></span><span style=display:flex><span>    FirstWinState   firstwinstate ;
+</span></span><span style=display:flex><span>    SecondWinState  secondwinstate;
+</span></span><span style=display:flex><span>    DrawState       drawstate;
+</span></span><span style=display:flex><span>    IllegalState    illegalstate;
+</span></span><span style=display:flex><span>};
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>Game<span style=color:#f92672>::</span>Game()
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; i <span style=color:#f92672>&lt;</span> <span style=color:#ae81ff>3</span>; i<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> j <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; j <span style=color:#f92672>&lt;</span> <span style=color:#ae81ff>3</span>; j<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>            board[i][j] <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;.&#39;</span>;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    firststate    .set_game((Game<span style=color:#f92672>*</span>)<span style=color:#66d9ef>this</span>);
+</span></span><span style=display:flex><span>    secondstate   .set_game((Game<span style=color:#f92672>*</span>)<span style=color:#66d9ef>this</span>);
+</span></span><span style=display:flex><span>    firstwinstate .set_game((Game<span style=color:#f92672>*</span>)<span style=color:#66d9ef>this</span>); 
+</span></span><span style=display:flex><span>    secondwinstate.set_game((Game<span style=color:#f92672>*</span>)<span style=color:#66d9ef>this</span>);
+</span></span><span style=display:flex><span>    drawstate     .set_game((Game<span style=color:#f92672>*</span>)<span style=color:#66d9ef>this</span>);
+</span></span><span style=display:flex><span>    illegalstate  .set_game((Game<span style=color:#f92672>*</span>)<span style=color:#66d9ef>this</span>);
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// 在开始的时候，要P1先手
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    set_state(FIRST);
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> Game<span style=color:#f92672>::</span>set_state(<span style=color:#66d9ef>int</span> next_state)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    state <span style=color:#f92672>=</span> next_state;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>switch</span>(next_state) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>case</span>(DRAW)<span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>            state_ptr <span style=color:#f92672>=</span> <span style=color:#f92672>&amp;</span>drawstate;
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>break</span>;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>case</span>(FIRST)<span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>            state_ptr <span style=color:#f92672>=</span> <span style=color:#f92672>&amp;</span>firststate;
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>break</span>;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>case</span>(SECOND)<span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>            state_ptr <span style=color:#f92672>=</span> <span style=color:#f92672>&amp;</span>secondstate;
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>break</span>;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>case</span>(FIRST_WIN)<span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>            state_ptr <span style=color:#f92672>=</span> <span style=color:#f92672>&amp;</span>firstwinstate;
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>break</span>;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>case</span>(SECOND_WIN)<span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>            state_ptr <span style=color:#f92672>=</span> <span style=color:#f92672>&amp;</span>secondwinstate;
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>break</span>;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>default</span><span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>case</span>(ILLEGAL)<span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>            state_ptr <span style=color:#f92672>=</span> <span style=color:#f92672>&amp;</span>illegalstate;
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>break</span>;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> Game<span style=color:#f92672>::</span>get_state() {
+</span></span><span style=display:flex><span>    state_ptr <span style=color:#f92672>-&gt;</span>show_state();
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> state;
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> Game<span style=color:#f92672>::</span>make_move(<span style=color:#66d9ef>int</span> x, <span style=color:#66d9ef>int</span> y, <span style=color:#66d9ef>int</span> player) {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>char</span> c;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>switch</span>(player) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>case</span> FIRST:
+</span></span><span style=display:flex><span>            c <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;X&#39;</span>;
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>break</span>;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>case</span> SECOND:
+</span></span><span style=display:flex><span>            c <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;0&#39;</span>;
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>break</span>;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>default</span><span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> ILLEGAL;
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>break</span>;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> (board[y][x] <span style=color:#f92672>!=</span> <span style=color:#e6db74>&#39;.&#39;</span>) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> ILLEGAL;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    board[y][x] <span style=color:#f92672>=</span> c;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> Game<span style=color:#f92672>::</span>next() {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> <span style=color:#a6e22e>judge</span>(board);
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// 这个函数写的太屎了，不忍直视
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>void</span> <span style=color:#a6e22e>check_win</span>(<span style=color:#66d9ef>char</span> board[<span style=color:#ae81ff>3</span>][<span style=color:#ae81ff>3</span>], <span style=color:#66d9ef>int</span><span style=color:#f92672>&amp;</span> a_cnt, <span style=color:#66d9ef>int</span><span style=color:#f92672>&amp;</span> b_cnt)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    a_cnt <span style=color:#f92672>=</span> b_cnt <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; i <span style=color:#f92672>&lt;</span> <span style=color:#ae81ff>3</span>; i<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>char</span> type <span style=color:#f92672>=</span> board[i][<span style=color:#ae81ff>0</span>];
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>int</span> cnt <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> j <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; j <span style=color:#f92672>&lt;</span> <span style=color:#ae81ff>3</span>; j<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> (board[i][j] <span style=color:#f92672>==</span> type) {
+</span></span><span style=display:flex><span>                cnt<span style=color:#f92672>++</span>;
+</span></span><span style=display:flex><span>            } <span style=color:#66d9ef>else</span> {
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>break</span>;
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> (cnt <span style=color:#f92672>==</span> <span style=color:#ae81ff>3</span>) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> (type <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;X&#39;</span>) a_cnt<span style=color:#f92672>++</span>;
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>else</span> <span style=color:#66d9ef>if</span> (type <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;0&#39;</span>) b_cnt<span style=color:#f92672>++</span>;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; i <span style=color:#f92672>&lt;</span> <span style=color:#ae81ff>3</span>; i<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>char</span> type <span style=color:#f92672>=</span> board[<span style=color:#ae81ff>0</span>][i];
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>int</span> cnt <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> j <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; j <span style=color:#f92672>&lt;</span> <span style=color:#ae81ff>3</span>; j<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> (board[j][i] <span style=color:#f92672>==</span> type) {
+</span></span><span style=display:flex><span>                cnt<span style=color:#f92672>++</span>;
+</span></span><span style=display:flex><span>            } <span style=color:#66d9ef>else</span> {
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>break</span>;
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> (cnt <span style=color:#f92672>==</span> <span style=color:#ae81ff>3</span>) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> (type <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;X&#39;</span>) a_cnt<span style=color:#f92672>++</span>;
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>else</span> <span style=color:#66d9ef>if</span> (type <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;0&#39;</span>) b_cnt<span style=color:#f92672>++</span>;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>do</span> {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>char</span> type <span style=color:#f92672>=</span> board[<span style=color:#ae81ff>0</span>][<span style=color:#ae81ff>0</span>];
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>int</span> cnt <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; i <span style=color:#f92672>&lt;</span> <span style=color:#ae81ff>3</span>; i<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> (board[i][i] <span style=color:#f92672>==</span> type) {
+</span></span><span style=display:flex><span>                cnt<span style=color:#f92672>++</span>;
+</span></span><span style=display:flex><span>            } <span style=color:#66d9ef>else</span> {
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>break</span>;
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> (cnt <span style=color:#f92672>==</span> <span style=color:#ae81ff>3</span>) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> (type <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;X&#39;</span>) a_cnt<span style=color:#f92672>++</span>;
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>else</span> <span style=color:#66d9ef>if</span> (type <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;0&#39;</span>) b_cnt<span style=color:#f92672>++</span>;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    } <span style=color:#66d9ef>while</span>(<span style=color:#ae81ff>0</span>);
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>do</span> {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>char</span> type <span style=color:#f92672>=</span> board[<span style=color:#ae81ff>0</span>][<span style=color:#ae81ff>2</span>];
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>int</span> cnt <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; i <span style=color:#f92672>&lt;</span> <span style=color:#ae81ff>3</span>; i<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> (board[<span style=color:#ae81ff>2</span> <span style=color:#f92672>-</span> i][i] <span style=color:#f92672>==</span> type) {
+</span></span><span style=display:flex><span>                cnt<span style=color:#f92672>++</span>;
+</span></span><span style=display:flex><span>            } <span style=color:#66d9ef>else</span> {
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>break</span>;
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> (cnt <span style=color:#f92672>==</span> <span style=color:#ae81ff>3</span>) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> (type <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;X&#39;</span>) a_cnt<span style=color:#f92672>++</span>;
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>else</span> <span style=color:#66d9ef>if</span> (type <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;0&#39;</span>) b_cnt<span style=color:#f92672>++</span>;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    } <span style=color:#66d9ef>while</span>(<span style=color:#ae81ff>0</span>);
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// 同上。。。模拟题就是那么恶心。。。_(:з」∠)_
+</span></span></span><span style=display:flex><span><span style=color:#75715e>// 也许我会有机会重构一下。。。
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>int</span> <span style=color:#a6e22e>judge</span>(<span style=color:#66d9ef>char</span> board[<span style=color:#ae81ff>3</span>][<span style=color:#ae81ff>3</span>])
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> next <span style=color:#f92672>=</span> <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> a_cnt <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>, b_cnt <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; i <span style=color:#f92672>&lt;</span> <span style=color:#ae81ff>3</span>; i<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> j <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; j <span style=color:#f92672>&lt;</span> <span style=color:#ae81ff>3</span>; j<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> (board[i][j] <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;X&#39;</span>) a_cnt<span style=color:#f92672>++</span>;
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>else</span> <span style=color:#66d9ef>if</span> (board[i][j] <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;0&#39;</span>) b_cnt<span style=color:#f92672>++</span>;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> (a_cnt <span style=color:#f92672>&lt;</span> b_cnt <span style=color:#f92672>||</span> a_cnt <span style=color:#f92672>-</span> b_cnt <span style=color:#f92672>&gt;</span> <span style=color:#ae81ff>1</span>) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> ILLEGAL;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> (a_cnt <span style=color:#f92672>+</span> b_cnt <span style=color:#f92672>==</span> <span style=color:#ae81ff>9</span>) {
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// PASS
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    } <span style=color:#66d9ef>else</span> <span style=color:#66d9ef>if</span> (a_cnt <span style=color:#f92672>==</span> b_cnt) {
+</span></span><span style=display:flex><span>        next <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>;
+</span></span><span style=display:flex><span>    } <span style=color:#66d9ef>else</span> {
+</span></span><span style=display:flex><span>        next <span style=color:#f92672>=</span> <span style=color:#ae81ff>2</span>;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    a_cnt <span style=color:#f92672>=</span> b_cnt <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>    check_win(board, a_cnt, b_cnt);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> (a_cnt <span style=color:#f92672>==</span> <span style=color:#ae81ff>0</span> <span style=color:#f92672>&amp;&amp;</span> b_cnt <span style=color:#f92672>==</span> <span style=color:#ae81ff>0</span>) {
+</span></span><span style=display:flex><span>        <span style=color:#75715e>//nobody wins and the board is full
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#66d9ef>switch</span>(next) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>case</span> <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span><span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>return</span> DRAW;
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>case</span> <span style=color:#ae81ff>1</span><span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>return</span> FIRST;
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>case</span> <span style=color:#ae81ff>2</span><span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>return</span> SECOND;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    } <span style=color:#66d9ef>else</span> <span style=color:#66d9ef>if</span> (b_cnt <span style=color:#f92672>&amp;&amp;</span> a_cnt) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> ILLEGAL;
+</span></span><span style=display:flex><span>    } <span style=color:#66d9ef>else</span> <span style=color:#66d9ef>if</span> (b_cnt <span style=color:#f92672>&amp;&amp;</span> <span style=color:#f92672>!</span>a_cnt) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> (next <span style=color:#f92672>==</span> <span style=color:#ae81ff>2</span>) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> ILLEGAL;
+</span></span><span style=display:flex><span>        } <span style=color:#66d9ef>else</span> {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> SECOND_WIN;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    } <span style=color:#66d9ef>else</span> <span style=color:#66d9ef>if</span> (a_cnt <span style=color:#f92672>&amp;&amp;</span> <span style=color:#f92672>!</span>b_cnt) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> (next <span style=color:#f92672>==</span> <span style=color:#ae81ff>1</span>) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> ILLEGAL;
+</span></span><span style=display:flex><span>        } <span style=color:#66d9ef>else</span> {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> FIRST_WIN;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    } <span style=color:#66d9ef>else</span> {
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// NO ELSE HERE;
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> next <span style=color:#f92672>==</span> <span style=color:#ae81ff>1</span><span style=color:#f92672>?</span> FIRST : SECOND;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>最后补上我们的常量声明：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#66d9ef>const</span> <span style=color:#66d9ef>int</span> ILLEGAL <span style=color:#f92672>=</span> <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>const</span> <span style=color:#66d9ef>int</span> DRAW <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>const</span> <span style=color:#66d9ef>int</span> FIRST <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>const</span> <span style=color:#66d9ef>int</span> SECOND <span style=color:#f92672>=</span> <span style=color:#ae81ff>2</span>;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>const</span> <span style=color:#66d9ef>int</span> FIRST_WIN <span style=color:#f92672>=</span> <span style=color:#ae81ff>100</span>;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>const</span> <span style=color:#66d9ef>int</span> SECOND_WIN <span style=color:#f92672>=</span> <span style=color:#ae81ff>200</span>;
+</span></span></code></pre></div><h2 id=how-it-works>how it works<a hidden class=anchor aria-hidden=true href=#how-it-works>#</a></h2><blockquote><p>状态模式： 允许对象在内部状态改变时改变它的行为，对象看起来好象修改了它的类</p></blockquote><p><code>class Game</code>中的<code>state_ptr</code>指针标示了当然自动机的状态。从<code>class Game</code>调用<code>first</code>和<code>second</code>函数的行为被委托给了当前的<code>State</code>，产生了不同的动作。</p><h2 id=为什么要这么写>为什么要这么写<a hidden class=anchor aria-hidden=true href=#为什么要这么写>#</a></h2><p>从上面的代码可以看出，除了那两个写的像屎一样的函数，我们写了好多看起来<strong>无用</strong>的代码。如果用别的方法，我们也许在200行之内就可以完成现有的功能。</p><p>但是。。。</p><blockquote><p>世界上唯一不变的，就是一切都在变</p></blockquote><p>使用<strong>状态模式</strong>，我们可以轻松的扩展现有的状态。并且，对于类的内部动作有一个良好的封装。</p><p>这样，用户在使用我们的状态机时只需要根据需要改变它的状态，并不需要知道它是如何变化的。</p><p>例如，<a href=http://book.douban.com/subject/21964984/>《领域特定语言》</a>一书中，就有使用状态模式构建易于被领域专家理解和使用的DSL。</p><p>（p.s. DSL我了解不多，如果理解有偏差，请谅解）</p><h2 id=参考资料>参考资料<a hidden class=anchor aria-hidden=true href=#参考资料>#</a></h2><ul><li><a href=http://codeforces.com/problemset/problem/3/C>Codeforces 3C - Tic-tac-toe</a></li><li><a href=http://book.douban.com/subject/2243615/>Head First 设计模式</a></li></ul><h2 id=代码下载>代码下载<a hidden class=anchor aria-hidden=true href=#代码下载>#</a></h2><p><a href=https://s.yunio.com/voeWtA>云诺网盘 - 戳我</a></p></div><footer class=post-footer><ul class=post-tags></ul><nav class=paginav><a class=prev href=https://wizmann.top/posts/cf-290-div-2/><span class=title>«</span><br><span></span>
+</a><a class=next href=https://wizmann.top/posts/cf-447d/><span class=title>»</span><br><span></span></a></nav></footer><div id=disqus_thread></div><script>(function(){var e=document,t=e.createElement("script");t.src="https://wizmann.disqus.com/embed.js",t.setAttribute("data-timestamp",+new Date),(e.head||e.body).appendChild(t)})()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript></article></main><footer class=footer><span>&copy; 2025 <a href=https://wizmann.top/>Maerlyn's Rainbow</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>

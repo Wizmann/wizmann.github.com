@@ -1,0 +1,305 @@
+<!doctype html><html lang=zh-cn dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Maerlyn's Rainbow</title>
+<meta name=keywords content><meta name=description content="Date: 2013-12-9 23:02
+Title: Codeforces Round #218 (Div. 2)不完全不正确题解
+Tags: codeforces, algorithm, 算法, 题解
+Slug: cf-218-div-2
+A. K-Periodic Array
+将Array切片，然后按位统计某一位上1的个数C(1)和2的个数C(2)。然后在这一位上的操作数就为M = min(C(1), C(2))。"><meta name=author content="wizmann"><link rel=canonical href=https://wizmann.top/posts/cf-218-div-2/><link crossorigin=anonymous href=/assets/css/stylesheet.f49d66caae9ea0fd43f21f29e71a8d3e284517ed770f2aa86fa012953ad3c9ef.css integrity="sha256-9J1myq6eoP1D8h8p5xqNPihFF+13Dyqob6ASlTrTye8=" rel="preload stylesheet" as=style><link rel=icon href=https://wizmann.top/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://wizmann.top/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://wizmann.top/favicon-32x32.png><link rel=apple-touch-icon href=https://wizmann.top/apple-touch-icon.png><link rel=mask-icon href=https://wizmann.top/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh-cn href=https://wizmann.top/posts/cf-218-div-2/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><meta property="og:url" content="https://wizmann.top/posts/cf-218-div-2/"><meta property="og:site_name" content="Maerlyn's Rainbow"><meta property="og:title" content="Maerlyn's Rainbow"><meta property="og:description" content="Date: 2013-12-9 23:02 Title: Codeforces Round #218 (Div. 2)不完全不正确题解 Tags: codeforces, algorithm, 算法, 题解 Slug: cf-218-div-2
+A. K-Periodic Array 将Array切片，然后按位统计某一位上1的个数C(1)和2的个数C(2)。然后在这一位上的操作数就为M = min(C(1), C(2))。"><meta property="og:locale" content="zh-CN"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta name=twitter:card content="summary"><meta name=twitter:title content><meta name=twitter:description content="Date: 2013-12-9 23:02
+Title: Codeforces Round #218 (Div. 2)不完全不正确题解
+Tags: codeforces, algorithm, 算法, 题解
+Slug: cf-218-div-2
+A. K-Periodic Array
+将Array切片，然后按位统计某一位上1的个数C(1)和2的个数C(2)。然后在这一位上的操作数就为M = min(C(1), C(2))。"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Posts","item":"https://wizmann.top/posts/"},{"@type":"ListItem","position":2,"name":"","item":"https://wizmann.top/posts/cf-218-div-2/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"","name":"","description":"Date: 2013-12-9 23:02 Title: Codeforces Round #218 (Div. 2)不完全不正确题解 Tags: codeforces, algorithm, 算法, 题解 Slug: cf-218-div-2\nA. K-Periodic Array 将Array切片，然后按位统计某一位上1的个数C(1)和2的个数C(2)。然后在这一位上的操作数就为M = min(C(1), C(2))。\n","keywords":[],"articleBody":"Date: 2013-12-9 23:02 Title: Codeforces Round #218 (Div. 2)不完全不正确题解 Tags: codeforces, algorithm, 算法, 题解 Slug: cf-218-div-2\nA. K-Periodic Array 将Array切片，然后按位统计某一位上1的个数C(1)和2的个数C(2)。然后在这一位上的操作数就为M = min(C(1), C(2))。\n简单题\nB. Fox Dividing Cheese 傻逼才错的题，不幸中枪。\n不想多说了，直接看代码吧。手贱不是病，贱起来要人命。\nC. Hamburgers 模拟 + 二分。\n和CJL还讨论过这题的纯模拟做法，看了半天代码没找到问题。于是刚才用Python自己实现了一个，在代码正确的情况下，没有WA，但是T在了22组上。\n所以这题最好使用二分，如果用模拟的话，需要考虑各种情况。代码见下，细节上注意就好。\nD. Vessels 这题得好好讲一下～比赛时做出来了好得意～\n题意是给出一组层层叠的容器，每一个容器都有自己的容量。然后我们向某些容器里灌水，如果水的体积超过了某个容器的容量，则剩余的水溢出到下一个容器中。最后一个容器溢出的水会落到地面上，所以忽略不计。\n我们可以看出，如果某一个容器是满的，那么它就再也不会空下来，并且流经它的水全部溢出给下面的容器。\n于是我们用一个数组记录当前容器注水的时候，水会流向哪个容器。\n由于在初始状态下，所有容器都是空的。所以to[i] = i。\n如果某容器由于注水满掉了，我们就把注水的指向指到i + 1，就有to[i] = i + 1。\n下次在向容器i注水的时候，我们通过查询to[i]的值，就可以知道水的流向。\n这可以转化为一个并查集问题。如果i满了，to[i] == i + 1。与此同时，i+1也满了，则to[i + 1] == i + 2。从题意我们可以看出，此时to[i] == to[i + 1] == i + 2。\n这样我们就几乎可以把每次注水的流向的查询优化到O(1)。剩下的就是基本的加减法和输入输出操作了。\nE. Subway Innovation 推公式题，专治智商不够。\n上一份别人的题解，我估计推不出来了。。。\n以下是代码 A (n, k) = map(int, raw_input().split()) ll = map(int, raw_input().split()) ans = 0 for i in xrange(k): ones = 0 twos = 0 for j in xrange(i, n, k): if ll[j] == 1: ones += 1 else: twos += 1 ans += min(ones, twos) print ans B from fractions import gcd def avail(a): ans = 0 while a % 2 == 0: ans += 1 a /= 2 while a % 3 == 0: ans += 1 a /= 3 while a % 5 == 0: ans += 1 a /= 5 if a != 1: return -1 else: return ans (a, b) = map(int, raw_input().split()) c = gcd(a, b) a /= c b /= c av = avail(a) gv = avail(b) if av != -1 and gv != -1: print av + gv else: print -1 C #include #include #include #include #include #include #include using namespace std; #define print(x) cout \u003c\u003c x \u003c\u003c endl #define input(x) cin \u003e\u003e x typedef long long llint; const int BUFFER = 128; const int SIZE = 5; llint need[SIZE]; llint have[SIZE]; llint cost[SIZE]; llint money; llint calc(llint num) { llint res = 0; for (int i = 0; i \u003c 3; i++) { llint t = max(0LL, num * need[i] - have[i]); res += t * cost[i]; } return res; } llint solve() { llint step = 10000000000000LL; llint now = 0; while (step) { llint half = step \u003e\u003e 1; llint mid = now + half; if (calc(mid) \u003e money) { step = half; } else { now = mid + 1; step = step - half - 1; } } return now; } int main() { freopen(\"input.txt\", \"r\", stdin); char buffer[BUFFER]; while (input(buffer)) { memset(need, 0, sizeof(need)); memset(have, 0, sizeof(have)); memset(cost, 0, sizeof(money)); for (int i = 0; buffer[i]; i++) { switch (buffer[i]) { case 'B': need[0]++; break; case 'S': need[1]++; break; case 'C': need[2]++; break; default: break; } } for (int i = 0; i \u003c 3; i++) { input(have[i]); } for (int i = 0; i \u003c 3; i++) { input(cost[i]); } input(money); llint ans = solve() - 1; print(max(0LL, ans)); } return 0; } D #include #include #include #include #include #include #include using namespace std; #define print(x) cout \u003c\u003c x \u003c\u003c endl #define input(x) cin \u003e\u003e x typedef long long llint; const int SIZE = 200100; int n, m; llint cap[SIZE]; llint vessel[SIZE]; int father[SIZE]; int find_father(int x) { if (father[x] == x) return x; else return father[x] = find_father(father[x]); } void pour(int pos, llint value) { vessel[pos] += value; if (vessel[pos] \u003e cap[pos]) { if (pos == n - 1) { vessel[pos] = cap[pos]; return; } else { llint overflow = vessel[pos] - cap[pos]; father[pos] = find_father(pos + 1); vessel[pos] = cap[pos]; pour(father[pos], overflow); } } } llint query(int pos) { return vessel[pos]; } int main() { freopen(\"input.txt\", \"r\", stdin); llint a, b, c; input(n); for (int i = 0; i \u003c SIZE; i++) { father[i] = i; } memset(cap, 0, sizeof(cap)); memset(vessel, 0, sizeof(vessel)); for (int i = 0; i \u003c n; i++) { input(cap[i]); } input(m); while (m--) { input(a); if (a == 1) { input(b \u003e\u003e c); pour(--b, c); } else { input(b); print(query(--b)); } } return 0; } E #include #include #include #include #include #include #include using namespace std; #define print(x) cout \u003c\u003c x \u003c\u003c endl #define input(x) cin \u003e\u003e x typedef long long llint; struct node { int pos, nr; node(){} node(int ipos, int inr): pos(ipos), nr(inr) {} bool operator \u003c (const node\u0026 x) const { return pos \u003c x.pos; } }; const int SIZE = 300008; node station[SIZE]; llint leftsum[SIZE]; llint n, k; int main() { input(n); for (int i = 0; i \u003c n; i++) { input(station[i].pos); station[i].nr = i + 1; } input(k); sort(station, station + n); for (int i = 1; i \u003c n; i++) { leftsum[i] = leftsum[i-1] + station[i].pos; } llint f = 0; for (int i = 1; i \u003c= k; i++) { f += (llint)station[i].pos * i - leftsum[i-1]; } llint res = f; int pos = 0; k--; for (int i = 1; i \u003c n - k; i++) { f += station[i+k].pos * k; f -= leftsum[i+k-1] * 2; f += leftsum[i-1] * 2 ; f += station[i-1].pos * k; if (f \u003c res) { res = f; pos = i; } } for (int i=0; i\u003c=k; i++) { printf(\"%d \", station[pos + i].nr); } return 0; } ","wordCount":"1483","inLanguage":"zh-cn","datePublished":"0001-01-01T00:00:00Z","dateModified":"0001-01-01T00:00:00Z","author":{"@type":"Person","name":"wizmann"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://wizmann.top/posts/cf-218-div-2/"},"publisher":{"@type":"Organization","name":"Maerlyn's Rainbow","logo":{"@type":"ImageObject","url":"https://wizmann.top/favicon.ico"}}}</script></head><body id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://wizmann.top/ accesskey=h title="Maerlyn's Rainbow (Alt + H)">Maerlyn's Rainbow</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent"></h1><div class=post-meta>wizmann</div></header><div class=post-content><p>Date: 2013-12-9 23:02
+Title: Codeforces Round #218 (Div. 2)不完全不正确题解
+Tags: codeforces, algorithm, 算法, 题解
+Slug: cf-218-div-2</p><h3 id=a-k-periodic-array>A. K-Periodic Array<a hidden class=anchor aria-hidden=true href=#a-k-periodic-array>#</a></h3><p>将Array切片，然后按位统计某一位上1的个数C(1)和2的个数C(2)。然后在这一位上的操作数就为M = min(C(1), C(2))。</p><p>简单题</p><h3 id=b-fox-dividing-cheese>B. Fox Dividing Cheese<a hidden class=anchor aria-hidden=true href=#b-fox-dividing-cheese>#</a></h3><p>傻逼才错的题，不幸中枪。</p><p>不想多说了，直接看代码吧。手贱不是病，贱起来要人命。</p><h3 id=c-hamburgers>C. Hamburgers<a hidden class=anchor aria-hidden=true href=#c-hamburgers>#</a></h3><p>模拟 + 二分。</p><p>和CJL还讨论过这题的纯模拟做法，看了半天代码没找到问题。于是刚才用Python自己实现了一个，在代码正确的情况下，没有WA，但是T在了22组上。</p><p>所以这题最好使用二分，如果用模拟的话，需要考虑各种情况。代码见下，细节上注意就好。</p><h3 id=d-vessels>D. Vessels<a hidden class=anchor aria-hidden=true href=#d-vessels>#</a></h3><p>这题得好好讲一下～比赛时做出来了好得意～</p><p><img alt=Vessels loading=lazy src=https://github.com/Wizmann/assets/raw/master/wizmann-tk-pic/blog-cf-218-div-2-d-vessels.png></p><p>题意是给出一组层层叠的容器，每一个容器都有自己的容量。然后我们向某些容器里灌水，如果水的体积超过了某个容器的容量，则剩余的水溢出到下一个容器中。最后一个容器溢出的水会落到地面上，所以忽略不计。</p><p>我们可以看出，如果某一个容器是满的，那么它就再也不会空下来，并且流经它的水全部溢出给下面的容器。</p><p>于是我们用一个数组记录当前容器注水的时候，水会流向哪个容器。</p><p>由于在初始状态下，所有容器都是空的。所以<code>to[i] = i</code>。</p><p>如果某容器由于注水满掉了，我们就把注水的指向指到<code>i + 1</code>，就有<code>to[i] = i + 1</code>。</p><p>下次在向容器i注水的时候，我们通过查询<code>to[i]</code>的值，就可以知道水的流向。</p><p>这可以转化为一个并查集问题。如果i满了，<code>to[i] == i + 1</code>。与此同时，i+1也满了，则<code>to[i + 1] == i + 2</code>。从题意我们可以看出，此时<code>to[i] == to[i + 1] == i + 2</code>。</p><p>这样我们就几乎可以把每次注水的流向的查询优化到<code>O(1)</code>。剩下的就是基本的加减法和输入输出操作了。</p><h3 id=e-subway-innovation>E. Subway Innovation<a hidden class=anchor aria-hidden=true href=#e-subway-innovation>#</a></h3><p>推公式题，专治智商不够。</p><p>上一份别人的题解，我估计推不出来了。。。</p><p><img alt=E题题解 loading=lazy src=https://github.com/Wizmann/assets/raw/master/wizmann-tk-pic/blog-cf-218-div-2-e.png></p><h3 id=以下是代码>以下是代码<a hidden class=anchor aria-hidden=true href=#以下是代码>#</a></h3><h4 id=a>A<a hidden class=anchor aria-hidden=true href=#a>#</a></h4><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span>(n, k) <span style=color:#f92672>=</span> map(int, raw_input()<span style=color:#f92672>.</span>split())
+</span></span><span style=display:flex><span>ll <span style=color:#f92672>=</span> map(int, raw_input()<span style=color:#f92672>.</span>split())
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>ans <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>for</span> i <span style=color:#f92672>in</span> xrange(k):
+</span></span><span style=display:flex><span>    ones <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>
+</span></span><span style=display:flex><span>    twos <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> j <span style=color:#f92672>in</span> xrange(i, n, k):
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> ll[j] <span style=color:#f92672>==</span> <span style=color:#ae81ff>1</span>:
+</span></span><span style=display:flex><span>            ones <span style=color:#f92672>+=</span> <span style=color:#ae81ff>1</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>else</span>:
+</span></span><span style=display:flex><span>            twos <span style=color:#f92672>+=</span> <span style=color:#ae81ff>1</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    ans <span style=color:#f92672>+=</span> min(ones, twos)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>print ans
+</span></span></code></pre></div><h4 id=b>B<a hidden class=anchor aria-hidden=true href=#b>#</a></h4><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>from</span> fractions <span style=color:#f92672>import</span> gcd
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>avail</span>(a):
+</span></span><span style=display:flex><span>    ans <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>while</span> a <span style=color:#f92672>%</span> <span style=color:#ae81ff>2</span> <span style=color:#f92672>==</span> <span style=color:#ae81ff>0</span>:
+</span></span><span style=display:flex><span>        ans <span style=color:#f92672>+=</span> <span style=color:#ae81ff>1</span>
+</span></span><span style=display:flex><span>        a <span style=color:#f92672>/=</span> <span style=color:#ae81ff>2</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>while</span> a <span style=color:#f92672>%</span> <span style=color:#ae81ff>3</span> <span style=color:#f92672>==</span> <span style=color:#ae81ff>0</span>:
+</span></span><span style=display:flex><span>        ans <span style=color:#f92672>+=</span> <span style=color:#ae81ff>1</span>
+</span></span><span style=display:flex><span>        a <span style=color:#f92672>/=</span> <span style=color:#ae81ff>3</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>while</span> a <span style=color:#f92672>%</span> <span style=color:#ae81ff>5</span> <span style=color:#f92672>==</span> <span style=color:#ae81ff>0</span>:
+</span></span><span style=display:flex><span>        ans <span style=color:#f92672>+=</span> <span style=color:#ae81ff>1</span>
+</span></span><span style=display:flex><span>        a <span style=color:#f92672>/=</span> <span style=color:#ae81ff>5</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> a <span style=color:#f92672>!=</span> <span style=color:#ae81ff>1</span>:
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>else</span>:
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> ans
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>(a, b) <span style=color:#f92672>=</span> map(int, raw_input()<span style=color:#f92672>.</span>split())
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>c <span style=color:#f92672>=</span> gcd(a, b)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>a <span style=color:#f92672>/=</span> c
+</span></span><span style=display:flex><span>b <span style=color:#f92672>/=</span> c
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>av <span style=color:#f92672>=</span> avail(a)
+</span></span><span style=display:flex><span>gv <span style=color:#f92672>=</span> avail(b)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>if</span> av <span style=color:#f92672>!=</span> <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span> <span style=color:#f92672>and</span> gv <span style=color:#f92672>!=</span> <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>:
+</span></span><span style=display:flex><span>    print av <span style=color:#f92672>+</span> gv
+</span></span><span style=display:flex><span><span style=color:#66d9ef>else</span>:
+</span></span><span style=display:flex><span>    print <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>
+</span></span></code></pre></div><h4 id=c>C<a hidden class=anchor aria-hidden=true href=#c>#</a></h4><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;cstdio&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;cstdlib&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;cstring&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;iostream&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;algorithm&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;vector&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;string&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>using</span> <span style=color:#66d9ef>namespace</span> std;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>#define print(x) cout &lt;&lt; x &lt;&lt; endl
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#define input(x) cin &gt;&gt; x
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>typedef</span> <span style=color:#66d9ef>long</span> <span style=color:#66d9ef>long</span> llint;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>const</span> <span style=color:#66d9ef>int</span> BUFFER <span style=color:#f92672>=</span> <span style=color:#ae81ff>128</span>;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>const</span> <span style=color:#66d9ef>int</span> SIZE <span style=color:#f92672>=</span> <span style=color:#ae81ff>5</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>llint need[SIZE];
+</span></span><span style=display:flex><span>llint have[SIZE];
+</span></span><span style=display:flex><span>llint cost[SIZE];
+</span></span><span style=display:flex><span>llint money;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>llint <span style=color:#a6e22e>calc</span>(llint num) {
+</span></span><span style=display:flex><span>    llint res <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; i <span style=color:#f92672>&lt;</span> <span style=color:#ae81ff>3</span>; i<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>        llint t <span style=color:#f92672>=</span> max(<span style=color:#ae81ff>0LL</span>, num <span style=color:#f92672>*</span> need[i] <span style=color:#f92672>-</span> have[i]);
+</span></span><span style=display:flex><span>        res <span style=color:#f92672>+=</span> t <span style=color:#f92672>*</span> cost[i];
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> res;
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>llint <span style=color:#a6e22e>solve</span>()
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    llint step <span style=color:#f92672>=</span> <span style=color:#ae81ff>10000000000000LL</span>;
+</span></span><span style=display:flex><span>    llint now <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>while</span> (step) {
+</span></span><span style=display:flex><span>        llint half <span style=color:#f92672>=</span> step <span style=color:#f92672>&gt;&gt;</span> <span style=color:#ae81ff>1</span>;
+</span></span><span style=display:flex><span>        llint mid <span style=color:#f92672>=</span> now <span style=color:#f92672>+</span> half;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> (calc(mid) <span style=color:#f92672>&gt;</span> money) {
+</span></span><span style=display:flex><span>            step <span style=color:#f92672>=</span> half;
+</span></span><span style=display:flex><span>        } <span style=color:#66d9ef>else</span> {
+</span></span><span style=display:flex><span>            now <span style=color:#f92672>=</span> mid <span style=color:#f92672>+</span> <span style=color:#ae81ff>1</span>;
+</span></span><span style=display:flex><span>            step <span style=color:#f92672>=</span> step <span style=color:#f92672>-</span> half <span style=color:#f92672>-</span> <span style=color:#ae81ff>1</span>;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> now;
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> <span style=color:#a6e22e>main</span>()
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    freopen(<span style=color:#e6db74>&#34;input.txt&#34;</span>, <span style=color:#e6db74>&#34;r&#34;</span>, stdin);
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>char</span> buffer[BUFFER];
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>while</span> (input(buffer)) {
+</span></span><span style=display:flex><span>        memset(need, <span style=color:#ae81ff>0</span>, <span style=color:#66d9ef>sizeof</span>(need));
+</span></span><span style=display:flex><span>        memset(have, <span style=color:#ae81ff>0</span>, <span style=color:#66d9ef>sizeof</span>(have));
+</span></span><span style=display:flex><span>        memset(cost, <span style=color:#ae81ff>0</span>, <span style=color:#66d9ef>sizeof</span>(money));
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; buffer[i]; i<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>switch</span> (buffer[i]) {
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>case</span> <span style=color:#e6db74>&#39;B&#39;</span><span style=color:#f92672>:</span> need[<span style=color:#ae81ff>0</span>]<span style=color:#f92672>++</span>; <span style=color:#66d9ef>break</span>;
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>case</span> <span style=color:#e6db74>&#39;S&#39;</span><span style=color:#f92672>:</span> need[<span style=color:#ae81ff>1</span>]<span style=color:#f92672>++</span>; <span style=color:#66d9ef>break</span>;
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>case</span> <span style=color:#e6db74>&#39;C&#39;</span><span style=color:#f92672>:</span> need[<span style=color:#ae81ff>2</span>]<span style=color:#f92672>++</span>; <span style=color:#66d9ef>break</span>;
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>default</span><span style=color:#f92672>:</span> <span style=color:#66d9ef>break</span>;
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; i <span style=color:#f92672>&lt;</span> <span style=color:#ae81ff>3</span>; i<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>            input(have[i]);
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; i <span style=color:#f92672>&lt;</span> <span style=color:#ae81ff>3</span>; i<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>            input(cost[i]);
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        input(money);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        llint ans <span style=color:#f92672>=</span> solve() <span style=color:#f92672>-</span> <span style=color:#ae81ff>1</span>;
+</span></span><span style=display:flex><span>        print(max(<span style=color:#ae81ff>0LL</span>, ans));
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h4 id=d>D<a hidden class=anchor aria-hidden=true href=#d>#</a></h4><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;cstdio&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;cstdlib&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;cstring&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;iostream&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;algorithm&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;vector&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;string&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>using</span> <span style=color:#66d9ef>namespace</span> std;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>#define print(x) cout &lt;&lt; x &lt;&lt; endl
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#define input(x) cin &gt;&gt; x
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>typedef</span> <span style=color:#66d9ef>long</span> <span style=color:#66d9ef>long</span> llint;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>const</span> <span style=color:#66d9ef>int</span> SIZE <span style=color:#f92672>=</span> <span style=color:#ae81ff>200100</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> n, m;
+</span></span><span style=display:flex><span>llint cap[SIZE];
+</span></span><span style=display:flex><span>llint vessel[SIZE];
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> father[SIZE];
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> <span style=color:#a6e22e>find_father</span>(<span style=color:#66d9ef>int</span> x)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> (father[x] <span style=color:#f92672>==</span> x) <span style=color:#66d9ef>return</span> x;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>else</span> <span style=color:#66d9ef>return</span> father[x] <span style=color:#f92672>=</span> find_father(father[x]);
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>void</span> <span style=color:#a6e22e>pour</span>(<span style=color:#66d9ef>int</span> pos, llint value) {
+</span></span><span style=display:flex><span>    vessel[pos] <span style=color:#f92672>+=</span> value;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> (vessel[pos] <span style=color:#f92672>&gt;</span> cap[pos]) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> (pos <span style=color:#f92672>==</span> n <span style=color:#f92672>-</span> <span style=color:#ae81ff>1</span>) {
+</span></span><span style=display:flex><span>            vessel[pos] <span style=color:#f92672>=</span> cap[pos];
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span>;
+</span></span><span style=display:flex><span>        } <span style=color:#66d9ef>else</span> {
+</span></span><span style=display:flex><span>            llint overflow <span style=color:#f92672>=</span> vessel[pos] <span style=color:#f92672>-</span> cap[pos];
+</span></span><span style=display:flex><span>            father[pos] <span style=color:#f92672>=</span> find_father(pos <span style=color:#f92672>+</span> <span style=color:#ae81ff>1</span>);
+</span></span><span style=display:flex><span>            vessel[pos] <span style=color:#f92672>=</span> cap[pos];
+</span></span><span style=display:flex><span>            pour(father[pos], overflow);
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>llint <span style=color:#a6e22e>query</span>(<span style=color:#66d9ef>int</span> pos)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> vessel[pos];
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> <span style=color:#a6e22e>main</span>()
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    freopen(<span style=color:#e6db74>&#34;input.txt&#34;</span>, <span style=color:#e6db74>&#34;r&#34;</span>, stdin);
+</span></span><span style=display:flex><span>    llint a, b, c;
+</span></span><span style=display:flex><span>    input(n);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; i <span style=color:#f92672>&lt;</span> SIZE; i<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>        father[i] <span style=color:#f92672>=</span> i;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    memset(cap, <span style=color:#ae81ff>0</span>, <span style=color:#66d9ef>sizeof</span>(cap));
+</span></span><span style=display:flex><span>    memset(vessel, <span style=color:#ae81ff>0</span>, <span style=color:#66d9ef>sizeof</span>(vessel));
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; i <span style=color:#f92672>&lt;</span> n; i<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>        input(cap[i]);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    input(m);
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>while</span> (m<span style=color:#f92672>--</span>) {
+</span></span><span style=display:flex><span>        input(a);
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> (a <span style=color:#f92672>==</span> <span style=color:#ae81ff>1</span>) {
+</span></span><span style=display:flex><span>            input(b <span style=color:#f92672>&gt;&gt;</span> c);
+</span></span><span style=display:flex><span>            pour(<span style=color:#f92672>--</span>b, c);
+</span></span><span style=display:flex><span>        } <span style=color:#66d9ef>else</span> {
+</span></span><span style=display:flex><span>            input(b);
+</span></span><span style=display:flex><span>            print(query(<span style=color:#f92672>--</span>b));
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h4 id=e>E<a hidden class=anchor aria-hidden=true href=#e>#</a></h4><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;cstdio&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;cstring&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;cstdlib&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;iostream&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;algorithm&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;vector&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;set&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>using</span> <span style=color:#66d9ef>namespace</span> std;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>#define print(x) cout &lt;&lt; x &lt;&lt; endl
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#define input(x) cin &gt;&gt; x
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>typedef</span> <span style=color:#66d9ef>long</span> <span style=color:#66d9ef>long</span> llint;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>struct</span> <span style=color:#a6e22e>node</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> pos, nr;
+</span></span><span style=display:flex><span>    node(){}
+</span></span><span style=display:flex><span>    node(<span style=color:#66d9ef>int</span> ipos, <span style=color:#66d9ef>int</span> inr)<span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>            pos(ipos), nr(inr) {}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>bool</span> <span style=color:#66d9ef>operator</span> <span style=color:#f92672>&lt;</span> (<span style=color:#66d9ef>const</span> node<span style=color:#f92672>&amp;</span> x) <span style=color:#66d9ef>const</span> 
+</span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> pos <span style=color:#f92672>&lt;</span> x.pos;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>};
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>const</span> <span style=color:#66d9ef>int</span> SIZE <span style=color:#f92672>=</span> <span style=color:#ae81ff>300008</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>node station[SIZE];
+</span></span><span style=display:flex><span>llint leftsum[SIZE];
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>llint n, k;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> <span style=color:#a6e22e>main</span>() 
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    input(n);
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; i <span style=color:#f92672>&lt;</span> n; i<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>        input(station[i].pos);
+</span></span><span style=display:flex><span>        station[i].nr <span style=color:#f92672>=</span> i <span style=color:#f92672>+</span> <span style=color:#ae81ff>1</span>;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    input(k);
+</span></span><span style=display:flex><span>    sort(station, station <span style=color:#f92672>+</span> n);
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>; i <span style=color:#f92672>&lt;</span> n; i<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>        leftsum[i] <span style=color:#f92672>=</span> leftsum[i<span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>] <span style=color:#f92672>+</span> station[i].pos;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    llint f <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>; i <span style=color:#f92672>&lt;=</span> k; i<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>        f <span style=color:#f92672>+=</span> (llint)station[i].pos <span style=color:#f92672>*</span> i <span style=color:#f92672>-</span> leftsum[i<span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>];
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    llint res <span style=color:#f92672>=</span> f;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> pos <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>    k<span style=color:#f92672>--</span>;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>; i <span style=color:#f92672>&lt;</span> n <span style=color:#f92672>-</span> k; i<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>        f <span style=color:#f92672>+=</span> station[i<span style=color:#f92672>+</span>k].pos <span style=color:#f92672>*</span> k;
+</span></span><span style=display:flex><span>        f <span style=color:#f92672>-=</span> leftsum[i<span style=color:#f92672>+</span>k<span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>] <span style=color:#f92672>*</span> <span style=color:#ae81ff>2</span>;
+</span></span><span style=display:flex><span>        f <span style=color:#f92672>+=</span> leftsum[i<span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>] <span style=color:#f92672>*</span> <span style=color:#ae81ff>2</span> ;
+</span></span><span style=display:flex><span>        f <span style=color:#f92672>+=</span> station[i<span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>].pos <span style=color:#f92672>*</span> k;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> (f <span style=color:#f92672>&lt;</span> res) {
+</span></span><span style=display:flex><span>            res <span style=color:#f92672>=</span> f;
+</span></span><span style=display:flex><span>            pos <span style=color:#f92672>=</span> i;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i<span style=color:#f92672>=</span><span style=color:#ae81ff>0</span>; i<span style=color:#f92672>&lt;=</span>k; i<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>        printf(<span style=color:#e6db74>&#34;%d &#34;</span>, station[pos <span style=color:#f92672>+</span> i].nr);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div></div><footer class=post-footer><ul class=post-tags></ul><nav class=paginav><a class=prev href=https://wizmann.top/posts/cf-215-div-2/><span class=title>«</span><br><span></span>
+</a><a class=next href=https://wizmann.top/posts/cf-221-div-2/><span class=title>»</span><br><span></span></a></nav></footer><div id=disqus_thread></div><script>(function(){var e=document,t=e.createElement("script");t.src="https://wizmann.disqus.com/embed.js",t.setAttribute("data-timestamp",+new Date),(e.head||e.body).appendChild(t)})()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript></article></main><footer class=footer><span>&copy; 2025 <a href=https://wizmann.top/>Maerlyn's Rainbow</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>
