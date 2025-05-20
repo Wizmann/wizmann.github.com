@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Network on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/network/</link><description>Recent content in Network on Maerlyn's Rainbow</description><generator>Hugo -- 0.146.0</generator><language>zh-CN</language><lastBuildDate>Mon, 17 Nov 2014 00:25:42 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/network/index.xml" rel="self" type="application/rss+xml"/><item><title>类型-长度-值（TLV）协议</title><link>https://wizmann.top/posts/tlv-protocol/</link><pubDate>Mon, 17 Nov 2014 00:25:42 +0000</pubDate><guid>https://wizmann.top/posts/tlv-protocol/</guid><description>&lt;p>在数据通信协议中，可选的信息或字段通常使用type-length-value（a.k.a TLV）元素来进行编码。&lt;/p>
+&lt;ul>
+&lt;li>Type - 类型&lt;/li>
+&lt;/ul>
+&lt;p>用来标示字段类型的值，通常是一个二进制值或简单的字母&lt;/p></description></item></channel></rss>

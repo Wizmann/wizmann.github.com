@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Quick Sort on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/quick-sort/</link><description>Recent content in Quick Sort on Maerlyn's Rainbow</description><generator>Hugo -- 0.146.0</generator><language>zh-CN</language><lastBuildDate>Sun, 14 Dec 2014 16:51:50 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/quick-sort/index.xml" rel="self" type="application/rss+xml"/><item><title>Sequence Median</title><link>https://wizmann.top/posts/sequence-median/</link><pubDate>Sun, 14 Dec 2014 16:51:50 +0000</pubDate><guid>https://wizmann.top/posts/sequence-median/</guid><description>&lt;h2 id="description">Description&lt;/h2>
+&lt;p>Given a sequence of integer numbers, try to find the median of the sequence.&lt;/p>
+&lt;h3 id="extending">Extending&lt;/h3>
+&lt;ul>
+&lt;li>Make sure your code can get the right answer in any conditions&lt;/li>
+&lt;li>Make sure your code work effectively on some special kinds of sequence. For example, ordered sequence or a nearly ordered one, a sequence with few unique items.&lt;/li>
+&lt;li>If the memory is not large enough for all the elements in the sequence, how can we implement this algorithm?&lt;/li>
+&lt;li>If it&amp;rsquo;s not a sequence, but a data stream. How can we find the median?&lt;/li>
+&lt;/ul>
+&lt;h2 id="solution">Solution&lt;/h2>
+&lt;p>Finding the median is quite similar to finding the kth element.&lt;/p></description></item></channel></rss>

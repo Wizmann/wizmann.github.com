@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>设计模式 on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</link><description>Recent content in 设计模式 on Maerlyn's Rainbow</description><generator>Hugo -- 0.146.0</generator><language>zh-CN</language><lastBuildDate>Fri, 03 Jan 2014 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/index.xml" rel="self" type="application/rss+xml"/><item><title>读书 - 《Head first 设计模式》</title><link>https://wizmann.top/posts/read-head-first-design-pattern/</link><pubDate>Fri, 03 Jan 2014 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/read-head-first-design-pattern/</guid><description>&lt;p>&lt;img alt="Head first设计模式" loading="lazy" src="http://img5.douban.com/lpic/s2686916.jpg">&lt;/p>
+&lt;p>&lt;a href="http://book.douban.com/subject/2243615/">豆瓣读书&lt;/a>&lt;/p>
+&lt;h2 id="为什么读这本书">为什么读这本书&lt;/h2>
+&lt;p>在面XX家的时候，被问过一个设计模式问题。当时连面向对象都搞不懂，更不用说设计模式。&lt;/p>
+&lt;p>于是入了“四人帮”的&lt;a href="http://book.douban.com/subject/1052241/">设计模式&lt;/a>来看，被里面的内容彻底搞晕。然后只能找了这本看起来很娱乐化的书来读。&lt;/p>
+&lt;p>这本书大概有600多页，比“四人帮”书厚很多。一个原因是这本书是“范例驱动”的，包含很多“项目”背景介绍，以及实现思路；第二个原因是，这本书的示例代码用的是&lt;strong>Java&lt;/strong>。&lt;/p></description></item><item><title>Codeforces 3C - Tic-tac-toe</title><link>https://wizmann.top/posts/cf-3c-tic-tac-toe/</link><pubDate>Sun, 29 Dec 2013 20:23:00 +0000</pubDate><guid>https://wizmann.top/posts/cf-3c-tic-tac-toe/</guid><description>&lt;h2 id="啥">啥？&lt;/h2>
+&lt;p>&lt;a href="http://codeforces.com/problemset/problem/3/C">Tic-tac-toe&lt;/a>是我很久之前在CF上做的一道题。非常考细心的模拟题。&lt;/p>
+&lt;p>最近有同学和我讨论过类似的问题。于是拿出来重新做一遍。练练手。&lt;/p>
+&lt;h2 id="原题做法">原题做法&lt;/h2>
+&lt;p>没有任何“算法”成分。纯模拟。&lt;/p>
+&lt;p>又由于数据量实在是太小（3 × 3的矩阵），所以只要是思路正确。代码怎么写都能过。&lt;/p></description></item></channel></rss>

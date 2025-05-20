@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Keyboard on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/keyboard/</link><description>Recent content in Keyboard on Maerlyn's Rainbow</description><generator>Hugo -- 0.146.0</generator><language>zh-CN</language><lastBuildDate>Thu, 08 Apr 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/keyboard/index.xml" rel="self" type="application/rss+xml"/><item><title>利用Arduino制作脚踏板Fn层开关</title><link>https://wizmann.top/posts/arduino-foot-pedal-for-fn-layer/</link><pubDate>Thu, 08 Apr 2021 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/arduino-foot-pedal-for-fn-layer/</guid><description>&lt;h2 id="背景">背景&lt;/h2>
+&lt;p>之前焊了两个客制化键盘，一个是ErgoDone，一个是仿minila配列的60键盘。这两个键盘的共同特点是双手大拇指各有一个额外的开关，我将其做为Fn层的开关，用来开启两个fn层：Vim和NumPad（是啥并不重要，可以理解为功能键的重映射）。&lt;/p></description></item><item><title>打造你的专属键盘 — ErgoDone</title><link>https://wizmann.top/posts/ergodone/</link><pubDate>Wed, 05 Oct 2016 21:38:58 +0000</pubDate><guid>https://wizmann.top/posts/ergodone/</guid><description>&lt;h2 id="写在前面">写在前面&lt;/h2>
+&lt;blockquote>
+&lt;p>低能预警：这是最没有技术含量的一篇博客，无关人员可以撤离。&lt;/p>&lt;/blockquote>
+&lt;blockquote>
+&lt;p>部分图片来自网络，侵删&lt;/p>&lt;/blockquote>
+&lt;p>这个十一假期，亲手DIY了一把键盘。当然，我只搞定了焊接部分，把不同的组件拼在了一起。&lt;/p></description></item></channel></rss>

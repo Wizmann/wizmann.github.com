@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Azure on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/azure/</link><description>Recent content in Azure on Maerlyn's Rainbow</description><generator>Hugo -- 0.146.0</generator><language>zh-CN</language><lastBuildDate>Mon, 18 Dec 2017 00:49:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/azure/index.xml" rel="self" type="application/rss+xml"/><item><title>Bw-Tree：在新硬件平台上的新B-Tree</title><link>https://wizmann.top/posts/bw-tree/</link><pubDate>Mon, 18 Dec 2017 00:49:00 +0000</pubDate><guid>https://wizmann.top/posts/bw-tree/</guid><description>&lt;h2 id="ars-与-bw-tree">ARS 与 Bw-Tree&lt;/h2>
+&lt;p>nosql数据库从本质上说，都属于ARS（Atomic Record Stores，“原子记录存储”）。&lt;/p>
+&lt;p>最常见的“原子记录存储”一种实现就是朴素的Hash表：通过一个特定的key，来读写一条独立的数据记录。&lt;/p></description></item><item><title>Windows Azure Storage Made Simple</title><link>https://wizmann.top/posts/azure-storage-made-simple/</link><pubDate>Wed, 11 Oct 2017 21:12:15 +0000</pubDate><guid>https://wizmann.top/posts/azure-storage-made-simple/</guid><description>&lt;h2 id="加机器就是一把梭">加机器就是一把梭&lt;/h2>
+&lt;blockquote>
+&lt;p>没有什么问题是加一千台机器解决不了的，如果有，就再加一千台。 &lt;br>
+—— 《21天精通分布式系统》&lt;/p>&lt;/blockquote>
+&lt;p>分布式系统在设计之初，是为了解决单机系统的可用性和可扩展性问题的。&lt;/p></description></item></channel></rss>

@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>题解 on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/%E9%A2%98%E8%A7%A3/</link><description>Recent content in 题解 on Maerlyn's Rainbow</description><generator>Hugo -- 0.146.0</generator><language>zh-CN</language><lastBuildDate>Sat, 25 Apr 2015 00:54:08 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/%E9%A2%98%E8%A7%A3/index.xml" rel="self" type="application/rss+xml"/><item><title>Beauty-of-Programming 2015 Qualification Round Tutorial</title><link>https://wizmann.top/posts/beauty-of-programming-2015-qualification-round/</link><pubDate>Sat, 25 Apr 2015 00:54:08 +0000</pubDate><guid>https://wizmann.top/posts/beauty-of-programming-2015-qualification-round/</guid><description>&lt;h2 id="a-2月29日-feb-29th">A. 2月29日 (Feb. 29th)&lt;/h2>
+&lt;h3 id="description">Description&lt;/h3>
+&lt;p>Given a starting date and an ending date. Count how many Feb. 29th are between the given dates.&lt;/p>
+&lt;h3 id="solution">Solution&lt;/h3>
+&lt;p>The easiest way, of course, the brute force, which is quite simple with Python using the &lt;code>datetime&lt;/code> lib.&lt;/p>
+&lt;p>However, it&amp;rsquo;s not an effective way for the problem.&lt;/p>
+&lt;p>Let simplify the problem. &amp;ldquo;How many Feb. 29th from year A to year B?&amp;rdquo; Actually, it&amp;rsquo;t not a hard one. But there is a pitfall. Loot at this.&lt;/p></description></item><item><title>GCJ Qualification Round 2015 题解</title><link>https://wizmann.top/posts/gcj-qualification-round-2015-tutorial/</link><pubDate>Sun, 12 Apr 2015 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/gcj-qualification-round-2015-tutorial/</guid><description>&lt;h2 id="前言">前言&lt;/h2>
+&lt;p>这篇日志用中文写是因为想省点时间打游戏。。。（请鄙视我吧。。。&lt;/p>
+&lt;h2 id="a-standing-ovation">A. Standing Ovation&lt;/h2>
+&lt;h3 id="题意">题意&lt;/h3>
+&lt;p>这是一个骗掌声的故事。&lt;/p>
+&lt;p>当演出结束后，观众们要站起来鼓掌。但是有些观众比较羞涩，只有在k个人站起来鼓掌后才会故障。&lt;/p></description></item><item><title>Codeforces Round #289 (Div. 2) Tutorial</title><link>https://wizmann.top/posts/cf-289-div-2/</link><pubDate>Mon, 16 Feb 2015 21:16:31 +0000</pubDate><guid>https://wizmann.top/posts/cf-289-div-2/</guid><description>&lt;h2 id="a-maximum-in-table">A. Maximum in Table&lt;/h2>
+&lt;p>Simulation.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>n &lt;span style="color:#f92672">=&lt;/span> int(raw_input())
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>g &lt;span style="color:#f92672">=&lt;/span> [[&lt;span style="color:#ae81ff">1&lt;/span> &lt;span style="color:#66d9ef">for&lt;/span> i &lt;span style="color:#f92672">in&lt;/span> xrange(n)] &lt;span style="color:#66d9ef">for&lt;/span> j &lt;span style="color:#f92672">in&lt;/span> xrange(n)]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">for&lt;/span> i &lt;span style="color:#f92672">in&lt;/span> xrange(&lt;span style="color:#ae81ff">1&lt;/span>, n):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> j &lt;span style="color:#f92672">in&lt;/span> xrange(&lt;span style="color:#ae81ff">1&lt;/span>, n):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> g[i][j] &lt;span style="color:#f92672">=&lt;/span> g[i &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>][j] &lt;span style="color:#f92672">+&lt;/span> g[i][j &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>print g[n &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>][n &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>]
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="b-painting-pebbles">B. Painting Pebbles&lt;/h2>
+&lt;p>Reading comperhension &amp;amp; Constructive.&lt;/p>
+&lt;p>The key point of this problem is &lt;code>abs(b(i, c) - b(j, c)) &amp;lt;= 1&lt;/code>.&lt;/p>
+&lt;p>First of all, it&amp;rsquo;s safe to paint k pebbles of every pile with the same color, when &lt;code>k = min(piles)&lt;/code>. At this moment, every &lt;code>b(i, c) - b(j, c) == 0&lt;/code>.&lt;/p></description></item><item><title>Codeforces Round #288 (Div. 2)</title><link>https://wizmann.top/posts/cf-288-div-2/</link><pubDate>Mon, 16 Feb 2015 21:16:30 +0000</pubDate><guid>https://wizmann.top/posts/cf-288-div-2/</guid><description>&lt;h2 id="a-pasha-and-pixels">A. Pasha and Pixels&lt;/h2>
+&lt;p>Brute force.&lt;/p>
+&lt;p>There are multiple ways to form a 2*2 square at one single step.&lt;/p>
+&lt;p>&lt;img alt="Alt text" loading="lazy" src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/6fb53c51539b47559cf0d122a832cf63">&lt;/p>
+&lt;p>So at every step, we have to check the neighbours of pixel that is colored black.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstdio&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstdlib&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstring&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;iostream&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;vector&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> &lt;span style="color:#66d9ef">namespace&lt;/span> std;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#define print(x) cout &amp;lt;&amp;lt; x &amp;lt;&amp;lt; endl
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#define input(x) cin &amp;gt;&amp;gt; x
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> SIZE &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1024&lt;/span> &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">123&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> mx[] &lt;span style="color:#f92672">=&lt;/span> {&lt;span style="color:#ae81ff">0&lt;/span>, &lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">0&lt;/span>, &lt;span style="color:#ae81ff">1&lt;/span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> my[] &lt;span style="color:#f92672">=&lt;/span> {&lt;span style="color:#ae81ff">0&lt;/span>, &lt;span style="color:#ae81ff">0&lt;/span>, &lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">1&lt;/span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> MOVE &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">4&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> mp[SIZE][SIZE];
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> n, m, k;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">bool&lt;/span> &lt;span style="color:#a6e22e">isBlackBlock&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> y, &lt;span style="color:#66d9ef">int&lt;/span> x) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> cnt &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">int&lt;/span> i &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>; i &lt;span style="color:#f92672">&amp;lt;&lt;/span> MOVE; i&lt;span style="color:#f92672">++&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> ny &lt;span style="color:#f92672">=&lt;/span> y &lt;span style="color:#f92672">+&lt;/span> my[i];
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> nx &lt;span style="color:#f92672">=&lt;/span> x &lt;span style="color:#f92672">+&lt;/span> mx[i];
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (ny &lt;span style="color:#f92672">&amp;gt;=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span> &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> ny &lt;span style="color:#f92672">&amp;lt;&lt;/span> n
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> nx &lt;span style="color:#f92672">&amp;gt;=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span> &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> nx &lt;span style="color:#f92672">&amp;lt;&lt;/span> m
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> mp[ny][nx]) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> cnt&lt;span style="color:#f92672">++&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> cnt &lt;span style="color:#f92672">==&lt;/span> MOVE;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> y, x;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> input(n &lt;span style="color:#f92672">&amp;gt;&amp;gt;&lt;/span> m &lt;span style="color:#f92672">&amp;gt;&amp;gt;&lt;/span> k);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> memset(mp, &lt;span style="color:#ae81ff">0&lt;/span>, &lt;span style="color:#66d9ef">sizeof&lt;/span>(mp));
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> ans &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">int&lt;/span> i &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>; i &lt;span style="color:#f92672">&amp;lt;&lt;/span> k; i&lt;span style="color:#f92672">++&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> input(y &lt;span style="color:#f92672">&amp;gt;&amp;gt;&lt;/span> x);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> x&lt;span style="color:#f92672">--&lt;/span>; y&lt;span style="color:#f92672">--&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> mp[y][x] &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">bool&lt;/span> flag &lt;span style="color:#f92672">=&lt;/span> false;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">int&lt;/span> j &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>; j &lt;span style="color:#f92672">&amp;lt;&lt;/span> MOVE; j&lt;span style="color:#f92672">++&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> flag &lt;span style="color:#f92672">|=&lt;/span> isBlackBlock(y &lt;span style="color:#f92672">-&lt;/span> my[j], x &lt;span style="color:#f92672">-&lt;/span> mx[j]);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (flag) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ans &lt;span style="color:#f92672">=&lt;/span> i &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">break&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print(ans);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="b-anton-and-currency-you-all-know">B. Anton and currency you all know&lt;/h2>
+&lt;p>At first, you have to understand the questions accurately.&lt;/p></description></item><item><title>Codeforces 447D DZY Loves Modification</title><link>https://wizmann.top/posts/cf-447d/</link><pubDate>Thu, 24 Jul 2014 23:44:44 +0000</pubDate><guid>https://wizmann.top/posts/cf-447d/</guid><description>&lt;h2 id="题意">题意&lt;/h2>
+&lt;p>给你一个n * m的矩阵，让你做K次操作，使得最后得到的值最大。&lt;/p>
+&lt;p>操作有两种：&lt;/p>
+&lt;p>一是&lt;strong>在任意一行上&lt;/strong>操作，最终的结果值加上这一行数的和，然后这一行每一个数都要减去p。&lt;/p></description></item><item><title>Codeforces Round #242 (Div. 2) Tutorials and Solutions</title><link>https://wizmann.top/posts/cf-242-div-2/</link><pubDate>Wed, 30 Apr 2014 17:39:00 +0000</pubDate><guid>https://wizmann.top/posts/cf-242-div-2/</guid><description>&lt;h2 id="a-squats">A. Squats&lt;/h2>
+&lt;p>Trun &lt;code>x =&amp;gt; X&lt;/code> or &lt;code>X =&amp;gt; x&lt;/code> to make the number of &amp;lsquo;x&amp;rsquo; is equal to the number of &amp;lsquo;X&amp;rsquo;.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>n &lt;span style="color:#f92672">=&lt;/span> int(raw_input())
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>hamsters &lt;span style="color:#f92672">=&lt;/span> [c &lt;span style="color:#66d9ef">for&lt;/span> c &lt;span style="color:#f92672">in&lt;/span> raw_input()]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>sits &lt;span style="color:#f92672">=&lt;/span> hamsters&lt;span style="color:#f92672">.&lt;/span>count(&lt;span style="color:#e6db74">&amp;#39;x&amp;#39;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>stands &lt;span style="color:#f92672">=&lt;/span> hamsters&lt;span style="color:#f92672">.&lt;/span>count(&lt;span style="color:#e6db74">&amp;#39;X&amp;#39;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">if&lt;/span> sits &lt;span style="color:#f92672">==&lt;/span> stands:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print &lt;span style="color:#ae81ff">0&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print &lt;span style="color:#e6db74">&amp;#39;&amp;#39;&lt;/span>&lt;span style="color:#f92672">.&lt;/span>join(hamsters)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">else&lt;/span>:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> sits &lt;span style="color:#f92672">&amp;gt;&lt;/span> stands:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> num &lt;span style="color:#f92672">=&lt;/span> sits &lt;span style="color:#f92672">-&lt;/span> n&lt;span style="color:#f92672">/&lt;/span>&lt;span style="color:#ae81ff">2&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> key &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#39;x&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">else&lt;/span>:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> num &lt;span style="color:#f92672">=&lt;/span> stands &lt;span style="color:#f92672">-&lt;/span> n&lt;span style="color:#f92672">/&lt;/span>&lt;span style="color:#ae81ff">2&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> key &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#39;X&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print num
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> i, c &lt;span style="color:#f92672">in&lt;/span> enumerate(hamsters):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> c &lt;span style="color:#f92672">==&lt;/span> key:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> hamsters[i] &lt;span style="color:#f92672">=&lt;/span> c&lt;span style="color:#f92672">.&lt;/span>swapcase()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> num &lt;span style="color:#f92672">-=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> &lt;span style="color:#f92672">not&lt;/span> num:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">break&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print &lt;span style="color:#e6db74">&amp;#39;&amp;#39;&lt;/span>&lt;span style="color:#f92672">.&lt;/span>join(hamsters)
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="b-megacity">B. Megacity&lt;/h2>
+&lt;p>Binary search.&lt;/p></description></item><item><title>Codeforces Round #240 (Div. 2) Tutorials and Solutions(incomplete and incorrect)</title><link>https://wizmann.top/posts/cf-240-div-2/</link><pubDate>Tue, 08 Apr 2014 14:39:11 +0000</pubDate><guid>https://wizmann.top/posts/cf-240-div-2/</guid><description>&lt;h2 id="overview">Overview&lt;/h2>
+&lt;p>It has been months that I didn&amp;rsquo;t participate in the contest on CF, now I&amp;rsquo;m back. :)&lt;/p>
+&lt;p>This round of contest makes me confused that the problem B and C is a little bit too twisted, if you can&amp;rsquo;t catch the vital point, you will get a lot of WAs in the end.&lt;/p>
+&lt;p>Additionally, the problem D is too easy, just a simple DP and the time limit is too long for an unoptimized solution.&lt;/p></description></item><item><title>Codeforces Round #223 (Div. 2) 不完全不正确题解</title><link>https://wizmann.top/posts/cf-223-div-2/</link><pubDate>Sat, 18 Jan 2014 14:47:00 +0000</pubDate><guid>https://wizmann.top/posts/cf-223-div-2/</guid><description>&lt;p>由于大号已经进Div. 1了，所以接下来的几场Div. 2都是用小号做的。&lt;/p>
+&lt;p>等有实力切D题了，再去打一区。（弱&lt;/p>
+&lt;p>事情一直很多，所以题解落后了好久才发。&lt;/p>
+&lt;h2 id="a-sereja-and-dima">A. Sereja and Dima&lt;/h2>
+&lt;p>纯模拟，Python随便搞&lt;/p></description></item><item><title>Codeforces Round #221 (Div. 2)不完全不正确题解</title><link>https://wizmann.top/posts/cf-221-div-2/</link><pubDate>Wed, 25 Dec 2013 19:05:00 +0000</pubDate><guid>https://wizmann.top/posts/cf-221-div-2/</guid><description>&lt;h2 id="a-lever">A. Lever&lt;/h2>
+&lt;p>水题，杠杆原理。&lt;/p>
+&lt;p>用&lt;code>^&lt;/code>把字符串分割开。然后分别计算两边的重量即可。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#Result: Dec 24, 2013 6:04:41 PM Wizmann A - Lever Python 2 Accepted 312 ms 4200 KB&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">calc&lt;/span>(ss):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> res &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> p &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> item &lt;span style="color:#f92672">in&lt;/span> ss:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> item &lt;span style="color:#f92672">!=&lt;/span> &lt;span style="color:#e6db74">&amp;#39;=&amp;#39;&lt;/span>:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> t &lt;span style="color:#f92672">=&lt;/span> int(item)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> res &lt;span style="color:#f92672">+=&lt;/span> t &lt;span style="color:#f92672">*&lt;/span> p
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> p &lt;span style="color:#f92672">+=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> res
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>s &lt;span style="color:#f92672">=&lt;/span> raw_input()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>(a, b) &lt;span style="color:#f92672">=&lt;/span> s&lt;span style="color:#f92672">.&lt;/span>split(&lt;span style="color:#e6db74">&amp;#39;^&amp;#39;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>left &lt;span style="color:#f92672">=&lt;/span> calc(a[::&lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>])
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>right &lt;span style="color:#f92672">=&lt;/span> calc(b)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">if&lt;/span> left &lt;span style="color:#f92672">==&lt;/span> right:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print &lt;span style="color:#e6db74">&amp;#39;balance&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">elif&lt;/span> left &lt;span style="color:#f92672">&amp;gt;&lt;/span> right:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print &lt;span style="color:#e6db74">&amp;#39;left&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">else&lt;/span>:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print &lt;span style="color:#e6db74">&amp;#39;right&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="b-iou">B. I.O.U.&lt;/h2>
+&lt;p>水题，算出每个人负债和贷出（这个词的现学的~）的绝对值差。&lt;/p></description></item><item><title>Codeforces Round #218 (Div. 2)不完全不正确题解</title><link>https://wizmann.top/posts/cf-218-div-2/</link><pubDate>Mon, 09 Dec 2013 23:02:00 +0000</pubDate><guid>https://wizmann.top/posts/cf-218-div-2/</guid><description>&lt;h3 id="a-k-periodic-array">A. K-Periodic Array&lt;/h3>
+&lt;p>将Array切片，然后按位统计某一位上1的个数C(1)和2的个数C(2)。然后在这一位上的操作数就为M = min(C(1), C(2))。&lt;/p>
+&lt;p>简单题&lt;/p>
+&lt;h3 id="b-fox-dividing-cheese">B. Fox Dividing Cheese&lt;/h3>
+&lt;p>傻逼才错的题，不幸中枪。&lt;/p></description></item><item><title>Codeforces Round #215 (Div. 2)不完全不正确题解</title><link>https://wizmann.top/posts/cf-215-div-2/</link><pubDate>Wed, 27 Nov 2013 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/cf-215-div-2/</guid><description>&lt;h3 id="a-sereja-and-coat-rack">A. Sereja and Coat Rack&lt;/h3>
+&lt;p>傻逼才错的题。不幸中枪。&lt;/p>
+&lt;p>没什么可说的。直接看代码就好。&lt;/p>
+&lt;h3 id="b-sereja-and-suffixes">B. Sereja and Suffixes&lt;/h3>
+&lt;p>关键思想在于统计A[i&amp;hellip;n-1]中有多少互不相同的数。&lt;/p>
+&lt;p>使用离线思想，把查询按&lt;code>greater&amp;lt;int&amp;gt;&lt;/code>排序，然后使用Hash表进行统计，简单题。&lt;/p></description></item></channel></rss>

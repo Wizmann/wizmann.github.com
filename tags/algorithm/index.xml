@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Algorithm on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/algorithm/</link><description>Recent content in Algorithm on Maerlyn's Rainbow</description><generator>Hugo -- 0.146.0</generator><language>zh-CN</language><lastBuildDate>Mon, 26 Oct 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/algorithm/index.xml" rel="self" type="application/rss+xml"/><item><title>2020 计蒜之道 线上决赛 - C. 攀登山峰</title><link>https://wizmann.top/posts/jisuanke-climb-the-hill/</link><pubDate>Mon, 26 Oct 2020 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/jisuanke-climb-the-hill/</guid><description>&lt;blockquote>
+&lt;p>本文使用了一种概率算法，不是正解，只求骗分。&lt;/p>&lt;/blockquote>
+&lt;h2 id="题意">题意&lt;/h2>
+&lt;p>&lt;a href="https://nanti.jisuanke.com/t/49111">原题&lt;/a>&lt;/p>
+&lt;p>给一个长度为n的数组A[1&amp;hellip;n]。&lt;/p>
+&lt;p>现在有q个查询请求（q &amp;lt;= 1e5），每个请求给定一个长度为m的子数组A[i&amp;hellip;j]和一个整数t。问在子数组中出现次数超过m/t的数字中（t &amp;lt;= 20），最大的数是多少。&lt;/p></description></item><item><title>容斥原理以及一些题目</title><link>https://wizmann.top/posts/inclusive-exclusive-principle/</link><pubDate>Sun, 14 Oct 2018 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/inclusive-exclusive-principle/</guid><description>&lt;h2 id="什么是容斥原理">什么是容斥原理&lt;/h2>
+&lt;p>容斥原理是一种计数手段。例如在下图中，我们想&lt;strong>不重复、不遗漏&lt;/strong>的求出包含在ABC三个集合中所包含的元素的个数，应该使用怎么样的方法呢？&lt;/p>
+&lt;p>&lt;img alt="image" loading="lazy" src="https://raw.githubusercontent.com/Wizmann/assets/master/blog/181007-Inclusion-exclusion-principle/500px-Inclusion-exclusion.svg.png">&lt;/p>
+&lt;p>&lt;img alt="formula" loading="lazy" src="https://github.com/Wizmann/assets/raw/master/blog/181007-Inclusion-exclusion-principle/formula.PNG">&lt;/p>
+&lt;p>这个问题对于我们来说并不陌生，当然也并不困难。直观的方法是把所有的元素计数，再把重复的元素排除出去。这种计数的方法，有“容”有“斥”，我们讲其称做“容斥原理”。&lt;/p></description></item><item><title>一种区间交问题的奇怪姿势</title><link>https://wizmann.top/posts/range-problem/</link><pubDate>Tue, 20 Feb 2018 22:59:47 +0000</pubDate><guid>https://wizmann.top/posts/range-problem/</guid><description>&lt;blockquote>
+&lt;p>Update[220504]: 原来这种数据结构叫&lt;a href="https://oi-wiki.org/ds/odt/">珂朵莉树&lt;/a>啊，真神奇。。。&lt;/p>&lt;/blockquote>
+&lt;h2 id="我们要解决什么问题">我们要解决什么问题&lt;/h2>
+&lt;p>区间交问题，是我们在做题中经常遇到的问题。&lt;/p>
+&lt;p>例如，&lt;a href="https://leetcode.com/problems/insert-interval/description/">Insert Interval&lt;/a>一题，就是比较直白的区间交问题：&lt;/p>
+&lt;blockquote>
+&lt;p>给定一系列的整数区间，再插入一个新的区间，问合并后的整数区间是什么&lt;/p></description></item><item><title>Beauty-of-Programming 2015 Qualification Round Tutorial</title><link>https://wizmann.top/posts/beauty-of-programming-2015-qualification-round/</link><pubDate>Sat, 25 Apr 2015 00:54:08 +0000</pubDate><guid>https://wizmann.top/posts/beauty-of-programming-2015-qualification-round/</guid><description>&lt;h2 id="a-2月29日-feb-29th">A. 2月29日 (Feb. 29th)&lt;/h2>
+&lt;h3 id="description">Description&lt;/h3>
+&lt;p>Given a starting date and an ending date. Count how many Feb. 29th are between the given dates.&lt;/p>
+&lt;h3 id="solution">Solution&lt;/h3>
+&lt;p>The easiest way, of course, the brute force, which is quite simple with Python using the &lt;code>datetime&lt;/code> lib.&lt;/p>
+&lt;p>However, it&amp;rsquo;s not an effective way for the problem.&lt;/p>
+&lt;p>Let simplify the problem. &amp;ldquo;How many Feb. 29th from year A to year B?&amp;rdquo; Actually, it&amp;rsquo;t not a hard one. But there is a pitfall. Loot at this.&lt;/p></description></item><item><title>GCJ Qualification Round 2015 题解</title><link>https://wizmann.top/posts/gcj-qualification-round-2015-tutorial/</link><pubDate>Sun, 12 Apr 2015 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/gcj-qualification-round-2015-tutorial/</guid><description>&lt;h2 id="前言">前言&lt;/h2>
+&lt;p>这篇日志用中文写是因为想省点时间打游戏。。。（请鄙视我吧。。。&lt;/p>
+&lt;h2 id="a-standing-ovation">A. Standing Ovation&lt;/h2>
+&lt;h3 id="题意">题意&lt;/h3>
+&lt;p>这是一个骗掌声的故事。&lt;/p>
+&lt;p>当演出结束后，观众们要站起来鼓掌。但是有些观众比较羞涩，只有在k个人站起来鼓掌后才会故障。&lt;/p></description></item><item><title>Codeforces Round #290 (Div. 2) Tutorial</title><link>https://wizmann.top/posts/cf-290-div-2/</link><pubDate>Wed, 18 Feb 2015 00:30:24 +0000</pubDate><guid>https://wizmann.top/posts/cf-290-div-2/</guid><description>&lt;h2 id="a-fox-and-snake">A. Fox And Snake&lt;/h2>
+&lt;p>Implementation&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>(n, m) &lt;span style="color:#f92672">=&lt;/span> map(int, raw_input()&lt;span style="color:#f92672">.&lt;/span>split())
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>res &lt;span style="color:#f92672">=&lt;/span> []
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">for&lt;/span> i &lt;span style="color:#f92672">in&lt;/span> xrange(n):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> i &lt;span style="color:#f92672">%&lt;/span> &lt;span style="color:#ae81ff">2&lt;/span> &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> res&lt;span style="color:#f92672">.&lt;/span>append(&lt;span style="color:#e6db74">&amp;#39;#&amp;#39;&lt;/span> &lt;span style="color:#f92672">*&lt;/span> m)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">elif&lt;/span> (i &lt;span style="color:#f92672">/&lt;/span> &lt;span style="color:#ae81ff">2&lt;/span>) &lt;span style="color:#f92672">%&lt;/span> &lt;span style="color:#ae81ff">2&lt;/span> &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> res&lt;span style="color:#f92672">.&lt;/span>append(&lt;span style="color:#e6db74">&amp;#39;.&amp;#39;&lt;/span> &lt;span style="color:#f92672">*&lt;/span> (m &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>) &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#e6db74">&amp;#39;#&amp;#39;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">else&lt;/span>:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> res&lt;span style="color:#f92672">.&lt;/span>append(&lt;span style="color:#e6db74">&amp;#39;#&amp;#39;&lt;/span> &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#e6db74">&amp;#39;.&amp;#39;&lt;/span> &lt;span style="color:#f92672">*&lt;/span> (m &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">for&lt;/span> line &lt;span style="color:#f92672">in&lt;/span> res:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print line
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="b-fox-and-two-dots">B. Fox And Two Dots&lt;/h2>
+&lt;p>DFS&lt;/p>
+&lt;div class="goat svg-container ">
+&lt;svg
+xmlns="http://www.w3.org/2000/svg"
+font-family="Menlo,Lucida Console,monospace"
+viewBox="0 0 40 57"
+>
+&lt;g transform='translate(8,16)'>
+&lt;text text-anchor='middle' x='0' y='4' fill='currentColor' style='font-size:1em'>A&lt;/text>
+&lt;text text-anchor='middle' x='0' y='20' fill='currentColor' style='font-size:1em'>A&lt;/text>
+&lt;text text-anchor='middle' x='0' y='36' fill='currentColor' style='font-size:1em'>A&lt;/text>
+&lt;text text-anchor='middle' x='8' y='4' fill='currentColor' style='font-size:1em'>A&lt;/text>
+&lt;text text-anchor='middle' x='8' y='20' fill='currentColor' style='font-size:1em'>B&lt;/text>
+&lt;text text-anchor='middle' x='8' y='36' fill='currentColor' style='font-size:1em'>A&lt;/text>
+&lt;text text-anchor='middle' x='16' y='4' fill='currentColor' style='font-size:1em'>A&lt;/text>
+&lt;text text-anchor='middle' x='16' y='20' fill='currentColor' style='font-size:1em'>C&lt;/text>
+&lt;text text-anchor='middle' x='16' y='36' fill='currentColor' style='font-size:1em'>A&lt;/text>
+&lt;text text-anchor='middle' x='24' y='4' fill='currentColor' style='font-size:1em'>A&lt;/text>
+&lt;text text-anchor='middle' x='24' y='20' fill='currentColor' style='font-size:1em'>A&lt;/text>
+&lt;text text-anchor='middle' x='24' y='36' fill='currentColor' style='font-size:1em'>A&lt;/text>
+&lt;/g>
+&lt;/svg>
+&lt;/div>
+&lt;p>We start at arbitrary point, and traverse the neighbour point with the same color to see if there is a circle.&lt;/p></description></item><item><title>Codeforces Round #289 (Div. 2) Tutorial</title><link>https://wizmann.top/posts/cf-289-div-2/</link><pubDate>Mon, 16 Feb 2015 21:16:31 +0000</pubDate><guid>https://wizmann.top/posts/cf-289-div-2/</guid><description>&lt;h2 id="a-maximum-in-table">A. Maximum in Table&lt;/h2>
+&lt;p>Simulation.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>n &lt;span style="color:#f92672">=&lt;/span> int(raw_input())
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>g &lt;span style="color:#f92672">=&lt;/span> [[&lt;span style="color:#ae81ff">1&lt;/span> &lt;span style="color:#66d9ef">for&lt;/span> i &lt;span style="color:#f92672">in&lt;/span> xrange(n)] &lt;span style="color:#66d9ef">for&lt;/span> j &lt;span style="color:#f92672">in&lt;/span> xrange(n)]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">for&lt;/span> i &lt;span style="color:#f92672">in&lt;/span> xrange(&lt;span style="color:#ae81ff">1&lt;/span>, n):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> j &lt;span style="color:#f92672">in&lt;/span> xrange(&lt;span style="color:#ae81ff">1&lt;/span>, n):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> g[i][j] &lt;span style="color:#f92672">=&lt;/span> g[i &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>][j] &lt;span style="color:#f92672">+&lt;/span> g[i][j &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>print g[n &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>][n &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>]
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="b-painting-pebbles">B. Painting Pebbles&lt;/h2>
+&lt;p>Reading comperhension &amp;amp; Constructive.&lt;/p>
+&lt;p>The key point of this problem is &lt;code>abs(b(i, c) - b(j, c)) &amp;lt;= 1&lt;/code>.&lt;/p>
+&lt;p>First of all, it&amp;rsquo;s safe to paint k pebbles of every pile with the same color, when &lt;code>k = min(piles)&lt;/code>. At this moment, every &lt;code>b(i, c) - b(j, c) == 0&lt;/code>.&lt;/p></description></item><item><title>Codeforces Round #288 (Div. 2)</title><link>https://wizmann.top/posts/cf-288-div-2/</link><pubDate>Mon, 16 Feb 2015 21:16:30 +0000</pubDate><guid>https://wizmann.top/posts/cf-288-div-2/</guid><description>&lt;h2 id="a-pasha-and-pixels">A. Pasha and Pixels&lt;/h2>
+&lt;p>Brute force.&lt;/p>
+&lt;p>There are multiple ways to form a 2*2 square at one single step.&lt;/p>
+&lt;p>&lt;img alt="Alt text" loading="lazy" src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/6fb53c51539b47559cf0d122a832cf63">&lt;/p>
+&lt;p>So at every step, we have to check the neighbours of pixel that is colored black.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstdio&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstdlib&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstring&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;iostream&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;vector&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> &lt;span style="color:#66d9ef">namespace&lt;/span> std;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#define print(x) cout &amp;lt;&amp;lt; x &amp;lt;&amp;lt; endl
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#define input(x) cin &amp;gt;&amp;gt; x
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> SIZE &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1024&lt;/span> &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">123&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> mx[] &lt;span style="color:#f92672">=&lt;/span> {&lt;span style="color:#ae81ff">0&lt;/span>, &lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">0&lt;/span>, &lt;span style="color:#ae81ff">1&lt;/span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> my[] &lt;span style="color:#f92672">=&lt;/span> {&lt;span style="color:#ae81ff">0&lt;/span>, &lt;span style="color:#ae81ff">0&lt;/span>, &lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">1&lt;/span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> MOVE &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">4&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> mp[SIZE][SIZE];
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> n, m, k;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">bool&lt;/span> &lt;span style="color:#a6e22e">isBlackBlock&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> y, &lt;span style="color:#66d9ef">int&lt;/span> x) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> cnt &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">int&lt;/span> i &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>; i &lt;span style="color:#f92672">&amp;lt;&lt;/span> MOVE; i&lt;span style="color:#f92672">++&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> ny &lt;span style="color:#f92672">=&lt;/span> y &lt;span style="color:#f92672">+&lt;/span> my[i];
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> nx &lt;span style="color:#f92672">=&lt;/span> x &lt;span style="color:#f92672">+&lt;/span> mx[i];
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (ny &lt;span style="color:#f92672">&amp;gt;=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span> &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> ny &lt;span style="color:#f92672">&amp;lt;&lt;/span> n
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> nx &lt;span style="color:#f92672">&amp;gt;=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span> &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> nx &lt;span style="color:#f92672">&amp;lt;&lt;/span> m
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> mp[ny][nx]) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> cnt&lt;span style="color:#f92672">++&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> cnt &lt;span style="color:#f92672">==&lt;/span> MOVE;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> y, x;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> input(n &lt;span style="color:#f92672">&amp;gt;&amp;gt;&lt;/span> m &lt;span style="color:#f92672">&amp;gt;&amp;gt;&lt;/span> k);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> memset(mp, &lt;span style="color:#ae81ff">0&lt;/span>, &lt;span style="color:#66d9ef">sizeof&lt;/span>(mp));
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> ans &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">int&lt;/span> i &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>; i &lt;span style="color:#f92672">&amp;lt;&lt;/span> k; i&lt;span style="color:#f92672">++&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> input(y &lt;span style="color:#f92672">&amp;gt;&amp;gt;&lt;/span> x);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> x&lt;span style="color:#f92672">--&lt;/span>; y&lt;span style="color:#f92672">--&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> mp[y][x] &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">bool&lt;/span> flag &lt;span style="color:#f92672">=&lt;/span> false;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">int&lt;/span> j &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>; j &lt;span style="color:#f92672">&amp;lt;&lt;/span> MOVE; j&lt;span style="color:#f92672">++&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> flag &lt;span style="color:#f92672">|=&lt;/span> isBlackBlock(y &lt;span style="color:#f92672">-&lt;/span> my[j], x &lt;span style="color:#f92672">-&lt;/span> mx[j]);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (flag) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ans &lt;span style="color:#f92672">=&lt;/span> i &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">break&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print(ans);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="b-anton-and-currency-you-all-know">B. Anton and currency you all know&lt;/h2>
+&lt;p>At first, you have to understand the questions accurately.&lt;/p></description></item><item><title>Snake Problem</title><link>https://wizmann.top/posts/snake-problem/</link><pubDate>Mon, 20 Oct 2014 09:11:27 +0000</pubDate><guid>https://wizmann.top/posts/snake-problem/</guid><description>&lt;h2 id="题目">题目&lt;/h2>
+&lt;p>在一个平面上，有n+m条蛇，其中n条蛇沿水平方向（y轴方向）移动，m条蛇沿竖直方向（x轴方向）移动。&lt;/p>
+&lt;p>现给出这些蛇头和尾所在的坐标点，求出这n+m条蛇在此时共有多少个交点。在同一个方向移动的蛇不会有交点。&lt;/p></description></item><item><title>思维训练 - Thinkin' in induction 2</title><link>https://wizmann.top/posts/thinking-in-induction-2/</link><pubDate>Wed, 01 Oct 2014 00:05:29 +0000</pubDate><guid>https://wizmann.top/posts/thinking-in-induction-2/</guid><description>&lt;h2 id="最大导出子图maximal-induced-graph">最大导出子图（maximal induced graph）&lt;/h2>
+&lt;blockquote>
+&lt;p>你现在在组织一个学术会议。现在你有一份人员名单。假定名单中的每一个人都同意到达，并且有充足的时间交流意见。同时，每一个科学家都写下了他愿意与其进行交流的科学家的名字。&lt;/p></description></item><item><title>最小表示法及其证明</title><link>https://wizmann.top/posts/minimal-round-string/</link><pubDate>Wed, 17 Sep 2014 00:46:16 +0000</pubDate><guid>https://wizmann.top/posts/minimal-round-string/</guid><description>&lt;h2 id="问题">问题&lt;/h2>
+&lt;blockquote>
+&lt;p>对于一个字符串S，求S的循环的同构字符串S’中字典序最小的一个。&lt;/p>&lt;/blockquote>
+&lt;p>我们举例说明，字符串&amp;quot;abcd&amp;quot;的循环同构字符串有：&lt;code>[&amp;quot;abcd&amp;quot;, &amp;quot;bcda&amp;quot;, &amp;quot;cdab&amp;quot;, &amp;quot;dabc&amp;quot;]&lt;/code>。&lt;/p></description></item><item><title>Single Number Problem</title><link>https://wizmann.top/posts/single-number-in-the-array/</link><pubDate>Tue, 05 Aug 2014 23:07:02 +0000</pubDate><guid>https://wizmann.top/posts/single-number-in-the-array/</guid><description>&lt;h2 id="introduction">Introduction&lt;/h2>
+&lt;p>There are a lot of interview problem based on the 1D-array, which is the one of the easiest &amp;ldquo;data structure&amp;rdquo;.&lt;/p>
+&lt;p>But the problem about that simple data structure might not be that simple. Here is the summary of the problem about 1D-array.&lt;/p>
+&lt;p>Of course, most of them come from Leetcode.&lt;/p>
+&lt;h2 id="all-twice-excpet-one">All Twice Excpet One&lt;/h2>
+&lt;blockquote>
+&lt;p>Given an array of integers, every element appears twice except for one. Find that single one.&lt;/p></description></item><item><title>Codeforces 447D DZY Loves Modification</title><link>https://wizmann.top/posts/cf-447d/</link><pubDate>Thu, 24 Jul 2014 23:44:44 +0000</pubDate><guid>https://wizmann.top/posts/cf-447d/</guid><description>&lt;h2 id="题意">题意&lt;/h2>
+&lt;p>给你一个n * m的矩阵，让你做K次操作，使得最后得到的值最大。&lt;/p>
+&lt;p>操作有两种：&lt;/p>
+&lt;p>一是&lt;strong>在任意一行上&lt;/strong>操作，最终的结果值加上这一行数的和，然后这一行每一个数都要减去p。&lt;/p></description></item><item><title>玩玩算法题1：Sherlock and Queries</title><link>https://wizmann.top/posts/interview-problem-1-sherlock-and-queries/</link><pubDate>Sat, 19 Jul 2014 11:00:38 +0000</pubDate><guid>https://wizmann.top/posts/interview-problem-1-sherlock-and-queries/</guid><description>&lt;h2 id="题目大意">题目大意&lt;/h2>
+&lt;p>给你三个数组:A[N], B[M], C[M]。让你按如下pseudo-code给出的规则计算，求出最终A[N]每一项的值。&lt;/p>
+&lt;div class="goat svg-container ">
+&lt;svg
+xmlns="http://www.w3.org/2000/svg"
+font-family="Menlo,Lucida Console,monospace"
+viewBox="0 0 248 121"
+>
+&lt;g transform='translate(8,16)'>
+&lt;circle cx='192' cy='48' r='6' stroke='currentColor' fill='currentColor'>&lt;/circle>
+&lt;text text-anchor='middle' x='0' y='4' fill='currentColor' style='font-size:1em'>f&lt;/text>
+&lt;text text-anchor='middle' x='0' y='100' fill='currentColor' style='font-size:1em'>e&lt;/text>
+&lt;text text-anchor='middle' x='8' y='4' fill='currentColor' style='font-size:1em'>o&lt;/text>
+&lt;text text-anchor='middle' x='8' y='100' fill='currentColor' style='font-size:1em'>n&lt;/text>
+&lt;text text-anchor='middle' x='16' y='4' fill='currentColor' style='font-size:1em'>r&lt;/text>
+&lt;text text-anchor='middle' x='16' y='100' fill='currentColor' style='font-size:1em'>d&lt;/text>
+&lt;text text-anchor='middle' x='32' y='4' fill='currentColor' style='font-size:1em'>i&lt;/text>
+&lt;text text-anchor='middle' x='32' y='20' fill='currentColor' style='font-size:1em'>f&lt;/text>
+&lt;text text-anchor='middle' x='32' y='84' fill='currentColor' style='font-size:1em'>e&lt;/text>
+&lt;text text-anchor='middle' x='32' y='100' fill='currentColor' style='font-size:1em'>d&lt;/text>
+&lt;text text-anchor='middle' x='40' y='20' fill='currentColor' style='font-size:1em'>o&lt;/text>
+&lt;text text-anchor='middle' x='40' y='84' fill='currentColor' style='font-size:1em'>n&lt;/text>
+&lt;text text-anchor='middle' x='40' y='100' fill='currentColor' style='font-size:1em'>o&lt;/text>
+&lt;text text-anchor='middle' x='48' y='4' fill='currentColor' style='font-size:1em'>=&lt;/text>
+&lt;text text-anchor='middle' x='48' y='20' fill='currentColor' style='font-size:1em'>r&lt;/text>
+&lt;text text-anchor='middle' x='48' y='84' fill='currentColor' style='font-size:1em'>d&lt;/text>
+&lt;text text-anchor='middle' x='64' y='4' fill='currentColor' style='font-size:1em'>1&lt;/text>
+&lt;text text-anchor='middle' x='64' y='20' fill='currentColor' style='font-size:1em'>j&lt;/text>
+&lt;text text-anchor='middle' x='64' y='36' fill='currentColor' style='font-size:1em'>i&lt;/text>
+&lt;text text-anchor='middle' x='64' y='68' fill='currentColor' style='font-size:1em'>e&lt;/text>
+&lt;text text-anchor='middle' x='64' y='84' fill='currentColor' style='font-size:1em'>d&lt;/text>
+&lt;text text-anchor='middle' x='72' y='36' fill='currentColor' style='font-size:1em'>f&lt;/text>
+&lt;text text-anchor='middle' x='72' y='68' fill='currentColor' style='font-size:1em'>n&lt;/text>
+&lt;text text-anchor='middle' x='72' y='84' fill='currentColor' style='font-size:1em'>o&lt;/text>
+&lt;text text-anchor='middle' x='80' y='4' fill='currentColor' style='font-size:1em'>t&lt;/text>
+&lt;text text-anchor='middle' x='80' y='20' fill='currentColor' style='font-size:1em'>=&lt;/text>
+&lt;text text-anchor='middle' x='80' y='68' fill='currentColor' style='font-size:1em'>d&lt;/text>
+&lt;text text-anchor='middle' x='88' y='4' fill='currentColor' style='font-size:1em'>o&lt;/text>
+&lt;text text-anchor='middle' x='88' y='36' fill='currentColor' style='font-size:1em'>j&lt;/text>
+&lt;text text-anchor='middle' x='88' y='68' fill='currentColor' style='font-size:1em'>i&lt;/text>
+&lt;text text-anchor='middle' x='96' y='20' fill='currentColor' style='font-size:1em'>1&lt;/text>
+&lt;text text-anchor='middle' x='96' y='52' fill='currentColor' style='font-size:1em'>A&lt;/text>
+&lt;text text-anchor='middle' x='96' y='68' fill='currentColor' style='font-size:1em'>f&lt;/text>
+&lt;text text-anchor='middle' x='104' y='4' fill='currentColor' style='font-size:1em'>M&lt;/text>
+&lt;text text-anchor='middle' x='104' y='36' fill='currentColor' style='font-size:1em'>%&lt;/text>
+&lt;text text-anchor='middle' x='104' y='52' fill='currentColor' style='font-size:1em'>[&lt;/text>
+&lt;text text-anchor='middle' x='112' y='20' fill='currentColor' style='font-size:1em'>t&lt;/text>
+&lt;text text-anchor='middle' x='112' y='52' fill='currentColor' style='font-size:1em'>j&lt;/text>
+&lt;text text-anchor='middle' x='120' y='4' fill='currentColor' style='font-size:1em'>d&lt;/text>
+&lt;text text-anchor='middle' x='120' y='20' fill='currentColor' style='font-size:1em'>o&lt;/text>
+&lt;text text-anchor='middle' x='120' y='36' fill='currentColor' style='font-size:1em'>B&lt;/text>
+&lt;text text-anchor='middle' x='120' y='52' fill='currentColor' style='font-size:1em'>]&lt;/text>
+&lt;text text-anchor='middle' x='128' y='4' fill='currentColor' style='font-size:1em'>o&lt;/text>
+&lt;text text-anchor='middle' x='128' y='36' fill='currentColor' style='font-size:1em'>[&lt;/text>
+&lt;text text-anchor='middle' x='136' y='20' fill='currentColor' style='font-size:1em'>N&lt;/text>
+&lt;text text-anchor='middle' x='136' y='36' fill='currentColor' style='font-size:1em'>i&lt;/text>
+&lt;text text-anchor='middle' x='136' y='52' fill='currentColor' style='font-size:1em'>=&lt;/text>
+&lt;text text-anchor='middle' x='144' y='36' fill='currentColor' style='font-size:1em'>]&lt;/text>
+&lt;text text-anchor='middle' x='152' y='20' fill='currentColor' style='font-size:1em'>d&lt;/text>
+&lt;text text-anchor='middle' x='152' y='52' fill='currentColor' style='font-size:1em'>A&lt;/text>
+&lt;text text-anchor='middle' x='160' y='20' fill='currentColor' style='font-size:1em'>o&lt;/text>
+&lt;text text-anchor='middle' x='160' y='36' fill='currentColor' style='font-size:1em'>=&lt;/text>
+&lt;text text-anchor='middle' x='160' y='52' fill='currentColor' style='font-size:1em'>[&lt;/text>
+&lt;text text-anchor='middle' x='168' y='36' fill='currentColor' style='font-size:1em'>=&lt;/text>
+&lt;text text-anchor='middle' x='168' y='52' fill='currentColor' style='font-size:1em'>j&lt;/text>
+&lt;text text-anchor='middle' x='176' y='52' fill='currentColor' style='font-size:1em'>]&lt;/text>
+&lt;text text-anchor='middle' x='184' y='36' fill='currentColor' style='font-size:1em'>0&lt;/text>
+&lt;text text-anchor='middle' x='200' y='36' fill='currentColor' style='font-size:1em'>t&lt;/text>
+&lt;text text-anchor='middle' x='208' y='36' fill='currentColor' style='font-size:1em'>h&lt;/text>
+&lt;text text-anchor='middle' x='208' y='52' fill='currentColor' style='font-size:1em'>C&lt;/text>
+&lt;text text-anchor='middle' x='216' y='36' fill='currentColor' style='font-size:1em'>e&lt;/text>
+&lt;text text-anchor='middle' x='216' y='52' fill='currentColor' style='font-size:1em'>[&lt;/text>
+&lt;text text-anchor='middle' x='224' y='36' fill='currentColor' style='font-size:1em'>n&lt;/text>
+&lt;text text-anchor='middle' x='224' y='52' fill='currentColor' style='font-size:1em'>i&lt;/text>
+&lt;text text-anchor='middle' x='232' y='52' fill='currentColor' style='font-size:1em'>]&lt;/text>
+&lt;/g>
+&lt;/svg>
+&lt;/div>
+&lt;h2 id="数据范围">数据范围&lt;/h2>
+&lt;p>1≤ N,M ≤ 10^5&lt;/p></description></item><item><title>Codeforces Round #253 Tutorial</title><link>https://wizmann.top/posts/cf-253/</link><pubDate>Sat, 21 Jun 2014 19:24:37 +0000</pubDate><guid>https://wizmann.top/posts/cf-253/</guid><description>&lt;hr>
+&lt;h2 id="443a---anton-and-letters">443A - Anton and Letters&lt;/h2>
+&lt;p>Simple and easy, solved by two lines of python code.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>ls &lt;span style="color:#f92672">=&lt;/span> filter(&lt;span style="color:#66d9ef">lambda&lt;/span> y: y, map(&lt;span style="color:#66d9ef">lambda&lt;/span> x: x&lt;span style="color:#f92672">.&lt;/span>strip(), raw_input()[&lt;span style="color:#ae81ff">1&lt;/span>:&lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>]&lt;span style="color:#f92672">.&lt;/span>split(&lt;span style="color:#e6db74">&amp;#34;,&amp;#34;&lt;/span>)))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>print len(set(ls))
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="443b---kolya-and-tandem-repeat">443B - Kolya and Tandem Repeat&lt;/h2>
+&lt;p>Brute force. Just enumerate the beginning and the end of the substring, and check if that substring is &lt;strong>tandem repeat&lt;/strong>.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstdio&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstdlib&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstring&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;iostream&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;algorithm&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> &lt;span style="color:#66d9ef">namespace&lt;/span> std;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#define print(x) cout &amp;lt;&amp;lt; x &amp;lt;&amp;lt; endl
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#define input(x) cin &amp;gt;&amp;gt; x
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>string str;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> k;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span>()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> freopen(&lt;span style="color:#e6db74">&amp;#34;input.txt&amp;#34;&lt;/span>, &lt;span style="color:#e6db74">&amp;#34;r&amp;#34;&lt;/span>, stdin);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> input(str &lt;span style="color:#f92672">&amp;gt;&amp;gt;&lt;/span> k);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">int&lt;/span> i &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>; i &lt;span style="color:#f92672">&amp;lt;&lt;/span> k; i&lt;span style="color:#f92672">++&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> str &lt;span style="color:#f92672">+=&lt;/span> &lt;span style="color:#e6db74">&amp;#39;?&amp;#39;&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> len &lt;span style="color:#f92672">=&lt;/span> str.length();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> ans &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">int&lt;/span> i &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>; i &lt;span style="color:#f92672">&amp;lt;&lt;/span> len; i&lt;span style="color:#f92672">++&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (str[i] &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#e6db74">&amp;#39;?&amp;#39;&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">break&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">int&lt;/span> j &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>; i &lt;span style="color:#f92672">+&lt;/span> j &lt;span style="color:#f92672">&amp;lt;&lt;/span> len; j &lt;span style="color:#f92672">+=&lt;/span> &lt;span style="color:#ae81ff">2&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> slip &lt;span style="color:#f92672">=&lt;/span> (j &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>) &lt;span style="color:#f92672">/&lt;/span> &lt;span style="color:#ae81ff">2&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">int&lt;/span> k &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>; k &lt;span style="color:#f92672">&amp;lt;&lt;/span> slip; k&lt;span style="color:#f92672">++&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (str[i &lt;span style="color:#f92672">+&lt;/span> k] &lt;span style="color:#f92672">==&lt;/span> str[i &lt;span style="color:#f92672">+&lt;/span> k &lt;span style="color:#f92672">+&lt;/span> slip] &lt;span style="color:#f92672">||&lt;/span> str[i &lt;span style="color:#f92672">+&lt;/span> k &lt;span style="color:#f92672">+&lt;/span> slip] &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#e6db74">&amp;#39;?&amp;#39;&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">/* pass */&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">else&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">goto&lt;/span> fail;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ans &lt;span style="color:#f92672">=&lt;/span> max(ans, j &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>fail: &lt;span style="color:#75715e">/*pass*/&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print(ans);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="442a---borya-and-hanabig">442A - Borya and Hanabig&lt;/h2>
+&lt;p>Because Borya knows about the color and value of all his cards, he just need to distinguish each card from the others.&lt;/p></description></item><item><title>A simple problem - World at War</title><link>https://wizmann.top/posts/world-at-war/</link><pubDate>Thu, 12 Jun 2014 17:42:51 +0000</pubDate><guid>https://wizmann.top/posts/world-at-war/</guid><description>&lt;h2 id="background">Background&lt;/h2>
+&lt;blockquote>
+&lt;p>This problem is from the book &amp;ldquo;&lt;a href="http://book.douban.com/subject/19952400/">Algorithm 4th edition&lt;/a>&amp;rdquo; (Exersise 4.1.10)&lt;/p>&lt;/blockquote>
+&lt;p>There are N cities and M undirected roads between those cities. People can travel to any city along the roads.&lt;/p>
+&lt;p>One day, a war breaks out. Our cities are under attack! As we can&amp;rsquo;t defend all these N cities, the commander wants you to find the least important city, which means that if this city fell to the enemy, the traffic among other cities would not be affected.&lt;/p></description></item><item><title>How to implement a queue with stack(s)?</title><link>https://wizmann.top/posts/implement-queue-with-stacks/</link><pubDate>Tue, 20 May 2014 13:23:03 +0000</pubDate><guid>https://wizmann.top/posts/implement-queue-with-stacks/</guid><description>&lt;p>This problem is from the book &lt;a href="http://book.douban.com/subject/19952400/">&lt;em>Algorithms, 4th Edition&lt;/em>&lt;/a>.&lt;/p>
+&lt;blockquote>
+&lt;p>Queue with three stacks. Implement a queue with three stacks so that each queue operation takes a constant (worst-case) number of stack operations.&lt;/p>
+&lt;p>Warning : high degree of difficulty.&lt;/p>&lt;/blockquote>
+&lt;p>When I search the Internet to find a solution, I find varieties of this problem, such as &amp;ldquo;implement a queue with ONE stack&amp;rdquo;, &amp;ldquo;implement a queue with TWO stack&amp;rdquo;, etc.&lt;/p>
+&lt;p>It is fun, indeed. I spent the whole morning to finding the solution of these problems. So, let&amp;rsquo;s rock.&lt;/p></description></item><item><title>Codeforces Round #242 (Div. 2) Tutorials and Solutions</title><link>https://wizmann.top/posts/cf-242-div-2/</link><pubDate>Wed, 30 Apr 2014 17:39:00 +0000</pubDate><guid>https://wizmann.top/posts/cf-242-div-2/</guid><description>&lt;h2 id="a-squats">A. Squats&lt;/h2>
+&lt;p>Trun &lt;code>x =&amp;gt; X&lt;/code> or &lt;code>X =&amp;gt; x&lt;/code> to make the number of &amp;lsquo;x&amp;rsquo; is equal to the number of &amp;lsquo;X&amp;rsquo;.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>n &lt;span style="color:#f92672">=&lt;/span> int(raw_input())
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>hamsters &lt;span style="color:#f92672">=&lt;/span> [c &lt;span style="color:#66d9ef">for&lt;/span> c &lt;span style="color:#f92672">in&lt;/span> raw_input()]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>sits &lt;span style="color:#f92672">=&lt;/span> hamsters&lt;span style="color:#f92672">.&lt;/span>count(&lt;span style="color:#e6db74">&amp;#39;x&amp;#39;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>stands &lt;span style="color:#f92672">=&lt;/span> hamsters&lt;span style="color:#f92672">.&lt;/span>count(&lt;span style="color:#e6db74">&amp;#39;X&amp;#39;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">if&lt;/span> sits &lt;span style="color:#f92672">==&lt;/span> stands:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print &lt;span style="color:#ae81ff">0&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print &lt;span style="color:#e6db74">&amp;#39;&amp;#39;&lt;/span>&lt;span style="color:#f92672">.&lt;/span>join(hamsters)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">else&lt;/span>:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> sits &lt;span style="color:#f92672">&amp;gt;&lt;/span> stands:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> num &lt;span style="color:#f92672">=&lt;/span> sits &lt;span style="color:#f92672">-&lt;/span> n&lt;span style="color:#f92672">/&lt;/span>&lt;span style="color:#ae81ff">2&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> key &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#39;x&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">else&lt;/span>:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> num &lt;span style="color:#f92672">=&lt;/span> stands &lt;span style="color:#f92672">-&lt;/span> n&lt;span style="color:#f92672">/&lt;/span>&lt;span style="color:#ae81ff">2&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> key &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#39;X&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print num
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> i, c &lt;span style="color:#f92672">in&lt;/span> enumerate(hamsters):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> c &lt;span style="color:#f92672">==&lt;/span> key:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> hamsters[i] &lt;span style="color:#f92672">=&lt;/span> c&lt;span style="color:#f92672">.&lt;/span>swapcase()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> num &lt;span style="color:#f92672">-=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> &lt;span style="color:#f92672">not&lt;/span> num:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">break&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print &lt;span style="color:#e6db74">&amp;#39;&amp;#39;&lt;/span>&lt;span style="color:#f92672">.&lt;/span>join(hamsters)
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="b-megacity">B. Megacity&lt;/h2>
+&lt;p>Binary search.&lt;/p></description></item><item><title>Codeforces Round #240 (Div. 2) Tutorials and Solutions(incomplete and incorrect)</title><link>https://wizmann.top/posts/cf-240-div-2/</link><pubDate>Tue, 08 Apr 2014 14:39:11 +0000</pubDate><guid>https://wizmann.top/posts/cf-240-div-2/</guid><description>&lt;h2 id="overview">Overview&lt;/h2>
+&lt;p>It has been months that I didn&amp;rsquo;t participate in the contest on CF, now I&amp;rsquo;m back. :)&lt;/p>
+&lt;p>This round of contest makes me confused that the problem B and C is a little bit too twisted, if you can&amp;rsquo;t catch the vital point, you will get a lot of WAs in the end.&lt;/p>
+&lt;p>Additionally, the problem D is too easy, just a simple DP and the time limit is too long for an unoptimized solution.&lt;/p></description></item><item><title>Codeforces Round #223 (Div. 2) 不完全不正确题解</title><link>https://wizmann.top/posts/cf-223-div-2/</link><pubDate>Sat, 18 Jan 2014 14:47:00 +0000</pubDate><guid>https://wizmann.top/posts/cf-223-div-2/</guid><description>&lt;p>由于大号已经进Div. 1了，所以接下来的几场Div. 2都是用小号做的。&lt;/p>
+&lt;p>等有实力切D题了，再去打一区。（弱&lt;/p>
+&lt;p>事情一直很多，所以题解落后了好久才发。&lt;/p>
+&lt;h2 id="a-sereja-and-dima">A. Sereja and Dima&lt;/h2>
+&lt;p>纯模拟，Python随便搞&lt;/p></description></item><item><title>匈牙利算法</title><link>https://wizmann.top/posts/hungary-algorithm/</link><pubDate>Wed, 01 Jan 2014 22:01:00 +0000</pubDate><guid>https://wizmann.top/posts/hungary-algorithm/</guid><description>&lt;h2 id="概念">概念&lt;/h2>
+&lt;h3 id="交错路">交错路&lt;/h3>
+&lt;blockquote>
+&lt;p>交错路：设P是图G的一条路，如果P的任意两条相邻的边一定是一条属于M而另一条不属于M，就称P是一条交错路。&lt;/p>&lt;/blockquote>
+&lt;p>通俗点来说，就是把一个图中的路径染成红黑两种。然后找出一条路，使这条路&lt;strong>红黑交错&lt;/strong>。&lt;/p></description></item><item><title>Codeforces 3C - Tic-tac-toe</title><link>https://wizmann.top/posts/cf-3c-tic-tac-toe/</link><pubDate>Sun, 29 Dec 2013 20:23:00 +0000</pubDate><guid>https://wizmann.top/posts/cf-3c-tic-tac-toe/</guid><description>&lt;h2 id="啥">啥？&lt;/h2>
+&lt;p>&lt;a href="http://codeforces.com/problemset/problem/3/C">Tic-tac-toe&lt;/a>是我很久之前在CF上做的一道题。非常考细心的模拟题。&lt;/p>
+&lt;p>最近有同学和我讨论过类似的问题。于是拿出来重新做一遍。练练手。&lt;/p>
+&lt;h2 id="原题做法">原题做法&lt;/h2>
+&lt;p>没有任何“算法”成分。纯模拟。&lt;/p>
+&lt;p>又由于数据量实在是太小（3 × 3的矩阵），所以只要是思路正确。代码怎么写都能过。&lt;/p></description></item><item><title>How to "Rotate Image"?</title><link>https://wizmann.top/posts/how-to-rotate-image-leetcode/</link><pubDate>Sat, 28 Dec 2013 14:42:00 +0000</pubDate><guid>https://wizmann.top/posts/how-to-rotate-image-leetcode/</guid><description>&lt;h2 id="啥">啥？&lt;/h2>
+&lt;p>原题&lt;a href="http://oj.leetcode.com/problems/rotate-image/">戳我&lt;/a>&lt;/p>
+&lt;blockquote>
+&lt;p>Rotate Image&lt;/p>&lt;/blockquote>
+&lt;blockquote>
+&lt;p>You are given an n x n 2D matrix representing an image.&lt;/p>&lt;/blockquote>
+&lt;blockquote>
+&lt;p>Rotate the image by 90 degrees (clockwise).&lt;/p>&lt;/blockquote>
+&lt;blockquote>
+&lt;p>Follow up:&lt;/p>&lt;/blockquote>
+&lt;blockquote>
+&lt;p>Could you do this in-place?&lt;/p>&lt;/blockquote>
+&lt;p>示意图如下：&lt;/p>
+&lt;p>&lt;img alt="rotate-image" loading="lazy" src="https://github.com/Wizmann/assets/raw/master/wizmann-tk-pic/blog-rotate-image-leetcode.png">&lt;/p>
+&lt;p>当然，矩阵中的数字&lt;strong>不一定&lt;/strong>是规律的。&lt;/p>
+&lt;h2 id="为什么要提出这个问题">为什么要提出这个问题&lt;/h2>
+&lt;p>自觉是一个&lt;strong>不聪明&lt;/strong>的人（双低。。。&amp;lt;(=＠_＠;=)?&amp;gt;）。&lt;/p></description></item><item><title>Codeforces Round #221 (Div. 2)不完全不正确题解</title><link>https://wizmann.top/posts/cf-221-div-2/</link><pubDate>Wed, 25 Dec 2013 19:05:00 +0000</pubDate><guid>https://wizmann.top/posts/cf-221-div-2/</guid><description>&lt;h2 id="a-lever">A. Lever&lt;/h2>
+&lt;p>水题，杠杆原理。&lt;/p>
+&lt;p>用&lt;code>^&lt;/code>把字符串分割开。然后分别计算两边的重量即可。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#Result: Dec 24, 2013 6:04:41 PM Wizmann A - Lever Python 2 Accepted 312 ms 4200 KB&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">calc&lt;/span>(ss):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> res &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> p &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> item &lt;span style="color:#f92672">in&lt;/span> ss:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> item &lt;span style="color:#f92672">!=&lt;/span> &lt;span style="color:#e6db74">&amp;#39;=&amp;#39;&lt;/span>:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> t &lt;span style="color:#f92672">=&lt;/span> int(item)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> res &lt;span style="color:#f92672">+=&lt;/span> t &lt;span style="color:#f92672">*&lt;/span> p
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> p &lt;span style="color:#f92672">+=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> res
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>s &lt;span style="color:#f92672">=&lt;/span> raw_input()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>(a, b) &lt;span style="color:#f92672">=&lt;/span> s&lt;span style="color:#f92672">.&lt;/span>split(&lt;span style="color:#e6db74">&amp;#39;^&amp;#39;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>left &lt;span style="color:#f92672">=&lt;/span> calc(a[::&lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>])
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>right &lt;span style="color:#f92672">=&lt;/span> calc(b)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">if&lt;/span> left &lt;span style="color:#f92672">==&lt;/span> right:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print &lt;span style="color:#e6db74">&amp;#39;balance&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">elif&lt;/span> left &lt;span style="color:#f92672">&amp;gt;&lt;/span> right:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print &lt;span style="color:#e6db74">&amp;#39;left&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">else&lt;/span>:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print &lt;span style="color:#e6db74">&amp;#39;right&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="b-iou">B. I.O.U.&lt;/h2>
+&lt;p>水题，算出每个人负债和贷出（这个词的现学的~）的绝对值差。&lt;/p></description></item><item><title>Codeforces Round #218 (Div. 2)不完全不正确题解</title><link>https://wizmann.top/posts/cf-218-div-2/</link><pubDate>Mon, 09 Dec 2013 23:02:00 +0000</pubDate><guid>https://wizmann.top/posts/cf-218-div-2/</guid><description>&lt;h3 id="a-k-periodic-array">A. K-Periodic Array&lt;/h3>
+&lt;p>将Array切片，然后按位统计某一位上1的个数C(1)和2的个数C(2)。然后在这一位上的操作数就为M = min(C(1), C(2))。&lt;/p>
+&lt;p>简单题&lt;/p>
+&lt;h3 id="b-fox-dividing-cheese">B. Fox Dividing Cheese&lt;/h3>
+&lt;p>傻逼才错的题，不幸中枪。&lt;/p></description></item><item><title>Codeforces Round #215 (Div. 2)不完全不正确题解</title><link>https://wizmann.top/posts/cf-215-div-2/</link><pubDate>Wed, 27 Nov 2013 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/cf-215-div-2/</guid><description>&lt;h3 id="a-sereja-and-coat-rack">A. Sereja and Coat Rack&lt;/h3>
+&lt;p>傻逼才错的题。不幸中枪。&lt;/p>
+&lt;p>没什么可说的。直接看代码就好。&lt;/p>
+&lt;h3 id="b-sereja-and-suffixes">B. Sereja and Suffixes&lt;/h3>
+&lt;p>关键思想在于统计A[i&amp;hellip;n-1]中有多少互不相同的数。&lt;/p>
+&lt;p>使用离线思想，把查询按&lt;code>greater&amp;lt;int&amp;gt;&lt;/code>排序，然后使用Hash表进行统计，简单题。&lt;/p></description></item></channel></rss>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Flatbuffer on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/flatbuffer/</link><description>Recent content in Flatbuffer on Maerlyn's Rainbow</description><generator>Hugo -- 0.146.0</generator><language>zh-CN</language><lastBuildDate>Mon, 17 Nov 2014 00:25:42 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/flatbuffer/index.xml" rel="self" type="application/rss+xml"/><item><title>类型-长度-值（TLV）协议</title><link>https://wizmann.top/posts/tlv-protocol/</link><pubDate>Mon, 17 Nov 2014 00:25:42 +0000</pubDate><guid>https://wizmann.top/posts/tlv-protocol/</guid><description>&lt;p>在数据通信协议中，可选的信息或字段通常使用type-length-value（a.k.a TLV）元素来进行编码。&lt;/p>
+&lt;ul>
+&lt;li>Type - 类型&lt;/li>
+&lt;/ul>
+&lt;p>用来标示字段类型的值，通常是一个二进制值或简单的字母&lt;/p></description></item><item><title>FlatBuffer代码阅读 - 1</title><link>https://wizmann.top/posts/read-flatbuffer-1/</link><pubDate>Sun, 21 Sep 2014 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/read-flatbuffer-1/</guid><description>&lt;h2 id="flatbuffer白皮书">FlatBuffer白皮书&lt;/h2>
+&lt;p>Flatbuffer是一个全新的序列化库。&lt;/p>
+&lt;h3 id="动机">动机&lt;/h3>
+&lt;p>在远古时代，程序性能基本取决于你的指令和循环运行的有多快。但是，在如今的计算机上，计算组件的速度已经远远超过存储组件的速度。如果你想让你的程序飞起来，最重要的就是优化你的内存使用。例如，用多少内存，怎样布局内存，如何分配内存，何时拷贝内存等。&lt;/p></description></item></channel></rss>

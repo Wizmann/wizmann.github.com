@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Microsoft on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/microsoft/</link><description>Recent content in Microsoft on Maerlyn's Rainbow</description><generator>Hugo -- 0.146.0</generator><language>zh-CN</language><lastBuildDate>Wed, 11 Oct 2017 21:12:15 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/microsoft/index.xml" rel="self" type="application/rss+xml"/><item><title>Windows Azure Storage Made Simple</title><link>https://wizmann.top/posts/azure-storage-made-simple/</link><pubDate>Wed, 11 Oct 2017 21:12:15 +0000</pubDate><guid>https://wizmann.top/posts/azure-storage-made-simple/</guid><description>&lt;h2 id="加机器就是一把梭">加机器就是一把梭&lt;/h2>
+&lt;blockquote>
+&lt;p>没有什么问题是加一千台机器解决不了的，如果有，就再加一千台。 &lt;br>
+—— 《21天精通分布式系统》&lt;/p>&lt;/blockquote>
+&lt;p>分布式系统在设计之初，是为了解决单机系统的可用性和可扩展性问题的。&lt;/p></description></item><item><title>Beauty-of-Programming 2015 Qualification Round Tutorial</title><link>https://wizmann.top/posts/beauty-of-programming-2015-qualification-round/</link><pubDate>Sat, 25 Apr 2015 00:54:08 +0000</pubDate><guid>https://wizmann.top/posts/beauty-of-programming-2015-qualification-round/</guid><description>&lt;h2 id="a-2月29日-feb-29th">A. 2月29日 (Feb. 29th)&lt;/h2>
+&lt;h3 id="description">Description&lt;/h3>
+&lt;p>Given a starting date and an ending date. Count how many Feb. 29th are between the given dates.&lt;/p>
+&lt;h3 id="solution">Solution&lt;/h3>
+&lt;p>The easiest way, of course, the brute force, which is quite simple with Python using the &lt;code>datetime&lt;/code> lib.&lt;/p>
+&lt;p>However, it&amp;rsquo;s not an effective way for the problem.&lt;/p>
+&lt;p>Let simplify the problem. &amp;ldquo;How many Feb. 29th from year A to year B?&amp;rdquo; Actually, it&amp;rsquo;t not a hard one. But there is a pitfall. Loot at this.&lt;/p></description></item></channel></rss>

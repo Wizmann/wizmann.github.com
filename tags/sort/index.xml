@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Sort on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/sort/</link><description>Recent content in Sort on Maerlyn's Rainbow</description><generator>Hugo -- 0.146.0</generator><language>zh-CN</language><lastBuildDate>Sat, 25 Apr 2015 11:17:01 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/sort/index.xml" rel="self" type="application/rss+xml"/><item><title>用C++实现一个通用的sort函数</title><link>https://wizmann.top/posts/a-common-sorting-function-with-cpp/</link><pubDate>Sat, 25 Apr 2015 11:17:01 +0000</pubDate><guid>https://wizmann.top/posts/a-common-sorting-function-with-cpp/</guid><description>&lt;h2 id="问题">问题&lt;/h2>
+&lt;p>用C++实现一个尽可能通用的sort函数&lt;/p>
+&lt;h2 id="分析">分析&lt;/h2>
+&lt;p>一个通用的sort函数应该包含以下要点：&lt;/p>
+&lt;ul>
+&lt;li>确实可以排序(LOL)&lt;/li>
+&lt;li>可以应对C-style array和C++-style container的排序需求&lt;/li>
+&lt;li>可以应用于任意random access container&lt;/li>
+&lt;li>可以使用用户自定义的排序函数 / 仿函数 / lambda函数&lt;/li>
+&lt;/ul>
+&lt;h2 id="实现">实现&lt;/h2>
+&lt;p>为了与std中的通用函数做区别，这里的命名规则，包括类型与函数，都在前面加了&amp;quot;my&amp;quot;以示区别。可能与标准的命名法有出入，所以仅做示例用。&lt;/p></description></item></channel></rss>

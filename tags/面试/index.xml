@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>面试 on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/%E9%9D%A2%E8%AF%95/</link><description>Recent content in 面试 on Maerlyn's Rainbow</description><generator>Hugo -- 0.146.0</generator><language>zh-CN</language><lastBuildDate>Fri, 24 Jan 2014 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/%E9%9D%A2%E8%AF%95/index.xml" rel="self" type="application/rss+xml"/><item><title>如何判断一个网站的地理信息</title><link>https://wizmann.top/posts/find-the-geo-location-of-a-host/</link><pubDate>Fri, 24 Jan 2014 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/find-the-geo-location-of-a-host/</guid><description>&lt;h2 id="啥">啥？&lt;/h2>
+&lt;p>面试题：&lt;/p>
+&lt;blockquote>
+&lt;p>有一个网站，如何判断这个网站的地理信息&lt;/p>&lt;/blockquote>
+&lt;h2 id="方法">方法&lt;/h2>
+&lt;h3 id="使用反向dns">使用反向DNS&lt;/h3>
+&lt;p>当我们只有网站的IP地址时，我们可以使用&lt;strong>反向DNS&lt;/strong>来获得这个IP地址对应的域名。&lt;/p>
+&lt;blockquote>
+&lt;p>反向域名解析，Reverse DNS。反向域名解析与通常的正向域名解析相反，提供IP地址到域名的对应。&lt;/p></description></item></channel></rss>
