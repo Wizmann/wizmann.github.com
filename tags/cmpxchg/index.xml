@@ -96,7 +96,7 @@
 &lt;/ul>
 &lt;/li>
 &lt;/ul>
-&lt;!-- raw HTML omitted --></description></item><item><title>实现一个无锁消息队列</title><link>https://wizmann.top/posts/implement-non-blocking-queue/</link><pubDate>Wed, 02 May 2018 00:39:00 +0000</pubDate><guid>https://wizmann.top/posts/implement-non-blocking-queue/</guid><description>&lt;blockquote>
+&lt;div class="alert alert-info" role="alert">本文大（划掉）部分内容由ChatGPT4生成&lt;/div></description></item><item><title>实现一个无锁消息队列</title><link>https://wizmann.top/posts/implement-non-blocking-queue/</link><pubDate>Wed, 02 May 2018 00:39:00 +0000</pubDate><guid>https://wizmann.top/posts/implement-non-blocking-queue/</guid><description>&lt;blockquote>
 &lt;p>240414更新：后续补充了一篇勘误文章，见&lt;a href="https://wizmann.top/implement-non-blocking-queue-2.html">这里&lt;/a>&lt;/p>&lt;/blockquote>
 &lt;h2 id="目标">目标&lt;/h2>
 &lt;p>实现一个多读多写的无锁消息队列。&lt;/p>

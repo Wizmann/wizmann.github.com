@@ -226,7 +226,7 @@
 &lt;/ul>
 &lt;/li>
 &lt;/ul>
-&lt;!-- raw HTML omitted --></description></item><item><title>CPU缓存一致性与内存一致性（第一部分-MESI协议）</title><link>https://wizmann.top/posts/cache-coherence-and-memory-order/</link><pubDate>Mon, 18 Mar 2024 23:21:35 +0000</pubDate><guid>https://wizmann.top/posts/cache-coherence-and-memory-order/</guid><description>&lt;p>在对称多处理系统（Symmetric Multiprocessing, SMP）中，一个变量（或内存位置）可以同时存在于多个CPU的缓存行中。为了提供完美的用户级抽象，任何对一个或多个变量的修改都应该被强制同步，以确保其它CPU的缓存得到更新。
+&lt;div class="alert alert-info" role="alert">本文大（划掉）部分内容由ChatGPT4生成&lt;/div></description></item><item><title>CPU缓存一致性与内存一致性（第一部分-MESI协议）</title><link>https://wizmann.top/posts/cache-coherence-and-memory-order/</link><pubDate>Mon, 18 Mar 2024 23:21:35 +0000</pubDate><guid>https://wizmann.top/posts/cache-coherence-and-memory-order/</guid><description>&lt;p>在对称多处理系统（Symmetric Multiprocessing, SMP）中，一个变量（或内存位置）可以同时存在于多个CPU的缓存行中。为了提供完美的用户级抽象，任何对一个或多个变量的修改都应该被强制同步，以确保其它CPU的缓存得到更新。
 然而，在实现上，由于CPU之间通常通过总线互联，它们不能同时对多个缓存进行写操作。&lt;/p></description></item><item><title>[tl;dr] 论文阅读：Borg - Large-scale cluster management at Google</title><link>https://wizmann.top/posts/tl-dr-borg/</link><pubDate>Wed, 27 Dec 2023 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/tl-dr-borg/</guid><description>&lt;ul>
 &lt;li>
 &lt;h2 id="系统概览">系统概览&lt;/h2>
@@ -484,7 +484,7 @@
 &lt;/li>
 &lt;li>&lt;a href="https://research.google/pubs/large-scale-cluster-management-at-google-with-borg/">论文&lt;/a>&lt;/li>
 &lt;/ul>
-&lt;!-- raw HTML omitted --></description></item><item><title>[TL;DR] 论文阅读：Autopilot - 自动化数据中心管理</title><link>https://wizmann.top/posts/tl-dr-autopilot-automatic-data-center-management/</link><pubDate>Fri, 22 Dec 2023 23:32:00 +0000</pubDate><guid>https://wizmann.top/posts/tl-dr-autopilot-automatic-data-center-management/</guid><description>&lt;ul>
+&lt;div class="alert alert-info" role="alert">本文部分内容由ChatGPT4生成&lt;/div></description></item><item><title>[TL;DR] 论文阅读：Autopilot - 自动化数据中心管理</title><link>https://wizmann.top/posts/tl-dr-autopilot-automatic-data-center-management/</link><pubDate>Fri, 22 Dec 2023 23:32:00 +0000</pubDate><guid>https://wizmann.top/posts/tl-dr-autopilot-automatic-data-center-management/</guid><description>&lt;ul>
 &lt;li>
 &lt;h2 id="tldr">TL;DR&lt;/h2>
 &lt;ul>
@@ -625,7 +625,7 @@
 &lt;/li>
 &lt;li>&lt;a href="https://www.semanticscholar.org/paper/Autopilot%3A-automatic-data-center-management-Isard/a531d33efc600a8770316db71dc06a7599f9547a">论文&lt;/a>&lt;/li>
 &lt;/ul>
-&lt;!-- raw HTML omitted --></description></item><item><title>使用 SPIN/Promela 对多线程 Concurrent FIFO Queue 进行建模与验证</title><link>https://wizmann.top/posts/spin-promela-concurrent-queue-1/</link><pubDate>Sun, 17 Dec 2023 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/spin-promela-concurrent-queue-1/</guid><description>&lt;h2 id="引言">引言&lt;/h2>
+&lt;div class="alert alert-info" role="alert">本文大（划掉）部分内容由ChatGPT4生成&lt;/div></description></item><item><title>使用 SPIN/Promela 对多线程 Concurrent FIFO Queue 进行建模与验证</title><link>https://wizmann.top/posts/spin-promela-concurrent-queue-1/</link><pubDate>Sun, 17 Dec 2023 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/spin-promela-concurrent-queue-1/</guid><description>&lt;h2 id="引言">引言&lt;/h2>
 &lt;p>并发编程中设计和验证多线程数据结构是一项极大的挑战，即使是实现一个简单的数据结构（见&lt;a href="https://wizmann.top/implement-non-blocking-queue.html">《实现一个无锁消息队列》&lt;/a>一文），都需要不少的脑力、讨论与实践才可以尽可能保证其正确性。&lt;/p>
 &lt;p>本文尝试使用 SPIN/Promela 对多线程环境下的 Concurrent FIFO Queue 的一种实现进行建模与验证。&lt;/p></description></item><item><title>在SPIN/Promela中模拟CAS（Compare-and-Swap）</title><link>https://wizmann.top/posts/simple-cas-model-in-spin-promela/</link><pubDate>Fri, 15 Dec 2023 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/simple-cas-model-in-spin-promela/</guid><description>&lt;p>CAS（Compare-And-Swap）是一种在多线程编程中常用的数据同步方法，它通过比较和交换操作来保证数据的一致性。然而，在SPIN/Promela中没有直接的CAS对应实现。&lt;/p></description></item><item><title>[tl;dr] 论文阅读：Rarest First and Choke Algorithms Are Enough</title><link>https://wizmann.top/posts/tl-dr-rarest-first-and-choke-algorithms-are-enough/</link><pubDate>Fri, 08 Dec 2023 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/tl-dr-rarest-first-and-choke-algorithms-are-enough/</guid><description>&lt;ul>
 &lt;li>
@@ -756,7 +756,9 @@
 &lt;blockquote>
 &lt;p>因为这是一门实验科学&lt;/p></description></item><item><title>A2B Game Solutions</title><link>https://wizmann.top/posts/a2b/</link><pubDate>Thu, 18 Nov 2021 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/a2b/</guid><description>&lt;p>A2B is a &amp;ldquo;zach-like&amp;rdquo; programming game, which let you to use a very simple &amp;ldquo;programming language&amp;rdquo; to solve different problems for strings.&lt;/p>
 &lt;p>Personally, I highly recommand this game along with &amp;ldquo;Shenzhen IO&amp;rdquo; and &amp;ldquo;Factorio&amp;rdquo; as an beginner tutorial for anyone who wants to be a software engineer.&lt;/p>
-&lt;!-- raw HTML omitted -->
+&lt;iframe src="https://store.steampowered.com/widget/1720850/" frameborder="0" width="646" height="190">&lt;/iframe>
+&lt;iframe src="https://store.steampowered.com/widget/504210/" frameborder="0" width="646" height="190">&lt;/iframe>
+&lt;iframe src="https://store.steampowered.com/widget/427520/" frameborder="0" width="646" height="190">&lt;/iframe>
 &lt;h2 id="spoiler-alert">Spoiler Alert&lt;/h2>
 &lt;p>** The following article includes huge spoilers for A=B Game. **&lt;/p>
 &lt;p>If you have a different solution or a better solution. Feel free to share it with a comment.&lt;/p></description></item><item><title>浅淡TCP BBR</title><link>https://wizmann.top/posts/bbr-intro/</link><pubDate>Tue, 17 Aug 2021 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/bbr-intro/</guid><description>&lt;h2 id="背景">背景&lt;/h2>

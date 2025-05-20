@@ -96,7 +96,7 @@
 &lt;/ul>
 &lt;/li>
 &lt;/ul>
-&lt;!-- raw HTML omitted --></description></item><item><title>在SPIN/Promela中模拟CAS（Compare-and-Swap）</title><link>https://wizmann.top/posts/simple-cas-model-in-spin-promela/</link><pubDate>Fri, 15 Dec 2023 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/simple-cas-model-in-spin-promela/</guid><description>&lt;p>CAS（Compare-And-Swap）是一种在多线程编程中常用的数据同步方法，它通过比较和交换操作来保证数据的一致性。然而，在SPIN/Promela中没有直接的CAS对应实现。&lt;/p></description></item><item><title>实现一个无锁消息队列</title><link>https://wizmann.top/posts/implement-non-blocking-queue/</link><pubDate>Wed, 02 May 2018 00:39:00 +0000</pubDate><guid>https://wizmann.top/posts/implement-non-blocking-queue/</guid><description>&lt;blockquote>
+&lt;div class="alert alert-info" role="alert">本文大（划掉）部分内容由ChatGPT4生成&lt;/div></description></item><item><title>在SPIN/Promela中模拟CAS（Compare-and-Swap）</title><link>https://wizmann.top/posts/simple-cas-model-in-spin-promela/</link><pubDate>Fri, 15 Dec 2023 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/simple-cas-model-in-spin-promela/</guid><description>&lt;p>CAS（Compare-And-Swap）是一种在多线程编程中常用的数据同步方法，它通过比较和交换操作来保证数据的一致性。然而，在SPIN/Promela中没有直接的CAS对应实现。&lt;/p></description></item><item><title>实现一个无锁消息队列</title><link>https://wizmann.top/posts/implement-non-blocking-queue/</link><pubDate>Wed, 02 May 2018 00:39:00 +0000</pubDate><guid>https://wizmann.top/posts/implement-non-blocking-queue/</guid><description>&lt;blockquote>
 &lt;p>240414更新：后续补充了一篇勘误文章，见&lt;a href="https://wizmann.top/implement-non-blocking-queue-2.html">这里&lt;/a>&lt;/p>&lt;/blockquote>
 &lt;h2 id="目标">目标&lt;/h2>
 &lt;p>实现一个多读多写的无锁消息队列。&lt;/p>

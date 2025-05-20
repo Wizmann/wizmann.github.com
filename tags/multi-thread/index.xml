@@ -96,7 +96,7 @@
 &lt;/ul>
 &lt;/li>
 &lt;/ul>
-&lt;!-- raw HTML omitted --></description></item><item><title>使用 SPIN/Promela 对多线程 Concurrent FIFO Queue 进行建模与验证</title><link>https://wizmann.top/posts/spin-promela-concurrent-queue-1/</link><pubDate>Sun, 17 Dec 2023 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/spin-promela-concurrent-queue-1/</guid><description>&lt;h2 id="引言">引言&lt;/h2>
+&lt;div class="alert alert-info" role="alert">本文大（划掉）部分内容由ChatGPT4生成&lt;/div></description></item><item><title>使用 SPIN/Promela 对多线程 Concurrent FIFO Queue 进行建模与验证</title><link>https://wizmann.top/posts/spin-promela-concurrent-queue-1/</link><pubDate>Sun, 17 Dec 2023 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/spin-promela-concurrent-queue-1/</guid><description>&lt;h2 id="引言">引言&lt;/h2>
 &lt;p>并发编程中设计和验证多线程数据结构是一项极大的挑战，即使是实现一个简单的数据结构（见&lt;a href="https://wizmann.top/implement-non-blocking-queue.html">《实现一个无锁消息队列》&lt;/a>一文），都需要不少的脑力、讨论与实践才可以尽可能保证其正确性。&lt;/p>
 &lt;p>本文尝试使用 SPIN/Promela 对多线程环境下的 Concurrent FIFO Queue 的一种实现进行建模与验证。&lt;/p></description></item><item><title>实现一个无锁消息队列</title><link>https://wizmann.top/posts/implement-non-blocking-queue/</link><pubDate>Wed, 02 May 2018 00:39:00 +0000</pubDate><guid>https://wizmann.top/posts/implement-non-blocking-queue/</guid><description>&lt;blockquote>
 &lt;p>240414更新：后续补充了一篇勘误文章，见&lt;a href="https://wizmann.top/implement-non-blocking-queue-2.html">这里&lt;/a>&lt;/p>&lt;/blockquote>
