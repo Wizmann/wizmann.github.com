@@ -1,6 +1,286 @@
-<!doctype html><html lang=zh-cn dir=auto><head><script>window.MathJax={tex:{inlineMath:[["$","$"],["\\(","\\)"]],displayMath:[["$$","$$"],["\\[","\\]"]]},svg:{fontCache:"global"}}</script><script defer src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js></script></head><body id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://wizmann.top/ accesskey=h title="Maerlyn's Rainbow (Alt + H)">Maerlyn's Rainbow</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">[TL;DR] 论文阅读：Autopilot - 自动化数据中心管理</h1><div class=post-meta><span title='2023-12-22 23:32:00 +0000 UTC'>December 22, 2023</span>&nbsp;·&nbsp;wizmann</div></header><div class=post-content><ul><li><h2 id=tldr>TL;DR<a hidden class=anchor aria-hidden=true href=#tldr>#</a></h2><ul><li>Autopilot是微软用来自动化运营大规模网络服务的基础架构</li><li>其设计核心是Device Manager，一个基于Paxos的强一致性分布式状态机，用来保存整个系统的“实际真相”（ground truth），并且根据整个系统的状态确定下一步的行动</li><li>其它子模块通过与Device Manager通信，在“最终一致性”模型下获取系统信息并执行命令，确保更新可能不是即时的，但最终会在系统中传播</li></ul></li><li><h2 id=概述>概述：<a hidden class=anchor aria-hidden=true href=#概述>#</a></h2><ul><li>微软运营大规模网络服务，需要可靠的数据中心自动管理​​</li><li>为了降低数据中心的运营和资本支出而设计​​</li><li>负责自动化软件配置和部署、系统监控，以及执行修复操作来处理软件和硬件的故障</li><li>微观的策略则交由各个应用程序来确定。例如，确定哪些计算机应运行哪些软件，或者精确地定义和检测需要修复的故障</li></ul></li><li><h2 id=设计原则>设计原则：<a hidden class=anchor aria-hidden=true href=#设计原则>#</a></h2><ul><li>基于大规模“商品级计算机系统”的经济性和不可靠性，Autopilot采用容错和简化设计​​</li><li>容错设计：非拜占庭式故障模型，解决数据中心的控制环境问题<ul><li>“非拜占庭式故障模型”假设系统中的错误不是恶意或欺诈性的。在这种模型中，系统的故障被认为是由于一些常规原因，如硬件故障、软件缺陷或网络问题</li></ul></li><li>简化设计：<ul><li>强调简单性和容错性</li><li>在构建大型的可靠、可维护系统时，常常选择简单设计而非更高效或看似更优雅但更复杂的解决案。</li></ul></li></ul></li><li><h2 id=系统概览>系统概览：<a hidden class=anchor aria-hidden=true href=#系统概览>#</a></h2><ul><li>Autopilot分为多个组件<ul><li><img alt=image.png loading=lazy src="https://github.com/Wizmann/assets/blob/master/wizmann-pic/image_1703238379499_0.png?raw=true"></li></ul></li><li>平衡弱一致性和强一致性之间的抉择<ul><li>弱一致性：增强可用性</li><li>强一致性：简化设计</li></ul></li><li>Device Manager - 状态和逻辑管理<ul><li>所有关于系统应处于的“实际真相”（ground truth）状态以及更新这一状态的逻辑，都保存在一个称为 Device Manager 的强一致性状态机中，通常分布在5至10台计算机上</li><li>使用 Paxos 算法实现副本间的一致性，同时通过批处理更新以平衡延迟和吞吐量</li></ul></li><li>Device Manager与“卫星服务”<ul><li>“卫星服务”在发现 Device Manager 状态需要时，惰性地向自身或其客户端的同步信息</li><li>如果“卫星服务”发现集群中的故障或不一致，它不会尝试纠正，而是将问题报告给 Device Manager<ul><li>Autopilot会综合这些信息做出下一步决定</li></ul></li><li>当 Device Manager 更新其状态时，会通知“卫星服务”。“卫星服务”也会通过心跳信息尝试拉取最新的状态。简化设计的同时，并且保证最终一致性/正确性。</li></ul></li></ul></li><li><h2 id=底层服务>底层服务：<a hidden class=anchor aria-hidden=true href=#底层服务>#</a></h2><ul><li>使用稳定的Windows Server操作系统镜像，包含Autopilot配置文件和服务​​</li><li>配置服务（Provisioning）包括DHCP和网络引导，不断扫描网络中新接入的计算机​​<ul><li>通过Device Manager提供的信息来决定需要运行的操作系统及二进制程序</li></ul></li><li>应用部署<ul><li>定义不同机器类型，存储不同配置文件和应用二进制文件​​</li><li>部署新代码时，以Scale unit为单位更新/回滚各机器类型的配置​​</li></ul></li></ul></li><li><h2 id=自动修复服务>自动修复服务<a hidden class=anchor aria-hidden=true href=#自动修复服务>#</a></h2><ul><li>使用最小化的故障检测和恢复模型，以节点或交换机为单位，不处理特定进程的错误<ul><li>只包括Reboot / ReImage / Replace 三种操作</li><li>Autopilot无需对错误归因，也不需要相关的错误处理逻辑</li></ul></li><li>用看门狗进行故障报告​​，检测特定的属性，并上报给Device Manager</li><li>Device Manager作为一个集中式程序，控制机器的自动修复，并且控制同时进行修复机器的数量</li><li><img alt=image.png loading=lazy src="https://github.com/Wizmann/assets/blob/master/wizmann-pic/image_1703254394216_0.png?raw=true"></li></ul></li><li><h2 id=监控服务>监控服务：<a hidden class=anchor aria-hidden=true href=#监控服务>#</a></h2><ul><li>记录性能计数器和日志，收集服务形成分布式集合和聚合树​​</li></ul></li><li><h2 id=案例研究---indexserving>案例研究 - IndexServing：<a hidden class=anchor aria-hidden=true href=#案例研究---indexserving>#</a></h2><ul><li>介绍Windows Live Search如何与Autopilot交互，保持高可用性​​</li><li>对于需要高可用性和低延迟的面向客户服务的应用程序，需要在基础的 Autopilot 组件之上增加定制的容错层<ul><li>使用Load balancer和定制的监控服务来探测失效的或者慢速的节点，并且将结论上报到Autopilot</li></ul></li></ul></li><li><h2 id=经验与教训>经验与教训：<a hidden class=anchor aria-hidden=true href=#经验与教训>#</a></h2><ul><li>对于关键的配置文件，进行checksum检查是必须的<ul><li>避免人工失误（例如部署因Debug而临时修改的配置）或者其它意外问题</li></ul></li><li>网络是不可靠的<ul><li>TCP/IP的checksum非常弱，所以需要应用层面的额外检查</li><li>网络硬件经常翻转数据流中的bit位，导致大量的重试或者未被网络层检测到的数据错误</li></ul></li><li>一些节点偶尔会运行的异常慢，但是并不会停止工作。这种问题与“失败停止错误”一样需要被及时检测到</li><li>节流与负荷削减对于自动化系统非常重要<ul><li>失效检测模块需要有效的区分节点失效与节点过载的区别</li><li>简单的移除节点可能会导致级联式的失效，进而使整个系统失效</li></ul></li></ul></li><li><a href=https://www.semanticscholar.org/paper/Autopilot%3A-automatic-data-center-management-Isard/a531d33efc600a8770316db71dc06a7599f9547a>论文</a></li></ul><div class="alert alert-info" role=alert>本文大（划掉）部分内容由ChatGPT4生成</div></div><footer class=post-footer><ul class=post-tags><li><a href=https://wizmann.top/tags/autopilot/>Autopilot</a></li><li><a href=https://wizmann.top/tags/data-center/>Data Center</a></li><li><a href=https://wizmann.top/tags/data-center-management/>Data Center Management</a></li></ul><nav class=paginav><a class=prev href=https://wizmann.top/posts/tl-dr-borg/><span class=title>«</span><br><span>[tl;dr] 论文阅读：Borg - Large-scale cluster management at Google</span>
-</a><a class=next href=https://wizmann.top/posts/spin-promela-concurrent-queue-1/><span class=title>»</span><br><span>使用 SPIN/Promela 对多线程 Concurrent FIFO Queue 进行建模与验证</span></a></nav></footer><div id=disqus_thread></div><script>(function(){var e=document,t=e.createElement("script");t.src="https://wizmann.disqus.com/embed.js",t.setAttribute("data-timestamp",+new Date),(e.head||e.body).appendChild(t)})()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript></article></main><footer class=footer><span>&copy; 2025 <a href=https://wizmann.top/>Maerlyn's Rainbow</a></span> ·
-<span>Powered by
-<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
-        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
-</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>
+<!doctype html><html lang=zh-CN><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=Content-Security-Policy content="script-src 'self'; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'none'"><link rel=stylesheet href=/css/style.feedcd92d05c2cf19ee7487656b358ee4805f831b7b39711851199d0a6f8934cf9ba379d02425d485c5b65ae299bdffda3770739545d595074076bf3ead284ab.css media=screen integrity="sha512-/u3NktBcLPGe50h2VrNY7kgF+DG3s5cRhRGZ0Kb4k0z5ujedAkJdSFxbZa4pm9/9o3cHOVRdWVB0B2vz6tKEqw==" crossorigin=anonymous><title>[TL;DR] 论文阅读：Autopilot - 自动化数据中心管理</title>
+<meta name=description content=" TL;DR Autopilot是微软用来自动化运营大规模网络服务的基础架构 其设计核心是Device Manager，一个基于Paxos的强一致性分布式状态机，用来保存整个系统的“实际真相”（ground truth），并且根据整个系统的状态确定下一步的行动 其它子模块通过与Device Manager通信，在“最终一致性”模型下获取系统信息并执行命令，确保更新可能不是即时的，但最终会在系统中传播 概述： 微软运营大规模网络服务，需要可靠的数据中心自动管理​​ 为了降低数据中心的运营和资本支出而设计​​ 负责自动化软件配置和部署、系统监控，以及执行修复操作来处理软件和硬件的故障 微观的策略则交由各个应用程序来确定。例如，确定哪些计算机应运行哪些软件，或者精确地定义和检测需要修复的故障 设计原则： 基于大规模“商品级计算机系统”的经济性和不可靠性，Autopilot采用容错和简化设计​​ 容错设计：非拜占庭式故障模型，解决数据中心的控制环境问题 “非拜占庭式故障模型”假设系统中的错误不是恶意或欺诈性的。在这种模型中，系统的故障被认为是由于一些常规原因，如硬件故障、软件缺陷或网络问题 简化设计： 强调简单性和容错性 在构建大型的可靠、可维护系统时，常常选择简单设计而非更高效或看似更优雅但更复杂的解决案。 系统概览： Autopilot分为多个组件 平衡弱一致性和强一致性之间的抉择 弱一致性：增强可用性 强一致性：简化设计 Device Manager - 状态和逻辑管理 所有关于系统应处于的“实际真相”（ground truth）状态以及更新这一状态的逻辑，都保存在一个称为 Device Manager 的强一致性状态机中，通常分布在5至10台计算机上 使用 Paxos 算法实现副本间的一致性，同时通过批处理更新以平衡延迟和吞吐量 Device Manager与“卫星服务” “卫星服务”在发现 Device Manager 状态需要时，惰性地向自身或其客户端的同步信息 如果“卫星服务”发现集群中的故障或不一致，它不会尝试纠正，而是将问题报告给 Device Manager Autopilot会综合这些信息做出下一步决定 当 Device Manager 更新其状态时，会通知“卫星服务”。“卫星服务”也会通过心跳信息尝试拉取最新的状态。简化设计的同时，并且保证最终一致性/正确性。 底层服务： 使用稳定的Windows Server操作系统镜像，包含Autopilot配置文件和服务​​ 配置服务（Provisioning）包括DHCP和网络引导，不断扫描网络中新接入的计算机​​ 通过Device Manager提供的信息来决定需要运行的操作系统及二进制程序 应用部署 定义不同机器类型，存储不同配置文件和应用二进制文件​​ 部署新代码时，以Scale unit为单位更新/回滚各机器类型的配置​​ 自动修复服务 使用最小化的故障检测和恢复模型，以节点或交换机为单位，不处理特定进程的错误 只包括Reboot / ReImage / Replace 三种操作 Autopilot无需对错误归因，也不需要相关的错误处理逻辑 用看门狗进行故障报告​​，检测特定的属性，并上报给Device Manager Device Manager作为一个集中式程序，控制机器的自动修复，并且控制同时进行修复机器的数量 监控服务： 记录性能计数器和日志，收集服务形成分布式集合和聚合树​​ 案例研究 - IndexServing： 介绍Windows Live Search如何与Autopilot交互，保持高可用性​​ 对于需要高可用性和低延迟的面向客户服务的应用程序，需要在基础的 Autopilot 组件之上增加定制的容错层 使用Load balancer和定制的监控服务来探测失效的或者慢速的节点，并且将结论上报到Autopilot 经验与教训： 对于关键的配置文件，进行checksum检查是必须的 避免人工失误（例如部署因Debug而临时修改的配置）或者其它意外问题 网络是不可靠的 TCP/IP的checksum非常弱，所以需要应用层面的额外检查 网络硬件经常翻转数据流中的bit位，导致大量的重试或者未被网络层检测到的数据错误 一些节点偶尔会运行的异常慢，但是并不会停止工作。这种问题与“失败停止错误”一样需要被及时检测到 节流与负荷削减对于自动化系统非常重要 失效检测模块需要有效的区分节点失效与节点过载的区别 简单的移除节点可能会导致级联式的失效，进而使整个系统失效 论文 本文大（划掉）部分内容由ChatGPT4生成"><link rel=canonical href=https://wizmann.top/posts/tl-dr-autopilot-automatic-data-center-management/><link rel=alternate hreflang=zh-CN href=https://wizmann.top/posts/tl-dr-autopilot-automatic-data-center-management/><link rel=alternate hreflang=x-default href=https://wizmann.top/posts/tl-dr-autopilot-automatic-data-center-management/><meta property="og:title" content="[TL;DR] 论文阅读：Autopilot - 自动化数据中心管理"><meta property="og:description" content="
+
+TL;DR
+
+Autopilot是微软用来自动化运营大规模网络服务的基础架构
+其设计核心是Device Manager，一个基于Paxos的强一致性分布式状态机，用来保存整个系统的“实际真相”（ground truth），并且根据整个系统的状态确定下一步的行动
+其它子模块通过与Device Manager通信，在“最终一致性”模型下获取系统信息并执行命令，确保更新可能不是即时的，但最终会在系统中传播
+
+
+
+概述：
+
+微软运营大规模网络服务，需要可靠的数据中心自动管理​​
+为了降低数据中心的运营和资本支出而设计​​
+负责自动化软件配置和部署、系统监控，以及执行修复操作来处理软件和硬件的故障
+微观的策略则交由各个应用程序来确定。例如，确定哪些计算机应运行哪些软件，或者精确地定义和检测需要修复的故障
+
+
+
+设计原则：
+
+基于大规模“商品级计算机系统”的经济性和不可靠性，Autopilot采用容错和简化设计​​
+容错设计：非拜占庭式故障模型，解决数据中心的控制环境问题
+
+“非拜占庭式故障模型”假设系统中的错误不是恶意或欺诈性的。在这种模型中，系统的故障被认为是由于一些常规原因，如硬件故障、软件缺陷或网络问题
+
+
+简化设计：
+
+强调简单性和容错性
+在构建大型的可靠、可维护系统时，常常选择简单设计而非更高效或看似更优雅但更复杂的解决案。
+
+
+
+
+
+系统概览：
+
+Autopilot分为多个组件
+
+
+
+
+平衡弱一致性和强一致性之间的抉择
+
+弱一致性：增强可用性
+强一致性：简化设计
+
+
+Device Manager - 状态和逻辑管理
+
+所有关于系统应处于的“实际真相”（ground truth）状态以及更新这一状态的逻辑，都保存在一个称为 Device Manager 的强一致性状态机中，通常分布在5至10台计算机上
+使用 Paxos 算法实现副本间的一致性，同时通过批处理更新以平衡延迟和吞吐量
+
+
+Device Manager与“卫星服务”
+
+“卫星服务”在发现 Device Manager 状态需要时，惰性地向自身或其客户端的同步信息
+如果“卫星服务”发现集群中的故障或不一致，它不会尝试纠正，而是将问题报告给 Device Manager
+
+Autopilot会综合这些信息做出下一步决定
+
+
+当 Device Manager 更新其状态时，会通知“卫星服务”。“卫星服务”也会通过心跳信息尝试拉取最新的状态。简化设计的同时，并且保证最终一致性/正确性。
+
+
+
+
+
+底层服务：
+
+使用稳定的Windows Server操作系统镜像，包含Autopilot配置文件和服务​​
+配置服务（Provisioning）包括DHCP和网络引导，不断扫描网络中新接入的计算机​​
+
+通过Device Manager提供的信息来决定需要运行的操作系统及二进制程序
+
+
+应用部署
+
+定义不同机器类型，存储不同配置文件和应用二进制文件​​
+部署新代码时，以Scale unit为单位更新/回滚各机器类型的配置​​
+
+
+
+
+
+自动修复服务
+
+使用最小化的故障检测和恢复模型，以节点或交换机为单位，不处理特定进程的错误
+
+只包括Reboot / ReImage / Replace 三种操作
+Autopilot无需对错误归因，也不需要相关的错误处理逻辑
+
+
+用看门狗进行故障报告​​，检测特定的属性，并上报给Device Manager
+Device Manager作为一个集中式程序，控制机器的自动修复，并且控制同时进行修复机器的数量
+
+
+
+
+监控服务：
+
+记录性能计数器和日志，收集服务形成分布式集合和聚合树​​
+
+
+
+案例研究 - IndexServing：
+
+介绍Windows Live Search如何与Autopilot交互，保持高可用性​​
+对于需要高可用性和低延迟的面向客户服务的应用程序，需要在基础的 Autopilot 组件之上增加定制的容错层
+
+使用Load balancer和定制的监控服务来探测失效的或者慢速的节点，并且将结论上报到Autopilot
+
+
+
+
+
+经验与教训：
+
+对于关键的配置文件，进行checksum检查是必须的
+
+避免人工失误（例如部署因Debug而临时修改的配置）或者其它意外问题
+
+
+网络是不可靠的
+
+TCP/IP的checksum非常弱，所以需要应用层面的额外检查
+网络硬件经常翻转数据流中的bit位，导致大量的重试或者未被网络层检测到的数据错误
+
+
+一些节点偶尔会运行的异常慢，但是并不会停止工作。这种问题与“失败停止错误”一样需要被及时检测到
+节流与负荷削减对于自动化系统非常重要
+
+失效检测模块需要有效的区分节点失效与节点过载的区别
+简单的移除节点可能会导致级联式的失效，进而使整个系统失效
+
+
+
+
+论文
+
+本文大（划掉）部分内容由ChatGPT4生成"><meta property="og:type" content="article"><meta property="og:url" content="https://wizmann.top/posts/tl-dr-autopilot-automatic-data-center-management/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2023-12-22T23:32:00+00:00"><meta property="article:modified_time" content="2023-12-22T23:32:00+00:00"><meta property="og:site_name" content="Maerlyn's Rainbow"><meta name=twitter:card content="summary"><meta name=twitter:title content="[TL;DR] 论文阅读：Autopilot - 自动化数据中心管理"><meta name=twitter:description content="
+
+TL;DR
+
+Autopilot是微软用来自动化运营大规模网络服务的基础架构
+其设计核心是Device Manager，一个基于Paxos的强一致性分布式状态机，用来保存整个系统的“实际真相”（ground truth），并且根据整个系统的状态确定下一步的行动
+其它子模块通过与Device Manager通信，在“最终一致性”模型下获取系统信息并执行命令，确保更新可能不是即时的，但最终会在系统中传播
+
+
+
+概述：
+
+微软运营大规模网络服务，需要可靠的数据中心自动管理​​
+为了降低数据中心的运营和资本支出而设计​​
+负责自动化软件配置和部署、系统监控，以及执行修复操作来处理软件和硬件的故障
+微观的策略则交由各个应用程序来确定。例如，确定哪些计算机应运行哪些软件，或者精确地定义和检测需要修复的故障
+
+
+
+设计原则：
+
+基于大规模“商品级计算机系统”的经济性和不可靠性，Autopilot采用容错和简化设计​​
+容错设计：非拜占庭式故障模型，解决数据中心的控制环境问题
+
+“非拜占庭式故障模型”假设系统中的错误不是恶意或欺诈性的。在这种模型中，系统的故障被认为是由于一些常规原因，如硬件故障、软件缺陷或网络问题
+
+
+简化设计：
+
+强调简单性和容错性
+在构建大型的可靠、可维护系统时，常常选择简单设计而非更高效或看似更优雅但更复杂的解决案。
+
+
+
+
+
+系统概览：
+
+Autopilot分为多个组件
+
+
+
+
+平衡弱一致性和强一致性之间的抉择
+
+弱一致性：增强可用性
+强一致性：简化设计
+
+
+Device Manager - 状态和逻辑管理
+
+所有关于系统应处于的“实际真相”（ground truth）状态以及更新这一状态的逻辑，都保存在一个称为 Device Manager 的强一致性状态机中，通常分布在5至10台计算机上
+使用 Paxos 算法实现副本间的一致性，同时通过批处理更新以平衡延迟和吞吐量
+
+
+Device Manager与“卫星服务”
+
+“卫星服务”在发现 Device Manager 状态需要时，惰性地向自身或其客户端的同步信息
+如果“卫星服务”发现集群中的故障或不一致，它不会尝试纠正，而是将问题报告给 Device Manager
+
+Autopilot会综合这些信息做出下一步决定
+
+
+当 Device Manager 更新其状态时，会通知“卫星服务”。“卫星服务”也会通过心跳信息尝试拉取最新的状态。简化设计的同时，并且保证最终一致性/正确性。
+
+
+
+
+
+底层服务：
+
+使用稳定的Windows Server操作系统镜像，包含Autopilot配置文件和服务​​
+配置服务（Provisioning）包括DHCP和网络引导，不断扫描网络中新接入的计算机​​
+
+通过Device Manager提供的信息来决定需要运行的操作系统及二进制程序
+
+
+应用部署
+
+定义不同机器类型，存储不同配置文件和应用二进制文件​​
+部署新代码时，以Scale unit为单位更新/回滚各机器类型的配置​​
+
+
+
+
+
+自动修复服务
+
+使用最小化的故障检测和恢复模型，以节点或交换机为单位，不处理特定进程的错误
+
+只包括Reboot / ReImage / Replace 三种操作
+Autopilot无需对错误归因，也不需要相关的错误处理逻辑
+
+
+用看门狗进行故障报告​​，检测特定的属性，并上报给Device Manager
+Device Manager作为一个集中式程序，控制机器的自动修复，并且控制同时进行修复机器的数量
+
+
+
+
+监控服务：
+
+记录性能计数器和日志，收集服务形成分布式集合和聚合树​​
+
+
+
+案例研究 - IndexServing：
+
+介绍Windows Live Search如何与Autopilot交互，保持高可用性​​
+对于需要高可用性和低延迟的面向客户服务的应用程序，需要在基础的 Autopilot 组件之上增加定制的容错层
+
+使用Load balancer和定制的监控服务来探测失效的或者慢速的节点，并且将结论上报到Autopilot
+
+
+
+
+
+经验与教训：
+
+对于关键的配置文件，进行checksum检查是必须的
+
+避免人工失误（例如部署因Debug而临时修改的配置）或者其它意外问题
+
+
+网络是不可靠的
+
+TCP/IP的checksum非常弱，所以需要应用层面的额外检查
+网络硬件经常翻转数据流中的bit位，导致大量的重试或者未被网络层检测到的数据错误
+
+
+一些节点偶尔会运行的异常慢，但是并不会停止工作。这种问题与“失败停止错误”一样需要被及时检测到
+节流与负荷削减对于自动化系统非常重要
+
+失效检测模块需要有效的区分节点失效与节点过载的区别
+简单的移除节点可能会导致级联式的失效，进而使整个系统失效
+
+
+
+
+论文
+
+本文大（划掉）部分内容由ChatGPT4生成"><script type=application/ld+json>{"@context":"https://schema.org","@type":"Article","headline":"[TL;DR] 论文阅读：Autopilot - 自动化数据中心管理","datePublished":"2023-12-22T23:32:00+00:00","dateModified":"2023-12-22T23:32:00+00:00","mainEntityOfPage":"https://wizmann.top/","publisher":{"@type":"Organization","name":"Maerlyn's Rainbow"},"wordcount":1726,"description":" TL;DR Autopilot是微软用来自动化运营大规模网络服务的基础架构 其设计核心是Device Manager，一个基于Paxos的强一致性分布式状态机，用来保存整个系统的“实际真相”（ground truth），并且根据整个系统的状态确定下一步的行动 其它子模块通过与Device Manager通信，在“最终一致性”模型下获取系统信息并执行命令，确保更新可能不是即时的，但最终会在系统中传播 概述： 微软运营大规模网络服务，需要可靠的数据中心自动管理​​ 为了降低数据中心的运营和资本支出而设计​​ 负责自动化软件配置和部署、系统监控，以及执行修复操作来处理软件和硬件的故障 微观的策略则交由各个应用程序来确定。例如，确定哪些计算机应运行哪些软件，或者精确地定义和检测需要修复的故障 设计原则： 基于大规模“商品级计算机系统”的经济性和不可靠性，Autopilot采用容错和简化设计​​ 容错设计：非拜占庭式故障模型，解决数据中心的控制环境问题 “非拜占庭式故障模型”假设系统中的错误不是恶意或欺诈性的。在这种模型中，系统的故障被认为是由于一些常规原因，如硬件故障、软件缺陷或网络问题 简化设计： 强调简单性和容错性 在构建大型的可靠、可维护系统时，常常选择简单设计而非更高效或看似更优雅但更复杂的解决案。 系统概览： Autopilot分为多个组件 平衡弱一致性和强一致性之间的抉择 弱一致性：增强可用性 强一致性：简化设计 Device Manager - 状态和逻辑管理 所有关于系统应处于的“实际真相”（ground truth）状态以及更新这一状态的逻辑，都保存在一个称为 Device Manager 的强一致性状态机中，通常分布在5至10台计算机上 使用 Paxos 算法实现副本间的一致性，同时通过批处理更新以平衡延迟和吞吐量 Device Manager与“卫星服务” “卫星服务”在发现 Device Manager 状态需要时，惰性地向自身或其客户端的同步信息 如果“卫星服务”发现集群中的故障或不一致，它不会尝试纠正，而是将问题报告给 Device Manager Autopilot会综合这些信息做出下一步决定 当 Device Manager 更新其状态时，会通知“卫星服务”。“卫星服务”也会通过心跳信息尝试拉取最新的状态。简化设计的同时，并且保证最终一致性/正确性。 底层服务： 使用稳定的Windows Server操作系统镜像，包含Autopilot配置文件和服务​​ 配置服务（Provisioning）包括DHCP和网络引导，不断扫描网络中新接入的计算机​​ 通过Device Manager提供的信息来决定需要运行的操作系统及二进制程序 应用部署 定义不同机器类型，存储不同配置文件和应用二进制文件​​ 部署新代码时，以Scale unit为单位更新/回滚各机器类型的配置​​ 自动修复服务 使用最小化的故障检测和恢复模型，以节点或交换机为单位，不处理特定进程的错误 只包括Reboot / ReImage / Replace 三种操作 Autopilot无需对错误归因，也不需要相关的错误处理逻辑 用看门狗进行故障报告​​，检测特定的属性，并上报给Device Manager Device Manager作为一个集中式程序，控制机器的自动修复，并且控制同时进行修复机器的数量 监控服务： 记录性能计数器和日志，收集服务形成分布式集合和聚合树​​ 案例研究 - IndexServing： 介绍Windows Live Search如何与Autopilot交互，保持高可用性​​ 对于需要高可用性和低延迟的面向客户服务的应用程序，需要在基础的 Autopilot 组件之上增加定制的容错层 使用Load balancer和定制的监控服务来探测失效的或者慢速的节点，并且将结论上报到Autopilot 经验与教训： 对于关键的配置文件，进行checksum检查是必须的 避免人工失误（例如部署因Debug而临时修改的配置）或者其它意外问题 网络是不可靠的 TCP/IP的checksum非常弱，所以需要应用层面的额外检查 网络硬件经常翻转数据流中的bit位，导致大量的重试或者未被网络层检测到的数据错误 一些节点偶尔会运行的异常慢，但是并不会停止工作。这种问题与“失败停止错误”一样需要被及时检测到 节流与负荷削减对于自动化系统非常重要 失效检测模块需要有效的区分节点失效与节点过载的区别 简单的移除节点可能会导致级联式的失效，进而使整个系统失效 论文 本文大（划掉）部分内容由ChatGPT4生成","keywords":null}</script></head><body class="posts single d-flex flex-column min-vh-100"><header class=main-header><nav class="navbar navbar-expand-lg"><div class=container><a class=navbar-brand href=/>Maerlyn's Rainbow
+</a><button class=navbar-toggler type=button data-bs-toggle=collapse data-bs-target=#navbarSupportedContent aria-controls=navbarSupportedContent aria-expanded=false aria-label="Toggle navigation">
+<span class=navbar-toggler-icon></span></button><div class="collapse navbar-collapse" id=navbarSupportedContent><ul class="menu-main navbar-nav me-auto mb-2 mb-lg-0"></ul></div></div></nav></header><div id=content><div class="container py-3"><ul><li><h2 id=tldr>TL;DR</h2><ul><li>Autopilot是微软用来自动化运营大规模网络服务的基础架构</li><li>其设计核心是Device Manager，一个基于Paxos的强一致性分布式状态机，用来保存整个系统的“实际真相”（ground truth），并且根据整个系统的状态确定下一步的行动</li><li>其它子模块通过与Device Manager通信，在“最终一致性”模型下获取系统信息并执行命令，确保更新可能不是即时的，但最终会在系统中传播</li></ul></li><li><h2 id=概述>概述：</h2><ul><li>微软运营大规模网络服务，需要可靠的数据中心自动管理​​</li><li>为了降低数据中心的运营和资本支出而设计​​</li><li>负责自动化软件配置和部署、系统监控，以及执行修复操作来处理软件和硬件的故障</li><li>微观的策略则交由各个应用程序来确定。例如，确定哪些计算机应运行哪些软件，或者精确地定义和检测需要修复的故障</li></ul></li><li><h2 id=设计原则>设计原则：</h2><ul><li>基于大规模“商品级计算机系统”的经济性和不可靠性，Autopilot采用容错和简化设计​​</li><li>容错设计：非拜占庭式故障模型，解决数据中心的控制环境问题<ul><li>“非拜占庭式故障模型”假设系统中的错误不是恶意或欺诈性的。在这种模型中，系统的故障被认为是由于一些常规原因，如硬件故障、软件缺陷或网络问题</li></ul></li><li>简化设计：<ul><li>强调简单性和容错性</li><li>在构建大型的可靠、可维护系统时，常常选择简单设计而非更高效或看似更优雅但更复杂的解决案。</li></ul></li></ul></li><li><h2 id=系统概览>系统概览：</h2><ul><li>Autopilot分为多个组件<ul><li><img src="https://github.com/Wizmann/assets/blob/master/wizmann-pic/image_1703238379499_0.png?raw=true" alt=image.png></li></ul></li><li>平衡弱一致性和强一致性之间的抉择<ul><li>弱一致性：增强可用性</li><li>强一致性：简化设计</li></ul></li><li>Device Manager - 状态和逻辑管理<ul><li>所有关于系统应处于的“实际真相”（ground truth）状态以及更新这一状态的逻辑，都保存在一个称为 Device Manager 的强一致性状态机中，通常分布在5至10台计算机上</li><li>使用 Paxos 算法实现副本间的一致性，同时通过批处理更新以平衡延迟和吞吐量</li></ul></li><li>Device Manager与“卫星服务”<ul><li>“卫星服务”在发现 Device Manager 状态需要时，惰性地向自身或其客户端的同步信息</li><li>如果“卫星服务”发现集群中的故障或不一致，它不会尝试纠正，而是将问题报告给 Device Manager<ul><li>Autopilot会综合这些信息做出下一步决定</li></ul></li><li>当 Device Manager 更新其状态时，会通知“卫星服务”。“卫星服务”也会通过心跳信息尝试拉取最新的状态。简化设计的同时，并且保证最终一致性/正确性。</li></ul></li></ul></li><li><h2 id=底层服务>底层服务：</h2><ul><li>使用稳定的Windows Server操作系统镜像，包含Autopilot配置文件和服务​​</li><li>配置服务（Provisioning）包括DHCP和网络引导，不断扫描网络中新接入的计算机​​<ul><li>通过Device Manager提供的信息来决定需要运行的操作系统及二进制程序</li></ul></li><li>应用部署<ul><li>定义不同机器类型，存储不同配置文件和应用二进制文件​​</li><li>部署新代码时，以Scale unit为单位更新/回滚各机器类型的配置​​</li></ul></li></ul></li><li><h2 id=自动修复服务>自动修复服务</h2><ul><li>使用最小化的故障检测和恢复模型，以节点或交换机为单位，不处理特定进程的错误<ul><li>只包括Reboot / ReImage / Replace 三种操作</li><li>Autopilot无需对错误归因，也不需要相关的错误处理逻辑</li></ul></li><li>用看门狗进行故障报告​​，检测特定的属性，并上报给Device Manager</li><li>Device Manager作为一个集中式程序，控制机器的自动修复，并且控制同时进行修复机器的数量</li><li><img src="https://github.com/Wizmann/assets/blob/master/wizmann-pic/image_1703254394216_0.png?raw=true" alt=image.png></li></ul></li><li><h2 id=监控服务>监控服务：</h2><ul><li>记录性能计数器和日志，收集服务形成分布式集合和聚合树​​</li></ul></li><li><h2 id=案例研究---indexserving>案例研究 - IndexServing：</h2><ul><li>介绍Windows Live Search如何与Autopilot交互，保持高可用性​​</li><li>对于需要高可用性和低延迟的面向客户服务的应用程序，需要在基础的 Autopilot 组件之上增加定制的容错层<ul><li>使用Load balancer和定制的监控服务来探测失效的或者慢速的节点，并且将结论上报到Autopilot</li></ul></li></ul></li><li><h2 id=经验与教训>经验与教训：</h2><ul><li>对于关键的配置文件，进行checksum检查是必须的<ul><li>避免人工失误（例如部署因Debug而临时修改的配置）或者其它意外问题</li></ul></li><li>网络是不可靠的<ul><li>TCP/IP的checksum非常弱，所以需要应用层面的额外检查</li><li>网络硬件经常翻转数据流中的bit位，导致大量的重试或者未被网络层检测到的数据错误</li></ul></li><li>一些节点偶尔会运行的异常慢，但是并不会停止工作。这种问题与“失败停止错误”一样需要被及时检测到</li><li>节流与负荷削减对于自动化系统非常重要<ul><li>失效检测模块需要有效的区分节点失效与节点过载的区别</li><li>简单的移除节点可能会导致级联式的失效，进而使整个系统失效</li></ul></li></ul></li><li><a href=https://www.semanticscholar.org/paper/Autopilot%3A-automatic-data-center-management-Isard/a531d33efc600a8770316db71dc06a7599f9547a target=_blank rel=noopener>论文</a></li></ul><div class="alert alert-info" role=alert>本文大（划掉）部分内容由ChatGPT4生成</div></div></div><footer class="py-3 mt-auto bg-light"><div class="container py-1 my-1"><div class="d-flex flex-wrap justify-content-between align-items-center"><p class="col-md mb-0 text-muted"></p><ul class="nav col-md-auto justify-content-end"></ul></div></div></footer><script src=/js/main.min.e8d88c82c0438b527f1aca4115652ba1e2877bf805b75593b23ac0e3fe2b3fe95a467d1feef275355132ba061da6404b0d24d55afabc209b294b1db043be014d.js integrity="sha512-6NiMgsBDi1J/GspBFWUroeKHe/gFt1WTsjrA4/4rP+laRn0f7vJ1NVEyugYdpkBLDSTVWvq8IJspSx2wQ74BTQ==" crossorigin=anonymous defer></script></body></html>

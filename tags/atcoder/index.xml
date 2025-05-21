@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>AtCoder on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/atcoder/</link><description>Recent content in AtCoder on Maerlyn's Rainbow</description><generator>Hugo -- 0.146.0</generator><language>zh-CN</language><lastBuildDate>Sat, 15 Jun 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/atcoder/index.xml" rel="self" type="application/rss+xml"/><item><title>利用凸组合求解最优值（AtCoder abc356_g Freestyle 题解）</title><link>https://wizmann.top/posts/atcoder-abc356g-solution/</link><pubDate>Sat, 15 Jun 2024 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/atcoder-abc356g-solution/</guid><description>&lt;ul>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>AtCoder on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/atcoder/</link><description>Recent content in AtCoder on Maerlyn's Rainbow</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Sat, 15 Jun 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/atcoder/index.xml" rel="self" type="application/rss+xml"/><item><title>利用凸组合求解最优值（AtCoder abc356_g Freestyle 题解）</title><link>https://wizmann.top/posts/atcoder-abc356g-solution/</link><pubDate>Sat, 15 Jun 2024 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/atcoder-abc356g-solution/</guid><description>&lt;ul>
 &lt;li>
 &lt;h2 id="题目大意">题目大意&lt;/h2>
 &lt;ul>
@@ -20,7 +20,7 @@
 以两种游泳技术（N=2）为例进行具体分析。假设在总游泳时间中，技术1和技术2的使用时间比例分别为 $p$ 和 $1-p$ （其中 $0 \leq p \leq 1$ ）。在这种情况下，每秒前进距离为 $A_1 \cdot p + A_2 \cdot (1 - p)$ ，体力消耗为 $B_1 \cdot p + B_2 \cdot (1 - p)$ 。&lt;br>
 从几何角度看，组合这两种游泳技术的速度与体力消耗 $(A_x, B_x)$ 为 $(A_1, B_1) \cdot p$ 和 $(A_2, B_2) \cdot (1 - p)$ 的向量和，其可能的取值位于以 $(A_1, B_1)$ 和 $(A_2, B_2)$ 为端点的线段上的任意一点。&lt;br>
 对于具体询问 $(C_i, D_i)$ ，为了确保“在到达终点之前不能耗尽体力”，我们需要找到的点必须位于斜率为 $D_i/C_i$ 的射线与x轴之间的夹角内。通过这种方式，我们可以确定是否有可能在给定的体力限制下完成指定的距离，并找到速度最快的点。&lt;/li>
-&lt;li>&lt;img alt="下载_1718003803558_0.png" loading="lazy" src="https://raw.githubusercontent.com/Wizmann/assets/965294986c47c3153fe9cd4e831748903ba224ef/wizmann-pic/24-06-15/%E4%B8%8B%E8%BD%BD_1718003803558_0.png">&lt;/li>
+&lt;li>&lt;img src="https://raw.githubusercontent.com/Wizmann/assets/965294986c47c3153fe9cd4e831748903ba224ef/wizmann-pic/24-06-15/%E4%B8%8B%E8%BD%BD_1718003803558_0.png" alt="下载_1718003803558_0.png">&lt;/li>
 &lt;li>对于多种游泳技术的组合，情况会更复杂一些。我们将所有游泳技术视为一组向量 $(A_1, B_1), (A_2, B_2), \ldots, (A_n, B_n)$ 和一组对应的权重 $p_1, p_2, \ldots, p_n$ ，其中 $\sum_{i=1}^n p_i = 1$ 并且每个 $p_i \geq 0$ ，那么这些向量的加权和 $\sum_{i=1}^n p_i (A_i, B_i)$ 定义了一个在二维空间中的凸多边形，称为这些向量的凸包。&lt;/li>
 &lt;li>我们可以用稍微详细一点的数学来解释这一过程：
 &lt;ul>
@@ -61,7 +61,7 @@
 &lt;/ul>
 &lt;/li>
 &lt;li>类似于仅涉及两个点的简单情况，为了解决问题，我们需要找到凸多边形内与 $x$ 轴之间斜率为 $D_i/C_i$ 的射线包围的区域（即凸包中的深色部分）。我们进一步需要找出该部分中在 $x$ 轴上取得最大值的点。&lt;/li>
-&lt;li>&lt;img alt="geogebra-export.png" loading="lazy" src="https://raw.githubusercontent.com/Wizmann/assets/965294986c47c3153fe9cd4e831748903ba224ef/wizmann-pic/24-06-15/geogebra-export_1718034870873_0.png">&lt;/li>
+&lt;li>&lt;img src="https://raw.githubusercontent.com/Wizmann/assets/965294986c47c3153fe9cd4e831748903ba224ef/wizmann-pic/24-06-15/geogebra-export_1718034870873_0.png" alt="geogebra-export.png">&lt;/li>
 &lt;/ul>
 &lt;/li>
 &lt;li>
@@ -104,7 +104,7 @@
 &lt;h3 id="实现方案2">实现方案2：&lt;/h3>
 &lt;ul>
 &lt;li>方案2与方案1类似，只是在查找凸包的时候，加入点 $(0, 0)$ 与点 $(max(A_i), INF)$ 。如下图所示，加入这两个点之后，非最优解的点都被包含在了凸包（蓝色）内部。我们在找到凸包之后，将加入的点删除，并按方案1的方法排序。后续再进行二分，以及求交点等操作。&lt;/li>
-&lt;li>&lt;img alt="image.png" loading="lazy" src="https://raw.githubusercontent.com/Wizmann/assets/965294986c47c3153fe9cd4e831748903ba224ef/wizmann-pic/24-06-15/image_1718464319087_0.png">&lt;/li>
+&lt;li>&lt;img src="https://raw.githubusercontent.com/Wizmann/assets/965294986c47c3153fe9cd4e831748903ba224ef/wizmann-pic/24-06-15/image_1718464319087_0.png" alt="image.png">&lt;/li>
 &lt;/ul>
 &lt;/li>
 &lt;/ul>
@@ -112,8 +112,8 @@
 &lt;li>
 &lt;h2 id="代码实现">代码实现&lt;/h2>
 &lt;ul>
-&lt;li>&lt;a href="https://atcoder.jp/contests/abc356/submissions/54463383">我写的&lt;/a> （抄了别人的凸包算法）&lt;/li>
-&lt;li>&lt;a href="https://atcoder.jp/contests/abc356/editorial/10145">官方题解&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://atcoder.jp/contests/abc356/submissions/54463383" target="_blank" rel="noopener">我写的&lt;/a> （抄了别人的凸包算法）&lt;/li>
+&lt;li>&lt;a href="https://atcoder.jp/contests/abc356/editorial/10145" target="_blank" rel="noopener">官方题解&lt;/a>&lt;/li>
 &lt;/ul>
 &lt;/li>
 &lt;li>

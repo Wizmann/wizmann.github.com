@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Data Center on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/data-center/</link><description>Recent content in Data Center on Maerlyn's Rainbow</description><generator>Hugo -- 0.146.0</generator><language>zh-CN</language><lastBuildDate>Fri, 22 Dec 2023 23:32:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/data-center/index.xml" rel="self" type="application/rss+xml"/><item><title>[TL;DR] 论文阅读：Autopilot - 自动化数据中心管理</title><link>https://wizmann.top/posts/tl-dr-autopilot-automatic-data-center-management/</link><pubDate>Fri, 22 Dec 2023 23:32:00 +0000</pubDate><guid>https://wizmann.top/posts/tl-dr-autopilot-automatic-data-center-management/</guid><description>&lt;ul>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Data Center on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/data-center/</link><description>Recent content in Data Center on Maerlyn's Rainbow</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Fri, 22 Dec 2023 23:32:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/data-center/index.xml" rel="self" type="application/rss+xml"/><item><title>[TL;DR] 论文阅读：Autopilot - 自动化数据中心管理</title><link>https://wizmann.top/posts/tl-dr-autopilot-automatic-data-center-management/</link><pubDate>Fri, 22 Dec 2023 23:32:00 +0000</pubDate><guid>https://wizmann.top/posts/tl-dr-autopilot-automatic-data-center-management/</guid><description>&lt;ul>
 &lt;li>
 &lt;h2 id="tldr">TL;DR&lt;/h2>
 &lt;ul>
@@ -38,7 +38,7 @@
 &lt;ul>
 &lt;li>Autopilot分为多个组件
 &lt;ul>
-&lt;li>&lt;img alt="image.png" loading="lazy" src="https://github.com/Wizmann/assets/blob/master/wizmann-pic/image_1703238379499_0.png?raw=true">&lt;/li>
+&lt;li>&lt;img src="https://github.com/Wizmann/assets/blob/master/wizmann-pic/image_1703238379499_0.png?raw=true" alt="image.png">&lt;/li>
 &lt;/ul>
 &lt;/li>
 &lt;li>平衡弱一致性和强一致性之间的抉择
@@ -94,7 +94,7 @@
 &lt;/li>
 &lt;li>用看门狗进行故障报告​​，检测特定的属性，并上报给Device Manager&lt;/li>
 &lt;li>Device Manager作为一个集中式程序，控制机器的自动修复，并且控制同时进行修复机器的数量&lt;/li>
-&lt;li>&lt;img alt="image.png" loading="lazy" src="https://github.com/Wizmann/assets/blob/master/wizmann-pic/image_1703254394216_0.png?raw=true">&lt;/li>
+&lt;li>&lt;img src="https://github.com/Wizmann/assets/blob/master/wizmann-pic/image_1703254394216_0.png?raw=true" alt="image.png">&lt;/li>
 &lt;/ul>
 &lt;/li>
 &lt;li>
@@ -137,6 +137,6 @@
 &lt;/li>
 &lt;/ul>
 &lt;/li>
-&lt;li>&lt;a href="https://www.semanticscholar.org/paper/Autopilot%3A-automatic-data-center-management-Isard/a531d33efc600a8770316db71dc06a7599f9547a">论文&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://www.semanticscholar.org/paper/Autopilot%3A-automatic-data-center-management-Isard/a531d33efc600a8770316db71dc06a7599f9547a" target="_blank" rel="noopener">论文&lt;/a>&lt;/li>
 &lt;/ul>
 &lt;div class="alert alert-info" role="alert">本文大（划掉）部分内容由ChatGPT4生成&lt;/div></description></item></channel></rss>

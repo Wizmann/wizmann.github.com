@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>思维 on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/%E6%80%9D%E7%BB%B4/</link><description>Recent content in 思维 on Maerlyn's Rainbow</description><generator>Hugo -- 0.146.0</generator><language>zh-CN</language><lastBuildDate>Sat, 28 Dec 2013 14:42:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/%E6%80%9D%E7%BB%B4/index.xml" rel="self" type="application/rss+xml"/><item><title>How to "Rotate Image"?</title><link>https://wizmann.top/posts/how-to-rotate-image-leetcode/</link><pubDate>Sat, 28 Dec 2013 14:42:00 +0000</pubDate><guid>https://wizmann.top/posts/how-to-rotate-image-leetcode/</guid><description>&lt;h2 id="啥">啥？&lt;/h2>
-&lt;p>原题&lt;a href="http://oj.leetcode.com/problems/rotate-image/">戳我&lt;/a>&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>思维 on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/%E6%80%9D%E7%BB%B4/</link><description>Recent content in 思维 on Maerlyn's Rainbow</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Sat, 28 Dec 2013 14:42:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/%E6%80%9D%E7%BB%B4/index.xml" rel="self" type="application/rss+xml"/><item><title>How to "Rotate Image"?</title><link>https://wizmann.top/posts/how-to-rotate-image-leetcode/</link><pubDate>Sat, 28 Dec 2013 14:42:00 +0000</pubDate><guid>https://wizmann.top/posts/how-to-rotate-image-leetcode/</guid><description>&lt;h2 id="啥">啥？&lt;/h2>
+&lt;p>原题&lt;a href="http://oj.leetcode.com/problems/rotate-image/" target="_blank" rel="noopener">戳我&lt;/a>&lt;/p>
 &lt;blockquote>
 &lt;p>Rotate Image&lt;/p>&lt;/blockquote>
 &lt;blockquote>
@@ -11,7 +11,7 @@
 &lt;blockquote>
 &lt;p>Could you do this in-place?&lt;/p>&lt;/blockquote>
 &lt;p>示意图如下：&lt;/p>
-&lt;p>&lt;img alt="rotate-image" loading="lazy" src="https://github.com/Wizmann/assets/raw/master/wizmann-tk-pic/blog-rotate-image-leetcode.png">&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-tk-pic/blog-rotate-image-leetcode.png" alt="rotate-image">&lt;/p>
 &lt;p>当然，矩阵中的数字&lt;strong>不一定&lt;/strong>是规律的。&lt;/p>
 &lt;h2 id="为什么要提出这个问题">为什么要提出这个问题&lt;/h2>
 &lt;p>自觉是一个&lt;strong>不聪明&lt;/strong>的人（双低。。。&amp;lt;(=＠_＠;=)?&amp;gt;）。&lt;/p></description></item></channel></rss>

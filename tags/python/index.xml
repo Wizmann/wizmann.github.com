@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Python on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/python/</link><description>Recent content in Python on Maerlyn's Rainbow</description><generator>Hugo -- 0.146.0</generator><language>zh-CN</language><lastBuildDate>Sun, 27 Jul 2014 14:23:10 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/python/index.xml" rel="self" type="application/rss+xml"/><item><title>简明Python魔法 - 2</title><link>https://wizmann.top/posts/python-magic-2/</link><pubDate>Sun, 27 Jul 2014 14:23:10 +0000</pubDate><guid>https://wizmann.top/posts/python-magic-2/</guid><description>&lt;h2 id="再说描述符---descriptor">再说描述符 - Descriptor&lt;/h2>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Python on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/python/</link><description>Recent content in Python on Maerlyn's Rainbow</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Sun, 27 Jul 2014 14:23:10 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/python/index.xml" rel="self" type="application/rss+xml"/><item><title>简明Python魔法 - 2</title><link>https://wizmann.top/posts/python-magic-2/</link><pubDate>Sun, 27 Jul 2014 14:23:10 +0000</pubDate><guid>https://wizmann.top/posts/python-magic-2/</guid><description>&lt;h2 id="再说描述符---descriptor">再说描述符 - Descriptor&lt;/h2>
 &lt;h3 id="最简单的描述符">最简单的描述符&lt;/h3>
 &lt;p>覆写类的&lt;code>__get__&lt;/code>和&lt;code>__setter__&lt;/code>函数就可以实现一个简单的描述符。对某个类型实例的读写进行额外的控制。&lt;/p>
 &lt;pre tabindex="0">&lt;code class="language-pycon" data-lang="pycon">&amp;gt;&amp;gt;&amp;gt; import datetime
@@ -16,7 +16,7 @@
 datetime.date(2008, 11, 24)
 &amp;gt;&amp;gt;&amp;gt; e.date = datetime.date.today()
 Traceback (most recent call last):
-...
+ ...
 NotImplementedError: Can&amp;#39;t change the current date.
 &lt;/code>&lt;/pre>&lt;h3 id="类属性描述符">类属性描述符&lt;/h3>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">MyClass&lt;/span> (object):

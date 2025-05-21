@@ -1,6 +1,118 @@
-<!doctype html><html lang=zh-cn dir=auto><head><script>window.MathJax={tex:{inlineMath:[["$","$"],["\\(","\\)"]],displayMath:[["$$","$$"],["\\[","\\]"]]},svg:{fontCache:"global"}}</script><script defer src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js></script></head><body id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://wizmann.top/ accesskey=h title="Maerlyn's Rainbow (Alt + H)">Maerlyn's Rainbow</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">Codeforces Round #253 Tutorial</h1><div class=post-meta><span title='2014-06-21 19:24:37 +0000 UTC'>June 21, 2014</span>&nbsp;·&nbsp;wizmann</div></header><div class=post-content><hr><h2 id=443a---anton-and-letters>443A - Anton and Letters<a hidden class=anchor aria-hidden=true href=#443a---anton-and-letters>#</a></h2><p>Simple and easy, solved by two lines of python code.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span>ls <span style=color:#f92672>=</span> filter(<span style=color:#66d9ef>lambda</span> y: y, map(<span style=color:#66d9ef>lambda</span> x: x<span style=color:#f92672>.</span>strip(), raw_input()[<span style=color:#ae81ff>1</span>:<span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>]<span style=color:#f92672>.</span>split(<span style=color:#e6db74>&#34;,&#34;</span>)))
+<!doctype html><html lang=zh-CN><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=Content-Security-Policy content="script-src 'self'; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'none'"><link rel=stylesheet href=/css/style.feedcd92d05c2cf19ee7487656b358ee4805f831b7b39711851199d0a6f8934cf9ba379d02425d485c5b65ae299bdffda3770739545d595074076bf3ead284ab.css media=screen integrity="sha512-/u3NktBcLPGe50h2VrNY7kgF+DG3s5cRhRGZ0Kb4k0z5ujedAkJdSFxbZa4pm9/9o3cHOVRdWVB0B2vz6tKEqw==" crossorigin=anonymous><title>Codeforces Round #253 Tutorial</title>
+<meta name=description content=" 443A - Anton and Letters Simple and easy, solved by two lines of python code.
+ls = filter(lambda y: y, map(lambda x: x.strip(), raw_input()[1:-1].split(&#34;,&#34;))) print len(set(ls)) 443B - Kolya and Tandem Repeat Brute force. Just enumerate the beginning and the end of the substring, and check if that substring is tandem repeat.
+#include <cstdio> #include <cstdlib> #include <cstring> #include <iostream> #include <algorithm> using namespace std; #define print(x) cout << x << endl #define input(x) cin >> x string str; int k; int main() { freopen(&#34;input.txt&#34;, &#34;r&#34;, stdin); input(str >> k); for (int i = 0; i < k; i++) { str += '?'; } int len = str.length(); int ans = 0; for (int i = 0; i < len; i++) { if (str[i] == '?') { break; } for (int j = 1; i + j < len; j += 2) { int slip = (j + 1) / 2; for (int k = 0; k < slip; k++) { if (str[i + k] == str[i + k + slip] || str[i + k + slip] == '?') { /* pass */; } else { goto fail; } } ans = max(ans, j + 1); fail: /*pass*/; } } print(ans); return 0; } 442A - Borya and Hanabig Because Borya knows about the color and value of all his cards, he just need to distinguish each card from the others.
+"><link rel=canonical href=https://wizmann.top/posts/cf-253/><link rel=alternate hreflang=zh-CN href=https://wizmann.top/posts/cf-253/><link rel=alternate hreflang=x-default href=https://wizmann.top/posts/cf-253/><meta property="og:title" content="Codeforces Round #253 Tutorial"><meta property="og:description" content="
+443A - Anton and Letters
+Simple and easy, solved by two lines of python code.
+ls = filter(lambda y: y, map(lambda x: x.strip(), raw_input()[1:-1].split(&#34;,&#34;)))
+print len(set(ls))
+443B - Kolya and Tandem Repeat
+Brute force. Just enumerate the beginning and the end of the substring, and check if that substring is tandem repeat.
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <iostream>
+#include <algorithm>
+
+using namespace std;
+
+#define print(x) cout << x << endl
+#define input(x) cin >> x
+
+string str;
+int k;
+
+int main()
+{
+    freopen(&#34;input.txt&#34;, &#34;r&#34;, stdin);
+    input(str >> k);
+    for (int i = 0; i < k; i++) {
+        str += '?';
+    }
+    int len = str.length();
+
+    int ans = 0;
+    for (int i = 0; i < len; i++) {
+        if (str[i] == '?') {
+            break;
+        }
+        for (int j = 1; i + j < len; j += 2) {
+            int slip = (j + 1) / 2;
+            for (int k = 0; k < slip; k++) {
+                if (str[i + k] == str[i + k + slip] || str[i + k + slip] == '?') {
+                    /* pass */;
+                }
+                else {
+                    goto fail;
+                }
+            }
+            ans = max(ans, j + 1);
+fail:       /*pass*/;
+        }
+    }
+    print(ans);
+    return 0;
+}
+442A - Borya and Hanabig
+Because Borya knows about the color and value of all his cards, he just need to distinguish each card from the others."><meta property="og:type" content="article"><meta property="og:url" content="https://wizmann.top/posts/cf-253/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2014-06-21T19:24:37+00:00"><meta property="article:modified_time" content="2014-06-21T19:24:37+00:00"><meta property="og:site_name" content="Maerlyn's Rainbow"><meta name=twitter:card content="summary"><meta name=twitter:title content="Codeforces Round #253 Tutorial"><meta name=twitter:description content="
+443A - Anton and Letters
+Simple and easy, solved by two lines of python code.
+ls = filter(lambda y: y, map(lambda x: x.strip(), raw_input()[1:-1].split(&#34;,&#34;)))
+print len(set(ls))
+443B - Kolya and Tandem Repeat
+Brute force. Just enumerate the beginning and the end of the substring, and check if that substring is tandem repeat.
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <iostream>
+#include <algorithm>
+
+using namespace std;
+
+#define print(x) cout << x << endl
+#define input(x) cin >> x
+
+string str;
+int k;
+
+int main()
+{
+    freopen(&#34;input.txt&#34;, &#34;r&#34;, stdin);
+    input(str >> k);
+    for (int i = 0; i < k; i++) {
+        str += '?';
+    }
+    int len = str.length();
+
+    int ans = 0;
+    for (int i = 0; i < len; i++) {
+        if (str[i] == '?') {
+            break;
+        }
+        for (int j = 1; i + j < len; j += 2) {
+            int slip = (j + 1) / 2;
+            for (int k = 0; k < slip; k++) {
+                if (str[i + k] == str[i + k + slip] || str[i + k + slip] == '?') {
+                    /* pass */;
+                }
+                else {
+                    goto fail;
+                }
+            }
+            ans = max(ans, j + 1);
+fail:       /*pass*/;
+        }
+    }
+    print(ans);
+    return 0;
+}
+442A - Borya and Hanabig
+Because Borya knows about the color and value of all his cards, he just need to distinguish each card from the others."><script type=application/ld+json>{"@context":"https://schema.org","@type":"Article","headline":"Codeforces Round #253 Tutorial","datePublished":"2014-06-21T19:24:37+00:00","dateModified":"2014-06-21T19:24:37+00:00","mainEntityOfPage":"https://wizmann.top/","publisher":{"@type":"Organization","name":"Maerlyn's Rainbow"},"wordcount":720,"description":" 443A - Anton and Letters Simple and easy, solved by two lines of python code.\nls = filter(lambda y: y, map(lambda x: x.strip(), raw_input()[1:-1].split(\u0026#34;,\u0026#34;))) print len(set(ls)) 443B - Kolya and Tandem Repeat Brute force. Just enumerate the beginning and the end of the substring, and check if that substring is tandem repeat.\n#include \u0026lt;cstdio\u0026gt; #include \u0026lt;cstdlib\u0026gt; #include \u0026lt;cstring\u0026gt; #include \u0026lt;iostream\u0026gt; #include \u0026lt;algorithm\u0026gt; using namespace std; #define print(x) cout \u0026lt;\u0026lt; x \u0026lt;\u0026lt; endl #define input(x) cin \u0026gt;\u0026gt; x string str; int k; int main() { freopen(\u0026#34;input.txt\u0026#34;, \u0026#34;r\u0026#34;, stdin); input(str \u0026gt;\u0026gt; k); for (int i = 0; i \u0026lt; k; i++) { str += \u0026#39;?\u0026#39;; } int len = str.length(); int ans = 0; for (int i = 0; i \u0026lt; len; i++) { if (str[i] == \u0026#39;?\u0026#39;) { break; } for (int j = 1; i + j \u0026lt; len; j += 2) { int slip = (j + 1) / 2; for (int k = 0; k \u0026lt; slip; k++) { if (str[i + k] == str[i + k + slip] || str[i + k + slip] == \u0026#39;?\u0026#39;) { /* pass */; } else { goto fail; } } ans = max(ans, j + 1); fail: /*pass*/; } } print(ans); return 0; } 442A - Borya and Hanabig Because Borya knows about the color and value of all his cards, he just need to distinguish each card from the others.\n","keywords":null}</script></head><body class="posts single d-flex flex-column min-vh-100"><header class=main-header><nav class="navbar navbar-expand-lg"><div class=container><a class=navbar-brand href=/>Maerlyn's Rainbow
+</a><button class=navbar-toggler type=button data-bs-toggle=collapse data-bs-target=#navbarSupportedContent aria-controls=navbarSupportedContent aria-expanded=false aria-label="Toggle navigation">
+<span class=navbar-toggler-icon></span></button><div class="collapse navbar-collapse" id=navbarSupportedContent><ul class="menu-main navbar-nav me-auto mb-2 mb-lg-0"></ul></div></div></nav></header><div id=content><div class="container py-3"><hr><h2 id=443a---anton-and-letters>443A - Anton and Letters</h2><p>Simple and easy, solved by two lines of python code.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span>ls <span style=color:#f92672>=</span> filter(<span style=color:#66d9ef>lambda</span> y: y, map(<span style=color:#66d9ef>lambda</span> x: x<span style=color:#f92672>.</span>strip(), raw_input()[<span style=color:#ae81ff>1</span>:<span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>]<span style=color:#f92672>.</span>split(<span style=color:#e6db74>&#34;,&#34;</span>)))
 </span></span><span style=display:flex><span>print len(set(ls))
-</span></span></code></pre></div><h2 id=443b---kolya-and-tandem-repeat>443B - Kolya and Tandem Repeat<a hidden class=anchor aria-hidden=true href=#443b---kolya-and-tandem-repeat>#</a></h2><p>Brute force. Just enumerate the beginning and the end of the substring, and check if that substring is <strong>tandem repeat</strong>.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;cstdio&gt;</span><span style=color:#75715e>
+</span></span></code></pre></div><h2 id=443b---kolya-and-tandem-repeat>443B - Kolya and Tandem Repeat</h2><p>Brute force. Just enumerate the beginning and the end of the substring, and check if that substring is <strong>tandem repeat</strong>.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;cstdio&gt;</span><span style=color:#75715e>
 </span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;cstdlib&gt;</span><span style=color:#75715e>
 </span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;cstring&gt;</span><span style=color:#75715e>
 </span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;iostream&gt;</span><span style=color:#75715e>
@@ -45,7 +157,7 @@
 </span></span><span style=display:flex><span>    print(ans);
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> <span style=color:#ae81ff>0</span>;
 </span></span><span style=display:flex><span>}
-</span></span></code></pre></div><h2 id=442a---borya-and-hanabig>442A - Borya and Hanabig<a hidden class=anchor aria-hidden=true href=#442a---borya-and-hanabig>#</a></h2><p>Because Borya knows about the color and value of all his cards, he just need to distinguish each card from the others.</p><p>Distinguish one card from all others seems difficult, but distinguish one card from <em>ONE</em> other card is simple enough. So if we can tell the difference between one card and any other, it can be determined from all pairs which contain this card. At last, if all pairs of cards can be distinguished, we can claim that we can distinguish all cards.</p><p>It&rsquo;s easy to find out that we have 10 different kind of hints in total(5 colors and 5 values) and 1024 different combination of all that hints(1 &#171; 10). As a result, we can enumerate all combinations, and try to indicate whether this batch of hints can distinguish all these cards.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;cstdio&gt;</span><span style=color:#75715e>
+</span></span></code></pre></div><h2 id=442a---borya-and-hanabig>442A - Borya and Hanabig</h2><p>Because Borya knows about the color and value of all his cards, he just need to distinguish each card from the others.</p><p>Distinguish one card from all others seems difficult, but distinguish one card from <em>ONE</em> other card is simple enough. So if we can tell the difference between one card and any other, it can be determined from all pairs which contain this card. At last, if all pairs of cards can be distinguished, we can claim that we can distinguish all cards.</p><p>It&rsquo;s easy to find out that we have 10 different kind of hints in total(5 colors and 5 values) and 1024 different combination of all that hints(1 &#171; 10). As a result, we can enumerate all combinations, and try to indicate whether this batch of hints can distinguish all these cards.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;cstdio&gt;</span><span style=color:#75715e>
 </span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;cstdlib&gt;</span><span style=color:#75715e>
 </span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;cstring&gt;</span><span style=color:#75715e>
 </span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;iostream&gt;</span><span style=color:#75715e>
@@ -116,7 +228,7 @@
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> <span style=color:#ae81ff>0</span>;
 </span></span><span style=display:flex><span>}
-</span></span></code></pre></div><h2 id=442b---andrey-and-problem>442B - Andrey and Problem<a hidden class=anchor aria-hidden=true href=#442b---andrey-and-problem>#</a></h2><p>Assuming that the possibility of getting exactly one problem from some of Andrey&rsquo;s friends is <code>p1</code> and get no problem is <code>p0</code>. So, if we want to add one friend whose possibility of comming up a problem is <code>pa</code> to this very friend set, we can get <code>next_p1 = p1 * (1 - pa) + p0 * pa</code> and <code>next_p0 = p0 * (1 - pa)</code>. And it easy to indicate that a greater <code>pa</code> will lead to a greater <code>next_p1</code>.</p><p>The initial value is that <code>p0 == 1; p1 == 0</code>. And we add the friends one by one ordered by the possibilites reversely. At last, the max <code>p1</code> is the final result.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span>n <span style=color:#f92672>=</span> int(raw_input())
+</span></span></code></pre></div><h2 id=442b---andrey-and-problem>442B - Andrey and Problem</h2><p>Assuming that the possibility of getting exactly one problem from some of Andrey&rsquo;s friends is <code>p1</code> and get no problem is <code>p0</code>. So, if we want to add one friend whose possibility of comming up a problem is <code>pa</code> to this very friend set, we can get <code>next_p1 = p1 * (1 - pa) + p0 * pa</code> and <code>next_p0 = p0 * (1 - pa)</code>. And it easy to indicate that a greater <code>pa</code> will lead to a greater <code>next_p1</code>.</p><p>The initial value is that <code>p0 == 1; p1 == 0</code>. And we add the friends one by one ordered by the possibilites reversely. At last, the max <code>p1</code> is the final result.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span>n <span style=color:#f92672>=</span> int(raw_input())
 </span></span><span style=display:flex><span>ps <span style=color:#f92672>=</span> map(float, raw_input()<span style=color:#f92672>.</span>split())
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span>ps<span style=color:#f92672>.</span>sort(reverse<span style=color:#f92672>=</span><span style=color:#66d9ef>True</span>)
@@ -131,9 +243,4 @@
 </span></span><span style=display:flex><span>    ans <span style=color:#f92672>=</span> max(ans, good)
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span>print ans
-</span></span></code></pre></div></div><footer class=post-footer><ul class=post-tags><li><a href=https://wizmann.top/tags/codeforces/>Codeforces</a></li><li><a href=https://wizmann.top/tags/algorithm/>Algorithm</a></li></ul><nav class=paginav><a class=prev href=https://wizmann.top/posts/interview-problem-1-sherlock-and-queries/><span class=title>«</span><br><span>玩玩算法题1：Sherlock and Queries</span>
-</a><a class=next href=https://wizmann.top/posts/world-at-war/><span class=title>»</span><br><span>A simple problem - World at War</span></a></nav></footer><div id=disqus_thread></div><script>(function(){var e=document,t=e.createElement("script");t.src="https://wizmann.disqus.com/embed.js",t.setAttribute("data-timestamp",+new Date),(e.head||e.body).appendChild(t)})()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript></article></main><footer class=footer><span>&copy; 2025 <a href=https://wizmann.top/>Maerlyn's Rainbow</a></span> ·
-<span>Powered by
-<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
-        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
-</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>
+</span></span></code></pre></div></div></div><footer class="py-3 mt-auto bg-light"><div class="container py-1 my-1"><div class="d-flex flex-wrap justify-content-between align-items-center"><p class="col-md mb-0 text-muted"></p><ul class="nav col-md-auto justify-content-end"></ul></div></div></footer><script src=/js/main.min.e8d88c82c0438b527f1aca4115652ba1e2877bf805b75593b23ac0e3fe2b3fe95a467d1feef275355132ba061da6404b0d24d55afabc209b294b1db043be014d.js integrity="sha512-6NiMgsBDi1J/GspBFWUroeKHe/gFt1WTsjrA4/4rP+laRn0f7vJ1NVEyugYdpkBLDSTVWvq8IJspSx2wQ74BTQ==" crossorigin=anonymous defer></script></body></html>

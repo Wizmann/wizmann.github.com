@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Borg on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/borg/</link><description>Recent content in Borg on Maerlyn's Rainbow</description><generator>Hugo -- 0.146.0</generator><language>zh-CN</language><lastBuildDate>Wed, 27 Dec 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/borg/index.xml" rel="self" type="application/rss+xml"/><item><title>[tl;dr] 论文阅读：Borg - Large-scale cluster management at Google</title><link>https://wizmann.top/posts/tl-dr-borg/</link><pubDate>Wed, 27 Dec 2023 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/tl-dr-borg/</guid><description>&lt;ul>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Borg on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/borg/</link><description>Recent content in Borg on Maerlyn's Rainbow</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Wed, 27 Dec 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/borg/index.xml" rel="self" type="application/rss+xml"/><item><title>[tl;dr] 论文阅读：Borg - Large-scale cluster management at Google</title><link>https://wizmann.top/posts/tl-dr-borg/</link><pubDate>Wed, 27 Dec 2023 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/tl-dr-borg/</guid><description>&lt;ul>
 &lt;li>
 &lt;h2 id="系统概览">系统概览&lt;/h2>
 &lt;ul>
@@ -253,6 +253,6 @@
 &lt;/li>
 &lt;/ul>
 &lt;/li>
-&lt;li>&lt;a href="https://research.google/pubs/large-scale-cluster-management-at-google-with-borg/">论文&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://research.google/pubs/large-scale-cluster-management-at-google-with-borg/" target="_blank" rel="noopener">论文&lt;/a>&lt;/li>
 &lt;/ul>
 &lt;div class="alert alert-info" role="alert">本文部分内容由ChatGPT4生成&lt;/div></description></item></channel></rss>

@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>公开课 on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/%E5%85%AC%E5%BC%80%E8%AF%BE/</link><description>Recent content in 公开课 on Maerlyn's Rainbow</description><generator>Hugo -- 0.146.0</generator><language>zh-CN</language><lastBuildDate>Tue, 29 Dec 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/%E5%85%AC%E5%BC%80%E8%AF%BE/index.xml" rel="self" type="application/rss+xml"/><item><title>我到底从UW-CSE341学到了什么</title><link>https://wizmann.top/posts/uw-cse341-au20/</link><pubDate>Tue, 29 Dec 2020 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/uw-cse341-au20/</guid><description>&lt;blockquote>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>公开课 on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/%E5%85%AC%E5%BC%80%E8%AF%BE/</link><description>Recent content in 公开课 on Maerlyn's Rainbow</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Tue, 29 Dec 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/%E5%85%AC%E5%BC%80%E8%AF%BE/index.xml" rel="self" type="application/rss+xml"/><item><title>我到底从UW-CSE341学到了什么</title><link>https://wizmann.top/posts/uw-cse341-au20/</link><pubDate>Tue, 29 Dec 2020 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/uw-cse341-au20/</guid><description>&lt;blockquote>
 &lt;p>TL;DR 什么也没学到&lt;/p>&lt;/blockquote>
-&lt;p>&lt;a href="https://sites.google.com/cs.washington.edu/cse341au20/home">课程首页&lt;/a>&lt;/p>
-&lt;p>Coursera-课程-&lt;a href="https://www.coursera.org/learn/programming-languages">A&lt;/a>, &lt;a href="https://www.coursera.org/learn/programming-languages-part-b">B&lt;/a>, &lt;a href="https://www.coursera.org/learn/programming-languages-part-c">C&lt;/a>&lt;/p>
+&lt;p>&lt;a href="https://sites.google.com/cs.washington.edu/cse341au20/home" target="_blank" rel="noopener">课程首页&lt;/a>&lt;/p>
+&lt;p>Coursera-课程-&lt;a href="https://www.coursera.org/learn/programming-languages" target="_blank" rel="noopener">A&lt;/a>, &lt;a href="https://www.coursera.org/learn/programming-languages-part-b" target="_blank" rel="noopener">B&lt;/a>, &lt;a href="https://www.coursera.org/learn/programming-languages-part-c" target="_blank" rel="noopener">C&lt;/a>&lt;/p>
 &lt;p>介绍当中说，本课程主要内容是FP，并且顺道讨论一下程序语言的设计。&lt;/p>
 &lt;p>UW官方上面的课程只有Slides和assignments，video不提供。Coursera有video，但是版本比较老，是2013年的。下面的讨论都是基于au20的新版本。&lt;/p></description></item><item><title>機器學習基石 - PLA算法初步</title><link>https://wizmann.top/posts/ml-foundations-pla/</link><pubDate>Fri, 29 Nov 2013 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/ml-foundations-pla/</guid><description>&lt;h2 id="什么是pla算法">什么是PLA算法&lt;/h2>
 &lt;p>PLA = Perceptrons Learning Alogrithm&lt;/p>
@@ -12,8 +12,8 @@
 &lt;hr>
 &lt;h3 id="bitand--bitor">bitAnd &amp;amp; bitOr&lt;/h3>
 &lt;p>德摩根定理的应用&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">/*
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * bitAnd - x&amp;amp;y using only ~ and |
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">/* 
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * bitAnd - x&amp;amp;y using only ~ and | 
 &lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Example: bitAnd(6, 5) = 4
 &lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Legal ops: ~ |
 &lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Max ops: 8
@@ -21,8 +21,8 @@
 &lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> */&lt;/span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">bitAnd&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> x, &lt;span style="color:#66d9ef">int&lt;/span> y) {
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#f92672">~&lt;/span>(&lt;span style="color:#f92672">~&lt;/span>x &lt;span style="color:#f92672">|&lt;/span> &lt;span style="color:#f92672">~&lt;/span>y);
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">/*
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * bitOr - x|y using only ~ and &amp;amp;
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">/* 
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * bitOr - x|y using only ~ and &amp;amp; 
 &lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Example: bitOr(6, 5) = 7
 &lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Legal ops: ~ &amp;amp;
 &lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Max ops: 8
@@ -33,5 +33,5 @@
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="istmax">isTmax&lt;/h3>
 &lt;p>因为&lt;/p></description></item><item><title>CSE 351 - Hardware/Software Interface</title><link>https://wizmann.top/posts/washington-university-cse351/</link><pubDate>Tue, 26 Nov 2013 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/washington-university-cse351/</guid><description>&lt;p>开一门公开课，Washington University的Hardware/Software Interface。&lt;/p>
-&lt;p>传说是很不错的计算机科学公开课。使用&lt;a href="http://book.douban.com/subject/5333562/">深入理解计算机系统&lt;/a>做教材，正好是我要读的书，所以顺便听听课。&lt;/p>
-&lt;p>豆瓣上有人写了&lt;a href="http://book.douban.com/review/6093947/">推荐&lt;/a>，观点是这课虽然不错，但是比较浅。根据我现在的理解来说，确实比较浅，如果有不错的高级语言编程基础（C/C++/Java/Pascal等，脚本就算了），很多东西可以速推。&lt;/p></description></item></channel></rss>
+&lt;p>传说是很不错的计算机科学公开课。使用&lt;a href="http://book.douban.com/subject/5333562/" target="_blank" rel="noopener">深入理解计算机系统&lt;/a>做教材，正好是我要读的书，所以顺便听听课。&lt;/p>
+&lt;p>豆瓣上有人写了&lt;a href="http://book.douban.com/review/6093947/" target="_blank" rel="noopener">推荐&lt;/a>，观点是这课虽然不错，但是比较浅。根据我现在的理解来说，确实比较浅，如果有不错的高级语言编程基础（C/C++/Java/Pascal等，脚本就算了），很多东西可以速推。&lt;/p></description></item></channel></rss>
