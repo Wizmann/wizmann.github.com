@@ -54,7 +54,7 @@ MARKDOWN = {
     'extension_configs': {
         'markdown.extensions.codehilite': {'css_class': 'highlight'},
         'markdown.extensions.extra': {},
-        'markdown.extensions.toc': {'permalink': True},
+        'markdown.extensions.toc': {'permalink': False},
         'markdown.extensions.nl2br': {},          # GFM-like: newlines become <br>
         'markdown.extensions.sane_lists': {},     # GFM-like: list parsing
         'markdown.extensions.smarty': {},         # Typographic substitutions
