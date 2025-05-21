@@ -1,4 +1,5 @@
 pelican[markdown]
 pelican-render-math
-ghp-import
 beautifulsoup4
+ghp-import
+pygments
