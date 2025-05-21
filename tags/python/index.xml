@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Python on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/python/</link><description>Recent content in Python on Maerlyn's Rainbow</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Sun, 27 Jul 2014 14:23:10 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/python/index.xml" rel="self" type="application/rss+xml"/><item><title>简明Python魔法 - 2</title><link>https://wizmann.top/posts/python-magic-2/</link><pubDate>Sun, 27 Jul 2014 14:23:10 +0000</pubDate><guid>https://wizmann.top/posts/python-magic-2/</guid><description>&lt;h2 id="再说描述符---descriptor">再说描述符 - Descriptor&lt;/h2>
-&lt;h3 id="最简单的描述符">最简单的描述符&lt;/h3>
-&lt;p>覆写类的&lt;code>__get__&lt;/code>和&lt;code>__setter__&lt;/code>函数就可以实现一个简单的描述符。对某个类型实例的读写进行额外的控制。&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Python on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/python/</link><description>Recent content in Python on Maerlyn's Rainbow</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Sun, 27 Jul 2014 14:23:10 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/python/index.xml" rel="self" type="application/rss+xml"/><item><title>简明Python魔法 - 2</title><link>https://wizmann.top/posts/python-magic-2/</link><pubDate>Sun, 27 Jul 2014 14:23:10 +0000</pubDate><guid>https://wizmann.top/posts/python-magic-2/</guid><description>&lt;h2 id="再说描述符---descriptor">再说描述符 - Descriptor &lt;a href="#%e5%86%8d%e8%af%b4%e6%8f%8f%e8%bf%b0%e7%ac%a6---descriptor" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="最简单的描述符">最简单的描述符 &lt;a href="#%e6%9c%80%e7%ae%80%e5%8d%95%e7%9a%84%e6%8f%8f%e8%bf%b0%e7%ac%a6" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>覆写类的&lt;code>__get__&lt;/code>和&lt;code>__setter__&lt;/code>函数就可以实现一个简单的描述符。对某个类型实例的读写进行额外的控制。&lt;/p>
 &lt;pre tabindex="0">&lt;code class="language-pycon" data-lang="pycon">&amp;gt;&amp;gt;&amp;gt; import datetime
 &amp;gt;&amp;gt;&amp;gt; class CurrentDate(object):
 ... def __get__(self, instance, owner):
@@ -16,10 +14,9 @@
 datetime.date(2008, 11, 24)
 &amp;gt;&amp;gt;&amp;gt; e.date = datetime.date.today()
 Traceback (most recent call last):
- ...
+...
 NotImplementedError: Can&amp;#39;t change the current date.
-&lt;/code>&lt;/pre>&lt;h3 id="类属性描述符">类属性描述符&lt;/h3>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">MyClass&lt;/span> (object):
+&lt;/code>&lt;/pre>&lt;h3 id="类属性描述符">类属性描述符 &lt;a href="#%e7%b1%bb%e5%b1%9e%e6%80%a7%e6%8f%8f%e8%bf%b0%e7%ac%a6" class="anchor">🔗&lt;/a>&lt;/h3>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">MyClass&lt;/span> (object):
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> __var &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">None&lt;/span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">_set_var&lt;/span> (self, value):
@@ -34,9 +31,288 @@ NotImplementedError: Can&amp;#39;t change the current date.
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>b &lt;span style="color:#f92672">=&lt;/span> MyClass ()
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>a&lt;span style="color:#f92672">.&lt;/span>var &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;foo&amp;#34;&lt;/span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>print b&lt;span style="color:#f92672">.&lt;/span>var
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>我们可以使用上面的方法，包装一个类属性描述符。对类属性进行操作。&lt;/p></description></item><item><title>简明Python魔法 - 1</title><link>https://wizmann.top/posts/python-magic-1/</link><pubDate>Sat, 26 Jul 2014 22:23:34 +0000</pubDate><guid>https://wizmann.top/posts/python-magic-1/</guid><description>&lt;h2 id="python中类的实现">Python中类的实现&lt;/h2>
-&lt;p>在Python的Web框架Django中，Python类的构造特性实现了它大部分的核心功能。&lt;/p>
-&lt;p>当Python解释器遇到类声明时，会创建一个新的namespace ，并执行其内的所有代码，并将变量注册到这个namespace中。&lt;/p></description></item><item><title>使用pip和virtuanenv</title><link>https://wizmann.top/posts/using-pip-and-virtualenv/</link><pubDate>Mon, 25 Nov 2013 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/using-pip-and-virtualenv/</guid><description>&lt;p>让我们从一个无聊的小段子开始。&lt;/p>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>我们可以使用上面的方法，包装一个类属性描述符。对类属性进行操作。&lt;/p>
+&lt;h3 id="对资源进行封装">对资源进行封装 &lt;a href="#%e5%af%b9%e8%b5%84%e6%ba%90%e8%bf%9b%e8%a1%8c%e5%b0%81%e8%a3%85" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>在Django中，可以使用pickle在数据库中存储一些序列化信息，如列表、字典等（这些字段都不是原子的）。&lt;/p>
+&lt;p>我们可以选择继承&lt;code>models.TextField&lt;/code>来实现我们的&lt;code>PickleField&lt;/code>。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">PickleField&lt;/span>(models&lt;span style="color:#f92672">.&lt;/span>TextField):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">pickle&lt;/span>(self, obj):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> pickle&lt;span style="color:#f92672">.&lt;/span>dumps(obj)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">unpickle&lt;/span>(self, data):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> pickle&lt;span style="color:#f92672">.&lt;/span>loads(str(data))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">get_attname&lt;/span>(self):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#e6db74">&amp;#39;&lt;/span>&lt;span style="color:#e6db74">%s&lt;/span>&lt;span style="color:#e6db74">_pickled&amp;#39;&lt;/span> &lt;span style="color:#f92672">%&lt;/span> self&lt;span style="color:#f92672">.&lt;/span>name
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">get_db_prep_lookup&lt;/span>(self, lookup_type, value):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#e6db74">&amp;#39;&amp;#39;&amp;#39;
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#e6db74"> 禁止使用pickled字段进行查询
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#e6db74"> &amp;#39;&amp;#39;&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">raise&lt;/span> &lt;span style="color:#a6e22e">ValueError&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;Con&amp;#39;t make comparisons against pickled data.&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>以上实现的是最简单的PickleField，用户在使用这个类型的字段时，需要手动对数据进行pickle/unpickle。&lt;/p>
+&lt;p>我们使用property，实现一个PickleDescriptor描述符：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">PickleDescriptor&lt;/span>(property):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> __init__(self, field):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> self&lt;span style="color:#f92672">.&lt;/span>field &lt;span style="color:#f92672">=&lt;/span> field
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> 
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> __get__(self, instance, owner):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> instance &lt;span style="color:#f92672">is&lt;/span> &lt;span style="color:#66d9ef">None&lt;/span>:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> self
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> 
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> self&lt;span style="color:#f92672">.&lt;/span>field&lt;span style="color:#f92672">.&lt;/span>name &lt;span style="color:#f92672">not&lt;/span> &lt;span style="color:#f92672">in&lt;/span> instance&lt;span style="color:#f92672">.&lt;/span>__dict__:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># The object hasn&amp;#39;t been created yet, so unpickle the data&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> raw_data &lt;span style="color:#f92672">=&lt;/span> getattr(instance, self&lt;span style="color:#f92672">.&lt;/span>field&lt;span style="color:#f92672">.&lt;/span>attname)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> instance&lt;span style="color:#f92672">.&lt;/span>__dict__[self&lt;span style="color:#f92672">.&lt;/span>field&lt;span style="color:#f92672">.&lt;/span>name] &lt;span style="color:#f92672">=&lt;/span> self&lt;span style="color:#f92672">.&lt;/span>field&lt;span style="color:#f92672">.&lt;/span>unpickle(raw_data)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> 
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> instance&lt;span style="color:#f92672">.&lt;/span>__dict__[self&lt;span style="color:#f92672">.&lt;/span>field&lt;span style="color:#f92672">.&lt;/span>name]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> 
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> __set__(self, instance, value):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> instance&lt;span style="color:#f92672">.&lt;/span>__dict__[self&lt;span style="color:#f92672">.&lt;/span>field&lt;span style="color:#f92672">.&lt;/span>name] &lt;span style="color:#f92672">=&lt;/span> value
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> setattr(instance, self&lt;span style="color:#f92672">.&lt;/span>field&lt;span style="color:#f92672">.&lt;/span>attname, self&lt;span style="color:#f92672">.&lt;/span>field&lt;span style="color:#f92672">.&lt;/span>pickle(value))
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这个描述符的作用是封装PickleField的get/set操作。对于get，当字段未被反序列化时，调用unpickled，其它时候直接读取字段。对于set，则是同时更新字段以及pickled字段。实现了一个类似cache的机制。&lt;/p>
+&lt;p>最后，我们再为&lt;code>PickleField&lt;/code>加上一个&lt;code>contribute_to_class&lt;/code>回调。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">contribute_to_class&lt;/span>(self, cls, name):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> super(PickleField, self)&lt;span style="color:#f92672">.&lt;/span>contribute_to_class(cls, name)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> setattr(cls, name, PickleDescriptor(self))
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>当这个字段被加入数据模型的时候，自动把对字段的字义替换为该描述符。（太漂亮！）&lt;/p>
+&lt;h2 id="后记">后记 &lt;a href="#%e5%90%8e%e8%ae%b0" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>在做毕设的时候，提前读了_Pro Django_一书，真心让我少走了不少弯路。在导师最后一天改需求的时候，还可以从容不迫的见招拆招。这真的得感谢Python超强的弹性，以及Django完美的设计哲学。&lt;/p>
+&lt;p>_Pro Django_的部分到这里基本就结束了，此书后面的章节大都是Django相关的，对于Python的讲解被淡化了。&lt;/p>
+&lt;p>本系列后面的文章还是会从声明式编程以及类DSL编程的角度出发，对于Python的魔法进行学习。&lt;/p>
+&lt;h2 id="参考">参考 &lt;a href="#%e5%8f%82%e8%80%83" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="http://book.douban.com/subject/3086812/">Pro Django&lt;/a>&lt;/li>
+&lt;/ul></description></item><item><title>简明Python魔法 - 1</title><link>https://wizmann.top/posts/python-magic-1/</link><pubDate>Sat, 26 Jul 2014 22:23:34 +0000</pubDate><guid>https://wizmann.top/posts/python-magic-1/</guid><description>&lt;h2 id="python中类的实现">Python中类的实现 &lt;a href="#python%e4%b8%ad%e7%b1%bb%e7%9a%84%e5%ae%9e%e7%8e%b0" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>在Python的Web框架Django中，Python类的构造特性实现了它大部分的核心功能。&lt;/p>
+&lt;p>当Python解释器遇到类声明时，会创建一个新的namespace ，并执行其内的所有代码，并将变量注册到这个namespace中。&lt;/p>
+&lt;p>举例：&lt;/p>
+&lt;pre tabindex="0">&lt;code class="language-pycon" data-lang="pycon">&amp;gt;&amp;gt;&amp;gt; class Foo(object):
+... print &amp;#39;Loading...&amp;#39;
+... spam = &amp;#39;eggs&amp;#39;
+... print &amp;#39;Done!&amp;#39;
+...
+Loading...
+Done!
+&amp;gt;&amp;gt;&amp;gt; f = Foo()
+&amp;gt;&amp;gt;&amp;gt; f.spam
+&amp;#39;eggs&amp;#39;
+&lt;/code>&lt;/pre>&lt;h3 id="动态的实现一个类">动态的实现一个类 &lt;a href="#%e5%8a%a8%e6%80%81%e7%9a%84%e5%ae%9e%e7%8e%b0%e4%b8%80%e4%b8%aa%e7%b1%bb" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>使用type方法可以动态的代码中实现一个类，接受三个参数“类名”、“基类”、“属性”。&lt;/p>
+&lt;pre tabindex="0">&lt;code class="language-pycon" data-lang="pycon">&amp;gt;&amp;gt;&amp;gt; Bar = type(&amp;#39;Bar&amp;#39;, (object,), {&amp;#39;spam&amp;#39;: &amp;#39;eggs&amp;#39;})
+&amp;gt;&amp;gt;&amp;gt; Bar.spam
+&amp;#39;eggs&amp;#39;
+&lt;/code>&lt;/pre>&lt;h3 id="超类改变一切">超类改变一切 &lt;a href="#%e8%b6%85%e7%b1%bb%e6%94%b9%e5%8f%98%e4%b8%80%e5%88%87" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>“metaprogramming”是指一种在程序运行时创建或改变代码的编程手段。&lt;code>type&lt;/code>是一个metaclass，一个创建其它类的metaclass。&lt;/p>
+&lt;p>我们可以替换掉原生的&lt;code>type&lt;/code>，使用我们自己的版本，从而控制创建类的过程。&lt;/p>
+&lt;pre tabindex="0">&lt;code class="language-pycon" data-lang="pycon">&amp;gt;&amp;gt;&amp;gt; class MetaClass(type):
+... def __init__(cls, name, bases, attrs):
+... print(&amp;#39;Defining %s&amp;#39; % cls)
+... print(&amp;#39;Name: %s&amp;#39; % name)
+... print(&amp;#39;Bases: %s&amp;#39; % (bases,))
+... print(&amp;#39;Attributes:&amp;#39;)
+... for (name, value) in attrs.items():
+... print(&amp;#39; %s: %r&amp;#39; % (name, value))
+...
+&amp;gt;&amp;gt;&amp;gt; class RealClass(object, metaclass=MetaClass):
+... spam = &amp;#39;eggs&amp;#39;
+...
+Defining &amp;lt;class &amp;#39;__main__.RealClass&amp;#39;&amp;gt;
+Name: RealClass
+Bases: (&amp;lt;class &amp;#39;object&amp;#39;&amp;gt;,)
+Attributes:
+spam: &amp;#39;eggs&amp;#39;
+__module__: &amp;#39;__main__&amp;#39;
+__qualname__: &amp;#39;RealClass&amp;#39;
+&amp;gt;&amp;gt;&amp;gt; RealClass
+&amp;lt;class &amp;#39;__main__.RealClass&amp;#39;&amp;gt;
+&lt;/code>&lt;/pre>&lt;p>每当一个新的类被创建时，都会触发metaclass的行为。&lt;/p>
+&lt;h3 id="基类与超类">基类与超类 &lt;a href="#%e5%9f%ba%e7%b1%bb%e4%b8%8e%e8%b6%85%e7%b1%bb" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>基类与超类一起使用可以实现类方法的复用，以及对于类创建的跟踪。&lt;/p>
+&lt;pre tabindex="0">&lt;code class="language-pycon" data-lang="pycon"> &amp;gt;&amp;gt;&amp;gt; class SubClass(RealClass): # Notice there&amp;#39;s no metaclass here.
+... pass
+...
+Defining &amp;lt;class &amp;#39;__main__.SubClass&amp;#39;&amp;gt;
+Name: SubClass
+Bases: (&amp;lt;class &amp;#39;__main__.RealClass&amp;#39;&amp;gt;,)
+Attributes:
+__module__: &amp;#39;__main__&amp;#39;
+&lt;/code>&lt;/pre>&lt;p>在这里，超类对于&lt;code>SubClass&lt;/code>是完全透明的，&lt;code>SubClass&lt;/code>只需要完成自己的工作，Python会在后台料理好一切。&lt;/p>
+&lt;h3 id="声明式语法">声明式语法 &lt;a href="#%e5%a3%b0%e6%98%8e%e5%bc%8f%e8%af%ad%e6%b3%95" class="anchor">🔗&lt;/a>&lt;/h3>&lt;blockquote>
+&lt;p>This syntax (Declarative Syntax) is designed to make minimize &amp;ldquo;boilerplate&amp;rdquo; repetitive syntax and provide elegant, readable code.&lt;/p>&lt;/blockquote>
+&lt;p>声明式语法是一种把数据和逻辑分离的编程方式，面对经常变动的但是规律明显的需求，声明式编程可以解救你于水火之中。:-P&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">Contact&lt;/span>(models&lt;span style="color:#f92672">.&lt;/span>Model):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#e6db74">&amp;#34;&amp;#34;&amp;#34;
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#e6db74"> Contact information provided when sending messages to the owner of the site.
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#e6db74"> &amp;#34;&amp;#34;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> name &lt;span style="color:#f92672">=&lt;/span> models&lt;span style="color:#f92672">.&lt;/span>CharField(max_length&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#ae81ff">255&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> email &lt;span style="color:#f92672">=&lt;/span> models&lt;span style="color:#f92672">.&lt;/span>EmailField()
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>上面是Django的模型声明语法，简洁、明了、大气！&lt;/p>
+&lt;h2 id="让我们一起做鸭">让我们一起做鸭 &lt;a href="#%e8%ae%a9%e6%88%91%e4%bb%ac%e4%b8%80%e8%b5%b7%e5%81%9a%e9%b8%ad" class="anchor">🔗&lt;/a>&lt;/h2>&lt;blockquote>
+&lt;p>Shakespeare: &amp;ldquo;If it walks like a duck and talks like a duck, it&amp;rsquo;s a Duck.&amp;rdquo;&lt;/p>&lt;/blockquote>
+&lt;h3 id="callables">Callables &lt;a href="#callables" class="anchor">🔗&lt;/a>&lt;/h3>&lt;h4 id="__call__">__call__ &lt;a href="#__call__" class="anchor">🔗&lt;/a>&lt;/h4>&lt;pre tabindex="0">&lt;code class="language-pycon" data-lang="pycon">&amp;gt;&amp;gt;&amp;gt; class Multiplier(object):
+... def __init__(self, factor):
+... self.factor = factor
+... def __call__(self, value):
+... return value * self.factor
+...
+&amp;gt;&amp;gt;&amp;gt; times2 = Multiplier(2)
+&amp;gt;&amp;gt;&amp;gt; times2(5)
+10
+&amp;gt;&amp;gt;&amp;gt; times2(10)
+20
+&amp;gt;&amp;gt;&amp;gt; times3 = Multiplier(3)
+&amp;gt;&amp;gt;&amp;gt; times3(10)
+30
+&lt;/code>&lt;/pre>&lt;p>我们可以使用callable函数来构造”有状态的函数“，以及其它可以想的到的一些黑魔法。&lt;/p>
+&lt;h3 id="dictionaries">Dictionaries &lt;a href="#dictionaries" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>使用&lt;code>__contains&lt;/code>、&lt;code>__getitem__&lt;/code>和&lt;code>__setitem__&lt;/code>内建函数，可以让一个类实例模拟字典的行为。&lt;/p>
+&lt;h3 id="file">File &lt;a href="#file" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>实现&lt;code>read&lt;/code>、&lt;code>write&lt;/code>和&lt;code>close&lt;/code>，你们就可以把我当文件来用啦。&lt;/p>
+&lt;h3 id="iterable">Iterable &lt;a href="#iterable" class="anchor">🔗&lt;/a>&lt;/h3>&lt;pre tabindex="0">&lt;code class="language-pycon" data-lang="pycon">&amp;gt;&amp;gt;&amp;gt; class Fibonacci(object):
+... def __init__(self, count):
+... self.count = count
+... def __iter__(self):
+... a, b = 0, 1
+... for x in range(self.count):
+... if x &amp;lt; 2:
+... yield x
+... else:
+... c = a + b
+... yield c
+... a, b = b, c
+...
+&amp;gt;&amp;gt;&amp;gt; for x in Fibonacci(5):
+... print(x)
+...
+0
+1
+1
+2
+3
+&lt;/code>&lt;/pre>&lt;h2 id="偏函数">偏函数 &lt;a href="#%e5%81%8f%e5%87%bd%e6%95%b0" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>偏函数和函数式编程中的”柯里化“一样，都是通过填充函数中的一部分参数，从而实现一个新的函数。&lt;/p>
+&lt;pre tabindex="0">&lt;code class="language-pycon" data-lang="pycon">&amp;gt;&amp;gt;&amp;gt; import functools
+&amp;gt;&amp;gt;&amp;gt; def add(a, b):
+... return a + b
+...
+&amp;gt;&amp;gt;&amp;gt; add(4, 2)
+6
+&amp;gt;&amp;gt;&amp;gt; plus3 = functools.partial(add, 3)
+&amp;gt;&amp;gt;&amp;gt; plus5 = functools.partial(add, 5)
+&amp;gt;&amp;gt;&amp;gt; plus3(4)
+7
+&amp;gt;&amp;gt;&amp;gt; plus3(7)
+10
+&amp;gt;&amp;gt;&amp;gt; plus5(10)
+15
+&lt;/code>&lt;/pre>&lt;h2 id="描述符">描述符 &lt;a href="#%e6%8f%8f%e8%bf%b0%e7%ac%a6" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>描述符用来存取类属性，并且可以提供如下的便利：&lt;/p>
+&lt;ul>
+&lt;li>从复杂的对象中取出数据，例如数据库或是配置文件&lt;/li>
+&lt;li>把一个简单的值传入一个复杂对象中&lt;/li>
+&lt;li>对存取的值进行自定义操作&lt;/li>
+&lt;li>把值转化为易于写入数据库中的类型&lt;/li>
+&lt;/ul>
+&lt;pre tabindex="0">&lt;code class="language-pycon" data-lang="pycon">&amp;gt;&amp;gt;&amp;gt; import datetime
+&amp;gt;&amp;gt;&amp;gt; class CurrentDate(object):
+... def __get__(self, instance, owner):
+... return datetime.date.today()
+... def __set__(self, instance, value):
+... raise NotImplementedError(&amp;#34;Can&amp;#39;t change the current date.&amp;#34;)
+...
+&amp;gt;&amp;gt;&amp;gt; class Example(object):
+... date = CurrentDate()
+...
+&amp;gt;&amp;gt;&amp;gt; e = Example()
+&amp;gt;&amp;gt;&amp;gt; e.date
+datetime.date(2008, 11, 24)
+&amp;gt;&amp;gt;&amp;gt; e.date = datetime.date.today()
+Traceback (most recent call last):
+...
+NotImplementedError: Can&amp;#39;t change the current date.
+&lt;/code>&lt;/pre>&lt;h3 id="实现">实现 &lt;a href="#%e5%ae%9e%e7%8e%b0" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>覆写类的&lt;code>__get__&lt;/code>和&lt;code>__set__&lt;/code>函数就可以实现类的描述符。&lt;/p>
+&lt;h2 id="实践一个简单的unittest框架">实践：一个简单的UnitTest框架 &lt;a href="#%e5%ae%9e%e8%b7%b5%e4%b8%80%e4%b8%aa%e7%ae%80%e5%8d%95%e7%9a%84unittest%e6%a1%86%e6%9e%b6" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="设计思路">设计思路 &lt;a href="#%e8%ae%be%e8%ae%a1%e6%80%9d%e8%b7%af" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>对于每一个Case，只需要声明一个类。在类中声明要测试的函数以及测试的Input和预期Output。之后框架可以运行所有测试用例，并输出结果。&lt;/p>
+&lt;h3 id="接口设计">接口设计 &lt;a href="#%e6%8e%a5%e5%8f%a3%e8%ae%be%e8%ae%a1" class="anchor">🔗&lt;/a>&lt;/h3>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">import&lt;/span> PyUnitTest
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">from&lt;/span> PyUnitTest &lt;span style="color:#f92672">import&lt;/span> BaseCase
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">func1&lt;/span>(a, b):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> a &lt;span style="color:#f92672">+&lt;/span> b
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">func2&lt;/span>(a, b):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> a &lt;span style="color:#f92672">*&lt;/span> b
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">TestFunc1&lt;/span>(BaseCase):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> FUNC &lt;span style="color:#f92672">=&lt;/span> func1
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> INPUT &lt;span style="color:#f92672">=&lt;/span> [{&lt;span style="color:#e6db74">&amp;#39;a&amp;#39;&lt;/span>: &lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;b&amp;#39;&lt;/span>: &lt;span style="color:#ae81ff">2&lt;/span>},
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {&lt;span style="color:#e6db74">&amp;#39;a&amp;#39;&lt;/span>: &lt;span style="color:#ae81ff">2&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;b&amp;#39;&lt;/span>: &lt;span style="color:#ae81ff">3&lt;/span>},
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {&lt;span style="color:#e6db74">&amp;#39;a&amp;#39;&lt;/span>: &lt;span style="color:#ae81ff">3&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;b&amp;#39;&lt;/span>: &lt;span style="color:#ae81ff">4&lt;/span>}]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> OUTPUT &lt;span style="color:#f92672">=&lt;/span> [&lt;span style="color:#ae81ff">3&lt;/span>, &lt;span style="color:#ae81ff">5&lt;/span>, &lt;span style="color:#ae81ff">8&lt;/span>]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">TestFunc2&lt;/span>(BaseCase):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> FUNC &lt;span style="color:#f92672">=&lt;/span> func2
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> INPUT &lt;span style="color:#f92672">=&lt;/span> [{&lt;span style="color:#e6db74">&amp;#39;a&amp;#39;&lt;/span>: &lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;b&amp;#39;&lt;/span>: &lt;span style="color:#ae81ff">2&lt;/span>},
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {&lt;span style="color:#e6db74">&amp;#39;a&amp;#39;&lt;/span>: &lt;span style="color:#ae81ff">2&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;b&amp;#39;&lt;/span>: &lt;span style="color:#ae81ff">3&lt;/span>},
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {&lt;span style="color:#e6db74">&amp;#39;a&amp;#39;&lt;/span>: &lt;span style="color:#ae81ff">3&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;b&amp;#39;&lt;/span>: &lt;span style="color:#ae81ff">4&lt;/span>}]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> OUTPUT &lt;span style="color:#f92672">=&lt;/span> [&lt;span style="color:#ae81ff">2&lt;/span>, &lt;span style="color:#ae81ff">8&lt;/span>, &lt;span style="color:#ae81ff">12&lt;/span>]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">if&lt;/span> __name__ &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#e6db74">&amp;#39;__main__&amp;#39;&lt;/span>:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> PyUnitTest&lt;span style="color:#f92672">.&lt;/span>run_all_test()
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>在Case中，使用&lt;code>FUNC&lt;/code>标明函数，使用&lt;code>INPUT&lt;/code>和&lt;code>OUTPUT&lt;/code>标明预期输入输出。&lt;/p>
+&lt;p>使用&lt;code>PyUnitTest.run_all_test()&lt;/code>自动运行所有用例。&lt;/p>
+&lt;h3 id="casecontainer">CaseContainer &lt;a href="#casecontainer" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>&lt;code>Case&lt;/code>类获得&lt;code>Case&lt;/code>名，待测试函数名，输入和输出数据。&lt;/p>
+&lt;p>并且实现&lt;code>run()&lt;/code>方法，运行测试用例。&lt;/p>
+&lt;p>使用&lt;code>assert&lt;/code>方法保证用例的正确性。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">Case&lt;/span>(object):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> __init__(self, name, attrs):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> self&lt;span style="color:#f92672">.&lt;/span>name &lt;span style="color:#f92672">=&lt;/span> name
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> self&lt;span style="color:#f92672">.&lt;/span>in_data &lt;span style="color:#f92672">=&lt;/span> attrs&lt;span style="color:#f92672">.&lt;/span>get(&lt;span style="color:#e6db74">&amp;#39;INPUT&amp;#39;&lt;/span>, &lt;span style="color:#66d9ef">None&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> self&lt;span style="color:#f92672">.&lt;/span>out_data &lt;span style="color:#f92672">=&lt;/span> attrs&lt;span style="color:#f92672">.&lt;/span>get(&lt;span style="color:#e6db74">&amp;#39;OUTPUT&amp;#39;&lt;/span>, &lt;span style="color:#66d9ef">None&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> self&lt;span style="color:#f92672">.&lt;/span>func &lt;span style="color:#f92672">=&lt;/span> attrs&lt;span style="color:#f92672">.&lt;/span>get(&lt;span style="color:#e6db74">&amp;#39;FUNC&amp;#39;&lt;/span>, &lt;span style="color:#66d9ef">None&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">assert&lt;/span>(self&lt;span style="color:#f92672">.&lt;/span>in_data)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">assert&lt;/span>(self&lt;span style="color:#f92672">.&lt;/span>out_data)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">assert&lt;/span>(self&lt;span style="color:#f92672">.&lt;/span>func)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">assert&lt;/span>(len(self&lt;span style="color:#f92672">.&lt;/span>in_data) &lt;span style="color:#f92672">==&lt;/span> len(self&lt;span style="color:#f92672">.&lt;/span>out_data))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">run&lt;/span>(self):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print &lt;span style="color:#e6db74">&amp;#39;running case: &lt;/span>&lt;span style="color:#e6db74">%s&lt;/span>&lt;span style="color:#e6db74"> ...&amp;#39;&lt;/span> &lt;span style="color:#f92672">%&lt;/span> self&lt;span style="color:#f92672">.&lt;/span>name
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> data_pair &lt;span style="color:#f92672">=&lt;/span> zip(self&lt;span style="color:#f92672">.&lt;/span>in_data, self&lt;span style="color:#f92672">.&lt;/span>out_data)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> cnt &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ok &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> data_in, data_out &lt;span style="color:#f92672">in&lt;/span> data_pair:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> res &lt;span style="color:#f92672">=&lt;/span> self&lt;span style="color:#f92672">.&lt;/span>func(&lt;span style="color:#f92672">**&lt;/span>data_in)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> cnt &lt;span style="color:#f92672">+=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> data_out &lt;span style="color:#f92672">==&lt;/span> res:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ok &lt;span style="color:#f92672">+=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print &lt;span style="color:#e6db74">&amp;#39;[PASS &lt;/span>&lt;span style="color:#e6db74">%d&lt;/span>&lt;span style="color:#e6db74">]...&amp;#39;&lt;/span> &lt;span style="color:#f92672">%&lt;/span> cnt
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">else&lt;/span>:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print &lt;span style="color:#e6db74">&amp;#39;[FAILED &lt;/span>&lt;span style="color:#e6db74">%d&lt;/span>&lt;span style="color:#e6db74">]...&amp;#39;&lt;/span> &lt;span style="color:#f92672">%&lt;/span> cnt
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print &lt;span style="color:#e6db74">&amp;#39;INPUT:&amp;#39;&lt;/span>, repr(data_in)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print &lt;span style="color:#e6db74">&amp;#39;OUTPUT:&amp;#39;&lt;/span>, repr(res)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print &lt;span style="color:#e6db74">&amp;#39;EXPECT:&amp;#39;&lt;/span>, repr(data_out)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print &lt;span style="color:#e6db74">&amp;#39;finish case: &lt;/span>&lt;span style="color:#e6db74">%s&lt;/span>&lt;span style="color:#e6db74"> (&lt;/span>&lt;span style="color:#e6db74">%d&lt;/span>&lt;span style="color:#e6db74"> / &lt;/span>&lt;span style="color:#e6db74">%d&lt;/span>&lt;span style="color:#e6db74">) ...&amp;#39;&lt;/span> &lt;span style="color:#f92672">%&lt;/span> (self&lt;span style="color:#f92672">.&lt;/span>name, ok, cnt)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print &lt;span style="color:#e6db74">&amp;#39;-&amp;#39;&lt;/span> &lt;span style="color:#f92672">*&lt;/span> &lt;span style="color:#ae81ff">20&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>CaseContainer类实现了Case的收集。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">CaseContainer&lt;/span>(object):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> cases &lt;span style="color:#f92672">=&lt;/span> []
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">@classmethod&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">append&lt;/span>(self, &lt;span style="color:#66d9ef">case&lt;/span>):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> self&lt;span style="color:#f92672">.&lt;/span>cases&lt;span style="color:#f92672">.&lt;/span>append(&lt;span style="color:#66d9ef">case&lt;/span>)
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="超类与基类">超类与基类 &lt;a href="#%e8%b6%85%e7%b1%bb%e4%b8%8e%e5%9f%ba%e7%b1%bb" class="anchor">🔗&lt;/a>&lt;/h3>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">from&lt;/span> CaseContainer &lt;span style="color:#f92672">import&lt;/span> Case, CaseContainer
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">MetaCase&lt;/span>(type):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> __init__(cls, name, bases, attrs):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> name &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#e6db74">&amp;#39;BaseCase&amp;#39;&lt;/span>:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">case&lt;/span> &lt;span style="color:#f92672">=&lt;/span> Case(name, attrs)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> CaseContainer&lt;span style="color:#f92672">.&lt;/span>append(&lt;span style="color:#66d9ef">case&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">BaseCase&lt;/span>(object):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> __metaclass__ &lt;span style="color:#f92672">=&lt;/span> MetaCase
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">pass&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">run_all_test&lt;/span>():
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> &lt;span style="color:#66d9ef">case&lt;/span> &lt;span style="color:#f92672">in&lt;/span> CaseContainer&lt;span style="color:#f92672">.&lt;/span>cases:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">case&lt;/span>&lt;span style="color:#f92672">.&lt;/span>run()
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>超类中，声明Case的收集逻辑。而基类中的&lt;code>__metaclass__&lt;/code>使所有Case子类的超类皆为&lt;code>MetaCase&lt;/code>。&lt;/p>
+&lt;p>最后的&lt;code>run_all_test&lt;/code>可以批处理所有的test case。&lt;/p>
+&lt;h3 id="后续">后续 &lt;a href="#%e5%90%8e%e7%bb%ad" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>这个小的单元测试框架并不完善，只是实现了最基本的测试功能。并且也没有完全应用上面所提到的所有Python的魔法特性。所以后续如果有时间和精力，应该继续完善吧。&lt;/p>
+&lt;h2 id="参考">参考 &lt;a href="#%e5%8f%82%e8%80%83" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="http://book.douban.com/subject/24806569/">Pro Django&lt;/a>&lt;/li>
+&lt;/ul></description></item><item><title>使用pip和virtuanenv</title><link>https://wizmann.top/posts/using-pip-and-virtualenv/</link><pubDate>Mon, 25 Nov 2013 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/using-pip-and-virtualenv/</guid><description>&lt;p>让我们从一个无聊的小段子开始。&lt;/p>
 &lt;blockquote>
 &lt;p>&amp;ldquo;What’s pip?&amp;rdquo;&lt;/p>&lt;/blockquote>
 &lt;blockquote>
@@ -49,4 +325,25 @@ NotImplementedError: Can&amp;#39;t change the current date.
 &lt;p>&amp;ldquo;What’s easy_install?&amp;rdquo;&lt;/p>&lt;/blockquote>
 &lt;blockquote>
 &lt;p>&amp;ldquo;A python package manager&amp;rdquo;&lt;/p>&lt;/blockquote>
-&lt;p>pip和easy_install都是python的包管理工具，类似于ruby的gem以及nodejs的npm。&lt;/p></description></item></channel></rss>
+&lt;p>pip和easy_install都是python的包管理工具，类似于ruby的gem以及nodejs的npm。&lt;/p>
+&lt;p>而pip是easy_install的升级版，在这个&lt;a href="http://www.pip-installer.org/en/1.0.2/#pip-compared-to-easy-install">页面&lt;/a>中提到了pip对于easy_install的升级。其中提到了一点非常重要。&lt;/p>
+&lt;blockquote>
+&lt;p>pip is complementary with virtualenv, and it is encouraged that you use virtualenv to isolate your installation.&lt;/p>&lt;/blockquote>
+&lt;p>如果有同学不熟悉virtualenv，这里是一个小小的介绍。（以下翻译来自：&lt;a href="http://blogs.360.cn/blog/how-360-uses-python-1-virtualenv/">戳我&lt;/a>）&lt;/p>
+&lt;blockquote>
+&lt;p>virtualenv 是一个创建隔离的Python环境的工具。&lt;/p>&lt;/blockquote>
+&lt;blockquote>
+&lt;p>virtualenv要解决的根本问题是库的版本和依赖，以及权限问题。假设你有一个程序，需要LibFoo的版本1，而另一个程序需要版本2，如何同时使用两个应用程序呢？如果将所有的库都安装在 /usr/lib/python2.7/site-packages（或者你的系统的标准包安装路径），非常容易出现将不该升级的库升级的问题。&lt;/p>&lt;/blockquote>
+&lt;blockquote>
+&lt;p>另外，在一台共享的机器上，如果没有全局的 site-packages 目录的权限（例如一个共享的主机），如何安装Python库呢？&lt;/p>&lt;/blockquote>
+&lt;blockquote>
+&lt;p>在这些情况下，就是该用到virtualenv的地方。它能够创建一个自己的安装目录，形成一个独立的环境，不会影响其他的virtualenv环境，甚至可以不受全局的site-packages当中安装的包的影响&lt;/p>&lt;/blockquote>
+&lt;p>由于virtualenv的以上优点。我们使用pip与virtualenv配合，可以很轻松保证线上线下运行环境一致，实现自动化部署。&lt;/p>
+&lt;p>举一个例子。&lt;/p>
+&lt;p>在线下开发时，我们使用&lt;code>virtualenv env&lt;/code>创建一个Python虚拟环境。并使用&lt;code>source env/bin/activate&lt;/code>激活。&lt;/p>
+&lt;p>然后我们可以在这个虚拟环境中安装我们需要的包。此时我们的环境与全局完全隔离，所有Python运行环境只以来于现有的虚拟环境。&lt;/p>
+&lt;p>在部署服务时，拷贝整个虚拟环境必然是不明智的选择。我们使用&lt;code>pip freeze &amp;gt; requirements.txt&lt;/code>将本环境的依赖写入&lt;code>requirements.txt&lt;/code>文件。&lt;/p>
+&lt;p>然后在线上新建&lt;code>env_online&lt;/code>，激活之。并调用&lt;code>pip install -r requirements.txt&lt;/code>，此时线上服务器会下载所有依赖包。在安装结束后，我们就克隆了线下的环境。&lt;/p>
+&lt;p>当然，如果线上服务器没有连接外网。我们可以使用离线方法安装需要的包。&lt;/p>
+&lt;p>&lt;code>pip bundle env.pybundle -r requirements.txt&lt;/code>会重新下载所有依赖的包，并写入&lt;code>env.pybundle&lt;/code>。然后我们将其上传到线上，使用&lt;code>pip install env.pybundle&lt;/code>安装即可。&lt;/p>
+&lt;p>以上是pip和virtualenv配合使用一些技巧。参考自：&lt;a href="http://blog.csdn.net/tulip527/article/details/8478093">戳我&lt;/a>。&lt;/p></description></item></channel></rss>

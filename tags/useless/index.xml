@@ -1,3 +1,65 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Useless on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/useless/</link><description>Recent content in Useless on Maerlyn's Rainbow</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Sat, 14 Dec 2013 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/useless/index.xml" rel="self" type="application/rss+xml"/><item><title>自己动手搭建第三方的Codeforces CDN</title><link>https://wizmann.top/posts/third-party-codeforces-cdn/</link><pubDate>Sat, 14 Dec 2013 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/third-party-codeforces-cdn/</guid><description>&lt;h2 id="啥">啥？&lt;/h2>
-&lt;p>校园网上CF那叫一个卡。&lt;/p>
-&lt;p>原因是什么呢？ 因为codeforces大量的使用了ajax技术，所以引用了很多js/css文件，并且引用的位置位于页面之前。&lt;/p></description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Useless on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/useless/</link><description>Recent content in Useless on Maerlyn's Rainbow</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Sat, 14 Dec 2013 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/useless/index.xml" rel="self" type="application/rss+xml"/><item><title>自己动手搭建第三方的Codeforces CDN</title><link>https://wizmann.top/posts/third-party-codeforces-cdn/</link><pubDate>Sat, 14 Dec 2013 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/third-party-codeforces-cdn/</guid><description>&lt;h2 id="啥">啥？ &lt;a href="#%e5%95%a5" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>校园网上CF那叫一个卡。&lt;/p>
+&lt;p>原因是什么呢？ 因为codeforces大量的使用了ajax技术，所以引用了很多js/css文件，并且引用的位置位于页面之前。&lt;/p>
+&lt;p>这就造成了，我们在上CF的时候，其实页面内容已经读取出来了。但是因为js/css文件没有加载完成，所以页面还是一片空白。&lt;/p>
+&lt;h2 id="解决方案">解决方案 &lt;a href="#%e8%a7%a3%e5%86%b3%e6%96%b9%e6%a1%88" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>由于js/css/img文件都是所谓的&lt;code>静态&lt;/code>文件，那么我们可以缓存这些文件到一个访问速度快的网络上来。&lt;/p>
+&lt;p>这就是CDN技术。&lt;/p>
+&lt;blockquote>
+&lt;p>CDN的全称是Content Delivery Network，即内容分发网络。其目的是通过在现有的Internet中增加一层新的网络架构，将网站的内容发布到最接近用户的网络“边缘”，使用户可以就近取得所需的内容，提高用户访问网站的响应速度&lt;/p>&lt;/blockquote>
+&lt;p>但是俄罗斯人那边没有做CDN，或者他们的CDN距离天朝实在是太远了。&lt;/p>
+&lt;p>所以我们只好手动缓存这些静态文件到七牛云上，使用七牛的CDN技术来加速我们的访问了。&lt;/p>
+&lt;p>&lt;a href="http://www.qiniu.com/">七牛云&lt;/a>为个人用户提供了10G存储空间和每月10G流量，这对于我们缓存一个网站的静态文件来说，已经足富裕了。根据我现在的使用状况，所有静态文件加在一起大概在3M左右，搭建这样一个免费CDN可以供十几个人使用。&lt;/p>
+&lt;h2 id="设计架构">设计架构 &lt;a href="#%e8%ae%be%e8%ae%a1%e6%9e%b6%e6%9e%84" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>我们使用&lt;code>CS模式&lt;/code>来完成这个网站加速的任务。&lt;/p>
+&lt;p>Server端当然就是七牛云啦。复杂的任务都交给了工程师们完成，我们只需要声明需要缓存&lt;code>codeforces.com&lt;/code>的静态文件就可以了。&lt;/p>
+&lt;p>Client端使用的是Chrome-extension。Chrome-extension使用&lt;code>webRequest&lt;/code>来“劫持”我们的流量，将其指向我们的七牛云缓存。&lt;/p>
+&lt;h2 id="server端配置">Server端配置 &lt;a href="#server%e7%ab%af%e9%85%8d%e7%bd%ae" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>非常简单的操作。设置一个镜像存储就可以了。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-tk-pic/blog-codeforces-cdn-qiniu-settings.png" alt="七牛云设置">&lt;/p>
+&lt;p>然后我们记下七牛云为我们分配的域名，以备后用。&lt;/p>
+&lt;h2 id="client端配置">Client端配置 &lt;a href="#client%e7%ab%af%e9%85%8d%e7%bd%ae" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>这个稍微复杂一点，不过也是很轻松的。&lt;/p>
+&lt;p>我们新建一个开发版的chrome-extension。（由于我没有开发者账号，所以一般都是线下开发，放到github上让大家搞的。&lt;/p>
+&lt;p>写&lt;code>manifest.json&lt;/code>&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-json" data-lang="json">&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;name&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;Codeforce CDN加速&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;version&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;0.1&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;description&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;个人性趣所致，不承担任何可能的风险&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;permissions&amp;#34;&lt;/span>: [
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#e6db74">&amp;#34;tabs&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#e6db74">&amp;#34;http://*.codeforces.com/*&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#e6db74">&amp;#34;http://*.codeforces.ru/*&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#e6db74">&amp;#34;webRequestBlocking&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#e6db74">&amp;#34;webRequest&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ],
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;background&amp;#34;&lt;/span>: { &lt;span style="color:#f92672">&amp;#34;scripts&amp;#34;&lt;/span>: [&lt;span style="color:#e6db74">&amp;#34;codeforces_cdn.js&amp;#34;&lt;/span>] },
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;browser_action&amp;#34;&lt;/span>:{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;default_title&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;Codeforce CDN加速&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;default_icon&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;icon.png&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> },
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;icons&amp;#34;&lt;/span>:{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;16&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;icon.png&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;48&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;icon.png&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;128&amp;#34;&lt;/span>:&lt;span style="color:#e6db74">&amp;#34;icon.png&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> },
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;manifest_version&amp;#34;&lt;/span>: &lt;span style="color:#ae81ff">2&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>然后写&lt;code>background.js&lt;/code>，“劫持”发往&lt;code>work.codeforces.ru&lt;/code>的流量。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-javascript" data-lang="javascript">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">chrome&lt;/span>.&lt;span style="color:#a6e22e">webRequest&lt;/span>.&lt;span style="color:#a6e22e">onBeforeRequest&lt;/span>.&lt;span style="color:#a6e22e">addListener&lt;/span>(
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">function&lt;/span>(&lt;span style="color:#a6e22e">details&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">console&lt;/span>.&lt;span style="color:#a6e22e">log&lt;/span>(&lt;span style="color:#a6e22e">details&lt;/span>.&lt;span style="color:#a6e22e">url&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (&lt;span style="color:#a6e22e">details&lt;/span>.&lt;span style="color:#a6e22e">url&lt;/span>.&lt;span style="color:#a6e22e">match&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;http://worker.codeforces.ru&amp;#34;&lt;/span>)) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">var&lt;/span> &lt;span style="color:#a6e22e">url&lt;/span> &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">details&lt;/span>.&lt;span style="color:#a6e22e">url&lt;/span>.&lt;span style="color:#a6e22e">replace&lt;/span>(
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#e6db74">&amp;#34;http://worker.codeforces.ru&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#e6db74">&amp;#34;http://你的七牛云域名.com&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> {&lt;span style="color:#a6e22e">redirectUrl&lt;/span>&lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#a6e22e">url&lt;/span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> },
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {&lt;span style="color:#a6e22e">urls&lt;/span>&lt;span style="color:#f92672">:&lt;/span>[&lt;span style="color:#e6db74">&amp;#34;http://worker.codeforces.ru/*&amp;#34;&lt;/span>]},
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> [&lt;span style="color:#e6db74">&amp;#34;blocking&amp;#34;&lt;/span>]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>);
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>然后安装插件，就可以完美使用了。&lt;/p>
+&lt;p>根据我的实验，在清空浏览器缓存的情况下。加速前需要3min的页面大概现在只需要不到10s。&lt;/p>
+&lt;h2 id="潜在问题以及不完美的解决方案">潜在问题以及不完美的解决方案 &lt;a href="#%e6%bd%9c%e5%9c%a8%e9%97%ae%e9%a2%98%e4%bb%a5%e5%8f%8a%e4%b8%8d%e5%ae%8c%e7%be%8e%e7%9a%84%e8%a7%a3%e5%86%b3%e6%96%b9%e6%a1%88" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>由于我们是第三方的山寨CDN，所以当codeforces.com更新它的静态文件时，我们是不知道的。&lt;/p>
+&lt;p>所以我们需要一个刷新静态文件的机制。但是我们又不能监控文件改变。&lt;/p>
+&lt;p>最终，我想到的一个不完美的解决方案是定时刷新。&lt;/p>
+&lt;p>详细来说，就是每周找一个时间，清空我们的缓存。在下一次访问的时候，七牛云会自动替我们刷新所有的静态文件。&lt;/p>
+&lt;p>七牛云的python-sdk提供了遍历/删除文件的方案（我在里面还找到了一个小小的Bug）。我们只需要定时执行它就可以了。&lt;/p>
+&lt;p>于是我使用了BAE + bottle.py + niqiu-python-sdk的组合。在BAE上部署了一个bottle.py应用，然后使用&lt;code>cron&lt;/code>定时执行刷新任务。&lt;/p>
+&lt;h2 id="代码">代码 &lt;a href="#%e4%bb%a3%e7%a0%81" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>Github: &lt;a href="https://github.com/Wizmann/codeforces-cdn">戳我&lt;/a>&lt;/p></description></item></channel></rss>

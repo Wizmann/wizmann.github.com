@@ -1,12 +1,121 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Sort on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/sort/</link><description>Recent content in Sort on Maerlyn's Rainbow</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Sat, 25 Apr 2015 11:17:01 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/sort/index.xml" rel="self" type="application/rss+xml"/><item><title>用C++实现一个通用的sort函数</title><link>https://wizmann.top/posts/a-common-sorting-function-with-cpp/</link><pubDate>Sat, 25 Apr 2015 11:17:01 +0000</pubDate><guid>https://wizmann.top/posts/a-common-sorting-function-with-cpp/</guid><description>&lt;h2 id="问题">问题&lt;/h2>
-&lt;p>用C++实现一个尽可能通用的sort函数&lt;/p>
-&lt;h2 id="分析">分析&lt;/h2>
-&lt;p>一个通用的sort函数应该包含以下要点：&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Sort on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/sort/</link><description>Recent content in Sort on Maerlyn's Rainbow</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Sat, 25 Apr 2015 11:17:01 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/sort/index.xml" rel="self" type="application/rss+xml"/><item><title>用C++实现一个通用的sort函数</title><link>https://wizmann.top/posts/a-common-sorting-function-with-cpp/</link><pubDate>Sat, 25 Apr 2015 11:17:01 +0000</pubDate><guid>https://wizmann.top/posts/a-common-sorting-function-with-cpp/</guid><description>&lt;h2 id="问题">问题 &lt;a href="#%e9%97%ae%e9%a2%98" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>用C++实现一个尽可能通用的sort函数&lt;/p>
+&lt;h2 id="分析">分析 &lt;a href="#%e5%88%86%e6%9e%90" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>一个通用的sort函数应该包含以下要点：&lt;/p>
 &lt;ul>
 &lt;li>确实可以排序(LOL)&lt;/li>
 &lt;li>可以应对C-style array和C++-style container的排序需求&lt;/li>
 &lt;li>可以应用于任意random access container&lt;/li>
 &lt;li>可以使用用户自定义的排序函数 / 仿函数 / lambda函数&lt;/li>
 &lt;/ul>
-&lt;h2 id="实现">实现&lt;/h2>
-&lt;p>为了与std中的通用函数做区别，这里的命名规则，包括类型与函数，都在前面加了&amp;quot;my&amp;quot;以示区别。可能与标准的命名法有出入，所以仅做示例用。&lt;/p></description></item></channel></rss>
+&lt;h2 id="实现">实现 &lt;a href="#%e5%ae%9e%e7%8e%b0" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>为了与std中的通用函数做区别，这里的命名规则，包括类型与函数，都在前面加了&amp;quot;my&amp;quot;以示区别。可能与标准的命名法有出入，所以仅做示例用。&lt;/p>
+&lt;h3 id="思路">思路 &lt;a href="#%e6%80%9d%e8%b7%af" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>** 拷贝代码是愚蠢的行为。**&lt;/p>
+&lt;p>或者说，&lt;/p>
+&lt;p>** 对于同一钟实现，尽量使用同一份代码。 **&lt;/p>
+&lt;p>感谢C++ Templates，对于不同类型与需求的函数，我们可以将生成多份代码的劳动放心的交给编译器。并且，Templates的代码生成是在编译期完成的，即不会造成额外的代码膨胀（如果你姿势正确的话），也一般不会造成额外的运行时开销。&lt;/p>
+&lt;h3 id="函数原型">函数原型 &lt;a href="#%e5%87%bd%e6%95%b0%e5%8e%9f%e5%9e%8b" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>我们模仿std::sort来进行开发。&lt;/p>
+&lt;pre tabindex="0">&lt;code>template&amp;lt; class It, class Compare &amp;gt;
+void sort(It first, It last, Compare comp );
+&lt;/code>&lt;/pre>&lt;h3 id="从迭代器指针获得元素类型">从迭代器/指针获得元素类型 &lt;a href="#%e4%bb%8e%e8%bf%ad%e4%bb%a3%e5%99%a8%e6%8c%87%e9%92%88%e8%8e%b7%e5%be%97%e5%85%83%e7%b4%a0%e7%b1%bb%e5%9e%8b" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>我们要处理C风格的数组与C++网络的容器。首先要从迭代器/指针&lt;code>It&lt;/code>中获得元素类型。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span>&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span> It&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">struct&lt;/span> &lt;span style="color:#a6e22e">myiter_traits&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">typedef&lt;/span> &lt;span style="color:#66d9ef">typename&lt;/span> It&lt;span style="color:#f92672">::&lt;/span>value_type value_type;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span>&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span> T&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">struct&lt;/span> &lt;span style="color:#a6e22e">myiter_traits&lt;/span>&lt;span style="color:#f92672">&amp;lt;&lt;/span>T&lt;span style="color:#f92672">*&amp;gt;&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">typedef&lt;/span> T value_type;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这个实现非常简单，不做赘述。&lt;/p>
+&lt;h3 id="实现mysort函数">实现mysort函数 &lt;a href="#%e5%ae%9e%e7%8e%b0mysort%e5%87%bd%e6%95%b0" class="anchor">🔗&lt;/a>&lt;/h3>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span>&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span> RandomAccessor, &lt;span style="color:#66d9ef">typename&lt;/span> FUNC&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">void&lt;/span> mysort(
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">const&lt;/span> RandomAccessor&lt;span style="color:#f92672">&amp;amp;&lt;/span> head,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">const&lt;/span> RandomAccessor&lt;span style="color:#f92672">&amp;amp;&lt;/span> tail,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> FUNC cmp)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (tail &lt;span style="color:#f92672">-&lt;/span> head &lt;span style="color:#f92672">&amp;lt;=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">const&lt;/span> RandomAccessor pivot &lt;span style="color:#f92672">=&lt;/span> mypartition(head, tail, cmp);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> mysort(head, pivot, cmp);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> mysort(pivot &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>, tail, cmp);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>mysort函数本体并不难理解，这里重点讨论一下模板的思路。&lt;/p>
+&lt;p>由于迭代器不需要移动，所以声明为const reference。又由于我们需要兼容各种不同类型的排序方法（函数、仿函数、lambda、std::function等），所以不对&lt;code>FUNC&lt;/code>类型进行限制，即所有可以被call的类型都可以做为模板参数。&lt;/p>
+&lt;h3 id="实现mypartition函数">实现mypartition函数 &lt;a href="#%e5%ae%9e%e7%8e%b0mypartition%e5%87%bd%e6%95%b0" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>快速排序的灵魂就是快速划分。如果处理得当，quick sort可以视作一个稳定的排序函数；否则，一组构造（不必要精心构造）的数据就可以把quick sort变成&amp;quot;slow sort&amp;quot;。&lt;/p>
+&lt;h4 id="可能会上quick-sort退化的数据">可能会上quick sort退化的数据 &lt;a href="#%e5%8f%af%e8%83%bd%e4%bc%9a%e4%b8%8aquick-sort%e9%80%80%e5%8c%96%e7%9a%84%e6%95%b0%e6%8d%ae" class="anchor">🔗&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>基本一致的数据 &lt;br>
+e.g. &lt;code>1, 1, 1, 1 ... 1, 1&lt;/code> or &lt;code>1, 1, ... 2, 2, ... 3, 3&lt;/code>&lt;/li>
+&lt;li>有序或基本有序的数据 &lt;br>
+e.g. &lt;code>1, 2, ... 5, 6&lt;/code> or &lt;code>6, 5, ... 2, 1&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;h4 id="解决思路">解决思路 &lt;a href="#%e8%a7%a3%e5%86%b3%e6%80%9d%e8%b7%af" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>对于有大量重复的数据，我们在处理时要注意平均分配这些重复数据。即，对于与pivot相等的数据，尽量保证一半放在左面，一半放在右面。&lt;/p>
+&lt;p>对于有序或基本有序的数据，我们在pivot的选择上可以使用随机、三值法等手段，保证数据的平均分配。&lt;/p>
+&lt;p>总的说来，quick sort的高效性，取决于partition函数的平均分配性能上。&lt;/p>
+&lt;h4 id="一个实现">一个实现 &lt;a href="#%e4%b8%80%e4%b8%aa%e5%ae%9e%e7%8e%b0" class="anchor">🔗&lt;/a>&lt;/h4>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span>&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span> RandomAccessor, &lt;span style="color:#66d9ef">typename&lt;/span> FUNC&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>RandomAccessor mypartition(
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">const&lt;/span> RandomAccessor&lt;span style="color:#f92672">&amp;amp;&lt;/span> head,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">const&lt;/span> RandomAccessor&lt;span style="color:#f92672">&amp;amp;&lt;/span> tail,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> FUNC cmp)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">auto&lt;/span> dis &lt;span style="color:#f92672">=&lt;/span> distance(head, tail);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> RandomAccessor pivot &lt;span style="color:#f92672">=&lt;/span> head &lt;span style="color:#f92672">+&lt;/span> rand() &lt;span style="color:#f92672">%&lt;/span> dis;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> iter_swap(pivot, head);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> pivot &lt;span style="color:#f92672">=&lt;/span> head;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> RandomAccessor l &lt;span style="color:#f92672">=&lt;/span> head;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> RandomAccessor r &lt;span style="color:#f92672">=&lt;/span> tail &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> ptr &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">while&lt;/span> (l &lt;span style="color:#f92672">&amp;lt;=&lt;/span> r) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">while&lt;/span> (l &lt;span style="color:#f92672">&amp;lt;=&lt;/span> r) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">bool&lt;/span> lt &lt;span style="color:#f92672">=&lt;/span> cmp(&lt;span style="color:#f92672">*&lt;/span>l, &lt;span style="color:#f92672">*&lt;/span>pivot);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">bool&lt;/span> gt &lt;span style="color:#f92672">=&lt;/span> cmp(&lt;span style="color:#f92672">*&lt;/span>pivot, &lt;span style="color:#f92672">*&lt;/span>l);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">bool&lt;/span> eq &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#f92672">!&lt;/span>lt &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> &lt;span style="color:#f92672">!&lt;/span>gt;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (lt &lt;span style="color:#f92672">||&lt;/span> (eq &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> ptr &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>)) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> l&lt;span style="color:#f92672">++&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ptr &lt;span style="color:#f92672">^=&lt;/span> (eq&lt;span style="color:#f92672">?&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>&lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> } &lt;span style="color:#66d9ef">else&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">break&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">while&lt;/span> (l &lt;span style="color:#f92672">&amp;lt;=&lt;/span> r) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">bool&lt;/span> lt &lt;span style="color:#f92672">=&lt;/span> cmp(&lt;span style="color:#f92672">*&lt;/span>r, &lt;span style="color:#f92672">*&lt;/span>pivot);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">bool&lt;/span> gt &lt;span style="color:#f92672">=&lt;/span> cmp(&lt;span style="color:#f92672">*&lt;/span>pivot, &lt;span style="color:#f92672">*&lt;/span>r);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">bool&lt;/span> eq &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#f92672">!&lt;/span>lt &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> &lt;span style="color:#f92672">!&lt;/span>gt;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (gt &lt;span style="color:#f92672">||&lt;/span> (eq &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> ptr &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>)) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> r&lt;span style="color:#f92672">--&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ptr &lt;span style="color:#f92672">^=&lt;/span> (eq&lt;span style="color:#f92672">?&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>&lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> } &lt;span style="color:#66d9ef">else&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">break&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (l &lt;span style="color:#f92672">&amp;lt;=&lt;/span> r) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> swap(&lt;span style="color:#f92672">*&lt;/span>l, &lt;span style="color:#f92672">*&lt;/span>r);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> l&lt;span style="color:#f92672">++&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> r&lt;span style="color:#f92672">--&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> iter_swap(pivot, r);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> r;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="主函数">主函数 &lt;a href="#%e4%b8%bb%e5%87%bd%e6%95%b0" class="anchor">🔗&lt;/a>&lt;/h3>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> srand(time(NULL));
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> vector&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span> vec({&lt;span style="color:#ae81ff">2&lt;/span>, &lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>, &lt;span style="color:#ae81ff">0&lt;/span>, &lt;span style="color:#ae81ff">4&lt;/span>, &lt;span style="color:#ae81ff">1999&lt;/span>});
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> mysort(vec.begin(), vec.end(), less&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span>());
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">auto&lt;/span>&lt;span style="color:#f92672">&amp;amp;&lt;/span> i: vec) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> printf(&lt;span style="color:#e6db74">&amp;#34;%d &amp;#34;&lt;/span>, i);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> puts(&lt;span style="color:#e6db74">&amp;#34;&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> array[] &lt;span style="color:#f92672">=&lt;/span> {&lt;span style="color:#ae81ff">99&lt;/span>, &lt;span style="color:#ae81ff">19&lt;/span>, &lt;span style="color:#ae81ff">9999&lt;/span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> mysort(array &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>, array &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">3&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> [](&lt;span style="color:#66d9ef">int&lt;/span> a, &lt;span style="color:#66d9ef">int&lt;/span> b)&lt;span style="color:#f92672">-&amp;gt;&lt;/span>&lt;span style="color:#66d9ef">bool&lt;/span> { &lt;span style="color:#66d9ef">return&lt;/span> a &lt;span style="color:#f92672">&amp;gt;&lt;/span> b; });
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">int&lt;/span> i &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>; i &lt;span style="color:#f92672">&amp;lt;&lt;/span> &lt;span style="color:#ae81ff">3&lt;/span>; i&lt;span style="color:#f92672">++&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> printf(&lt;span style="color:#e6db74">&amp;#34;%d &amp;#34;&lt;/span>, array[i]);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> puts(&lt;span style="color:#e6db74">&amp;#34;&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div></description></item></channel></rss>

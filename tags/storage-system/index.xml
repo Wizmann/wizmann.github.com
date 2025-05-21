@@ -1,11 +1,142 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Storage System on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/storage-system/</link><description>Recent content in Storage System on Maerlyn's Rainbow</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Sun, 15 Aug 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/storage-system/index.xml" rel="self" type="application/rss+xml"/><item><title>论文阅读-WiscKey：SSD友好的KV分离存储引擎</title><link>https://wizmann.top/posts/paper-wisckey/</link><pubDate>Sun, 15 Aug 2021 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/paper-wisckey/</guid><description>&lt;h2 id="背景">背景&lt;/h2>
-&lt;h3 id="基于lsm-tree的存储引擎">基于LSM-Tree的存储引擎&lt;/h3>
-&lt;p>Log-Structed Merge-Tree (a.k.a. LSM-Tree)是当下常用的一种基于磁盘的存储引擎。与Hash索引和B-Tree同为数据库核心的数据结构。&lt;/p>
-&lt;p>LSM-Tree的优势在于：&lt;/p></description></item><item><title>Introduction to Ceph</title><link>https://wizmann.top/posts/introduction-to-ceph/</link><pubDate>Sun, 29 Nov 2020 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/introduction-to-ceph/</guid><description>&lt;h2 id="什么是ceph">什么是Ceph&lt;/h2>
-&lt;p>Ceph是一个可扩展的，高性能的分布式存储系统。提供了三种不同类型的接口以适应不同的应用场景：&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Storage System on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/storage-system/</link><description>Recent content in Storage System on Maerlyn's Rainbow</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Sun, 15 Aug 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/storage-system/index.xml" rel="self" type="application/rss+xml"/><item><title>论文阅读-WiscKey：SSD友好的KV分离存储引擎</title><link>https://wizmann.top/posts/paper-wisckey/</link><pubDate>Sun, 15 Aug 2021 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/paper-wisckey/</guid><description>&lt;h2 id="背景">背景 &lt;a href="#%e8%83%8c%e6%99%af" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="基于lsm-tree的存储引擎">基于LSM-Tree的存储引擎 &lt;a href="#%e5%9f%ba%e4%ba%8elsm-tree%e7%9a%84%e5%ad%98%e5%82%a8%e5%bc%95%e6%93%8e" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>Log-Structed Merge-Tree (a.k.a. LSM-Tree)是当下常用的一种基于磁盘的存储引擎。与Hash索引和B-Tree同为数据库核心的数据结构。&lt;/p>
+&lt;p>LSM-Tree的优势在于：&lt;/p>
+&lt;ol>
+&lt;li>无需将所有的Key索引在内存中。可以通过分级查找的方式，查询到特定KV在磁盘中的偏移量&lt;/li>
+&lt;li>数据写入与合并使用顺序追加写，最大程度的利用磁盘的顺序写性能&lt;/li>
+&lt;li>对于数据写入，会使用batch方式写入磁盘&lt;/li>
+&lt;li>支持范围查询&lt;/li>
+&lt;/ol>
+&lt;p>LSM-Tree的劣势在于：&lt;/p>
+&lt;ol>
+&lt;li>读放大与写放大&lt;/li>
+&lt;li>无法对单条数据加锁（事务支持）&lt;/li>
+&lt;/ol>
+&lt;p>现在常用的LevelDB和RocksDB，都是基于LSM-Tree的存储引擎。&lt;/p>
+&lt;p>&lt;img src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/21-08-14/2021-08-14_18-00-50.png" alt="LSM-Tree-Architecture">&lt;/p>
+&lt;h3 id="wisckey主要解决的问题">WiscKey主要解决的问题 &lt;a href="#wisckey%e4%b8%bb%e8%a6%81%e8%a7%a3%e5%86%b3%e7%9a%84%e9%97%ae%e9%a2%98" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>LSM-Tree在性能上面的瓶颈主要在于读写的放大。简单说来，假设你的磁盘最大带宽为4GB/s，读写放大倍数为10，那么在应用层的有效吞吐量（&lt;a href="https://en.wikipedia.org/wiki/Goodput">Goodput&lt;/a>）最多只能达到400MB/s。并且，对于一些大数据集，读写放大的值有可能会非常大（大于100）。&lt;/p>
+&lt;p>那么是什么原因导致的读写放大呢？我们下面分开讨论。&lt;/p>
+&lt;h4 id="读放大">读放大 &lt;a href="#%e8%af%bb%e6%94%be%e5%a4%a7" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>我们重温一下LSM-Tree的查询机制：&lt;/p>
+&lt;ol>
+&lt;li>首先在mutable memtable中进行查找&lt;/li>
+&lt;li>然后在immutable memtable中进行查找&lt;/li>
+&lt;li>最后在不同的LSM-Tree层级中的SST file中进行查找&lt;/li>
+&lt;/ol>
+&lt;p>对于1和2，都是内存操作，其耗时与读取磁盘相比可以忽略不计。
+对于3，SST file文件的查找会先使用二分查找定位特定KV位于该层的哪一个SST文件中。&lt;/p>
+&lt;p>如果特定的KV不存在于此SST文件中，会被常驻内存的bloom filter过滤掉，不会真正的读取文件。（大概率，bloom filter的原理了解一下）&lt;/p>
+&lt;p>如果特定的KV在此SST文件中，会通过index block进行二分查找，确定KV位于哪个block。然后这个block会被从磁盘上读取到内存进行解压，最后通过二分+遍历找到对应的KV。&lt;/p>
+&lt;blockquote>
+&lt;p>论文里对于读放大的计算方法有点夸大了。对于RocksDB来说，一般情况下index block和bloom filter都是常驻内存的。除非是内存非常紧张的场景，否则并不会产生论文中如此夸张的磁盘读放大的。&lt;/p>&lt;/blockquote>
+&lt;p>所以读放大主要因为读取一个KV，需要读取+解压整个block。当KV大小远小于block size的时候，问题会更加严重。&lt;/p>
+&lt;h4 id="写放大">写放大 &lt;a href="#%e5%86%99%e6%94%be%e5%a4%a7" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>我们再重温一个LSM-Tree的写入机制：&lt;/p>
+&lt;ol>
+&lt;li>首先写入mutable memtable&lt;/li>
+&lt;li>mutable memtable后续会被sealed，成为immutable memtable&lt;/li>
+&lt;li>immutable memtable会被flush到磁盘，成为L0&lt;/li>
+&lt;li>L0中的数据会在后台，逐层向下合并，直到合并到最底层&lt;/li>
+&lt;/ol>
+&lt;p>层次数据逐层向下合并的过程中，必然会产生写放大。（具体原理这里不展开了）&lt;/p>
+&lt;p>写放大值可以使用以下方法估算。已知&lt;code>options.max_bytes_for_level_multiplier&lt;/code>代表每一层大小的倍数k，并且假设L0与L1的大小相等，总共有N层。那么写放大约为&lt;code>(N - 1) * k + 1&lt;/code>。&lt;/p>
+&lt;h2 id="正文">正文 &lt;a href="#%e6%ad%a3%e6%96%87" class="anchor">🔗&lt;/a>&lt;/h2>&lt;blockquote>
+&lt;p>入活了入活了！&lt;/p>&lt;/blockquote>
+&lt;h3 id="wisckey的设计目标">WiscKey的设计目标 &lt;a href="#wisckey%e7%9a%84%e8%ae%be%e8%ae%a1%e7%9b%ae%e6%a0%87" class="anchor">🔗&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>降低写放大&lt;/li>
+&lt;li>降低读放大&lt;/li>
+&lt;li>对SSD进行优化&lt;/li>
+&lt;li>提供LSM-Tree兼容的API&lt;/li>
+&lt;li>针对现实场景的KV size&lt;/li>
+&lt;/ul>
+&lt;h3 id="wisckey的设计思路kv分离">WiscKey的设计思路——KV分离 &lt;a href="#wisckey%e7%9a%84%e8%ae%be%e8%ae%a1%e6%80%9d%e8%b7%afkv%e5%88%86%e7%a6%bb" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>在一般的场景中，在一对KV中，Key的大小远比Value的要小。如果我们在LSM-Tree中只保留Key，那么对于一次读写，我们所要处理的数据就会少很多，从而降低了读写放大。&lt;/p>
+&lt;p>对于Value，我们会将其存储在另外一个数据结构vLog中。每一次查询，会在LSM-Tree中记录其在vLog中的&lt;code>&amp;lt;offset, length&amp;gt;&lt;/code> 。这样一来，读取Value的操作也只有一次磁盘访问，并且不会产生写放大。&lt;/p>
+&lt;p>&lt;img src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/21-08-14/2021-08-14_23-08-54.png" alt="WiscKey-data-layout">&lt;/p>
+&lt;blockquote>
+&lt;p>这里有一个疑问，如果按论文里面的设计，vLog里面的数据是不会打包的block进行压缩的，必然会损失capacity。如果打包压缩了，那么读放大并没有显著优化。又如果value size ≈ block size，那么其实在读放大上面的优化也就比较微弱了。&lt;/p>&lt;/blockquote>
+&lt;h3 id="wisckey的设计挑战">WiscKey的设计挑战 &lt;a href="#wisckey%e7%9a%84%e8%ae%be%e8%ae%a1%e6%8c%91%e6%88%98" class="anchor">🔗&lt;/a>&lt;/h3>&lt;h4 id="并发范围查找">并发范围查找 &lt;a href="#%e5%b9%b6%e5%8f%91%e8%8c%83%e5%9b%b4%e6%9f%a5%e6%89%be" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>因为使用了KV分离的存储方式，所以范围查找（range query）对于value就会退化成很多次随机读取。&lt;/p>
+&lt;p>但是由于SSD的并发读取特性，WiscKey会将所需要读取的value的&lt;code>&amp;lt;offset, length&amp;gt;&lt;/code>放到一个队列中，多线程并发读取所需要的value。&lt;/p>
+&lt;p>&lt;img src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/21-08-14/2021-08-14_23-42-44.png" alt="seq-rand-reads-on-ssd">&lt;/p>
+&lt;p>如图所示，对于较大的value size，顺序读与并发读的throughput基本保持一致。&lt;/p>
+&lt;p>但是多线程并发读会消耗更多的CPU。&lt;/p>
+&lt;p>&lt;img src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/21-08-15/2021-08-15_16-02-21.png" alt="CPU-usage">&lt;/p>
+&lt;blockquote>
+&lt;p>不过对于一个存储系统来说，CPU大概是最不重要的资源了吧（见仁见智咯）&lt;/p>&lt;/blockquote>
+&lt;h4 id="垃圾回收">垃圾回收 &lt;a href="#%e5%9e%83%e5%9c%be%e5%9b%9e%e6%94%b6" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>对于重复写入的KV，LSM-Tree会通过层次合并来将旧值换出。而WiscKey会使用垃圾回收机制来将旧值换出。&lt;/p>
+&lt;p>&lt;img src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/21-08-15/2021-08-15_00-11-06.png" alt="vlog-data-layout">&lt;/p>
+&lt;p>vLog可以视作一个循环数组，head指针表示数据的开头（较新的数据），tail指针表示数据的结尾（较旧的数据）。在head和tail指针之外的空间都视作free space。&lt;/p>
+&lt;p>当空闲数据小于一定阈值之后，会触发GC。WiscKey会从tail依次读出一部分旧数据（batch read），查询LSM-Tree，如果这条数据已经被覆盖或删除，那么就丢弃此数据；否则从head指针处写入此条数据。&lt;/p>
+&lt;p>为了保证在GC过程中的crash不产生数据的丢失，GC的流程为：&lt;/p>
+&lt;ol>
+&lt;li>将tail处的KV写入到head处，并调用&lt;code>fsync()&lt;/code>将其持久化&lt;/li>
+&lt;li>同步的将KV的新位置，和head/tail指针的最新位置写入LSM-Tree&lt;/li>
+&lt;/ol>
+&lt;p>由于我们使用了LSM-Tree的WAL，可以保证所有在LSM-Tree里的数据都是可用的。&lt;/p>
+&lt;h4 id="崩溃一致性crash-consistency">崩溃一致性（Crash Consistency） &lt;a href="#%e5%b4%a9%e6%ba%83%e4%b8%80%e8%87%b4%e6%80%a7crash-consistency" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>在垃圾回收一节中，我们其实已经遇到了一致性的问题。其根本原因，在于LSM-Tree和vLog是两个不同的模块，在其间保持一致性必然是困难的。&lt;/p>
+&lt;p>WiscKey使用了现代文件系统（ext4，btrfs和xfs）的一个有趣特性，即对于一个（将要）写入文件的数据流，文件系统会保证这个数据流的一个前缀（或者整个数据流）成功写入文件。&lt;/p>
+&lt;h3 id="wisckey的优化">WiscKey的优化 &lt;a href="#wisckey%e7%9a%84%e4%bc%98%e5%8c%96" class="anchor">🔗&lt;/a>&lt;/h3>&lt;h4 id="vlog写入buffer">vLog写入Buffer &lt;a href="#vlog%e5%86%99%e5%85%a5buffer" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>&lt;img src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/21-08-15/2021-08-15_12-20-02.png" alt="impact-of-write-unit-size">&lt;/p>
+&lt;p>众所周知，磁盘的同步写入必然会带来一些overhead。对于小数据来说，这在性能上会产生严重的损耗。&lt;/p>
+&lt;p>这里的优化类似于将vLog也添加一个memory table，所有写入vLog的数据都先写入这个memory table，然后依次flush到磁盘上。&lt;/p>
+&lt;p>这样的优势在于将写入batch化，可以减少overhead，提升性能。劣势在于，在系统崩溃时，可能会丢失部分数据。但丢失数据时，仍能抱证上文提到的崩溃一致性。&lt;/p>
+&lt;h4 id="优化lsm-tree-wal">优化LSM-Tree WAL &lt;a href="#%e4%bc%98%e5%8c%96lsm-tree-wal" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>LSM-Tree的WAL虽然保证了写入的数据的持久性，但是不可避免的，它也会消耗磁盘的一部分带宽。&lt;/p>
+&lt;p>关闭WAL，意味着LSM-Tree memtable在进程重启时一定会丢失数据。不过我们可以利用vLog重建LSM-Tree（的memtable部分）。&lt;/p>
+&lt;p>由于vLog之中已经包括了所有的KV对，所以在WiscKey重启时，我们可以从head指针处扫描vLog的数据，由于崩溃一致性的保证，当指针扫描到已经存在于LSM-Tree的数据时，可以认为LSM-Tree已经重建成功。&lt;/p>
+&lt;h4 id="文件系统的优化">文件系统的优化 &lt;a href="#%e6%96%87%e4%bb%b6%e7%b3%bb%e7%bb%9f%e7%9a%84%e4%bc%98%e5%8c%96" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>WiscKey使用&lt;code>posix_fadvice()&lt;/code>向OS层预声明接下来vLog的操作类型以适应不同场景的磁盘访问模式。使用&lt;code>fallocate()&lt;/code>，通过&amp;quot;hole-punching&amp;quot;功能进行GC，以减少数据的移动。&lt;/p>
+&lt;h3 id="wisckey的性能">WiscKey的性能 &lt;a href="#wisckey%e7%9a%84%e6%80%a7%e8%83%bd" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>论文的最后给出了一系列数字。由于WiscKey的读写放大很小，所以在value size比较大的场景下（&amp;gt;= 1KB），性能远优于传统LSM-Tree。同时，磁盘空间的使用也更友好。&lt;/p>
+&lt;blockquote>
+&lt;p>这里有一个疑问，论文里做microbenchmark的时候，对于LevelDB和RocksDB，是不是还开着压缩。。。&lt;/p>&lt;/blockquote>
+&lt;h2 id="后记">后记 &lt;a href="#%e5%90%8e%e8%ae%b0" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>WiscKey应该是“LSM-Tree + KV分离”思路的比较早期的论文，其中仍有很多不明确的细节。但是整体思路是可行的。&lt;/p>
+&lt;p>PingCAP的&lt;a href="https://pingcap.com/zh/blog/titan-design-and-implementation">Titan&lt;/a>是一个基于WiscKey思想的RocksDB KV分离存储引擎。后续可以参考其实现再了解更多的实现思路与细节。&lt;/p></description></item><item><title>Introduction to Ceph</title><link>https://wizmann.top/posts/introduction-to-ceph/</link><pubDate>Sun, 29 Nov 2020 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/introduction-to-ceph/</guid><description>&lt;h2 id="什么是ceph">什么是Ceph &lt;a href="#%e4%bb%80%e4%b9%88%e6%98%afceph" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>Ceph是一个可扩展的，高性能的分布式存储系统。提供了三种不同类型的接口以适应不同的应用场景：&lt;/p>
 &lt;ul>
 &lt;li>block-based: 块存储，可以用做VM的虚拟磁盘&lt;/li>
 &lt;li>object-based: 对象存储，与Amazon S3等常用对象存储兼容&lt;/li>
 &lt;li>file system: POSIX兼容的分布式文件系统，可以被本地系统挂载，并且能被多个客户端共享&lt;/li>
 &lt;/ul>
-&lt;p>&lt;img src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/20-11-28/2020-11-28_22-04-49.png" alt="">&lt;/p></description></item></channel></rss>
+&lt;p>&lt;img src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/20-11-28/2020-11-28_22-04-49.png" alt="">&lt;/p>
+&lt;h3 id="ceph的特性">Ceph的特性 &lt;a href="#ceph%e7%9a%84%e7%89%b9%e6%80%a7" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>由于采用了CRUSH算法，Ceph有着优异的可扩展性（宣称可以无限扩展）。并且借助可扩展性，进而实现高性能、高可靠性和高可用性。&lt;/p>
+&lt;p>Ceph是一个去中心化的存储系统，无需中心节点进行资源的管理与调度，全部的管理功能由存储节点自治完成。使得整个系统可以自我管理与自我恢复，减少运维成本与管理成本。&lt;/p>
+&lt;h2 id="rados---ceph的存储引擎">RADOS - Ceph的存储引擎 &lt;a href="#rados---ceph%e7%9a%84%e5%ad%98%e5%82%a8%e5%bc%95%e6%93%8e" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>RADOS=Reliable Autonomic Distributed Object Store。RADOS是Ceph底层的存储引擎，所有的接口都建立在RADOS的功能之上。&lt;/p>
+&lt;h3 id="rados中的存储结构">RADOS中的存储结构 &lt;a href="#rados%e4%b8%ad%e7%9a%84%e5%ad%98%e5%82%a8%e7%bb%93%e6%9e%84" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>&lt;img src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/20-11-28/2020-11-28_22-24-56.png" alt="">&lt;/p>
+&lt;ul>
+&lt;li>存储池（pool）：逻辑层，每一个pool里都包含一些放置组&lt;/li>
+&lt;li>放置组（placement-group, PG)：逻辑层，一份数据会在PG当中进行灾备复制。每一个PG都对应着一系列的存储节点&lt;/li>
+&lt;li>存储节点（OSD）：用以存储数据的物理节点。与PG之间形成多对多的关系。&lt;/li>
+&lt;/ul>
+&lt;p>一份数据在写入RADOS时，会先选中一个pool。Pool中再使用一定的hash规则，伪随机的选中某一个PG。PG会将数据写入多个OSD中。读取数据时，也是类似的规则。&lt;/p>
+&lt;p>Pool是用户可见的管理数据的基本单位，用户可以对Pool进行一系列的配置（权限控制、使用SSD or HDD、使用数据拷贝 or 纠删码，etc.）。而PG与OSD对于用户是不可见的。&lt;/p>
+&lt;p>&lt;img src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/20-11-28/2020-11-28_23-00-51.png" alt="">&lt;/p>
+&lt;h4 id="pg的组织">PG的组织 &lt;a href="#pg%e7%9a%84%e7%bb%84%e7%bb%87" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>在一致性哈希中，我们使用节点来划分哈希值域。这种方法的问题是，如果产生了数据不平衡，我们需要重新进行划分值域来进行再平衡。这会造成大量的数据迁移。&lt;/p>
+&lt;p>CRUSH采用了虚拟节点（也就是PG）将哈希值域划分成了固定的等长区域。这种方法在单条数据与物理节点之间加入了一个虚拟层。之后，再使用哈希取模的算法确定数据属于哪个PG。使得数据的迁移是以虚拟节点为单位，而不是对每一条数据都重新计算。Ceph官方的建议是，每1个OSD对应着100个PG。&lt;/p>
+&lt;p>一般情况下，在规划的初期需要确定PG的数目，如果后期需要调整PG，有可能会导致大量的数据迁移，甚至需要服务暂时停止服务。&lt;/p>
+&lt;h3 id="监控子集群mon与cluster-map">监控子集群（MON）与Cluster Map &lt;a href="#%e7%9b%91%e6%8e%a7%e5%ad%90%e9%9b%86%e7%be%a4mon%e4%b8%8ecluster-map" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>&lt;img src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/20-11-28/2020-11-28_22-48-10.png" alt="">&lt;/p>
+&lt;p>RADOS集群中除了OSD存储节点之外，还有监控子集群（MON），用于存储系统的拓扑结构——Cluster Map。&lt;/p>
+&lt;blockquote>
+&lt;p>元数组管理（MDS）节点用于管理CephFS中的文件元信息，后文会有介绍。&lt;/p>&lt;/blockquote>
+&lt;p>不同于传统的中心化管理节点，MON并不会对资源进行调配与调度，而仅仅是一个观测者，用以存储系统当前的拓扑与状态。&lt;/p>
+&lt;p>MON与OSD、OSD与OSD之间会定时发送心跳包，检测OSD是否健康。如果某个节点失效，MON会更新内部存储的拓扑结构信息（ClusterMap），并且通过P2P协议广播出去，从而使得整个系统都有着（最终）一致的拓扑信息。&lt;/p>
+&lt;h3 id="主从同步与节点自治">主从同步与节点自治 &lt;a href="#%e4%b8%bb%e4%bb%8e%e5%90%8c%e6%ad%a5%e4%b8%8e%e8%8a%82%e7%82%b9%e8%87%aa%e6%b2%bb" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>在一个PG中，会有一个主节点（Primary）和一个或多个从节点（Secondary）。主节点负责维护从节点的状态，包括数据复制（replication）、失效检测（failure detection）和失效恢复（failure recovery）。&lt;/p>
+&lt;h2 id="crush---ceph皇冠上的明珠">CRUSH - Ceph皇冠上的明珠 &lt;a href="#crush---ceph%e7%9a%87%e5%86%a0%e4%b8%8a%e7%9a%84%e6%98%8e%e7%8f%a0" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>CRUSH是一个可扩展的，伪随机的数据放置算法。以去中心化方法，将PG按规则映射到相应的存储设备上。并且系统的拓扑结构发生变化时，尽可能的减少数据的迁移。&lt;/p>
+&lt;h3 id="crush的优势">CRUSH的优势 &lt;a href="#crush%e7%9a%84%e4%bc%98%e5%8a%bf" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>CRUSH对于每一个数据元素使用一个伪随机算法，决定其放置的位置。所以，只要所有参与者都拥有相同的系统拓扑结构信息，那么数据的位置就是一定的。所以我们可以去掉中心节点，采用P2P的方法来进行数据的存储与检索。&lt;/p>
+&lt;p>并且，由于伪随机算法只与单个PG相关，如果我们操作得当，节点数量的变化并不会引起大量的数据迁移，而是会接近理论最优值。&lt;/p>
+&lt;h3 id="数据放置data-placement">数据放置（Data Placement） &lt;a href="#%e6%95%b0%e6%8d%ae%e6%94%be%e7%bd%aedata-placement" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>CRUSH的数据放置算法有很多不同的实现，这里只介绍最常用的straw算法。&lt;/p>
+&lt;p>Ceph中，每一个OSD节点都有一个权值w，代表着某个节点能支持多少数据的存储与检索。一般来说，权值与节点的容量成正比。&lt;/p>
+&lt;p>假设一个pool里面有n个PG，在一条新的数据写入时，我们分别会计算这n个PG的length值。&lt;/p>
+&lt;p>$$ length_{i} = f(w_{i}) * hash(x) $$&lt;/p>
+&lt;p>$f(w_{i})$是一个只于当前OSD节点权值有关的函数。$hash(x)$代表当前PG的哈希值。所以，PG会放置在哪个OSD上，仅与其权值相关。&lt;/p>
+&lt;p>假设某个OSD节点发生变化时（新加、删除、权值变化），在此受影响节点的数据会迁移到其它的OSD节点。其它OSD节点的原有数据并不会受到影响。&lt;/p>
+&lt;blockquote>
+&lt;p>Ceph当中的straw算法有&lt;code>straw1&lt;/code>和&lt;code>straw2&lt;/code>。&lt;code>straw1&lt;/code>的实现采用了有缺陷f(w)函数，会导致意外的数据迁移。&lt;code>straw2&lt;/code>解决了这个问题。
+详情请戳&lt;a href="https://www.spinics.net/lists/ceph-devel/msg21635.html">这里&lt;/a>&lt;/p>&lt;/blockquote>
+&lt;h4 id="主从架构">主从架构 &lt;a href="#%e4%b8%bb%e4%bb%8e%e6%9e%b6%e6%9e%84" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>每个PG所包含的OSD都由CRUSH算法计算得出，并根据配置选出前r个OSD进行主从配对。列表中的第1个OSD做为主节点（Primary），其它的节点为从节点（Secondary）。&lt;/p>
+&lt;p>主从节点的分配与管理由PG内部进行自治，不需要额外的外部系统进行管理。&lt;/p>
+&lt;h2 id="cephfs">CephFS &lt;a href="#cephfs" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>CephFS是一个POSIX兼容的（共享）文件系统。CephFS利用文件元数据子系统（MDS）来维护目录树结构和文件和目录的元信息（owner, timestamps, inodes, etc.)等。&lt;/p>
+&lt;p>MDS子系统会在内存里面维护一份Cache，对于需要持久化的信息，会使用WAL的方式写入RADOS里一个专用的Pool当中。&lt;/p>
+&lt;h3 id="动态树划分dynamic-tree-partitioningdtp">动态树划分（Dynamic Tree Partitioning，DTP） &lt;a href="#%e5%8a%a8%e6%80%81%e6%a0%91%e5%88%92%e5%88%86dynamic-tree-partitioningdtp" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>CephFS的扩展性的关键之一，在于元信息子系统的扩展性。CephFS实现了动态树划分的算法，将目录树结构根据当前系统的负载，将其划分到不同的MDS节点上去。&lt;/p>
+&lt;p>维护目录树结构的优势在于利用了文件系统的局部性（locality），可以方便的进行预取（prefetch）。动态的树划分，可以保证元信息可以线性增长，以保持高可扩展性。&lt;/p>
+&lt;p>&lt;img src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/20-11-29/2020-11-29_18-53-09.png" alt="">&lt;/p>
+&lt;h2 id="写在最后">写在最后 &lt;a href="#%e5%86%99%e5%9c%a8%e6%9c%80%e5%90%8e" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>本文基于Ceph的三篇论文综合而成（CephFS、RADOS、CRUSH）。其中加入了一些自己的看法，使其逻辑通顺，并不保证与论文的思路完全一致。&lt;/p>
+&lt;p>这三篇论文并没有明确的依赖关系，换句话说，需要综合阅读，才能有比较明确的理解。&lt;/p>
+&lt;p>建议在通读论文后，去学习一下&lt;a href="https://www.youtube.com/watch?v=PmLPbrf-x9g&amp;amp;ab_channel=Ceph">这个视频&lt;/a>，会对理解Ceph有很大的帮助。Youtube上面还有很多Ceph的tech talk，可以一并的了解一下。&lt;/p>
+&lt;p>Ceph相关的书籍以实践居多，只推荐&lt;a href="https://www.oreilly.com/library/view/learning-ceph-/9781787127913/">Learning Ceph&lt;/a>。&lt;/p>
+&lt;h2 id="参考链接">参考链接 &lt;a href="#%e5%8f%82%e8%80%83%e9%93%be%e6%8e%a5" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://crossoverjie.top/2018/01/08/Consistent-Hash/">一致性 Hash 算法分析&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://zhuanlan.zhihu.com/p/60963885">从一致性 hash 到 ceph crush&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://ceph.io/publications/">Ceph Publications&lt;/a>&lt;/li>
+&lt;/ul></description></item></channel></rss>

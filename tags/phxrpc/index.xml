@@ -1,14 +1,682 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Phxrpc on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/phxrpc/</link><description>Recent content in Phxrpc on Maerlyn's Rainbow</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Sun, 23 Oct 2016 15:50:44 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/phxrpc/index.xml" rel="self" type="application/rss+xml"/><item><title>总结 - phxrpc代码阅读(8)</title><link>https://wizmann.top/posts/phxrpc-8/</link><pubDate>Sun, 23 Oct 2016 15:50:44 +0000</pubDate><guid>https://wizmann.top/posts/phxrpc-8/</guid><description>&lt;h2 id="写在前面">写在前面&lt;/h2>
-&lt;p>这应该是phxrpc代码阅读系列正文的最后一篇。通过阅读代码，发现了自己在知识上的若干不足。&lt;/p>
-&lt;p>临渊羡鱼，不如退而结网。接下来可能会在网络编程方面再下一点工夫。请大家期待下一个系列吧。&lt;/p></description></item><item><title>RPC - phxrpc代码阅读(7)</title><link>https://wizmann.top/posts/phxrpc-7/</link><pubDate>Sat, 22 Oct 2016 23:03:36 +0000</pubDate><guid>https://wizmann.top/posts/phxrpc-7/</guid><description>&lt;h2 id="前言">前言&lt;/h2>
-&lt;p>看了这么久代码，终于我们要接近phxrpc的核心部分了。&lt;/p>
-&lt;p>但是出人意料的是，rpc部分并没有过多的概念和magic trick。而且因为ucontext已经被封装好了，所以在rpc里的操作，可以完全按照同步的写法来搞，开发者们不需要切换同步异步的思维模式，就可以在底层的封装之上，做自己想做的事了。&lt;/p></description></item><item><title>非阻塞TCP流和HttpClient - phxrpc代码阅读(6)</title><link>https://wizmann.top/posts/phxrpc-6/</link><pubDate>Wed, 19 Oct 2016 00:03:12 +0000</pubDate><guid>https://wizmann.top/posts/phxrpc-6/</guid><description>&lt;h2 id="写在前面">写在前面&lt;/h2>
-&lt;p>其实这点东西有点鸡肋。因为TCP流在前面已经讲过，难点在于“流”和“流缓冲区”部分。而HttpClient只是TCP流的一个应用，代码不多，且重点在于HTTP协议的调教上面。&lt;/p></description></item><item><title>使用epoll驱动ucontext - phxrpc代码阅读(5)</title><link>https://wizmann.top/posts/phxrpc-5/</link><pubDate>Mon, 17 Oct 2016 01:28:40 +0000</pubDate><guid>https://wizmann.top/posts/phxrpc-5/</guid><description>&lt;h2 id="用pipe叫醒你--epollnotifier">用pipe叫醒你 — EpollNotifier&lt;/h2>
-&lt;p>&lt;code>class EpollNotifier&lt;/code>类型封装了一个使用pipe传递信号的Notifier类。&lt;/p>
-&lt;p>&lt;code>Run()&lt;/code>函数（其实我觉得叫Register或Activate会更好）首先声明了两个单向的pipe：&lt;code>pipe_fds_&lt;/code>，从&lt;a href="http://man7.org/linux/man-pages/man2fpipe.2.html">文档&lt;/a>中我们可以知道&lt;code>pipe_fds_[0]&lt;/code>是读管道，而&lt;code>pipe_fds_[1]&lt;/code>是写管道。这里有一丁点反直觉，就是pipe拿了两个fd，但是仍旧是单工的。&lt;/p></description></item><item><title>ucontext - phxrpc代码阅读(4)</title><link>https://wizmann.top/posts/phxrpc-4/</link><pubDate>Thu, 13 Oct 2016 23:45:24 +0000</pubDate><guid>https://wizmann.top/posts/phxrpc-4/</guid><description>&lt;h2 id="写在前面">写在前面&lt;/h2>
-&lt;p>国庆假期过半，phxrpc的代码阅读大概要小小告一段落啦。因为这两天还要读工作相关的代码，以及最后几天还有一次短途旅行。&lt;/p>
-&lt;p>所以非阻塞TCP流可能要留到下一篇了，这一篇只涉及非阻塞TCP流使用到的ucontext协程库，及其使用的一些框架代码。&lt;/p></description></item><item><title>阻塞TCP流 - phxrpc代码阅读(3)</title><link>https://wizmann.top/posts/phxrpc-3/</link><pubDate>Mon, 03 Oct 2016 22:22:14 +0000</pubDate><guid>https://wizmann.top/posts/phxrpc-3/</guid><description>&lt;h2 id="写在前面">写在前面&lt;/h2>
-&lt;p>phxrpc的流（&lt;code>stream&lt;/code>和&lt;code>streambuf&lt;/code>）与网络访问其实是耦合在一起的，所以本文可以结合着第一篇笔记一起来看。虽然我非常想吐槽这种强耦合性的设计，但是我决定还是好好理解phxrpc的设计之后。。。攒一波大的：）&lt;/p></description></item><item><title>定时器以及其它 - phxrpc阅读笔记(2)</title><link>https://wizmann.top/posts/phxrpc-2/</link><pubDate>Thu, 29 Sep 2016 01:28:09 +0000</pubDate><guid>https://wizmann.top/posts/phxrpc-2/</guid><description>&lt;h2 id="写在前面">写在前面&lt;/h2>
-&lt;p>phxrpc使用了协程(ucontext)和IO复用技术(epoll)来实现网络通信。定时器在其中起到了非常重要的作用。下面我们就来分析一下phxrpc的&lt;code>timer.[h|cpp]&lt;/code>中的代码。&lt;/p></description></item><item><title>自定义你的stream buffer - phxrpc阅读笔记(1)</title><link>https://wizmann.top/posts/phxrpc-1/</link><pubDate>Wed, 28 Sep 2016 22:35:55 +0000</pubDate><guid>https://wizmann.top/posts/phxrpc-1/</guid><description>&lt;h2 id="写在前面">写在前面&lt;/h2>
-&lt;p>&lt;a href="https://github.com/tencent-wechat/phxrpc">phxrpc&lt;/a>是微信团队开源的一个轻量级RPC框架。&lt;/p>
-&lt;p>我对RPC这些东西了解不多，看到phxrpc的代码相对简单，而且还在初步开发阶段（在本文写作时，版本号是0.8）。所以想读一读，提高一下姿势水平。&lt;/p></description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Phxrpc on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/phxrpc/</link><description>Recent content in Phxrpc on Maerlyn's Rainbow</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Sun, 23 Oct 2016 15:50:44 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/phxrpc/index.xml" rel="self" type="application/rss+xml"/><item><title>总结 - phxrpc代码阅读(8)</title><link>https://wizmann.top/posts/phxrpc-8/</link><pubDate>Sun, 23 Oct 2016 15:50:44 +0000</pubDate><guid>https://wizmann.top/posts/phxrpc-8/</guid><description>&lt;h2 id="写在前面">写在前面 &lt;a href="#%e5%86%99%e5%9c%a8%e5%89%8d%e9%9d%a2" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>这应该是phxrpc代码阅读系列正文的最后一篇。通过阅读代码，发现了自己在知识上的若干不足。&lt;/p>
+&lt;p>临渊羡鱼，不如退而结网。接下来可能会在网络编程方面再下一点工夫。请大家期待下一个系列吧。&lt;/p>
+&lt;blockquote>
+&lt;p>其实真没人读，我就是在骗自己。&lt;/p>&lt;/blockquote>
+&lt;h2 id="先补充一点---代码生成">先补充一点 - 代码生成 &lt;a href="#%e5%85%88%e8%a1%a5%e5%85%85%e4%b8%80%e7%82%b9---%e4%bb%a3%e7%a0%81%e7%94%9f%e6%88%90" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>protobuf并不包含RPC的实现，但是它可以声明rpc。客户端和服务端需要实现RPC接口，来实现通信。&lt;/p>
+&lt;p>phxrpc使用proto文件来定义接口，然后解析并使用代码模板进行生成。&lt;/p>
+&lt;p>这里我们不讨论代码生成的细节，因为pb实在太过流行，代码生成的方法也有不少的流派。并且用C++来做代码生成，真心不是我的菜。&lt;/p>
+&lt;p>想了解更多，可以参考&lt;a href="http://codemacro.com/2014/08/31/protobuf-rpc/">这篇博客&lt;/a>。&lt;/p>
+&lt;h2 id="工作流程---客户端">工作流程 - 客户端 &lt;a href="#%e5%b7%a5%e4%bd%9c%e6%b5%81%e7%a8%8b---%e5%ae%a2%e6%88%b7%e7%ab%af" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>客户端与服务器的通信有如下的特点：&lt;/p>
+&lt;ol>
+&lt;li>连接少&lt;/li>
+&lt;li>负载少&lt;/li>
+&lt;li>通信的主动方&lt;/li>
+&lt;/ol>
+&lt;p>所以，所有的网络交互相关的内容可以托管给网络库中的协程。每个协程主动运行一段时间后，主动放弃CPU时间，将控制权交还给主控制流的epoll。&lt;/p>
+&lt;p>所以协程中不能有CPU密集的运算，幸好面对开发者，phxrpc并不暴露内部函数，而是将CPU密集的运算分配给工作线程来完成。&lt;/p>
+&lt;h2 id="工作流程---服务端">工作流程 - 服务端 &lt;a href="#%e5%b7%a5%e4%bd%9c%e6%b5%81%e7%a8%8b---%e6%9c%8d%e5%8a%a1%e7%ab%af" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>服务器的通信有以下的特点：&lt;/p>
+&lt;ol>
+&lt;li>连接多&lt;/li>
+&lt;li>负载多&lt;/li>
+&lt;li>通信的被动方&lt;/li>
+&lt;li>响应时间敏感&lt;/li>
+&lt;/ol>
+&lt;p>这里说一下响应时间的问题，响应时间是和负载多对应的。客户端一般只负责发请求，其响应时间并不在整个系统中占主导地位，换句话说，客户端发请求是完全有主动权的。而服务端负责响应请求，需要经过CPU运算，或者有一些服务的级联或扇出操作，所以响应时间是不可控的。&lt;/p>
+&lt;p>由上面我们可以了解到，服务器端肯定需要与客户端不同的策略来处理连接与响应。&lt;/p>
+&lt;p>首先，一个独立的线程来&lt;strong>同步&lt;/strong>accept请求，这个线程大部分的时间都block在&lt;code>accept()&lt;/code>里，负载比较低。&lt;/p>
+&lt;p>在accept到fd后，将其压入到调度器中。之后fd会hang在IO循环上，直到有请求到来。与此同时，协程会调度其它的fd。&lt;/p>
+&lt;p>请求到来后，IO线程会把请求加入队列中，把自己从epoll调度中删除。之后就开始睡觉觉。睡醒了之后，发现响应没到碗里来，就shutdown连接。(我觉得这里应该加入重试，例如三次失败再断线)&lt;/p>
+&lt;p>如果响应来了，先会调用一个激活fd的操作，将响应放到封装fd的结构体中，再将自己放回到epoll调度，最后顺手给epoll发一个信号。当fd可写时，再把响应返回给客户端。&lt;/p>
+&lt;p>由于phxrpc使用的通信协议是HTTP，所以不需要考虑分包的问题。&lt;/p>
+&lt;h2 id="可能的改进">可能的改进 &lt;a href="#%e5%8f%af%e8%83%bd%e7%9a%84%e6%94%b9%e8%bf%9b" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="调度器的超时">调度器的超时 &lt;a href="#%e8%b0%83%e5%ba%a6%e5%99%a8%e7%9a%84%e8%b6%85%e6%97%b6" class="anchor">🔗&lt;/a>&lt;/h3>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> nfds &lt;span style="color:#f92672">=&lt;/span> epoll_wait(epoll_fd_, events, max_task_, &lt;span style="color:#ae81ff">4&lt;/span>);
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这段调度器中的代码，生生的把IO复用模型改成了轮询。猜测这是为了照顾超时定时器，但实际上这个并无必要。我们可以使用&lt;code>timerfd&lt;/code>和&lt;code>eventfd&lt;/code>来取代定时器。但是这只是一种猜测，这种写法可能也是有性能上的考虑吧。&lt;/p>
+&lt;h3 id="代码风格">代码风格 &lt;a href="#%e4%bb%a3%e7%a0%81%e9%a3%8e%e6%a0%bc" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>代码风格可能是一个比较泛的问题，但是phxrpc的代码我能明显的感觉到编码风格的不同。以及元素层次不明朗，上下级模块相互耦合的情况。&lt;/p>
+&lt;h3 id="没有测试没有测试没有测试">没有测试！没有测试！没有测试！ &lt;a href="#%e6%b2%a1%e6%9c%89%e6%b5%8b%e8%af%95%e6%b2%a1%e6%9c%89%e6%b5%8b%e8%af%95%e6%b2%a1%e6%9c%89%e6%b5%8b%e8%af%95" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>因为phxrpc没有测试代码，所以我严重怀疑这就是一个玩票的项目，没有（或暂时没有）在生产环境上运行。&lt;/p>
+&lt;p>如果有可能的话，请加上性能测试！请加上功能测试！请加上性功能测试！&lt;/p>
+&lt;h2 id="写在后面">写在后面 &lt;a href="#%e5%86%99%e5%9c%a8%e5%90%8e%e9%9d%a2" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>时间仓促，水平有限。写点东西，方便大家学习交流。&lt;/p>
+&lt;p>如果我写的哪里不对，99%的锅归我傻逼，1%的锅归phxrpc代码没写测试。欢迎大家多做自我批评。&lt;/p>
+&lt;p>好啦好啦，就到这里吧。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/16-10-23/91802175.jpg" alt="">&lt;/p></description></item><item><title>RPC - phxrpc代码阅读(7)</title><link>https://wizmann.top/posts/phxrpc-7/</link><pubDate>Sat, 22 Oct 2016 23:03:36 +0000</pubDate><guid>https://wizmann.top/posts/phxrpc-7/</guid><description>&lt;h2 id="前言">前言 &lt;a href="#%e5%89%8d%e8%a8%80" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>看了这么久代码，终于我们要接近phxrpc的核心部分了。&lt;/p>
+&lt;p>但是出人意料的是，rpc部分并没有过多的概念和magic trick。而且因为ucontext已经被封装好了，所以在rpc里的操作，可以完全按照同步的写法来搞，开发者们不需要切换同步异步的思维模式，就可以在底层的封装之上，做自己想做的事了。&lt;/p>
+&lt;h2 id="线程安全的队列---threadqueue">线程安全(?)的队列 - ThreadQueue &lt;a href="#%e7%ba%bf%e7%a8%8b%e5%ae%89%e5%85%a8%e7%9a%84%e9%98%9f%e5%88%97---threadqueue" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>我不知道开发者为啥要起&lt;code>ThdQueue&lt;/code>这样令人迷惑的名字，这种诡异的命名风格贯穿了整个代码。咋一看这个类是maintain一堆线程的，类似于线程池，但其实这个类就是一个&lt;code>BlockingQueue&lt;/code>的实现。&lt;/p>
+&lt;p>之后，这个队列有三种操作，&lt;code>push&lt;/code>、&lt;code>pluck&lt;/code>和&lt;code>break_out&lt;/code>。push操作不用多说，pluck对应的我们所理解的pop操作，即从队列中弹出元素（pluck这个词貌似是从grpc里面来的，那我就不吐槽了，毕竟Google爸爸）。&lt;/p>
+&lt;p>更令人疑惑的是&lt;code>break_out&lt;/code>这个操作。从代码来看，像是清空队列，并且在dtor中也显式的调用了这个函数。&lt;/p>
+&lt;p>但是有以下的几个问题。&lt;/p>
+&lt;p>一，&lt;code>break_out_&lt;/code>是一个bool变量，且在不同线程间共享，问题在于这个变量可能被cache住，直接访问可能会造成非预期的结果，可能需要&lt;code>volitaile&lt;/code>，或者在&lt;code>pluck&lt;/code>函数里加一个mem barrier。&lt;/p>
+&lt;p>二来，在析构函数中调用&lt;code>break_out_&lt;/code>，有可能的一种情况是有其它线程还在&lt;code>pluck&lt;/code>函数中，而&lt;code>ThdQueue&lt;/code>对象已经被析构了，我们就需要承担这种不安全行为的后果（此处有广告：大铁棍子医院捅主任，张姐去了都说好）。&lt;/p>
+&lt;p>当然，如果这个函数只在结束进程时使用，其实写的糙一点也无所谓，因为毕竟线上服务是没有“退出”这种状态的。当我们要清空队列时，已经不需要对外提供服务，之后直接&lt;code>kill -9&lt;/code>就好，不会触发多线程的坑。不过，这里我觉得应该还是要加小心。&lt;/p>
+&lt;h2 id="uthreadcaller">UThreadCaller &lt;a href="#uthreadcaller" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>这个破类让我看了一小时，分析它的keepalive是怎么实现的。结果发现这个类被没有被调用。&lt;/p>
+&lt;p>GG。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/16-10-22/54117736.jpg" alt="">&lt;/p>
+&lt;h2 id="一个超级文件---hshaserver">一个超级文件 - HshaServer &lt;a href="#%e4%b8%80%e4%b8%aa%e8%b6%85%e7%ba%a7%e6%96%87%e4%bb%b6---hshaserver" class="anchor">🔗&lt;/a>&lt;/h2>&lt;blockquote>
+&lt;p>不知道为啥开发者要把这么多文件写一块，拆开不好吗？&lt;/p>&lt;/blockquote>
+&lt;h3 id="dataflow">DataFlow &lt;a href="#dataflow" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>DataFlow包含了Request和Response两个Queue，还附加了入队的时间戳和一个args参数指针。&lt;/p>
+&lt;h3 id="hshaserverstat">HshaServerStat &lt;a href="#hshaserverstat" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>一个统计类。会在后台新建一个线程，约每一秒打印一次统计日志。&lt;/p>
+&lt;p>这个类里有一个技巧，在&lt;code>CallFunc()&lt;/code>函数中，每一秒循环一次并没有使用sleep家族的函数，也没有使用select的超时。而是使用了&lt;code>condtional variable&lt;/code>。&lt;/p>
+&lt;p>&lt;code>std::condition_variable::wait_for&lt;/code>函数，实质是就是带超时的等待。而这里，在一般状态下，是没有线程会notify的，所以wait_for函数会睡满1s。但是在退出时，会显式的notify统计线程，破坏等待状态，使统计线程退出。&lt;/p>
+&lt;p>&lt;code>wait_for&lt;/code>函数的具体用法，可以参考&lt;a href="http://en.cppreference.com/w/cpp/thread/condition_variable/wait_for">文档&lt;/a>。&lt;/p>
+&lt;p>下面的&lt;code>HshaServerQos&lt;/code>也是一样的思路，Qos即“Quality of service”。&lt;/p>
+&lt;h3 id="worker和workerpool">Worker和WorkerPool &lt;a href="#worker%e5%92%8cworkerpool" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>这两个类其实是一个和一堆的关系，不过由于这里的诡异的写法，导致一个依赖一堆，一堆调用一个。&lt;/p>
+&lt;p>WorkerPool是一个全局的线程池，里面有线程（废话），输入输出队列，Disipatcher和调度器。所以Worker要反过来依赖WorkerPool里面的数据。造成了很大的耦合性。&lt;/p>
+&lt;p>Worker从输入队列中获取信息，并且使用&lt;code>dispatcher&lt;/code>进行CPU密集的处理（我觉得&lt;code>dispatcher&lt;/code>这个名字起的也有问题）。之后将结果放入输出队列，由后面的&lt;code>HshaServerIO::ActiveSocketFunc&lt;/code>驱动协程库进行之后的IO操作。&lt;/p>
+&lt;h3 id="完成调度器---hshaserverio">完成调度器 - HshaServerIO &lt;a href="#%e5%ae%8c%e6%88%90%e8%b0%83%e5%ba%a6%e5%99%a8---hshaserverio" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>这个类的主要作用就是补全调度器缺少的函数，并提供了一个IO的工作函数&lt;code>HshaServerIO::IOFunc&lt;/code>。&lt;/p>
+&lt;p>调度器的工作流程前面已经说过了，我们现在就从更具体化的实现上来阅读一下。&lt;/p>
+&lt;p>&lt;code>HshaServerIO :: AddAcceptedFd&lt;/code>，这个函数由外部调用，传入已经accept的fd，之后&lt;code>HshaServerIO::HandlerAcceptedFd&lt;/code>将这个fd，和IO工作函数&lt;code>IOFunc&lt;/code>一起放入调度器中进行调度。&lt;/p>
+&lt;p>工作函数&lt;code>IOFunc&lt;/code>只负责将请求放入队列，而并不负责从输出队列中取出响应。这个事情由&lt;code>HshaServerIO::ActiveSocketFunc&lt;/code>负责。&lt;/p>
+&lt;p>换句话说，在调度器的工作循环中，&lt;code>epoll_wait&lt;/code>中等待的只有在进行IO的两种fd，一是读还没读完的，二是写还没写完的。&lt;/p>
+&lt;p>进行完CPU操作的fd，由&lt;code>active_socket_func_&lt;/code>函数重新激活，向客户端写回响应。所以这个函数应该叫&lt;code>activate_socket_with_resp_func_&lt;/code>更合适一些。（至少第一个单词得是个动词好不。）&lt;/p>
+&lt;p>后面的keepalive的处理也是非常浅显的，这里就不多说了。&lt;/p>
+&lt;h3 id="多线程io---hshaserverunit和hshaserver">多线程IO - HshaServerUnit和HshaServer &lt;a href="#%e5%a4%9a%e7%ba%bf%e7%a8%8bio---hshaserverunit%e5%92%8chshaserver" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>前面我们说了不少协程的事，但这并不代表我们不使用多线程带来的红利。或者至少在性能不符合预期的时候，用多线程来tuning一下。&lt;/p>
+&lt;p>HashServerUnit包装了一组线程，其中包括一个IO线程和若干CPU线程。我们在HshaServer中，还可以配置多个Unit，使得我们有多个IO线程，充分榨干CPU和IO的每一滴汗水。&lt;/p>
+&lt;p>由于手里也没有测试数据，也就不能更详细的来说配置服务参数的策略。但是无责任猜测，IO线程应该不超过3个。CPU线程数目应该略多于CPU核数。&lt;/p>
+&lt;h3 id="一个独立的acceptor">一个独立的Acceptor &lt;a href="#%e4%b8%80%e4%b8%aa%e7%8b%ac%e7%ab%8b%e7%9a%84acceptor" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>&lt;code>HshaServerAcceptor&lt;/code>类相对比较独立，它是用来接受访问请求。是主线程的工作循环。&lt;/p>
+&lt;p>这里比较奇怪的是，&lt;code>LoopAccept&lt;/code>函数设置了CPU亲和性。使得控制线程只在CPU0上运行。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span> cpu_set_t mask;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> CPU_ZERO(&lt;span style="color:#f92672">&amp;amp;&lt;/span>mask);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> CPU_SET(&lt;span style="color:#ae81ff">0&lt;/span>, &lt;span style="color:#f92672">&amp;amp;&lt;/span>mask);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> pid_t thread_id &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> ret &lt;span style="color:#f92672">=&lt;/span> sched_setaffinity(thread_id, &lt;span style="color:#66d9ef">sizeof&lt;/span>(mask), &lt;span style="color:#f92672">&amp;amp;&lt;/span>mask);
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>具体原因有待探讨，可能是和中断亲和性有关。&lt;/p>
+&lt;h2 id="写在后面">写在后面 &lt;a href="#%e5%86%99%e5%9c%a8%e5%90%8e%e9%9d%a2" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>总算囫囵吞枣的把这RPC读完了，其实这里还是有好多疑问的。但是由于phxrpc的文档实在是。。。基本算是没有吧。所以可能还要去Github上提一波Issue。&lt;/p>
+&lt;p>在学习过程中，真的感觉自己懂的还是太少。简直药丸。&lt;/p>
+&lt;p>还需要更加努力才好。&lt;/p></description></item><item><title>非阻塞TCP流和HttpClient - phxrpc代码阅读(6)</title><link>https://wizmann.top/posts/phxrpc-6/</link><pubDate>Wed, 19 Oct 2016 00:03:12 +0000</pubDate><guid>https://wizmann.top/posts/phxrpc-6/</guid><description>&lt;h2 id="写在前面">写在前面 &lt;a href="#%e5%86%99%e5%9c%a8%e5%89%8d%e9%9d%a2" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>其实这点东西有点鸡肋。因为TCP流在前面已经讲过，难点在于“流”和“流缓冲区”部分。而HttpClient只是TCP流的一个应用，代码不多，且重点在于HTTP协议的调教上面。&lt;/p>
+&lt;p>不过因为前面有写阻塞TCP流，还是前后呼应，把非阻塞TCP流也小小的讲解一下。顺便饶一段HttpClient的讲解，算是充实一下内容吧。&lt;/p>
+&lt;h2 id="非阻塞tcp流缓冲区---uthreadtcpstreambuf">非阻塞TCP流缓冲区 - &lt;code>UThreadTcpStreamBuf&lt;/code> &lt;a href="#%e9%9d%9e%e9%98%bb%e5%a1%9etcp%e6%b5%81%e7%bc%93%e5%86%b2%e5%8c%ba---uthreadtcpstreambuf" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>这个其实没啥可讲的，传入一个&lt;code>socket&lt;/code>，然后读写分别调用&lt;code>UThreadRecv&lt;/code>和&lt;code>UThreadSend&lt;/code>，IO复用和协程切换的复杂操作都被封装在里面了。剩下的操作都由基类函数来解决。&lt;/p>
+&lt;h2 id="非阻塞tcp流---uthreadtcpstream">非阻塞TCP流 - &lt;code>UThreadTcpStream&lt;/code> &lt;a href="#%e9%9d%9e%e9%98%bb%e5%a1%9etcp%e6%b5%81---uthreadtcpstream" class="anchor">🔗&lt;/a>&lt;/h2>&lt;blockquote>
+&lt;p>确实没啥可说的，你们自己去读代码吧。。。&lt;/p>&lt;/blockquote>
+&lt;p>非阻塞TCP流和阻塞TCP流的区别是&lt;del>它不阻塞&lt;/del>，在阻塞TCP流中，我们传入的是一个TCP流，而非阻塞TCP流传入的是一个协程调度器和一个TCP流。&lt;/p>
+&lt;p>这个很好理解，一个阻塞流自然会占满一个线程的IO和CPU —— 在阻塞流IO读写时，CPU空闲；在CPU忙时，IO空闲。&lt;/p>
+&lt;p>而非阻塞流会将自己IO wait的时间托管给epoll，把剩下的时间用于CPU计算（和一些overhead上）。所以一个线程可以handle多个socket，协程调度器就是必须的了。之后的读写操作就交由我们前面讨论过的epoll和ucontext协程来共同完成了。&lt;/p>
+&lt;h2 id="httpclient">HttpClient &lt;a href="#httpclient" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>其实这里分析HttpClient的意义不是很大，因为Http毕竟是一个成熟的协议，然后相应的设置含义虽然明确，但是放到相应的上下文中分析比较好。&lt;/p>
+&lt;p>这篇博文&lt;a href="https://www.byvoid.com/blog/http-keep-alive-header">《HTTP协议头部与Keep-Alive模式详解》&lt;/a>中有一部分背景知识，感兴趣的同学可以简单了解一下。&lt;/p>
+&lt;h3 id="在httpdispatcher中使用的一个小技巧">在HttpDispatcher中使用的一个小技巧 &lt;a href="#%e5%9c%a8httpdispatcher%e4%b8%ad%e4%bd%bf%e7%94%a8%e7%9a%84%e4%b8%80%e4%b8%aa%e5%b0%8f%e6%8a%80%e5%b7%a7" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>在&lt;code>http_dispatcher.h&lt;/code>文件中，作者使用了一个比较新奇的技巧：“&lt;a href="http://tipsandtricks.runicsoft.com/Cpp/MemberFunctionPointers.html">Function Pointers to Member Functions&lt;/a>”。&lt;/p>
+&lt;p>我们来看代码：&lt;/p>
+&lt;pre tabindex="0">&lt;code>typedef int (Dispatcher::*URIFunc_t)(const HttpRequest &amp;amp; request, HttpResponse * response);
+&lt;/code>&lt;/pre>&lt;p>这行代码的意思是，为一个参数为&lt;code>(const HttpRequest&amp;amp;, HttpResponse*)&lt;/code>且返回值为&lt;code>int&lt;/code>的函数声明一个别名&lt;code>URIFunc_t&lt;/code>，并且这个函数，一定是&lt;code>Dispatcher&lt;/code>类的成员函数。&lt;/p>
+&lt;p>到目前为止，一切都还是正常的样子，语法也是我们常见的类型。但是下面这种写法，确实是我第一次见。&lt;/p>
+&lt;pre tabindex="0">&lt;code>if (uri_func_map_.end() != iter) {
+ret = (dispatcher_.*iter-&amp;gt;second)(request, response);
+}
+&lt;/code>&lt;/pre>&lt;p>这里的&lt;code>(dispatcher_.*iter-&amp;gt;second)&lt;/code>，&lt;code>iter-&amp;gt;second&lt;/code>是从map中拿出来的，在&lt;code>dispatcher_&lt;/code>对象中的成员函数的指针。我们使用星号解引用，再把它和&lt;code>dispatcher_&lt;/code>对象拼接在一起，像正常调用成员函数一样调用就可以了。&lt;/p>
+&lt;h2 id="貌似写的有点少再饶一段吧---epoll测试服务端客户端">貌似写的有点少，再饶一段吧 - epoll测试服务端/客户端 &lt;a href="#%e8%b2%8c%e4%bc%bc%e5%86%99%e7%9a%84%e6%9c%89%e7%82%b9%e5%b0%91%e5%86%8d%e9%a5%b6%e4%b8%80%e6%ae%b5%e5%90%a7---epoll%e6%b5%8b%e8%af%95%e6%9c%8d%e5%8a%a1%e7%ab%af%e5%ae%a2%e6%88%b7%e7%ab%af" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>我们翻篇回到&lt;code>network&lt;/code>文件夹下面，看一下&lt;code>test_epoll_[server|client].[h|cpp]&lt;/code>文件。&lt;/p>
+&lt;h3 id="epoll测试客户端">epoll测试客户端 &lt;a href="#epoll%e6%b5%8b%e8%af%95%e5%ae%a2%e6%88%b7%e7%ab%af" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>首先，我们读取命令行参数，新建一个调度器，由参数决定调度器的woker协程数量。之后新建&lt;code>UThreadEpollArgs_t&lt;/code>，把调度器指针塞进去。再之后把&lt;code>echoclient&lt;/code>工作函数和&lt;code>args&lt;/code>参数放由调度器中进行调度。&lt;/p>
+&lt;p>接下来我们看看工作函数&lt;code>echoclient&lt;/code>。&lt;/p>
+&lt;p>工作函数的第一步是申请一个socket fd：&lt;/p>
+&lt;pre tabindex="0">&lt;code>int fd = ::socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
+&lt;/code>&lt;/pre>&lt;p>这里我解释一下最后一个参数&lt;code>IPPROTO_IP&lt;/code>：&lt;/p>
+&lt;blockquote>
+&lt;p>In the in.h file, the comment says: Dummy protocol for TCP. &lt;br>
+This constant has the value 0. It&amp;rsquo;s actually an automatic choice depending on socket type and family. &lt;br>
+If you use it, and if the socket type is SOCK_STREAM and the family is AF_INET, then the protocol will automatically be TCP (exactly the same as if you&amp;rsquo;d used IPPROTO_TCP). Buf if you use IPPROTO_IP together with AF_INET and SOCK_RAW, you will have an error, because the kernel cannot choose a protocol automatically in this case.&lt;/p>&lt;/blockquote>
+&lt;p>这个参数的意义是告诉内核，如果只有一个选项的话，你特么爱用哪个协议就用哪个吧。所以有一些时候，我们会直接把最后一个参数写成0，这就是&lt;code>IPPROTO_IP&lt;/code>宏的字面值。&lt;/p>
+&lt;p>更多信息，可以参考这个&lt;a href="http://stackoverflow.com/questions/24590818/what-is-the-difference-between-ipproto-ip-and-ipproto-raw">问题&lt;/a>。&lt;/p>
+&lt;p>后面的流程非常简单，先接收server发来的欢迎信息，之后ping pong十次，发送“quit”包后结束协程。&lt;/p>
+&lt;h3 id="epoll测试服务端">epoll测试服务端 &lt;a href="#epoll%e6%b5%8b%e8%af%95%e6%9c%8d%e5%8a%a1%e7%ab%af" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>服务端和客户端区别不大，主要区别在于客户端在一开始只有一个协程。之后在accept连接时，会主动新建工作协程。&lt;/p>
+&lt;p>这里解释一下&lt;code>listen(fd, backlog)&lt;/code>函数的第二个参数&lt;code>backlog&lt;/code>：&lt;/p>
+&lt;p>backlog意为内核为相应套接字排队的最大连接个数。内核为任何一个给定的监听套接字维护两个队列：&lt;/p>
+&lt;ul>
+&lt;li>未完成连接队列(incomplete connection queue) &lt;br>
+已由某个客户发出并到达服务器，而服务器正在等待完成相应的TCP三路握手过程。这些套接字处于SYN_RCVD状态&lt;/li>
+&lt;li>已完成连接队列(completed connection queue) &lt;br>
+每个已完成TCP三路握手过程的客户对应其中一项。这些套接字处于ESTABLISHED状态&lt;/li>
+&lt;/ul>
+&lt;p>当队列满时，TCP会忽略改分节，但是不发送RST。服务端会期望客户端重发SYN，采用正常的重传机制来处理&lt;/p>
+&lt;p>队列的真实大小往往比设定backlog值要大一些（~1.5倍）&lt;/p>
+&lt;p>我们继续看工作函数&lt;code>echoaccept&lt;/code>。第一步是新建一个&lt;code>UThreadSocket_t&lt;/code>对象，用来监听accept事件。当有新的连接进入时，我们就将新的连接，以及连接所用的工作函数&lt;code>echoserver&lt;/code>加入到调度器中。&lt;/p>
+&lt;p>&lt;code>echoserver&lt;/code>函数首先发送一个欢迎信息，之后就和客户端打起乒乓球来，直到客户端发来quit，就结束这个工作协程。&lt;/p>
+&lt;p>其实这里有一个问题，如果发生了一个字符串拆成两半发的现象，比如第一个包是“blahblahquitq”，之后一个包是“uit”，那么这个协程永远就不会停止了。由于TCP是一个流协议，我们不能保证每一次recv回来的信息都是一个完整的“包”。不做不必要的假设，不给自己找麻烦。&lt;/p>
+&lt;p>不过因为这里ping pong的消息都比较短，可以强行认为每一个包都包含着一个完整的字符串。当然，这种假设也是无意义的。所以我们要留意phxrpc在真正的生产环境，是怎样处理这种“粘包”的问题的。&lt;/p>
+&lt;h2 id="写在最后">写在最后 &lt;a href="#%e5%86%99%e5%9c%a8%e6%9c%80%e5%90%8e" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>上一张女神的图：&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/16-10-19/89151689.jpg" alt="">&lt;/p>
+&lt;p>没啦~&lt;/p></description></item><item><title>使用epoll驱动ucontext - phxrpc代码阅读(5)</title><link>https://wizmann.top/posts/phxrpc-5/</link><pubDate>Mon, 17 Oct 2016 01:28:40 +0000</pubDate><guid>https://wizmann.top/posts/phxrpc-5/</guid><description>&lt;h2 id="用pipe叫醒你--epollnotifier">用pipe叫醒你 — EpollNotifier &lt;a href="#%e7%94%a8pipe%e5%8f%ab%e9%86%92%e4%bd%a0--epollnotifier" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>&lt;code>class EpollNotifier&lt;/code>类型封装了一个使用pipe传递信号的Notifier类。&lt;/p>
+&lt;p>&lt;code>Run()&lt;/code>函数（其实我觉得叫Register或Activate会更好）首先声明了两个单向的pipe：&lt;code>pipe_fds_&lt;/code>，从&lt;a href="http://man7.org/linux/man-pages/man2fpipe.2.html">文档&lt;/a>中我们可以知道&lt;code>pipe_fds_[0]&lt;/code>是读管道，而&lt;code>pipe_fds_[1]&lt;/code>是写管道。这里有一丁点反直觉，就是pipe拿了两个fd，但是仍旧是单工的。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/16-10-16/2335602.jpg" alt="">&lt;/p>
+&lt;p>然后将读fd设为&lt;code>O_NONBLOCK&lt;/code>以供epoll调度，最后将&lt;code>Func()&lt;/code>函数传入&lt;code>scheduler_&lt;/code>中。&lt;/p>
+&lt;blockquote>
+&lt;p>这里跑个题，想起了当年我大一的时候上过的通信导论的选修课。那会我还没有沉迷代码，还是一个积极乐观好好学习的新时代大学生。自从开始写了代码，人就越来越废物了，连女朋友都找不到了。 &lt;br>
+年轻人们啊，有饭辙干点啥都行，千万别写码啊。&lt;/p>&lt;/blockquote>
+&lt;p>&lt;code>Func()&lt;/code>函数做的事情很简单，就是从管道里尝试poll一段数据，拿到数据后直接扔掉。因为管道里传来的数据并没有实际意义，这样设计的主要意义在于唤醒epoll。&lt;/p>
+&lt;p>我们可以从&lt;code>Notify()&lt;/code>函数中看出，传入管道的是一个字符&amp;quot;a&amp;quot;。&lt;/p>
+&lt;h2 id="调度器类--uthreadepollscheduler">调度器类 — UThreadEpollScheduler &lt;a href="#%e8%b0%83%e5%ba%a6%e5%99%a8%e7%b1%bb--uthreadepollscheduler" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>调试器类在初始化时，声明了协程栈的大小以及调试器所调度的最大任务数。不过这个最大任务数是一个“软线”，因为在最新的Linux内核中，epoll使用动态内存管理fd，&lt;code>epoll_create&lt;/code>中的&lt;code>size&lt;/code>参数已经失去了作用。而后面&lt;code>epoll_wait&lt;/code>中的&lt;code>max_event&lt;/code>参数只是每次返回的最多event数，也就是如果我们向调度器中加入了超过限制的fd，也不会有什么恶劣的后果。（参考&lt;a href="http://man7.org/linux/man-pages/man2/epoll_create.2.html">epoll文档&lt;/a>和&lt;a href="http://man7.org/linux/man-pages/man2/epoll_wait.2.html">epoll_wait文档&lt;/a>）&lt;/p>
+&lt;h3 id="让人搞不懂的instance函数">让人搞不懂的Instance函数 &lt;a href="#%e8%ae%a9%e4%ba%ba%e6%90%9e%e4%b8%8d%e6%87%82%e7%9a%84instance%e5%87%bd%e6%95%b0" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>这个函数看起来像一个Singleton的实现，但是明明&lt;code>UThreadEpollScheduler&lt;/code>类的构造函数是public的。也就是这个函数像是一个单例，但它又不是一个单例。&lt;/p>
+&lt;p>在其它的代码中，也没有调用个函数的地方，我觉得这个函数是开发者忘记删了。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/16-10-16/85921046.jpg" alt="">&lt;/p>
+&lt;h3 id="远古智慧--createsocket">远古智慧 — CreateSocket &lt;a href="#%e8%bf%9c%e5%8f%a4%e6%99%ba%e6%85%a7--createsocket" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>这个函数其实没啥可说的，算是对&lt;code>UThreadSocket_t&lt;/code>构造的封装，但是这里面有一个小技巧，就是&lt;code>calloc&lt;/code>的使用。&lt;/p>
+&lt;p>&lt;code>calloc&lt;/code>的作用是向内核申请一段栈空间（和&lt;code>malloc&lt;/code>行为一致），然后将这一段内存清0。&lt;/p>
+&lt;p>个人感觉这样做的目的是防止指针没有初始化带来的一系列诡异的问题。把指针清零，可以让问题在第一时间出现，方便出错时的调试。但是我觉得还是用测试覆盖这种问题已经好，因为空指针在特定的情况下，仍可能是导致诡异行为的源头。&lt;/p>
+&lt;h3 id="跑--run">跑 — Run &lt;a href="#%e8%b7%91--run" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>&lt;code>Run()&lt;/code>函数是调度器的核心函数（当然啦），简单来说就是一个循环获取event，用适当的协程处理event。&lt;/p>
+&lt;p>函数的一开始，先调用&lt;code>ConsumeTodoList()&lt;/code>函数，将列表中的协程全部激活，并hang在epoll上。&lt;/p>
+&lt;p>之后进入一个“死循环”，通过&lt;code>epoll_wait&lt;/code>将有数据可读的fd取出，并调用相应的协程进行处理。这里我们看到，&lt;code>epoll_wait&lt;/code>的超时时间是写死的4ms，并没有使用&lt;code>next_timeout&lt;/code>给出的下次超时时间。这是因为这里支持了“active socket”，即服务器对活动连接操作，例如发送响应甚至新建一个socket。&lt;/p>
+&lt;p>后面的&lt;code>handler_accepted_fd_func_&lt;/code>和&lt;code>active socket&lt;/code>是类似的，不过这个函数是用来处理已经建立好的连接，为其分配相应的协程。&lt;/p>
+&lt;p>所以，由此可见，这个循环即是事件驱动的，又是轮询的。然而这两种模型，居然能写在一个函数里，真是令人印象深刻。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/16-10-16/4157866.jpg" alt="">&lt;/p>
+&lt;p>下面的&lt;code>DealwithTimeout&lt;/code>函数处理了一下超时的协程，并且更新了&lt;code>next_timeout&lt;/code>变量。然而这个变量因为众所周知的原因，并没有什么卵用。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/16-10-16/4157866.jpg" alt="">&lt;/p>
+&lt;h2 id="poll来poll去--一堆epoll函数的封装">Poll来Poll去 — 一堆epoll函数的封装 &lt;a href="#poll%e6%9d%a5poll%e5%8e%bb--%e4%b8%80%e5%a0%86epoll%e5%87%bd%e6%95%b0%e7%9a%84%e5%b0%81%e8%a3%85" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="uthreadpoll1">UThreadPoll(1) &lt;a href="#uthreadpoll1" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>&lt;code>UThreadPoll&lt;/code>函数有两个版本，一个是poll单个socket，另外一个是poll一堆socket。我们先从单个socket的看起。&lt;/p>
+&lt;p>第一步是注册一个超时时间，第二步将这个socket放到epoll的监听列表上。之后调用yield，把控制权交还给主控制流。&lt;/p>
+&lt;p>当epoll收到相应的事件时，主控制流会将控制权交还给协程，协程将socket从epoll监听列表中移除，之后进行后面的操作。&lt;/p>
+&lt;p>整体的工作流可以参考下图。&lt;/p>
+&lt;p>&lt;img src="http://7lrx26.com1.z0.glb.clouddn.com/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202016-10-16%2021.33.48.png" alt="image">&lt;/p>
+&lt;h3 id="uthreadpoll2---边缘触发和水平触发">UThreadPoll(2) - 边缘触发和水平触发 &lt;a href="#uthreadpoll2---%e8%be%b9%e7%bc%98%e8%a7%a6%e5%8f%91%e5%92%8c%e6%b0%b4%e5%b9%b3%e8%a7%a6%e5%8f%91" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>epoll有两种触发模式，边缘触发(edge-trigger, ET)和水平触发(level-trigger, LT)。&lt;/p>
+&lt;p>简单解释一下epoll的这两种触发模式。ET意味着只要有fd可读或可写，&lt;code>epoll_wait&lt;/code>就返回这个fd，而LT意味着当且仅当fd由“不可读变为可读”或由“不可写变为可写”时，&lt;code>epoll_wait&lt;/code>才会返回。（这有可能出现所谓的“粘包”现象，详见&lt;a href="http://man7.org/linux/man-pages/man7/epoll.7.html">这里&lt;/a>）&lt;/p>
+&lt;blockquote>
+&lt;p>第一次听到“粘包”这个词，我一直以为这是啥好吃的。。。&lt;/p>&lt;/blockquote>
+&lt;p>这意味着，当我们使用LT时，我们必须清理干净fd中的数据，即只要可读，就一直读；只要可写，就一直写。否则就会出现问题。&lt;/p>
+&lt;p>在这里，我们使用的是比较常用的ET模式。并且我们利用了ET的特性实现了“监听多个fd，返回最早响应的那一个”。&lt;/p>
+&lt;p>首先，我们新建了一个epoll fd（简称内部epoll），将列表中的所有socket放到里面监听。之后将这个socket fd放到&lt;code>list[0]-&amp;gt;epollfd&lt;/code>所对应的epoll（简称外部epoll，通常是主工作循环的那个epoll）监听列表中。&lt;/p>
+&lt;p>当列表中的socket有返回时，内部的epoll会返回一个&lt;code>EPOLLIN&lt;/code>事件，外部的epoll接收到这个事件后，进行协程切换，回到当前函数中。&lt;/p>
+&lt;p>下一步我们&lt;code>epoll_wait&lt;/code>内部的epoll fd，因为我们确定此时一定有可操作的fd，所以我们将&lt;code>epoll_wait&lt;/code>的timeout参数设为0。之后我们将返回的fd的&lt;code>waited_events&lt;/code>参数填好，最后返回操作成功的fd的数目。&lt;/p>
+&lt;p>这个函数比较绕，不过有一个好消息 —— 这个函数也没有被其它地方调用过。不过这种&lt;code>cascaded epoll&lt;/code>的技巧确实是让人耳目一新。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/16-10-16/4157866.jpg" alt="">&lt;/p>
+&lt;h3 id="延时执行---uthreadwait">延时执行 - UThreadWait &lt;a href="#%e5%bb%b6%e6%97%b6%e6%89%a7%e8%a1%8c---uthreadwait" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>剩下的几个函数基本都是无脑封装，顺着看一遍代码基本就知道是啥意思了。不过&lt;code>UThreadWait&lt;/code>这个函数比较有意思，可以用来复习一下&lt;code>uthread + epoll&lt;/code>的工作流程。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#a6e22e">UThreadWait&lt;/span>(UThreadSocket_t &lt;span style="color:#f92672">&amp;amp;&lt;/span> socket, &lt;span style="color:#66d9ef">int&lt;/span> timeout_ms) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> socket.uthread_id &lt;span style="color:#f92672">=&lt;/span> socket.scheduler&lt;span style="color:#f92672">-&amp;gt;&lt;/span>GetCurrUThread();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> socket.scheduler&lt;span style="color:#f92672">-&amp;gt;&lt;/span>AddTimer(&lt;span style="color:#f92672">&amp;amp;&lt;/span>socket, timeout_ms);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> socket.scheduler&lt;span style="color:#f92672">-&amp;gt;&lt;/span>YieldTask();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> socket.scheduler&lt;span style="color:#f92672">-&amp;gt;&lt;/span>RemoveTimer(socket.timer_id);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>首先，获取当前uthread的ID，当我们调用&lt;code>Resume()&lt;/code>函数时，让代码知道我们要返回到哪个协程上面。&lt;/p>
+&lt;p>然后我们向调度器中添加一个定时器。之后&lt;code>Yield()&lt;/code>，离开当前协程。&lt;/p>
+&lt;p>主工作循环运行到超时时间后，会在这个协程打上一个“超时”标签，然后&lt;code>Resume()&lt;/code>切换回这个协程上来。&lt;/p>
+&lt;p>剩下的工作，就交由协程内部绑定的函数来进行处理。&lt;/p>
+&lt;h2 id="写在最后">写在最后 &lt;a href="#%e5%86%99%e5%9c%a8%e6%9c%80%e5%90%8e" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>在网络编程方面，真心是一个初学者。很多用词可能不恰当，也有一些是自己生造的。大家阅读的时候，尽量以代码和更专业的术语为准。&lt;/p>
+&lt;p>然后因为在行文中，可能追求了过多的逗比感，对原代码调侃了几句。并没有什么恶意，如果哪里说的不对，欢迎拍砖。&lt;/p>
+&lt;p>&lt;img src="http://7lrx26.com1.z0.glb.clouddn.com/IMG_20161017_012107.jpg" alt="image">&lt;/p>
+&lt;p>佛祖保佑，永无Bug。&lt;/p></description></item><item><title>ucontext - phxrpc代码阅读(4)</title><link>https://wizmann.top/posts/phxrpc-4/</link><pubDate>Thu, 13 Oct 2016 23:45:24 +0000</pubDate><guid>https://wizmann.top/posts/phxrpc-4/</guid><description>&lt;h2 id="写在前面">写在前面 &lt;a href="#%e5%86%99%e5%9c%a8%e5%89%8d%e9%9d%a2" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>国庆假期过半，phxrpc的代码阅读大概要小小告一段落啦。因为这两天还要读工作相关的代码，以及最后几天还有一次短途旅行。&lt;/p>
+&lt;p>所以非阻塞TCP流可能要留到下一篇了，这一篇只涉及非阻塞TCP流使用到的ucontext协程库，及其使用的一些框架代码。&lt;/p>
+&lt;blockquote>
+&lt;p>161013更新：这点破东西写到今天才写完，GG。&lt;/p>&lt;/blockquote>
+&lt;h2 id="什么是ucontext">什么是ucontext &lt;a href="#%e4%bb%80%e4%b9%88%e6%98%afucontext" class="anchor">🔗&lt;/a>&lt;/h2>&lt;blockquote>
+&lt;p>&amp;ldquo;Subroutines are special cases of &amp;hellip; coroutines.&amp;rdquo; –Donald Knuth.&lt;/p>&lt;/blockquote>
+&lt;p>首先我们来看一下，什么是线程。线程是进程内一条执行流的状态，包含了硬件状态（硬件计数器，寄存器，条件码等）和堆栈中的数据。&lt;/p>
+&lt;p>线程通常只有一个入口和一个出口。当线程返回时，线程的生命周期也结束了。所以，通常线程的执行由内核调度。&lt;/p>
+&lt;p>协程的定义与线程类似，也是硬件状态+堆栈的状态组合。但是与线程不同的是，协程可以有多个出口。可以通过yield来暂停自己，调用其它协程。再次启动时，会从上次挂起的地方继续运行。&lt;/p>
+&lt;h2 id="phxrpc中的ucontext">phxrpc中的ucontext &lt;a href="#phxrpc%e4%b8%ad%e7%9a%84ucontext" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>phxrpc提供了system和boost两种ucontext的实现，所以提供了一个&lt;code>uthread_context_base&lt;/code>的基类。其实在这里我是有一点怀疑虚函数的性能的，不过好在协程的切换以及网络IO操作还是比较耗性能的，所以虚函数多出来的几次内存寻址也并非不能接受。&lt;/p>
+&lt;p>在这篇文章中，我们只看&lt;code>uthread_context_system&lt;/code>这个使用系统ucontext库的实现。&lt;/p>
+&lt;h3 id="协程上下文uthreadcontext">协程上下文：&lt;code>UThreadContext&lt;/code> &lt;a href="#%e5%8d%8f%e7%a8%8b%e4%b8%8a%e4%b8%8b%e6%96%87uthreadcontext" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>这个类是协程上下文的虚基类，所以代码很少。并且也没有什么好解释的。&lt;/p>
+&lt;p>&lt;code>void Make(UThreadFunc_t func, void * args)&lt;/code>函数是&lt;code>makecontext()&lt;/code>的封装。&lt;/p>
+&lt;p>&lt;code>bool Resume()&lt;/code>和&lt;code>bool Yield()&lt;/code>是&lt;code>swapcontext&lt;/code>的封装。&lt;/p>
+&lt;p>个人感觉这个类拆分成一个工厂类（传入一个Create仿函数）和一个上下文基类会更清楚一点。&lt;/p>
+&lt;h3 id="使用系统ucontext库的协程上下文uthreadcontextsystem">使用系统ucontext库的协程上下文：&lt;code>UThreadContextSystem&lt;/code> &lt;a href="#%e4%bd%bf%e7%94%a8%e7%b3%bb%e7%bb%9fucontext%e5%ba%93%e7%9a%84%e5%8d%8f%e7%a8%8b%e4%b8%8a%e4%b8%8b%e6%96%87uthreadcontextsystem" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>在phxrpc的文档中，说明使用系统原生的ucontext库的性能要差于boost版本的。但是从数据上来看微乎其微，所以我们先从这个版本看起，力求举一反三。&lt;/p>
+&lt;p>&lt;code>UThreadContextSystem&lt;/code>在构造函数中传入了协程栈大小，协程要执行的函数（及参数），协程执行后的回调，以及调试用的&lt;code>need_stack_protect&lt;/code> flag。&lt;/p>
+&lt;p>每一个上下文对象都维护了两个context，&lt;code>main_context&lt;/code>用来表示主程序执行流的上下文，而&lt;code>context_&lt;/code>则用来表示协程的上下文。&lt;/p>
+&lt;p>&lt;code>main_context&lt;/code>是&lt;code>static thread_local&lt;/code>修饰的，也就意味着这个静态变量在每一个线程中有且只有一个。执行在同一个线程上的不同协程，都会切换/被切换到这个上下文上。&lt;/p>
+&lt;p>在&lt;code>Resume()&lt;/code>函数中，我们激活协程上下文，并将主程序执行流的上下文保存在&lt;code>main_context&lt;/code>上。&lt;/p>
+&lt;p>在&lt;code>Yield()&lt;/code>函数中，我们将主程序执行流的上下文激活，将协程上下文保存回&lt;code>context_&lt;/code>中。&lt;/p>
+&lt;p>这里的&lt;code>UThreadFuncWrapper()&lt;/code>值得我们特别关注。这个函数包装了我们的工作函数&lt;code>uc-&amp;gt;func_&lt;/code>，并且将&lt;code>this&lt;/code>指针传进去。&lt;/p>
+&lt;p>传入指针时，这里使用了一个技巧。首先我们将指针强转为&lt;code>uintptr_t&lt;/code>，这个是编译器内置的一个&lt;code>typeof&lt;/code>，意在将指针类型无损失的转为整型。之后，将一个&lt;code>uintptr_t&lt;/code>拆为两个&lt;code>uint32_t&lt;/code>。最后，在wrapper函数中，将这两个&lt;code>uint32_t&lt;/code>拼回成一个指针类型。&lt;/p>
+&lt;p>初看这段代码，我们就有这样的疑问：“这特么不是有病么？” 但是，折腾自然有折腾的道理。&lt;/p>
+&lt;blockquote>
+&lt;p>When this context is later activated (using setcontext(3) or swapcontext()) the function func is called, and passed the series of integer (int) arguments that follow argc; the caller must specify the number of these arguments in argc.&lt;/p>&lt;/blockquote>
+&lt;p>从官方的文档中我们可以看到，用在&lt;code>setcontext&lt;/code>中的函数，只支持int类型的参数，并且需要我们显式声明参数的数目。这里一定要小心，因为变长参数列表并不能有很强的编译期检查支持，搞出UB或core dump来就非常难查。&lt;/p>
+&lt;h3 id="ucontext中使用的栈内存uthreadstackmemory">ucontext中使用的栈内存：&lt;code>UThreadStackMemory&lt;/code> &lt;a href="#ucontext%e4%b8%ad%e4%bd%bf%e7%94%a8%e7%9a%84%e6%a0%88%e5%86%85%e5%ad%98uthreadstackmemory" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>ucontext协程是在同一个线程执行多个上下文，所以就要配备多个栈空间。这里的栈大小我们是可以手动管理的，所以我们可以根据程序的实际情况来调整栈大小，以节省内存使用。&lt;/p>
+&lt;p>内存的申请并不是使用&lt;code>malloc&lt;/code>或者&lt;code>new&lt;/code>这种比较高层次的内存操作函数，而是使用的&lt;code>mmap&lt;/code>。这样的好处是我们可以使用参数控制申请出的内存的权限。&lt;/p>
+&lt;p>栈内存有两种模式，保护和非保护。保护模式用于调试，会在正常栈内存的两端，各申请一个页大小的保护内存。正常栈内存的权限是读写：&lt;code>PROT_READ | PROT_WRITE&lt;/code>，而保护内存的权限是禁止访问：&lt;code>PROT_NONE&lt;/code>，也就是说，任何试图访问这块内存的请求，都会触发段错误。&lt;/p>
+&lt;p>在非保护的运行模式下，栈内存还会使用&lt;code>MAP_ANONYMOUS | MAP_PRIVATE&lt;/code>还进行保护。&lt;code>MAP_ANONYMOUS&lt;/code>表明这段内存是匿名的，即不占用fd，也无需进行写回操作，使mmap的行为类似于malloc。&lt;code>MAP_PRIVATE&lt;/code>意为这段内存不会被其它进程访问，可以使用私有的写时复制映射。（虽然没找到相关资料，但是感觉这两个配置牺牲了可调试性来获取更好的性能）&lt;/p>
+&lt;h3 id="ucontext的运行时uthreadruntime">ucontext的运行时：&lt;code>UThreadRuntime&lt;/code> &lt;a href="#ucontext%e7%9a%84%e8%bf%90%e8%a1%8c%e6%97%b6uthreadruntime" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>这个类其实很简单，但是由于代码的命名过于意识流，所以很容易把人绕晕。&lt;/p>
+&lt;p>一个&lt;code>UThreadRuntime&lt;/code>代表着一个线程中运行着的N个ucontext上下文。上下文信息保存在&lt;code>std::vector&amp;lt;ContextSlot&amp;gt; context_list_&lt;/code>中。&lt;/p>
+&lt;p>slot是可以复用的，&lt;code>first_done_item_&lt;/code>记录着已执行完的context的下标，然后slot中的&lt;code>next_done_item&lt;/code>记录着下一个执行完的context的下标。简而言之，这就是类似一个“脏池”的设计。不过这个命名啊，一点都不赛艇。&lt;/p>
+&lt;p>剩下的代码基本就是&lt;code>UThreadContext&lt;/code>的无脑封装了。需要哪个协程开始工作就&lt;code>Resume&lt;/code>哪个协程，需要暂停就调用&lt;code>Yield&lt;/code>。结束后，调用回调函数，把运行完的协程往脏池一扔，完活。&lt;/p>
+&lt;h2 id="写在最后">写在最后 &lt;a href="#%e5%86%99%e5%9c%a8%e6%9c%80%e5%90%8e" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>上面我们分析了phxrpc对ucontext协程库的封装，下一篇，我们就来正式看一看ucontext是如何与IO多路复用的技术连接在一起的。&lt;/p>
+&lt;p>最后上几张皂片：&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/16-10-13/31415098.jpg" alt="">&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/16-10-13/1208386.jpg" alt="">&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/16-10-13/97556242.jpg" alt="">&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/16-10-13/44196833.jpg" alt="">&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/16-10-13/20763058.jpg" alt="">&lt;/p></description></item><item><title>阻塞TCP流 - phxrpc代码阅读(3)</title><link>https://wizmann.top/posts/phxrpc-3/</link><pubDate>Mon, 03 Oct 2016 22:22:14 +0000</pubDate><guid>https://wizmann.top/posts/phxrpc-3/</guid><description>&lt;h2 id="写在前面">写在前面 &lt;a href="#%e5%86%99%e5%9c%a8%e5%89%8d%e9%9d%a2" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>phxrpc的流（&lt;code>stream&lt;/code>和&lt;code>streambuf&lt;/code>）与网络访问其实是耦合在一起的，所以本文可以结合着第一篇笔记一起来看。虽然我非常想吐槽这种强耦合性的设计，但是我决定还是好好理解phxrpc的设计之后。。。攒一波大的：）&lt;/p>
+&lt;h2 id="blocktcpstreambuf">BlockTcpStreamBuf &lt;a href="#blocktcpstreambuf" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>&lt;code>class BlockTcpStreamBuf&lt;/code>继承自&lt;code>BaseTcpStreamBuf&lt;/code>。其中重写了&lt;code>precv&lt;/code>和&lt;code>psend&lt;/code>两个函数，并且持有了一个文件描述符(file descriptor)：&lt;code>socket_&lt;/code>。&lt;/p>
+&lt;p>&lt;code>precv&lt;/code>和&lt;code>psend&lt;/code>直接调用了&lt;code>&amp;lt;sys/socket.h&amp;gt;&lt;/code>中的&lt;code>recv(2)&lt;/code>和&lt;code>send(2)&lt;/code>，并没有其它操作。&lt;/p>
+&lt;p>网络相关的操作，则由&lt;code>class BlockTcpStream&lt;/code>来负责。&lt;code>BlockTcpStreamBuf&lt;/code>只负责IO部分。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">if&lt;/span> (BaseTcpUtils&lt;span style="color:#f92672">::&lt;/span>SetNonBlock(sockfd, false)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> BaseTcpUtils&lt;span style="color:#f92672">::&lt;/span>SetNoDelay(sockfd, true)) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> stream&lt;span style="color:#f92672">-&amp;gt;&lt;/span>Attach(sockfd);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>} &lt;span style="color:#66d9ef">else&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> phxrpc&lt;span style="color:#f92672">::&lt;/span>log(LOG_ERR, &lt;span style="color:#e6db74">&amp;#34;set nonblock fail&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> error &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> close(sockfd);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>在&lt;code>BlockTcpStream&lt;/code>把fd传递给&lt;code>BlockTcpStreambuf&lt;/code>之前，需要把fd设置为&lt;code>block&lt;/code>的。而这段代码最大的槽点就是这个&lt;code>SetNonBlock&lt;/code>函数，和下面的&lt;code>set nonblock fail&lt;/code>日志（想一想）。完全让人摸不到头脑，达到一脸懵逼的最高境界。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/16-10-3/87163832.jpg" alt="">&lt;/p>
+&lt;p>由于&lt;code>recv&lt;/code>和&lt;code>send&lt;/code>函数是&lt;code>block&lt;/code>的，所以在读取、写入缓冲区时，如果没有足够的数据可读或没有足够的空间可写，则读取写入操作会阻塞住。&lt;/p>
+&lt;h2 id="blocktcpstream">BlockTcpStream &lt;a href="#blocktcpstream" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>在这里我又想吐个槽了，为啥在这里把TCP Server和Client的工作流混为一谈。我觉得至少应该从命名上区分一下，否则极容易误用。&lt;/p>
+&lt;h3 id="tcp的工作流程">TCP的工作流程 &lt;a href="#tcp%e7%9a%84%e5%b7%a5%e4%bd%9c%e6%b5%81%e7%a8%8b" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/16-10-3/92621506.jpg" alt="">&lt;/p>
+&lt;blockquote>
+&lt;p>图片来源：UNIX网络编程卷一：套接字编程 4.2节&lt;/p>&lt;/blockquote>
+&lt;p>从图中我们可以看到，TCP的服务端与客户端的工作流程是不同的，相对来说，客户端的程序要简单一些。&lt;/p>
+&lt;p>&lt;code>BlockTcpStream&lt;/code>中，客户端应用的函数只有&lt;code>BlockTcpUtils::Open&lt;/code>，而服务端的&lt;code>BlockTCPUtils::Listen&lt;/code>函数包括了&lt;code>bind()&lt;/code>和&lt;code>listen()&lt;/code>两个操作，而&lt;code>accept()&lt;/code>则需要开发者手动调用。&lt;/p>
+&lt;h3 id="so_reuseaddr">SO_REUSEADDR &lt;a href="#so_reuseaddr" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>在服务端的&lt;code>Listen()&lt;/code>函数中，phxrpc使用了&lt;code>SO_REUSEADDR&lt;/code>选项，这个选项的意在通知内核：如果端口忙，但是TCP状态位于&lt;code>TIME_WAIT&lt;/code>时，可以重用端口。&lt;/p>
+&lt;p>一个套接字其实是一个&lt;code>（协议，源地址，源端口，目标地址，目标端口）&lt;/code>五元组。&lt;code>SO_REUSEADDR&lt;/code>意味着我们可以重用源地址和源端口。当然此时的风险在于如果该原套接字发送了一些错误的数据，此时我们的应用程序的TCP工作流就会产生错乱。但是由于TCP的实现中，通过随机的消息序号规避了这个问题，所以这里的风险可以忽略不计。&lt;/p>
+&lt;p>使用&lt;code>SO_REUSEADDR&lt;/code>的好处是，在服务端程序崩溃和退出时（对于一般的服务端程序来说，崩溃和退出是没有区别的），可以立即重启，而不需要等待2MSL时间。&lt;/p>
+&lt;p>那么我们要问了，为什么在这里我们需要等待2MSL时间呢。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/16-10-3/33186679.jpg" alt="">&lt;/p>
+&lt;blockquote>
+&lt;p>图片来源：Effective TCP/IP 3.8节&lt;/p>&lt;/blockquote>
+&lt;p>TCP拆除连接使用了四次握手的机制，而主动关闭连接的一方在发送完最后一个ACK之后，需要等待2MSL的时间。这就是上面所说的，当服务器重启后，出现&lt;code>Address already in use&lt;/code>的报错信息，需要额外等待大约1~4分钟的原因。&lt;/p>
+&lt;p>究其原因，TIME-WAIT状态的意图在于避免主动关闭连接的一端最后一个ACK发送失败。此时，主机1已经完全关闭，而主机2因为没有收到FIN包的ACK，处于半关闭状态。此时主机2向主机1发送的任何信息（如延迟的ACK包等）都只会收到RST，导致连接的异常关闭。&lt;/p>
+&lt;p>为了规避这个问题，主动关闭端需要等待2MSL时间。一个MSL是给最后的ACK包，而另外一个MSL，是为了等待被动关闭端重新发送FIN包。如果在TIME_WAIT期间收到了对端的数据包，会刷新TIME_WAIT状态的时间。&lt;/p>
+&lt;blockquote>
+&lt;p>参考：Effective TCP/IP 3.8 3.9节&lt;/p>&lt;/blockquote>
+&lt;h3 id="io复用poll">IO复用：Poll &lt;a href="#io%e5%a4%8d%e7%94%a8poll" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/16-10-3/84501111.jpg" alt="">&lt;/p>
+&lt;blockquote>
+&lt;p>图片来源：UNIX网络编程卷一：套接字编程 6.2节&lt;/p>&lt;/blockquote>
+&lt;p>IO复用是指内核在发现进程指定的一个或多个IO条件就绪，内核就通知进程。通常来讲，常用的IO复用函数有&lt;code>select()&lt;/code>和&lt;code>poll()&lt;/code>。&lt;/p>
+&lt;p>当&lt;code>poll()&lt;/code>返回后，我们需要遍历其中的fd数组找到可操作的fd。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">struct&lt;/span> &lt;span style="color:#a6e22e">pollfd&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> fd; &lt;span style="color:#75715e">/* file descriptor */&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">short&lt;/span> events; &lt;span style="color:#75715e">/* requested events */&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">short&lt;/span> revents; &lt;span style="color:#75715e">/* returned events */&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>我们可以从&lt;code>events&lt;/code>和&lt;code>revents&lt;/code>获得该fd的状态，从而判别可读、可写、超时或出错。&lt;/p>
+&lt;p>在这里，我们并没有使用poll函数的IO复用能力，而是把它做为另一个阻塞IO调用来使用。&lt;/p>
+&lt;p>&lt;code>BlockTcpUtils::Open&lt;/code>函数中，我们使用了poll，用来监视相应的（一个）fd是否可读。这样一来，我们就隐式（为什么说隐式呢，因为他们一不写文档，二不写注释，一切都是潜规则）规定了C/S交互的基本工作流程：当C/S连接建立后，Server端要先说话，Client端接收到消息之后，才可以进行下面的流程。&lt;/p>
+&lt;blockquote>
+&lt;p>Client：“不管你们信不信，是Server先动的手。”&lt;/p>&lt;/blockquote>
+&lt;p>具体为什么先用poll，再把fd设为&lt;code>blocking&lt;/code>的，我表示二脸懵逼。在我的实验中，即使把poll删掉，测试代码也是可以work的。可能在后面的代码阅读中，这个问题可以获得解释吧。&lt;/p>
+&lt;p>和select一样，poll也存在被中断的情况，在phxrpc的代码里，我们给了中断“a second chance”。当poll被中断后，会重新再poll一次；如果这次再被中断，则直接返回TIMEOUT。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">// retry again for EINTR
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">int&lt;/span> i &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>; i &lt;span style="color:#f92672">&amp;lt;&lt;/span> &lt;span style="color:#ae81ff">2&lt;/span>; i&lt;span style="color:#f92672">++&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ret &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#f92672">::&lt;/span>poll(&lt;span style="color:#f92672">&amp;amp;&lt;/span>pfd, &lt;span style="color:#ae81ff">1&lt;/span>, timeout_ms);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (&lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span> &lt;span style="color:#f92672">==&lt;/span> ret &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> EINTR &lt;span style="color:#f92672">==&lt;/span> errno)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">continue&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">break&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">if&lt;/span> (&lt;span style="color:#ae81ff">0&lt;/span> &lt;span style="color:#f92672">==&lt;/span> ret)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> errno &lt;span style="color:#f92672">=&lt;/span> ETIMEDOUT;
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="写在最后">写在最后 &lt;a href="#%e5%86%99%e5%9c%a8%e6%9c%80%e5%90%8e" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>由于这篇文章中的知识点比较杂，写作的顺序也是随机的。所以连贯性不是那么强。如果有什么问题，忍着点吧您就。&lt;/p>
+&lt;p>忍不了的话。。。那就留言交流吧~&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/16-10-3/42112021.jpg" alt="">&lt;/p></description></item><item><title>定时器以及其它 - phxrpc阅读笔记(2)</title><link>https://wizmann.top/posts/phxrpc-2/</link><pubDate>Thu, 29 Sep 2016 01:28:09 +0000</pubDate><guid>https://wizmann.top/posts/phxrpc-2/</guid><description>&lt;h2 id="写在前面">写在前面 &lt;a href="#%e5%86%99%e5%9c%a8%e5%89%8d%e9%9d%a2" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>phxrpc使用了协程(ucontext)和IO复用技术(epoll)来实现网络通信。定时器在其中起到了非常重要的作用。下面我们就来分析一下phxrpc的&lt;code>timer.[h|cpp]&lt;/code>中的代码。&lt;/p>
+&lt;h2 id="system_clock-vs-steady_clock">system_clock vs steady_clock &lt;a href="#system_clock-vs-steady_clock" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>&lt;code>system_clock&lt;/code>和&lt;code>steadly_clock&lt;/code>都是来自&lt;code>&amp;lt;chrono&amp;gt;&lt;/code>库，都是用来获取当前时间的。&lt;/p>
+&lt;p>&lt;code>system_clock&lt;/code>用来从系统时钟获取时钟时间(wall clock time)，而&lt;code>steadly_clock&lt;/code>获取的是时钟tick，而且保证随着时间的推移，时钟tick数不会变小。&lt;/p>
+&lt;p>然而实际上，在某些系统下，这两个时钟的实现是一致的。详细信息可以参考&lt;a href="http://stackoverflow.com/questions/13263277/difference-between-stdsystem-clock-and-stdsteady-clock">这里&lt;/a>。&lt;/p>
+&lt;blockquote>
+&lt;p>注：在clang++ 4.2.1, g++ 5.4 下实验，这两个时钟是不同的。所以个人认为在这里最好不要做任何无意义的假设。&lt;/p>&lt;/blockquote>
+&lt;h2 id="几毫秒的安睡">几毫秒的安睡 &lt;a href="#%e5%87%a0%e6%af%ab%e7%a7%92%e7%9a%84%e5%ae%89%e7%9d%a1" class="anchor">🔗&lt;/a>&lt;/h2>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">void&lt;/span> Timer &lt;span style="color:#f92672">::&lt;/span> MsSleep(&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> time_ms) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> timespec t;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> t.tv_sec &lt;span style="color:#f92672">=&lt;/span> time_ms &lt;span style="color:#f92672">/&lt;/span> &lt;span style="color:#ae81ff">1000&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> t.tv_nsec &lt;span style="color:#f92672">=&lt;/span> (time_ms &lt;span style="color:#f92672">%&lt;/span> &lt;span style="color:#ae81ff">1000&lt;/span>) &lt;span style="color:#f92672">*&lt;/span> &lt;span style="color:#ae81ff">1000000&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> ret &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">do&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ret &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#f92672">::&lt;/span>nanosleep(&lt;span style="color:#f92672">&amp;amp;&lt;/span>t, &lt;span style="color:#f92672">&amp;amp;&lt;/span>t);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> } &lt;span style="color:#66d9ef">while&lt;/span> (ret &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span> &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> errno &lt;span style="color:#f92672">==&lt;/span> EINTR);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这里phxrpc使用了&lt;code>nanosleep&lt;/code>实现了高精度的sleep。&lt;/p>
+&lt;p>注意这里的用法，由于&lt;code>nanosleep&lt;/code>可能被信号中断，此时errno被设为&lt;code>EINTR&lt;/code>。所以我们需要进行额外的判断。当nanosleep被信号中断时，会把剩余时间写入第二个参数指向的&lt;code>timespec&lt;/code>变量中，之后我们再次调用&lt;code>nanosleep&lt;/code>，就可以把剩余的时间再睡一个回笼觉了。&lt;/p>
+&lt;h2 id="可删除优先队列">可删除优先队列 &lt;a href="#%e5%8f%af%e5%88%a0%e9%99%a4%e4%bc%98%e5%85%88%e9%98%9f%e5%88%97" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>这个设计一颗赛艇啊。&lt;/p>
+&lt;p>对于&lt;code>std::priority_queue&lt;/code>以及大多数手写的优先队列（又称堆，heap）。一般只有&lt;code>top()&lt;/code>, &lt;code>push()&lt;/code>, &lt;code>pop()&lt;/code>这三个操作接口，如果想实现删除操作，大多数情况（为了偷懒）会把&lt;code>std::priority_queue&lt;/code>替换为&lt;code>std::set&lt;/code>。&lt;code>std::set&lt;/code>的内部实现是平衡树（确切的说，红黑树），可以实现获得最大最小值，查找某个值，以及删除某个值的操作。&lt;/p>
+&lt;p>但是&lt;code>std::priority_queue&lt;/code>（或者用数组或vector实现的堆）是顺序容器(sequence containers)，而&lt;code>std::set&lt;/code>是关联容器(associative containers)。相对来说，由于cache的原因，顺序容器的性能比关联容器要好。当然我扯得有点远了。对此感兴趣的同学可以去参考《Effective STL》一书。&lt;/p>
+&lt;p>在这里，我们的需求是这样的：&lt;/p>
+&lt;ul>
+&lt;li>堆是小根堆，按超时时间增序&lt;/li>
+&lt;li>堆中的元素是socket描述符&lt;code>UThreadSocket_t&lt;/code>&lt;/li>
+&lt;li>根据描述符，我们可以删除堆中的任意元素&lt;/li>
+&lt;/ul>
+&lt;p>如果我们有清醒的头脑，就会认为这个需求是不好实现的。删除堆中元素并不复杂，只需要将堆中最后一个元素放到被删除元素的位置上，然后再执行一次&lt;code>heap_down()&lt;/code>操作就可以了。问题在于我们很难确定某一个元素的具体位置。&lt;/p>
+&lt;blockquote>
+&lt;p>想一想，堆中的数据是如何组织的。如果想找到某一个特定的值，除了遍历之外，还有没有其它的方法。&lt;/p>&lt;/blockquote>
+&lt;p>这里phxrpc使用了一种侵入式的手段，将下标写入堆中元素。然后堆外持有指针。然后在维护堆性质的时候，同步更新堆中元素，使其中保存的下标与其在堆中的下标一致。&lt;/p>
+&lt;p>这样我们就可以通过指针拿到相应元素的下标，删除操作也变得简单了起来。&lt;/p>
+&lt;p>那么侵入式堆下标有什么问题吗？一来我们对于元素的查找只能根据容器外持有的指针来进行，并不能像&lt;code>std::set&lt;/code>那样通过比较关系来查找。二来侵入式下标需要额外的内存空间，对于小型对象会造成可观比例的overhead。同时容器内只能持有元素指针，在某种程度上会带来额外的寻址开销。&lt;/p>
+&lt;p>不过，这大概也是让堆支持删除的唯一方法了。&lt;/p>
+&lt;h2 id="小小吐槽">小小吐槽 &lt;a href="#%e5%b0%8f%e5%b0%8f%e5%90%90%e6%a7%bd" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>这段代码写的，貌似耦合的太紧了一点。&lt;code>class Timer&lt;/code>内部提供的功能有&lt;/p>
+&lt;ol>
+&lt;li>得到当前时间&lt;/li>
+&lt;li>nanosleep&lt;/li>
+&lt;li>封装&lt;code>TimerObj&lt;/code>类&lt;/li>
+&lt;li>维护一个定时器堆，提供&lt;code>top()&lt;/code>, &lt;code>push()&lt;/code>, &lt;code>pop()&lt;/code>, &lt;code>erase()&lt;/code>功能，并且大多数操作都是硬编码的&lt;/li>
+&lt;/ol>
+&lt;p>至少在我看来，这并不符合“高内聚，低耦合”代码风格。&lt;/p>
+&lt;p>你问我为啥不给改改？&lt;/p>
+&lt;p>因为他们没写测试啊！&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/16-9-29/12309965.jpg" alt="">&lt;/p>
+&lt;h2 id="补充">补充 &lt;a href="#%e8%a1%a5%e5%85%85" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>其实对于&lt;code>class Timer&lt;/code>，phxrpc是有写测试的(test_timer.cpp)。但是这个代码写的就更迷了。这里再分析一下。&lt;/p>
+&lt;p>一开始，先创建100个timer，sleep时间随机。然后将50个timer放入&lt;code>need_remove&lt;/code>数组中。&lt;/p>
+&lt;p>之后每删一个timer，就配套睡到超时时间pop一个timer。弹出超时timer后，再判断一下时间误差是否超过10ms，如果是，就报错。&lt;/p>
+&lt;p>这。。。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/16-9-29/43591449.jpg" alt="">&lt;/p></description></item><item><title>自定义你的stream buffer - phxrpc阅读笔记(1)</title><link>https://wizmann.top/posts/phxrpc-1/</link><pubDate>Wed, 28 Sep 2016 22:35:55 +0000</pubDate><guid>https://wizmann.top/posts/phxrpc-1/</guid><description>&lt;h2 id="写在前面">写在前面 &lt;a href="#%e5%86%99%e5%9c%a8%e5%89%8d%e9%9d%a2" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>&lt;a href="https://github.com/tencent-wechat/phxrpc">phxrpc&lt;/a>是微信团队开源的一个轻量级RPC框架。&lt;/p>
+&lt;p>我对RPC这些东西了解不多，看到phxrpc的代码相对简单，而且还在初步开发阶段（在本文写作时，版本号是0.8）。所以想读一读，提高一下姿势水平。&lt;/p>
+&lt;p>就是这样。&lt;/p>
+&lt;h2 id="自定义stream-buffer">自定义stream buffer &lt;a href="#%e8%87%aa%e5%ae%9a%e4%b9%89stream-buffer" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>&lt;code>network/socket_stream_base.[h|cpp]&lt;/code>中的&lt;code>class BaseTcpStreamBuf&lt;/code>继承了&lt;code>std::streambuf&lt;/code>，自定义了一个流缓冲区，用于接收/发送TCP数据包。&lt;/p>
+&lt;p>这个用法比较新颖（或者是我见识少），网上的资料也不多。这里翻译一篇&lt;a href="http://www.mr-edd.co.uk/blog/beginners_guide_streambuf">介绍文章&lt;/a>，学习一下新姿势。&lt;/p>
+&lt;h2 id="a-beginners-guide-to-writing-a-custom-stream-buffer">A beginner&amp;rsquo;s guide to writing a custom stream buffer &lt;a href="#a-beginners-guide-to-writing-a-custom-stream-buffer" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>流(streams)是STL中提供的一个重要的抽象概念。著名的“Hello world”程序，便是使用了std::cout将字符串写入标准输出流(stdout)。&lt;/p>
+&lt;p>流当然可以做比cin/cout更有意思的事。这篇文章我们会研究如何扩展C++流，来实现自定义的流缓冲区(stream buffer)。p.s. 建议本文的读者至少要有基础的C++知识。&lt;/p>
+&lt;p>C++标准库为磁盘文件操作提供了基础的接口，如&lt;code>std::fstream&lt;/code>，&lt;code>std::ifstream&lt;/code>和&lt;code>std::ofstream&lt;/code>。我们还有&lt;code>stringstream&lt;/code>，可以像流一样操作字符串。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>std&lt;span style="color:#f92672">::&lt;/span>ostringstream oss;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>oss &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;Hello, world!&lt;/span>&lt;span style="color:#ae81ff">\\&lt;/span>&lt;span style="color:#e6db74">n&amp;#34;&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>oss &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#ae81ff">123&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#960050;background-color:#1e0010">&amp;#39;\\&lt;/span>n&lt;span style="color:#960050;background-color:#1e0010">&amp;#39;&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>std&lt;span style="color:#f92672">::&lt;/span>string s &lt;span style="color:#f92672">=&lt;/span> oss.str();
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>相似的，我们可以从&lt;code>std::istringstream&lt;/code>中使用&lt;code>&amp;gt;&amp;gt;&lt;/code>操作符读取数据。&lt;/p>
+&lt;p>Boost库中的&lt;code>lexical_cast&lt;/code>正是使用了这种机制，让用户可以使用统一的方式将一个对象(object)转换为字符串表示。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> boost&lt;span style="color:#f92672">::&lt;/span>lexical_cast;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>string;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> x &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">5&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>string s &lt;span style="color:#f92672">=&lt;/span> lexical_cast&lt;span style="color:#f92672">&amp;lt;&lt;/span>string&lt;span style="color:#f92672">&amp;gt;&lt;/span>(x);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>assert(s &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#e6db74">&amp;#34;5&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>流缓冲区有着很强的灵活性，可以满足不同的“缓冲并传输字符（串）”需求，比如文件操作、字符串操作、命令行(Console)操作等。我们可以从网络、闪存(Flash memory)等不同设备，使用同样的接口获取流式字符串。“流缓冲区”与“流”是正交的，所以我们可以自由的交换、更改(swap and change)流所使用的缓冲区，或者将其重定向到其它地方。我认为C++中的流，正是“策略模式”(strategy design pattern)的一个良好范例。&lt;/p>
+&lt;p>比如，我们可以重定向标准日志流&lt;code>std::clog&lt;/code>到一个字符串流：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;iostream&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;iomanip&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;string&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;sstream&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span>()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>ostringstream oss;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// Make clog use the buffer from oss
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>streambuf &lt;span style="color:#f92672">*&lt;/span>former_buff &lt;span style="color:#f92672">=&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>clog.rdbuf(oss.rdbuf());
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>clog &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;This will appear in oss!&amp;#34;&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>flush;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> oss.str() &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#960050;background-color:#1e0010">&amp;#39;\\&lt;/span>n&lt;span style="color:#960050;background-color:#1e0010">&amp;#39;&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// Give clog back its previous buffer
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>clog.rdbuf(former_buff);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>不过，自定义一个流缓冲区却是有一点tricky，或者说有一点吓人，尤其是当你第一次尝试的时候。所以本文意在提供一些流缓冲的实现范例。&lt;/p>
+&lt;p>首先我们来看一下流缓冲区的一些基本概念。所有的流缓冲区继承自&lt;code>std::streambuf&lt;/code>，并且需要覆盖一些虚函数来实现自定义功能。&lt;code>std::streambuf&lt;/code>是“顺序读取设备”的一个抽象，即我们可以从中顺序的读取字符序列。在特定的场景下，我们可以重填(re-fill)、冲洗(flush)以及清空(empty)一个缓冲区。&lt;/p>
+&lt;p>当我们向一个&lt;code>ostream&lt;/code>中插入数据时，数据将会被写入缓冲区中的一个数组。当数组上溢(overflow)时，数组中的数据将会被冲洗(flush)到目标接受者，之后这个数组的状态将会重置，以便存储后续的字符。&lt;/p>
+&lt;p>当我们从一个&lt;code>istream&lt;/code>中获取数据时，数据从缓冲区的数组中读出。当数组下溢时(underflow)，没有数据可读，我们会从数据源重新拉取信息来填充缓冲区，之后这个数组的状态也将被重置。&lt;/p>
+&lt;p>我们使用6个指针，来维护缓冲区的内部状态。输入和输出缓冲各使用3个指针。&lt;/p>
+&lt;h3 id="维护输出缓冲区的状态">维护输出缓冲区的状态 &lt;a href="#%e7%bb%b4%e6%8a%a4%e8%be%93%e5%87%ba%e7%bc%93%e5%86%b2%e5%8c%ba%e7%9a%84%e7%8a%b6%e6%80%81" class="anchor">🔗&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>
+&lt;p>put base pointer &lt;br>
+输出基指针，用来指定缓冲区内部数组的第一个元素。可以使用&lt;code>std::streambuf::pbase()&lt;/code>来获取&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>put pointer &lt;br>
+输出指针，用来指向内部数组下一个写入的地址。可以使用&lt;code>std::streambuf::pptr()&lt;/code>来获取&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>end put pointer &lt;br>
+输出哨兵指针，指向内部数组最后一个再后面一个(one-past-the-last-element)的地址（译注：类似&lt;code>std::vector::end()&lt;/code>）。可以使用&lt;code>std::streambuf:epptr()&lt;/code>来获取&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="http://i1.piimg.com/567571/630a89fe635e1635.png" alt="">&lt;/p>
+&lt;p>一般来说，基指针和哨兵指针不会改变，在使用时，以输出指针维护内部状态。&lt;/p>
+&lt;h3 id="维护输入缓冲区的状态">维护输入缓冲区的状态 &lt;a href="#%e7%bb%b4%e6%8a%a4%e8%be%93%e5%85%a5%e7%bc%93%e5%86%b2%e5%8c%ba%e7%9a%84%e7%8a%b6%e6%80%81" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>输入缓冲区和状态维护和输出缓冲区类似，我们有：&lt;/p>
+&lt;ul>
+&lt;li>end back pointer &lt;br>
+输入基指针，指向缓冲区数组内的最后一个字符。可以使用&lt;code>std::streambuf::eback()&lt;/code>来获取&lt;/li>
+&lt;li>get pointer &lt;br>
+输入指针，指向缓冲区下一个读取的字符地址。可以使用&lt;code>std::streambuf::gptr()&lt;/code>来获取&lt;/li>
+&lt;li>end get pointer &lt;br>
+输入哨兵指针，批号向内部数组最后一个再后面一个(one-past-the-last-element)的地址。可以使用&lt;code>std::streambuf::egptr()&lt;/code>来获取&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/16-9-27/33500590.jpg" alt="">&lt;/p>
+&lt;p>同样，基指针和哨兵指针在流缓冲区的生命周期中也不会改变。&lt;/p>
+&lt;p>由于输入缓冲区要支持&lt;code>putback()&lt;/code>操作，即将读出的字符重新放回缓冲区，所以输入缓冲区比输出缓冲区更复杂一点。通常来说，&lt;code>putback()&lt;/code>操作支持放回一个字符即可。&lt;/p>
+&lt;p>一个&lt;code>std::streambuf&lt;/code>可以同时支持输入输出两种操作，所以我们不需要我分别实现&lt;code>std::istreambuf&lt;/code>和&lt;code>std::ostreambuf&lt;/code>。&lt;code>std::fstream&lt;/code>是一个良好的例子。但是，实现一个全功能的缓冲区相对更复杂一些，所以我就不趟浑水啦~ ：）&lt;/p>
+&lt;p>同时，流缓冲区也可以支持宽字符(wide character)。&lt;code>std::streambuf&lt;/code>是&lt;code>std::basic_streambuf&amp;lt;char&amp;gt;&lt;/code>的别名，如果你需要宽字符流缓冲区，可以使用&lt;code>std::basic_streambuf&amp;lt;wchar_t&amp;gt;&lt;/code>。&lt;/p>
+&lt;h3 id="例1文件缓冲区--与c代码集成">例1：文件缓冲区 —— 与C代码集成 &lt;a href="#%e4%be%8b1%e6%96%87%e4%bb%b6%e7%bc%93%e5%86%b2%e5%8c%ba--%e4%b8%8ec%e4%bb%a3%e7%a0%81%e9%9b%86%e6%88%90" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>假设我们需要调用一个历史悠久的库，一个文件操作函数会返回给一个&lt;code>FILE*&lt;/code>指针，但是我们想用C++的流接口来读写数据。我们先从读文件开始，用&lt;code>std::istream&lt;/code>包装&lt;code>FILE*&lt;/code>的读操作。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;streambuf&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;vector&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstdlib&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstdio&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">FILE_buffer&lt;/span> &lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#66d9ef">public&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>streambuf
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">public&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">explicit&lt;/span> FILE_buffer(FILE &lt;span style="color:#f92672">*&lt;/span>fptr, std&lt;span style="color:#f92672">::&lt;/span>size_t buff_sz &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">256&lt;/span>, std&lt;span style="color:#f92672">::&lt;/span>size_t put_back &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">8&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">private&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// overrides base class underflow()
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> int_type underflow();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// copy ctor and assignment not implemented;
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#75715e">// copying not allowed
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> FILE_buffer(&lt;span style="color:#66d9ef">const&lt;/span> FILE_buffer &lt;span style="color:#f92672">&amp;amp;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> FILE_buffer &lt;span style="color:#f92672">&amp;amp;&lt;/span>&lt;span style="color:#66d9ef">operator&lt;/span>&lt;span style="color:#f92672">=&lt;/span> (&lt;span style="color:#66d9ef">const&lt;/span> FILE_buffer &lt;span style="color:#f92672">&amp;amp;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">private&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> FILE &lt;span style="color:#f92672">*&lt;/span>fptr_;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">const&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>size_t put_back_;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>vector&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">char&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span> buffer_;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>由于功能简单，我们只需要实现构造函数以及&lt;code>underflow&lt;/code>接口就可以实现我们的功能。&lt;/p>
+&lt;p>构造函数指定了读取文件的&lt;code>FILE*&lt;/code>指针，以及内部缓冲数组的大小。数组大小由两个参数决定：&lt;/p>
+&lt;ul>
+&lt;li>put-back area size&lt;/li>
+&lt;li>buffer size&lt;/li>
+&lt;/ul>
+&lt;p>我们使用&lt;code>std::vector&amp;lt;char&amp;gt;&lt;/code>做为缓冲区域。&lt;code>put_back_&lt;/code>变量用于存储&amp;quot;put-back&amp;quot;区域的大小。&lt;/p>
+&lt;p>以下是构造函数的实现：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>size_t;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>FILE_buffer&lt;span style="color:#f92672">::&lt;/span>FILE_buffer(FILE &lt;span style="color:#f92672">*&lt;/span>fptr, size_t buff_sz, size_t put_back) &lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> fptr_(fptr),
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> put_back_(std&lt;span style="color:#f92672">::&lt;/span>max(put_back, size_t(&lt;span style="color:#ae81ff">1&lt;/span>))),
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> buffer_(std&lt;span style="color:#f92672">::&lt;/span>max(buff_sz, put_back_) &lt;span style="color:#f92672">+&lt;/span> put_back_)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>end &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#f92672">&amp;amp;&lt;/span>buffer_.front() &lt;span style="color:#f92672">+&lt;/span> buffer_.size();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> setg(end, end, end);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>在初始化列表中，我们将缓冲区的常量进行赋值。之后使用&lt;code>std::streambuf::setg()&lt;/code>来初始化输出缓冲区。&lt;/p>
+&lt;p>&lt;code>setg()&lt;/code>的三个参数分别代表&lt;code>eback()&lt;/code>，&lt;code>gptr()&lt;/code>，&lt;code>egptr()&lt;/code>三个内部指针的值。一开始，我们将它们都指向同一个地址。表明buffer是空的，在下一次读取时，会重新填充缓冲区。&lt;/p>
+&lt;p>&lt;code>underflow()&lt;/code>会返回数据源中当前的字符。一般来说，会返回buffer中的下一个可用字符。然后当buffer为空时，&lt;code>underflow()&lt;/code>应该重新填充缓冲区数组，在本例中，即从&lt;code>FILE*&lt;/code>中读取字符。当缓冲区重填后，我们需要再次调用&lt;code>setg()&lt;/code>更新流缓冲区的状态。&lt;/p>
+&lt;p>当数据源中的数据读完(depleted)后，&lt;code>underflow()&lt;/code>会返回一个&lt;code>traits_type::eof()&lt;/code>。这里要注意，&lt;code>underflow()&lt;/code>的返回值是&lt;code>int_type&lt;/code>，这个值足够装下&lt;code>eof()&lt;/code>，同时也足够装下任何的字符。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>std&lt;span style="color:#f92672">::&lt;/span>streambuf&lt;span style="color:#f92672">::&lt;/span>int_type FILE_buffer&lt;span style="color:#f92672">::&lt;/span>underflow()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (gptr() &lt;span style="color:#f92672">&amp;lt;&lt;/span> egptr()) &lt;span style="color:#75715e">// buffer not exhausted
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#66d9ef">return&lt;/span> traits_type&lt;span style="color:#f92672">::&lt;/span>to_int_type(&lt;span style="color:#f92672">*&lt;/span>gptr());
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>base &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#f92672">&amp;amp;&lt;/span>buffer_.front();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>start &lt;span style="color:#f92672">=&lt;/span> base;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (eback() &lt;span style="color:#f92672">==&lt;/span> base) &lt;span style="color:#75715e">// true when this isn&amp;#39;t the first fill
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// Make arrangements for putback characters
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>memmove(base, egptr() &lt;span style="color:#f92672">-&lt;/span> put_back_, put_back_);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> start &lt;span style="color:#f92672">+=&lt;/span> put_back_;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// start is now the start of the buffer, proper.
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#75715e">// Read from fptr_ in to the provided buffer
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> size_t n &lt;span style="color:#f92672">=&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>fread(start, &lt;span style="color:#ae81ff">1&lt;/span>, buffer_.size() &lt;span style="color:#f92672">-&lt;/span> (start &lt;span style="color:#f92672">-&lt;/span> base), fptr_);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (n &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> traits_type&lt;span style="color:#f92672">::&lt;/span>eof();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// Set buffer pointers
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> setg(base, start, start &lt;span style="color:#f92672">+&lt;/span> n);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> traits_type&lt;span style="color:#f92672">::&lt;/span>to_int_type(&lt;span style="color:#f92672">*&lt;/span>gptr());
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>函数的第一行，首先判断buffer是否耗尽。如果否，则返回当前字符，即&lt;code>*gptr()&lt;/code>。如果是，则进行重填(re-fill)操作。&lt;/p>
+&lt;p>回想一下我们在构造函数中的实现，三个状态指针全都指向缓冲区的末尾。如果我们调用&lt;code>underflow()&lt;/code>时，发现状态指针并非如此，则说明缓冲区已经被填充了至少一次。&lt;/p>
+&lt;p>现在我们考虑重填操作，我们&lt;code>memmove&lt;/code>最后&lt;code>put_back_&lt;/code>个字符到buffer的末尾，用做&amp;quot;put-back area&amp;quot;。（我们不用&lt;code>memcopy&lt;/code>因为我们的buffer比较小，`memmove()的效率会更高一些）&lt;/p>
+&lt;blockquote>
+&lt;p>译注：实际上，&lt;code>memcopy&lt;/code>与&lt;code>memmove&lt;/code>各有所长。&lt;code>memcopy&lt;/code>不需要判断内存overlap的情况，即如果源区间与目标区间有重叠，那么得到的结果会是错的。而&lt;code>memmove&lt;/code>由于是移动语义，所以在移动步长较小时，可以只操作cache。所以二者各有所长，要根据具体情况判断优劣。Stackoverflow上有更详细的&lt;a href="http://stackoverflow.com/questions/28623895/why-is-memmove-faster-than-memcpy">讨论&lt;/a>&lt;/p>&lt;/blockquote>
+&lt;p>我们处理完&amp;quot;put-back area&amp;quot;之后，就可以使用&lt;code>fread()&lt;/code>函数来重填缓冲区了。如果读不到数据，则意味着文件已经读到了结尾（当然这是一种简化情况，但在现实中99.9%的读取失败都是因为文件结束）。&lt;/p>
+&lt;p>在&lt;code>fread()&lt;/code>成功读取数据之后，我们通知streambuf更新内部的三个状态指针。之后返回buffer当前的指针。&lt;/p>
+&lt;p>这就是我们的流缓冲区的基本实现，希望这并不是太难。当然我们还可以添加更多的功能。特别的是我们可以在缓冲区里面进行查找。如果你想实现它的话，可以试试重写&lt;code>std::streambuf::seekoff()&lt;/code>和&lt;code>std::streambuf::seekpos&lt;/code>虚成员函数。&lt;/p>
+&lt;p>我们也可以实现写缓冲区。不过，在你们读完第三个例子之后，你们就可以轻松愉快的实现自己的版本了，不骗你。&lt;/p>
+&lt;h3 id="例2读取内存中的数组">例2：读取内存中的数组 &lt;a href="#%e4%be%8b2%e8%af%bb%e5%8f%96%e5%86%85%e5%ad%98%e4%b8%ad%e7%9a%84%e6%95%b0%e7%bb%84" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>本例中，我们要使用&lt;code>std::istream&lt;/code>包装内存中的一个只读数组，并且格式化的进行读入。这个例子和上一个例子有一点不同的是，我们并不需要一个真正的缓冲数组，从源数组一次性读取就好了。&lt;/p>
+&lt;p>想象中的实现是这个样式儿的：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">char_array_buffer&lt;/span> &lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#66d9ef">public&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>streambuf
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">public&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> char_array_buffer(&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>begin, &lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>end)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> setg(begin, begin, end);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> int_type &lt;span style="color:#a6e22e">underflow&lt;/span>()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> gptr() &lt;span style="color:#f92672">==&lt;/span> egptr() &lt;span style="color:#f92672">?&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> traits_type&lt;span style="color:#f92672">::&lt;/span>eof() &lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> traits_type&lt;span style="color:#f92672">::&lt;/span>to_int_type(&lt;span style="color:#f92672">*&lt;/span>gptr());
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>但是，这并没有什么卵用。因为&lt;code>setg()&lt;/code>函数只接受非常量(non-const)指针参数。这显而易见，如果一个缓冲区不可写，我们就不能提供&amp;quot;put-back&amp;quot;功能。所以我们要动一动手脚，重新实现一下这个类。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;streambuf&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">char_array_buffer&lt;/span> &lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#66d9ef">public&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>streambuf
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">public&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> char_array_buffer(&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>begin, &lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>end);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">explicit&lt;/span> &lt;span style="color:#a6e22e">char_array_buffer&lt;/span>(&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>str);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">private&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> int_type underflow();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> int_type &lt;span style="color:#a6e22e">uflow&lt;/span>();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> int_type &lt;span style="color:#a6e22e">pbackfail&lt;/span>(int_type ch);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>streamsize showmanyc();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// copy ctor and assignment not implemented;
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#75715e">// copying not allowed
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> char_array_buffer(&lt;span style="color:#66d9ef">const&lt;/span> char_array_buffer &lt;span style="color:#f92672">&amp;amp;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> char_array_buffer &lt;span style="color:#f92672">&amp;amp;&lt;/span>&lt;span style="color:#66d9ef">operator&lt;/span>&lt;span style="color:#f92672">=&lt;/span> (&lt;span style="color:#66d9ef">const&lt;/span> char_array_buffer &lt;span style="color:#f92672">&amp;amp;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">private&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span> &lt;span style="color:#66d9ef">const&lt;/span> begin_;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span> &lt;span style="color:#66d9ef">const&lt;/span> end_;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span> current_;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>在这个版本中，我们重写了几个私有函数，这些函数都是从&lt;code>std::streambuf&lt;/code>继承而来。&lt;/p>
+&lt;p>第一个构造函数需要用户指定起止指针，而第二个构造函数只需要指定起始指针，之后我们会调用&lt;code>std::strlen()&lt;/code>来判断字符串的大小。&lt;/p>
+&lt;p>我们使用&lt;code>uflow()&lt;/code>, &lt;code>pbackfail()&lt;/code>和&lt;code>showmanyc()&lt;/code>来维护缓冲区内部的状态，而不是调用&lt;code>setg()&lt;/code>，因为buffer并不可写。&lt;/p>
+&lt;p>在这个版本中，我们要手动维护&lt;code>eback&lt;/code>, &lt;code>gptr&lt;/code>, &lt;code>egptr&lt;/code>三个指针。在构造函数中，我们将对其进行赋值。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;#34;char_array_buffer.hpp&amp;#34;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;functional&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cassert&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstring&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>char_array_buffer&lt;span style="color:#f92672">::&lt;/span>char_array_buffer(&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>begin, &lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>end) &lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> begin_(begin),
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> end_(end),
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> current_(begin_)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> assert(std&lt;span style="color:#f92672">::&lt;/span>less_equal&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&amp;gt;&lt;/span>()(begin_, end_));
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>char_array_buffer&lt;span style="color:#f92672">::&lt;/span>char_array_buffer(&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>str) &lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> begin_(str),
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> end_(begin_ &lt;span style="color:#f92672">+&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>strlen(str)),
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> current_(begin_)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>之前我们使用&lt;code>underflow()&lt;/code>来获取当前字符，但这次我们需要使用&lt;code>uflow()&lt;/code>。因为&lt;code>uflow()&lt;/code>需要同时执行两步操作，一是获取当前字符，二是让&lt;code>gptr()&lt;/code>前进一步。但是又因为缓冲区由我们手动管理，&lt;code>std::streambuf&lt;/code>并不能正确的执行管理操作。所以我们需要重写&lt;code>uflow()&lt;/code>而不是&lt;code>underflow()&lt;/code>。&lt;/p>
+&lt;pre tabindex="0">&lt;code>char_array_buffer::int_type char_array_buffer::uflow()
+{
+if (current_ == end_)
+return traits_type::eof();
+return traits_type::to_int_type(*current_++);
+}
+&lt;/code>&lt;/pre>&lt;p>下一步我们还要实现&lt;code>pbackfail()&lt;/code>。当我们调用&lt;code>std::istream::unget()&lt;/code>或&lt;code>std::istream::putback(ch)&lt;/code>时，我们会把已经读出的数据写回数组中。但是由于数组是只读的，所以我们只能模拟这种操作。&lt;/p>
+&lt;p>在默认的实现中&lt;code>pbackfail()&lt;/code>只会返回&lt;code>traits_type::eof()&lt;/code>，而在我们的版本中，如果写回成功，将会返回写回的字符，不成功返回eof。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>char_array_buffer&lt;span style="color:#f92672">::&lt;/span>int_type char_array_buffer&lt;span style="color:#f92672">::&lt;/span>pbackfail(int_type ch)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (current_ &lt;span style="color:#f92672">==&lt;/span> begin_ &lt;span style="color:#f92672">||&lt;/span> (ch &lt;span style="color:#f92672">!=&lt;/span> traits_type&lt;span style="color:#f92672">::&lt;/span>eof() &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> ch &lt;span style="color:#f92672">!=&lt;/span> current_[&lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>]))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> traits_type&lt;span style="color:#f92672">::&lt;/span>eof();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> traits_type&lt;span style="color:#f92672">::&lt;/span>to_int_type(&lt;span style="color:#f92672">*--&lt;/span>current_);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>在&lt;code>FILE_buffer&lt;/code>中，我们也可以考虑重写&lt;code>pbackfail()&lt;/code>，来提供反向查找以及（用前面的数据）重填buffer的功能。&lt;/p>
+&lt;p>最后一个重写的函数是&lt;code>showmanyc()&lt;/code>，这个函数被&lt;code>std::streambuf::in_avail()&lt;/code>调用，以判断当前有多少个字符可以返回。由于我们接管了状态指针，所以这个函数也要我们自己来实现啊。（译者：为什么要给自己找麻烦。。。）&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>std&lt;span style="color:#f92672">::&lt;/span>streamsize char_array_buffer&lt;span style="color:#f92672">::&lt;/span>showmanyc()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> assert(std&lt;span style="color:#f92672">::&lt;/span>less_equal&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&amp;gt;&lt;/span>()(current_, end_));
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> end_ &lt;span style="color:#f92672">-&lt;/span> current_;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>由此可见，本例中的buffer比前面的要复杂一点点。这是因为我们接管了状态维护的工作。这使得我们更好的理解了&lt;code>std::streambuf&lt;/code>内部是如何工作的。&lt;/p>
+&lt;h3 id="例3句首变大写的缓冲区">例3：句首变大写的缓冲区 &lt;a href="#%e4%be%8b3%e5%8f%a5%e9%a6%96%e5%8f%98%e5%a4%a7%e5%86%99%e7%9a%84%e7%bc%93%e5%86%b2%e5%8c%ba" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>本例中我们将要实现一个将句首字符变大写的buffer。当然我们只考虑最基本的情况，移植到不同的区域和语言，其实是很琐碎的事情。（译者：文字编码坑的亲妈都不认了）&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;streambuf&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;iosfwd&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstdlib&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;vector&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">caps_buffer&lt;/span> &lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#66d9ef">public&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>streambuf
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">public&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">explicit&lt;/span> caps_buffer(std&lt;span style="color:#f92672">::&lt;/span>ostream &lt;span style="color:#f92672">&amp;amp;&lt;/span>sink, std&lt;span style="color:#f92672">::&lt;/span>size_t buff_sz &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">256&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">protected&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">bool&lt;/span> do_caps_and_flush();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">private&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> int_type overflow(int_type ch);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">sync&lt;/span>();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// copy ctor and assignment not implemented;
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#75715e">// copying not allowed
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> caps_buffer(&lt;span style="color:#66d9ef">const&lt;/span> caps_buffer &lt;span style="color:#f92672">&amp;amp;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> caps_buffer &lt;span style="color:#f92672">&amp;amp;&lt;/span>&lt;span style="color:#66d9ef">operator&lt;/span>&lt;span style="color:#f92672">=&lt;/span> (&lt;span style="color:#66d9ef">const&lt;/span> caps_buffer &lt;span style="color:#f92672">&amp;amp;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">private&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">bool&lt;/span> cap_next_;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>ostream &lt;span style="color:#f92672">&amp;amp;&lt;/span>sink_;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>vector&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">char&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span> buffer_;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这里我们需要重写&lt;code>overflow()&lt;/code>和&lt;code>sync()&lt;/code>函数。&lt;code>overflow()&lt;/code>在输入缓冲区满的时候被调用，并且在成功时返回任意非eof的值。&lt;/p>
+&lt;p>&lt;code>sync()&lt;/code>的作用是把当前的buffer写入目标，即使当前buffer并未填满。&lt;code>std::flush()&lt;/code>会调用&lt;code>sync()&lt;/code>函数，当失败时返回-1。&lt;/p>
+&lt;p>我们编写一个辅助函数&lt;code>do_caps_and_flush()&lt;/code>，用来将小写变大写，并写入&lt;code>sink_&lt;/code>输出流。我们再声明一个哨兵变量&lt;code>cap_next_&lt;/code>来标识下一个字符是否需要小写变大写。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;#34;caps_buffer.hpp&amp;#34;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cctype&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;ostream&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;functional&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cassert&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>caps_buffer&lt;span style="color:#f92672">::&lt;/span>caps_buffer(std&lt;span style="color:#f92672">::&lt;/span>ostream &lt;span style="color:#f92672">&amp;amp;&lt;/span>sink, std&lt;span style="color:#f92672">::&lt;/span>size_t buff_sz) &lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> cap_next_(true),
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> sink_(sink),
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> buffer_(buff_sz &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> sink_.clear();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>base &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#f92672">&amp;amp;&lt;/span>buffer_.front();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> setp(base, base &lt;span style="color:#f92672">+&lt;/span> buffer_.size() &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>); &lt;span style="color:#75715e">// -1 to make overflow() easier
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>buffer_&lt;/code>的最小可能大小是1，同时我们也只需要维护两个指针，因为这里不需要像输入缓冲区一样的维护&amp;quot;put-back area&amp;quot;。&lt;/p>
+&lt;p>我们把&lt;code>buffer_&lt;/code>的大小设成&lt;code>buff_sz + 1&lt;/code>，这样是为了&lt;code>overflow()&lt;/code>被调用时，我们有一个额外的空间存储当前的字符。最后将缓冲区数组和最后一个字符一起刷新到&lt;code>ostream&lt;/code>中。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>caps_buffer&lt;span style="color:#f92672">::&lt;/span>int_type caps_buffer&lt;span style="color:#f92672">::&lt;/span>overflow(int_type ch)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (sink_ &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> ch &lt;span style="color:#f92672">!=&lt;/span> traits_type&lt;span style="color:#f92672">::&lt;/span>eof())
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> assert(std&lt;span style="color:#f92672">::&lt;/span>less_equal&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&amp;gt;&lt;/span>()(pptr(), epptr()));
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">*&lt;/span>pptr() &lt;span style="color:#f92672">=&lt;/span> ch;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> pbump(&lt;span style="color:#ae81ff">1&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (do_caps_and_flush())
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> ch;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> traits_type&lt;span style="color:#f92672">::&lt;/span>eof();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>第一步是把ch写入&lt;code>buffer_&lt;/code>，并且使用&lt;code>pbump(1)&lt;/code>将&lt;code>pptr()&lt;/code>向前移一位。之后调用&lt;code>do_caps_and_flush()&lt;/code>做一些脏活，之后返回一个字符声明调用成功。&lt;/p>
+&lt;p>&lt;code>sync()&lt;/code>的实现也非常简单:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> caps_buffer&lt;span style="color:#f92672">::&lt;/span>sync()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#a6e22e">do_caps_and_flush&lt;/span>() &lt;span style="color:#f92672">?&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span> &lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>我们再看一看&lt;code>do_caps_and_flush()&lt;/code>函数&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">bool&lt;/span> caps_buffer&lt;span style="color:#f92672">::&lt;/span>do_caps_and_flush()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>p &lt;span style="color:#f92672">=&lt;/span> pbase(), &lt;span style="color:#f92672">*&lt;/span>e &lt;span style="color:#f92672">=&lt;/span> pptr(); p &lt;span style="color:#f92672">!=&lt;/span> e; &lt;span style="color:#f92672">++&lt;/span>p)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (&lt;span style="color:#f92672">*&lt;/span>p &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#e6db74">&amp;#39;.&amp;#39;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> cap_next_ &lt;span style="color:#f92672">=&lt;/span> true;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">else&lt;/span> &lt;span style="color:#a6e22e">if&lt;/span> (std&lt;span style="color:#f92672">::&lt;/span>isalpha(&lt;span style="color:#f92672">*&lt;/span>p))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (cap_next_)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">*&lt;/span>p &lt;span style="color:#f92672">=&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>toupper(&lt;span style="color:#f92672">*&lt;/span>p);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> cap_next_ &lt;span style="color:#f92672">=&lt;/span> false;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>ptrdiff_t n &lt;span style="color:#f92672">=&lt;/span> pptr() &lt;span style="color:#f92672">-&lt;/span> pbase();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> pbump(&lt;span style="color:#f92672">-&lt;/span>n);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> sink_.write(pbase(), n);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>对于本例来说，内部的缓冲区并非必要，我们可以一个字符一个字符把数据发到&lt;code>sink&lt;/code>中。但是我的观点是一个内部buffer仍有其用处。&lt;/p>
+&lt;h3 id="介绍-boost-iostreams-库">介绍 Boost IOStreams 库 &lt;a href="#%e4%bb%8b%e7%bb%8d-boost-iostreams-%e5%ba%93" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>如果你是流缓冲区的新手，希望你已经对它有一点点了解了。本文中的例子都非常基础，但是你可以用它们做更多有意思的事情。但是当我实现更复杂的流缓冲区时，问题的复杂度却上升的很快。这时我发现了&lt;code>Boost IOStreams&lt;/code>库，它为更复杂的缓冲区和流提供了必要的框架支持。&lt;/p>
+&lt;p>它允许你解耦数据源，数据输出，过滤器以及其它一些概念。在我们的最后一个例子中，我们硬编码数据输出到&lt;code>std::ostream&lt;/code>中。如果我们要输出到一个没有流接口的类呢？&lt;code>Boost IOStreams&lt;/code>库提供了更多的灵活性，将一坨紧耦合的代码分解成独立的抽象概念。&lt;/p>
+&lt;h3 id="扩展阅读">扩展阅读 &lt;a href="#%e6%89%a9%e5%b1%95%e9%98%85%e8%af%bb" class="anchor">🔗&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>The C++ Standard Library by Nicolai M. Josuttis&lt;/li>
+&lt;li>The C++ Standard, BS ISO/IEC 14882:2003 (Second Edition)&lt;/li>
+&lt;li>&lt;a href="http://www.dinkumware.com/manuals/">Dinkum Compleat Reference online&lt;/a>&lt;/li>
+&lt;/ul></description></item></channel></rss>

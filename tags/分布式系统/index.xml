@@ -1,11 +1,678 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>分布式系统 on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/</link><description>Recent content in 分布式系统 on Maerlyn's Rainbow</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Sat, 17 May 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/index.xml" rel="self" type="application/rss+xml"/><item><title>为什么我不建议你阅读《数据密集型应用系统设计》（之一）</title><link>https://wizmann.top/posts/why-not-start-with-ddia-part-1/</link><pubDate>Sat, 17 May 2025 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/why-not-start-with-ddia-part-1/</guid><description>&lt;p>&lt;strong>因为我是标题党。&lt;/strong>&lt;/p>
-&lt;p>这本书与我们常用来垫显示器的《算法导论》或《深入理解计算机系统》（如果你是大一大二的同学，可能还包括《算法竞赛入门经典》）并不属于同一类。它更接近《C++ Primer》或那本《算法》(Robert Sedgewick 著）——属于通识型读物。&lt;/p></description></item><item><title>6.824 Lab 2: Raft协议实现指南 （无剧透版）</title><link>https://wizmann.top/posts/raft-lab-mit-6.824/</link><pubDate>Thu, 02 May 2019 21:33:00 +0000</pubDate><guid>https://wizmann.top/posts/raft-lab-mit-6.824/</guid><description>&lt;h2 id="背景">背景&lt;/h2>
-&lt;p>MIT6.824是一个用来学习分布式系统的非常好的资源。其中第二个课程作业就是关于&lt;a href="https://pdos.csail.mit.edu/6.824/labs/lab-raft.html">Raft算法&lt;/a>。&lt;/p>
-&lt;p>由于在工作中涉及到分布一致性算法的调研，接触了paxos/raft算法。然后被@neutronest安利了一发，于是开始着手实现这个作业。&lt;/p></description></item><item><title>白话一致性协议 - Paxos、Raft和PacificA[2]</title><link>https://wizmann.top/posts/paxos-raft-pecifaca2/</link><pubDate>Mon, 18 Feb 2019 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/paxos-raft-pecifaca2/</guid><description>&lt;h2 id="pacifica是一个框架">PacificA是一个框架&lt;/h2>
-&lt;p>虽然在题目中我们把Paxos、Raft和PacificA并列，但是Paxos和Raft在论文中称自己为一种“算法”（algorithm）；而PacificA对自己的定位是一种通用的，强一致的数据同步&lt;strong>框架&lt;/strong>。&lt;/p></description></item><item><title>白话一致性协议 - Paxos、Raft和PacificA[1]</title><link>https://wizmann.top/posts/paxos-raft-pecifaca1/</link><pubDate>Wed, 05 Dec 2018 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/paxos-raft-pecifaca1/</guid><description>&lt;h2 id="书接上文---multi-paxos">书接上文 - Multi Paxos&lt;/h2>
-&lt;p>在上一篇文章中，我们提到了Basic Paxos和Multi Paxos的异同。在&lt;a href="https://lamport.azurewebsites.net/pubs/paxos-simple.pdf">Paxos Made Simple&lt;/a>论文中，作者提到了Multi Paxos的一种实现。这个实现允许我们对一个连续的数据流（也可以称为复制日志，replicated log）达成共识，从而实现节点状态的一致性复制。&lt;/p></description></item><item><title>白话一致性协议 - Paxos、Raft和PacificA[0]</title><link>https://wizmann.top/posts/paxos-raft-pecifaca0/</link><pubDate>Sun, 25 Nov 2018 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/paxos-raft-pecifaca0/</guid><description>&lt;h2 id="一致性协议---paxos">一致性协议 - Paxos&lt;/h2>
-&lt;p>在分布式系统当中，我们往往需要保持节点之间的一致性。在绝大多数情况下，我们需要让系统中的节点相互协调通力合作，有可能的让系统正确的工作。但是，由于分布式系统本身的特性，需要我们在不可靠的硬件上尽可能的构建可靠的系统。所以，看似简单的一致性问题成为了分布式系统领域的一个重要的课题。&lt;/p></description></item><item><title>Windows Azure Storage Made Simple</title><link>https://wizmann.top/posts/azure-storage-made-simple/</link><pubDate>Wed, 11 Oct 2017 21:12:15 +0000</pubDate><guid>https://wizmann.top/posts/azure-storage-made-simple/</guid><description>&lt;h2 id="加机器就是一把梭">加机器就是一把梭&lt;/h2>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>分布式系统 on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/</link><description>Recent content in 分布式系统 on Maerlyn's Rainbow</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Sat, 17 May 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/index.xml" rel="self" type="application/rss+xml"/><item><title>为什么我不建议你阅读《数据密集型应用系统设计》（之一）</title><link>https://wizmann.top/posts/why-not-start-with-ddia-part-1/</link><pubDate>Sat, 17 May 2025 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/why-not-start-with-ddia-part-1/</guid><description>&lt;p>&lt;strong>因为我是标题党。&lt;/strong>&lt;/p>
+&lt;p>这本书与我们常用来垫显示器的《算法导论》或《深入理解计算机系统》（如果你是大一大二的同学，可能还包括《算法竞赛入门经典》）并不属于同一类。它更接近《C++ Primer》或那本《算法》(Robert Sedgewick 著）——属于通识型读物。&lt;/p>
+&lt;p>换句话说，如果你尚未掌握相关基础知识，阅读这本书的学习曲线将会异常陡峭；而一旦你已经入门，它的表达方式会让你觉得十分优雅，结构也很清晰，却又可能让你觉得“说得都对，但好像也没什么新东西”。&lt;/p>
+&lt;p>如果你是初入数据相关系统领域的新手，我更希望你先对这本书的脉络和重点有个清晰概览，剪枝信息、化繁为简，帮助你更快建立起基础认知，从而更高效地阅读这本书，而不是在术语和细节中反复迷路。&lt;/p>
+&lt;h2 id="什么是数据密集型系统">什么是数据密集型系统 &lt;a href="#%e4%bb%80%e4%b9%88%e6%98%af%e6%95%b0%e6%8d%ae%e5%af%86%e9%9b%86%e5%9e%8b%e7%b3%bb%e7%bb%9f" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>数据密集型系统可以理解为一个结构上的“双面体”：一方面，它需要实时地处理数据的存储与检索；另一方面，它还承担着异步处理和计算已有数据的任务。这两种模式共同支撑了系统对数据的全面利用。&lt;/p>
+&lt;p>我们之所以称其为“数据密集型”，是因为它所处理的数据具备以下三个核心特征：&lt;/p>
+&lt;ul>
+&lt;li>数据是不可再生的——一旦丢失，就无法重新获取，具有唯一性与不可逆性；&lt;/li>
+&lt;li>数据是持续增长的——系统需要不断接收新数据，数据量随着时间推移呈线性，甚至指数级上升；&lt;/li>
+&lt;li>数据的应用是不断演进的——数据的价值和使用方式会随着业务需求和技术手段的发展而变化。&lt;/li>
+&lt;/ul>
+&lt;p>正因为如此，设计和构建数据密集型系统时，我们必须重点关注三个目标：&lt;/p>
+&lt;ul>
+&lt;li>可靠性：防止数据丢失，保障系统在故障时能够正确恢复；&lt;/li>
+&lt;li>可扩展性：系统能够随着数据量和访问量的增加平稳扩展；&lt;/li>
+&lt;li>可维护性：系统结构清晰、易于理解，能够适应未来不断变化的需求和环境。&lt;/li>
+&lt;/ul>
+&lt;h2 id="数据模型与数据编码">数据模型与数据编码 &lt;a href="#%e6%95%b0%e6%8d%ae%e6%a8%a1%e5%9e%8b%e4%b8%8e%e6%95%b0%e6%8d%ae%e7%bc%96%e7%a0%81" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="数据模型">数据模型 &lt;a href="#%e6%95%b0%e6%8d%ae%e6%a8%a1%e5%9e%8b" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>数据模型是对现实世界的结构化抽象，是我们与数据系统沟通的“语言”。不同类型的数据模型基于不同的设计假设，适用于不同的场景。&lt;/p>
+&lt;p>常见的数据模型包括：&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>关系模型&lt;/p>
+&lt;ul>
+&lt;li>典型代表：MySQL、PostgreSQL 等传统 SQL 数据库&lt;/li>
+&lt;li>数据以“表格”的形式组织，每张表表示一种实体或关系，每行是一条记录&lt;/li>
+&lt;li>特点：
+&lt;ul>
+&lt;li>严格的结构约束（schema）&lt;/li>
+&lt;li>支持复杂的查询语句和事务处理&lt;/li>
+&lt;li>数据一致性强，适合结构清晰、关系复杂的场景&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>文档模型&lt;/p>
+&lt;ul>
+&lt;li>典型代表：MongoDB、Redis（部分用作文档存储）等 NoSQL 系统&lt;/li>
+&lt;li>数据以文档形式组织（通常是 JSON 或 BSON 格式），每个文档是一条记录&lt;/li>
+&lt;li>特点：
+&lt;ul>
+&lt;li>模式灵活，不强制 schema&lt;/li>
+&lt;li>更适合嵌套结构和非结构化数据&lt;/li>
+&lt;li>写入与扩展性能更好，适用于快速迭代和海量数据场景&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>选择何种数据模型，本质上是对业务需求和系统约束之间做出的权衡。&lt;/p>
+&lt;h3 id="数据编码">数据编码 &lt;a href="#%e6%95%b0%e6%8d%ae%e7%bc%96%e7%a0%81" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>在内存中，我们倾向于使用链表、哈希表、树等结构进行快速访问。但在持久化存储和网络传输中，我们需要将数据编码成&lt;strong>紧凑且结构化的格式&lt;/strong>，以提高读写效率与兼容性。&lt;/p>
+&lt;p>好的数据编码格式需要权衡三个核心指标：&lt;/p>
+&lt;ul>
+&lt;li>向前兼容性：新版本的系统仍能读取旧格式的数据；&lt;/li>
+&lt;li>向后兼容性：旧版本的系统能忽略新数据中的未知字段，正常运行；&lt;/li>
+&lt;li>效率：编码后的数据大小与 CPU 解码开销之间取得平衡。&lt;/li>
+&lt;/ul>
+&lt;p>常见的数据编码方案：&lt;/p>
+&lt;ul>
+&lt;li>语言内置格式（如 Python 的 &lt;code>pickle&lt;/code>、Java 的 &lt;code>Serializable&lt;/code>）
+&lt;ul>
+&lt;li>与语言紧耦合，移植性差&lt;/li>
+&lt;li>不支持数据结构演化&lt;/li>
+&lt;li>编解码效率不高，不建议用于跨系统持久化或网络传输&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>文本格式（如 CSV、XML、JSON）
+&lt;ul>
+&lt;li>通用、易读、调试友好&lt;/li>
+&lt;li>几乎被所有编程语言支持&lt;/li>
+&lt;li>存在大量冗余（如键名重复），不适合高效存储或传输&lt;/li>
+&lt;li>不适合嵌套结构或二进制数据&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>二进制格式（如 Protobuf、Thrift、Avro）
+&lt;ul>
+&lt;li>高度紧凑，支持嵌套与复杂结构&lt;/li>
+&lt;li>支持数据演化，兼容性好&lt;/li>
+&lt;li>编解码性能高，但不易调试（需工具查看）&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>在构建数据密集型系统时，&lt;strong>模型与编码的选择往往影响深远，且难以随意更改&lt;/strong>，务必根据业务需求慎重选择。&lt;/p>
+&lt;h2 id="数据检索">数据检索 &lt;a href="#%e6%95%b0%e6%8d%ae%e6%a3%80%e7%b4%a2" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="事务处理系统oltp中的索引结构">事务处理系统（OLTP）中的索引结构 &lt;a href="#%e4%ba%8b%e5%8a%a1%e5%a4%84%e7%90%86%e7%b3%bb%e7%bb%9foltp%e4%b8%ad%e7%9a%84%e7%b4%a2%e5%bc%95%e7%bb%93%e6%9e%84" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>OLTP（在线事务处理）系统主要处理高并发、实时读写请求，因此对延迟极度敏感。常见的索引结构有：&lt;/p>
+&lt;ul>
+&lt;li>哈希表：用于快速键值对检索，结构简单，性能高；&lt;/li>
+&lt;li>LSM-Tree：多层已排序数组结构，写入快，适合写多读少场景；&lt;/li>
+&lt;li>B-Tree：多叉平衡排序树，适合读写混合场景，是多数数据库的默认索引类型。&lt;/li>
+&lt;/ul>
+&lt;h3 id="数据分析系统olap中的索引结构">数据分析系统（OLAP）中的索引结构 &lt;a href="#%e6%95%b0%e6%8d%ae%e5%88%86%e6%9e%90%e7%b3%bb%e7%bb%9folap%e4%b8%ad%e7%9a%84%e7%b4%a2%e5%bc%95%e7%bb%93%e6%9e%84" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>OLAP（在线分析处理）系统用于处理大规模离线数据任务，关注的是整体吞吐而非单次请求的响应延迟。&lt;/p>
+&lt;h4 id="事实表与列式存储">事实表与列式存储 &lt;a href="#%e4%ba%8b%e5%ae%9e%e8%a1%a8%e4%b8%8e%e5%88%97%e5%bc%8f%e5%ad%98%e5%82%a8" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>在数据仓库中，事实表记录每一条事件数据，通常有很多列来表示不同维度。虽然逻辑上按行存储，但物理上采用列式存储更为高效：&lt;/p>
+&lt;ul>
+&lt;li>查询只需读取必要的列，I/O更少；&lt;/li>
+&lt;li>同一列数据分布相似，压缩率更高；&lt;/li>
+&lt;li>列式布局更利于向量化计算和并行处理。&lt;/li>
+&lt;/ul>
+&lt;h2 id="小结">小结 &lt;a href="#%e5%b0%8f%e7%bb%93" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>从模型、编码到检索，数据系统的基础构成其实围绕着一个核心问题展开：我们如何高效、可靠地组织、保存与使用数据。&lt;/p>
+&lt;ul>
+&lt;li>数据模型决定了我们如何抽象现实世界中的事物与关系；&lt;/li>
+&lt;li>数据编码决定了我们如何在系统之间传递和持久化这些抽象；&lt;/li>
+&lt;li>数据检索结构则决定了我们如何以尽可能低的开销获得所需信息&lt;/li>
+&lt;/ul>
+&lt;p>下一篇，我们将探讨分布式日志、复制机制和一致性协议在数据系统中的角色与实践 —— 希望能有下一篇。&lt;/p></description></item><item><title>6.824 Lab 2: Raft协议实现指南 （无剧透版）</title><link>https://wizmann.top/posts/raft-lab-mit-6.824/</link><pubDate>Thu, 02 May 2019 21:33:00 +0000</pubDate><guid>https://wizmann.top/posts/raft-lab-mit-6.824/</guid><description>&lt;h2 id="背景">背景 &lt;a href="#%e8%83%8c%e6%99%af" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>MIT6.824是一个用来学习分布式系统的非常好的资源。其中第二个课程作业就是关于&lt;a href="https://pdos.csail.mit.edu/6.824/labs/lab-raft.html">Raft算法&lt;/a>。&lt;/p>
+&lt;p>由于在工作中涉及到分布一致性算法的调研，接触了paxos/raft算法。然后被@neutronest安利了一发，于是开始着手实现这个作业。&lt;/p>
+&lt;p>本文是我对这个项目的实现总结。希望能在划出重点的同时，不涉及实现细节，避免破坏大家的写代码体验。&lt;/p>
+&lt;p>本文唯一参考资料：&lt;a href="https://raft.github.io/raft.pdf">In Search of an Understandable Consensus Algorithm&lt;/a>&lt;/p>
+&lt;h2 id="任务分解">任务分解 &lt;a href="#%e4%bb%bb%e5%8a%a1%e5%88%86%e8%a7%a3" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>在官方文档里，整个项目被分成了2A、2B、2C三个部分：&lt;/p>
+&lt;ul>
+&lt;li>2A - 投票与选举&lt;/li>
+&lt;li>2B - 一致性&lt;/li>
+&lt;li>2C - 可持久化&lt;/li>
+&lt;/ul>
+&lt;p>实际上，2C的工作量非常少，我们可以把2B和2C合成一个。然后单独提出几个比较重要的测试用例，划分成子项目。任务分解如下：&lt;/p>
+&lt;ul>
+&lt;li>2A - 投票与选举&lt;/li>
+&lt;li>2B/2C - 一致性和可持久化&lt;/li>
+&lt;li>三个难度比较高的Case
+&lt;ul>
+&lt;li>Test (2B): leader backs up quickly over incorrect follower logs &lt;br>
+验证协议实现的正确性&lt;/li>
+&lt;li>Test (2B): RPC counts aren&amp;rsquo;t too high &lt;br>
+测试协议是否产生了过多的RPC请求。验证协议的性能。&lt;/li>
+&lt;li>Test (2C): Figure 8 (unreliable) &lt;br>
+测试在极端混乱的情况下，Raft协议是否能及时恢复正常工作。验证协议实现的正确性和性能。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>所以推荐大家按顺序以上顺序进行实现。并且充分利用版本控制对代码进行开发和重构。&lt;/p>
+&lt;h2 id="需要关注的知识点">需要关注的知识点 &lt;a href="#%e9%9c%80%e8%a6%81%e5%85%b3%e6%b3%a8%e7%9a%84%e7%9f%a5%e8%af%86%e7%82%b9" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>以下会介绍每一个部分需要重点关注的知识点，内容包括golang基础和论文中的知识点，无剧透，请放心食用。&lt;/p>
+&lt;h3 id="准备工作">准备工作 &lt;a href="#%e5%87%86%e5%a4%87%e5%b7%a5%e4%bd%9c" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>golang是一门傲慢的语言，其标准库的缺乏实在是让人感到TMD蛋疼。但是对于一个课程作业来说，我们也没有必要引入一系列第三方库。所以我们先要扩充&lt;code>util.go&lt;/code>文件，使其为我们的开发提供更多的便利。&lt;/p>
+&lt;h4 id="log模块">Log模块 &lt;a href="#log%e6%a8%a1%e5%9d%97" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>项目给出的&lt;code>DPrintf&lt;/code>函数非常简单，只提供了一个&lt;code>fmt.Printf&lt;/code>的封装。并不能打印行号和文件名。这里提供一个扩展版本。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-golang" data-lang="golang">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">func&lt;/span> &lt;span style="color:#a6e22e">DPrintf&lt;/span>(&lt;span style="color:#a6e22e">format&lt;/span> &lt;span style="color:#66d9ef">string&lt;/span>, &lt;span style="color:#a6e22e">a&lt;/span> &lt;span style="color:#f92672">...&lt;/span>&lt;span style="color:#66d9ef">interface&lt;/span>{}) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> &lt;span style="color:#a6e22e">Debug&lt;/span> &amp;gt; &lt;span style="color:#ae81ff">0&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">_&lt;/span>, &lt;span style="color:#a6e22e">path&lt;/span>, &lt;span style="color:#a6e22e">lineno&lt;/span>, &lt;span style="color:#a6e22e">ok&lt;/span> &lt;span style="color:#f92672">:=&lt;/span> &lt;span style="color:#a6e22e">runtime&lt;/span>.&lt;span style="color:#a6e22e">Caller&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">_&lt;/span>, &lt;span style="color:#a6e22e">file&lt;/span> &lt;span style="color:#f92672">:=&lt;/span> &lt;span style="color:#a6e22e">filepath&lt;/span>.&lt;span style="color:#a6e22e">Split&lt;/span>(&lt;span style="color:#a6e22e">path&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (&lt;span style="color:#a6e22e">ok&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">t&lt;/span> &lt;span style="color:#f92672">:=&lt;/span> &lt;span style="color:#a6e22e">time&lt;/span>.&lt;span style="color:#a6e22e">Now&lt;/span>();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">a&lt;/span> = append([]&lt;span style="color:#66d9ef">interface&lt;/span>{} { &lt;span style="color:#a6e22e">t&lt;/span>.&lt;span style="color:#a6e22e">Format&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;2006-01-02 15:04:05.00&amp;#34;&lt;/span>), &lt;span style="color:#a6e22e">file&lt;/span>, &lt;span style="color:#a6e22e">lineno&lt;/span> }, &lt;span style="color:#a6e22e">a&lt;/span>&lt;span style="color:#f92672">...&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">fmt&lt;/span>.&lt;span style="color:#a6e22e">Printf&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;%s [%s:%d] &amp;#34;&lt;/span> &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#a6e22e">format&lt;/span> &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#e6db74">&amp;#34;\n&amp;#34;&lt;/span>, &lt;span style="color:#a6e22e">a&lt;/span>&lt;span style="color:#f92672">...&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>其输出示例如下：&lt;/p>
+&lt;pre tabindex="0">&lt;code>2019-05-02 09:28:35.04 [raft.go:652] Node[1] is processing, state: [LEADER], term 1, commitIndex: 12, logCount: 12, leader 1
+&lt;/code>&lt;/pre>&lt;h4 id="max和min函数">Max和Min函数 &lt;a href="#max%e5%92%8cmin%e5%87%bd%e6%95%b0" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>golang是没有对于int值的&lt;code>max&lt;/code>和&lt;code>min&lt;/code>函数的，这里省略脏话100句。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-golang" data-lang="golang">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">func&lt;/span> &lt;span style="color:#a6e22e">Min&lt;/span>(&lt;span style="color:#a6e22e">a&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span>, &lt;span style="color:#a6e22e">b&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span>) (&lt;span style="color:#66d9ef">int&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> &lt;span style="color:#a6e22e">a&lt;/span> &amp;lt; &lt;span style="color:#a6e22e">b&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#a6e22e">a&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> } &lt;span style="color:#66d9ef">else&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#a6e22e">b&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">func&lt;/span> &lt;span style="color:#a6e22e">Max&lt;/span>(&lt;span style="color:#a6e22e">a&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span>, &lt;span style="color:#a6e22e">b&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span>) (&lt;span style="color:#66d9ef">int&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> &lt;span style="color:#a6e22e">a&lt;/span> &amp;gt; &lt;span style="color:#a6e22e">b&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#a6e22e">a&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> } &lt;span style="color:#66d9ef">else&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#a6e22e">b&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h4 id="assert函数">Assert函数 &lt;a href="#assert%e5%87%bd%e6%95%b0" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>是的，你没有看错，golang也没有提供&lt;code>assert&lt;/code>函数。如果你嫌到处写&lt;code>if&lt;/code>和&lt;code>panic&lt;/code>太丑的话，可以使用这个&lt;code>assert&lt;/code>函数。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-golang" data-lang="golang">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">func&lt;/span> &lt;span style="color:#a6e22e">Assert&lt;/span>(&lt;span style="color:#a6e22e">flag&lt;/span> &lt;span style="color:#66d9ef">bool&lt;/span>, &lt;span style="color:#a6e22e">format&lt;/span> &lt;span style="color:#66d9ef">string&lt;/span>, &lt;span style="color:#a6e22e">a&lt;/span> &lt;span style="color:#f92672">...&lt;/span>&lt;span style="color:#66d9ef">interface&lt;/span>{}) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (!&lt;span style="color:#a6e22e">flag&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">_&lt;/span>, &lt;span style="color:#a6e22e">path&lt;/span>, &lt;span style="color:#a6e22e">lineno&lt;/span>, &lt;span style="color:#a6e22e">ok&lt;/span> &lt;span style="color:#f92672">:=&lt;/span> &lt;span style="color:#a6e22e">runtime&lt;/span>.&lt;span style="color:#a6e22e">Caller&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">_&lt;/span>, &lt;span style="color:#a6e22e">file&lt;/span> &lt;span style="color:#f92672">:=&lt;/span> &lt;span style="color:#a6e22e">filepath&lt;/span>.&lt;span style="color:#a6e22e">Split&lt;/span>(&lt;span style="color:#a6e22e">path&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (&lt;span style="color:#a6e22e">ok&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">t&lt;/span> &lt;span style="color:#f92672">:=&lt;/span> &lt;span style="color:#a6e22e">time&lt;/span>.&lt;span style="color:#a6e22e">Now&lt;/span>();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">a&lt;/span> = append([]&lt;span style="color:#66d9ef">interface&lt;/span>{} { &lt;span style="color:#a6e22e">t&lt;/span>.&lt;span style="color:#a6e22e">Format&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;2006-01-02 15:04:05.00&amp;#34;&lt;/span>), &lt;span style="color:#a6e22e">file&lt;/span>, &lt;span style="color:#a6e22e">lineno&lt;/span> }, &lt;span style="color:#a6e22e">a&lt;/span>&lt;span style="color:#f92672">...&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">reason&lt;/span> &lt;span style="color:#f92672">:=&lt;/span> &lt;span style="color:#a6e22e">fmt&lt;/span>.&lt;span style="color:#a6e22e">Sprintf&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;%s [%s:%d] &amp;#34;&lt;/span> &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#a6e22e">format&lt;/span> &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#e6db74">&amp;#34;\n&amp;#34;&lt;/span>, &lt;span style="color:#a6e22e">a&lt;/span>&lt;span style="color:#f92672">...&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> panic(&lt;span style="color:#a6e22e">reason&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> } &lt;span style="color:#66d9ef">else&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> panic(&lt;span style="color:#e6db74">&amp;#34;&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h4 id="log-id">Log Id &lt;a href="#log-id" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>为了验证日志的一致性，我们在日志中额外加入一个UUID来进行标识。&lt;/p>
+&lt;pre tabindex="0">&lt;code>import &amp;#34;math/rand&amp;#34;
+func CreateLogId() (uuid string) {
+b := make([]byte, 16)
+_, err := rand.Read(b)
+if err != nil {
+fmt.Println(&amp;#34;Error: &amp;#34;, err)
+return
+}
+uuid = fmt.Sprintf(&amp;#34;%X-%X-%X-%X-%X&amp;#34;, b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
+return uuid
+}
+&lt;/code>&lt;/pre>&lt;p>以上代码可以生成一个（伪）UUID对日志进行标识。推荐使用&lt;code>math/rand&lt;/code>，因为这里我们使用伪随机数就够了。&lt;/p>
 &lt;blockquote>
+&lt;p>注：这里的UUID只是看起来像一个UUID，实际上UUID有其特殊的规范与格式。但是由于golang内部没有提供可用的UUID库，所以只好随手模拟了一个。&lt;/p>&lt;/blockquote>
+&lt;h4 id="文件组织">文件组织 &lt;a href="#%e6%96%87%e4%bb%b6%e7%bb%84%e7%bb%87" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>默认的实现是把所有的东西都写到了&lt;code>raft.go&lt;/code>文件里。一个非常大的文件可能会给我们的开发带来负担，所以我的做法是把所有的类声明放到&lt;code>models.go&lt;/code>文件里。以避免文件的膨胀。&lt;/p>
+&lt;h4 id="锁与defer">锁与defer &lt;a href="#%e9%94%81%e4%b8%8edefer" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>在raft实现中，锁可以用来保证在多线程环境下数据的正确性。所以只要在涉及到raft内部状态的变化时，都需要加锁。一个常见的加锁pattern是：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-golang" data-lang="golang">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">rf&lt;/span>.&lt;span style="color:#a6e22e">mu&lt;/span>.&lt;span style="color:#a6e22e">Lock&lt;/span>() &lt;span style="color:#75715e">// 加锁&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">defer&lt;/span> &lt;span style="color:#a6e22e">rf&lt;/span>.&lt;span style="color:#a6e22e">mu&lt;/span>.&lt;span style="color:#a6e22e">Lock&lt;/span>() &lt;span style="color:#75715e">// 在函数执行完成后解锁&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这里推荐使用defer，因为手动控制锁实现是过于容易出错。但是defer也是有坑的！&lt;/p>
+&lt;p>不同于C++的大括号作用域，defer的触发时间是在函数执行完成之后，而并不是退出当前大括号时。这点非常需要注意，否则极易出现死锁。&lt;/p>
+&lt;p>如果我们想实现C++中&lt;code>do { ... } while (0);&lt;/code>类似的lock guard pattern，可以使用以下实现：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-golang" data-lang="golang">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">func&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">rf&lt;/span>.&lt;span style="color:#a6e22e">mu&lt;/span>.&lt;span style="color:#a6e22e">Lock&lt;/span>()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">defer&lt;/span> &lt;span style="color:#a6e22e">rf&lt;/span>.&lt;span style="color:#a6e22e">mu&lt;/span>.&lt;span style="color:#a6e22e">Unlock&lt;/span>()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// do something here&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}()
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这样一来，在执行完当前lambda之后，就会自动解锁。&lt;/p>
+&lt;h4 id="刷新定时器">刷新定时器 &lt;a href="#%e5%88%b7%e6%96%b0%e5%ae%9a%e6%97%b6%e5%99%a8" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>由于raft算法里面使用了定时器，这里提供一个刷新定时器的golang代码。这样实现是为了每次在刷新的时候，清空定时器中原有的超时时间，以避免混乱。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-golang" data-lang="golang">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">func&lt;/span> (&lt;span style="color:#a6e22e">rf&lt;/span> &lt;span style="color:#f92672">*&lt;/span>&lt;span style="color:#a6e22e">Raft&lt;/span>) &lt;span style="color:#a6e22e">renewTimer&lt;/span>(&lt;span style="color:#a6e22e">timeout&lt;/span> &lt;span style="color:#a6e22e">time&lt;/span>.&lt;span style="color:#a6e22e">Duration&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (&lt;span style="color:#a6e22e">rf&lt;/span>.&lt;span style="color:#a6e22e">timer&lt;/span> &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#66d9ef">nil&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">rf&lt;/span>.&lt;span style="color:#a6e22e">timer&lt;/span> = &lt;span style="color:#a6e22e">time&lt;/span>.&lt;span style="color:#a6e22e">NewTimer&lt;/span>(&lt;span style="color:#a6e22e">timeout&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> } &lt;span style="color:#66d9ef">else&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (!&lt;span style="color:#a6e22e">rf&lt;/span>.&lt;span style="color:#a6e22e">timer&lt;/span>.&lt;span style="color:#a6e22e">Stop&lt;/span>()) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">select&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">case&lt;/span> &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">rf&lt;/span>.&lt;span style="color:#a6e22e">timer&lt;/span>.&lt;span style="color:#a6e22e">C&lt;/span>:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// pass&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">default&lt;/span>:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// pass&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">rf&lt;/span>.&lt;span style="color:#a6e22e">timer&lt;/span>.&lt;span style="color:#a6e22e">Reset&lt;/span>(&lt;span style="color:#a6e22e">timeout&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>以及，在定时器超时之后，不要忘了更新定时器。&lt;/p>
+&lt;h3 id="2a---投票与选举">2A - 投票与选举 &lt;a href="#2a---%e6%8a%95%e7%a5%a8%e4%b8%8e%e9%80%89%e4%b8%be" class="anchor">🔗&lt;/a>&lt;/h3>&lt;h4 id="所需要类的声明">所需要类的声明 &lt;a href="#%e6%89%80%e9%9c%80%e8%a6%81%e7%b1%bb%e7%9a%84%e5%a3%b0%e6%98%8e" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>论文中的&lt;code>Figure2&lt;/code>包含了算法中所有的类以及基本算法。在2A中，所有的类都会被用到。由于2A中只包括投票与选举，所以和日志相关的字段可以先忽略掉。&lt;/p>
+&lt;h4 id="checklist-for-2a">Checklist for 2A &lt;a href="#checklist-for-2a" class="anchor">🔗&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>实现raft状态机的三个状态：leader，follower和candidate&lt;/li>
+&lt;li>实现RPC函数：&lt;code>sendRequestVote&lt;/code>（发送端）和&lt;code>RequestVote&lt;/code>（接收端的回调函数）&lt;/li>
+&lt;li>实现RPC函数：&lt;code>sendAppendEntries&lt;/code>（发送端）和&lt;code>AppendEntries&lt;/code>（接收端的回调函数）&lt;/li>
+&lt;li>保证raft状态机的任期号（&lt;code>currentTerm&lt;/code>）是单调递增的&lt;/li>
+&lt;li>一个Follower对于某一个Term只能投出一票&lt;/li>
+&lt;li>实现Leader心跳，维护当前任期（Term）。&lt;/li>
+&lt;li>实现Follower选举超时（election timeout）&lt;/li>
+&lt;li>实现Candidate选举的三种场景
+&lt;ul>
+&lt;li>获得多数选票，赢得选举。状态切换为Leader&lt;/li>
+&lt;li>其它的节点已经被选为Leader。状态切换为Follower&lt;/li>
+&lt;li>在选举中并未获得多数选票，状态切换为Follower&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>实现Candidate随机选举超时（randomized election timeout）&lt;/li>
+&lt;/ul>
+&lt;h3 id="2b2c---日志复制与持久化">2B/2C - 日志复制与持久化 &lt;a href="#2b2c---%e6%97%a5%e5%bf%97%e5%a4%8d%e5%88%b6%e4%b8%8e%e6%8c%81%e4%b9%85%e5%8c%96" class="anchor">🔗&lt;/a>&lt;/h3>&lt;h4 id="基本工作流">基本工作流 &lt;a href="#%e5%9f%ba%e6%9c%ac%e5%b7%a5%e4%bd%9c%e6%b5%81" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>日志复制的基本工作流如下：&lt;/p>
+&lt;p>Leader接受用户请求，将状态变化写入本机的日志流中，并且把日志复制到Followers。如果本条日志合法，Followers会将这条日志标记为“提交”（committed），然后再将这条日志“应用”（apply）到Raft协议之外的状态机。Follower在提交日志之后，就可以向Leader回报这条日志已经被提交。在本条日志被多数节点提交之后，Leader再将这条日志标记为提交。此时，用户的请求就可以被确认（ACK）了。&lt;/p>
+&lt;p>Raft的论文中，Leader需要维护&lt;code>commitIndex&lt;/code>和&lt;code>lastApplied&lt;/code>这两个状态。为了简单起见，我们可以忽略“应用”（apply）这个过程。这两个状态我们只需要维护&lt;code>commitIndex&lt;/code>即可。&lt;/p>
+&lt;blockquote>
+&lt;p>Raft协议不是2PC，千万不要搞混了哦～&lt;/p>&lt;/blockquote>
+&lt;h4 id="回滚与滚回来">回滚与滚回来 &lt;a href="#%e5%9b%9e%e6%bb%9a%e4%b8%8e%e6%bb%9a%e5%9b%9e%e6%9d%a5" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>&lt;img src="https://raw.githubusercontent.com/Wizmann/assets/3f1056d6f142755204092fb89a474dc964608bab/wizmann-pic/2019-05-02_14-40-52.png" alt="rollback">&lt;/p>
+&lt;p>从上面的工作流我们可以看到，对于已经committed的日志，仍然有可能是不可靠的。&lt;/p>
+&lt;p>例如，在Term1时，节点1作业Leader提交到了日志(1, 2)，而Follower节点Node2和Node3分别提交到了日志(1, 2)和(1, 3)。此时Leader短暂断线，出发选举超时，就会进行下一轮的选举。如果节点Node2被选为Leader，那么节点Node3就会被Leader多出一条日志，这是不被允许的。如果节点Node3被选为Leader，那么Node2就比Leader在Term1少一条日志，需要补齐。&lt;/p>
+&lt;blockquote>
+&lt;p>这里有人可能会怀疑，节点2比节点3少一条日志，那么按照论文里的说法，因为节点3的日志比较节点2要多，所以只有节点3才能赢得下一轮选举。这其实是不对的，如果节点3断线，节点1和节点2仍然可以组成一个quorum，选举出Leader。&lt;/p>&lt;/blockquote>
+&lt;p>所以我们需要考虑将已committed的日志回滚（向左滚），以及缺失的日志补齐（向右滚）。这里其实有一些优化的点，我们后文再说。&lt;/p>
+&lt;p>再次注意，保证日志的一致性是Raft协议正确性的必须保证，在这一点上一定要注意。&lt;/p>
+&lt;h4 id="乱序请求">乱序请求 &lt;a href="#%e4%b9%b1%e5%ba%8f%e8%af%b7%e6%b1%82" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>本项目中，模拟的RPC协议并不能保证可靠性（会丢包）、有序性（会乱序），也没有SLA（没有超时时间的上限），更不用想拥塞控制。我们可以理解为它在底层使用了UDP协议，而不是TCP。所以我们不能做出任何假设。&lt;/p>
+&lt;p>例如，两个请求先后来到Leader端，A请求编号(1,100)，B请求编号(1,110)。然后我们依次将Log复制到Follower端（A先B后），但是在Follower端有可能收到的顺序是B先A后。甚至只收到B，没收到A。这种情况日常工程中的TCP协议下几乎不能发生，但是在测试环境中要十分小心。&lt;/p>
+&lt;h4 id="checklist-for-2b2c">Checklist for 2B/2C &lt;a href="#checklist-for-2b2c" class="anchor">🔗&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>日志的状态会影响Leader选举 &lt;br>
+如果两份日志流的最后一条日志的Term不一样，那么我们认为Term号大的日志“比较新”。如果Term号一样，那么Index大的日志“比较新”&lt;/li>
+&lt;li>如果Leader和Follower的日志不一致，那么Follower需要拷贝Leader的日志（向左滚或向右滚的正确性） &lt;br>
+这里推荐使用Assert加断言进行保证，如果出错可以获得实时的现场&lt;/li>
+&lt;li>对于小于当前Term的日志，Leader不需要等多数Follower确认就可以直接commit&lt;/li>
+&lt;li>一个重要特性：如果两个日志的(Term, Index)一致，那么其内容也是一致的。并且在此日志之前的所有日志都必须是一致的&lt;/li>
+&lt;li>另一个重要特性：RPC请求是幂等的，也就是多次重复发送一个请求并不会破坏Raft协议的状态&lt;/li>
+&lt;/ul>
+&lt;h3 id="最后的3个case">最后的3个Case &lt;a href="#%e6%9c%80%e5%90%8e%e7%9a%843%e4%b8%aacase" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>最后的三个Case有一个共同点，就是对协议的效率和正确性有比较高的要求。即使前面的代码里你的实现是正确的，也有可能因为各种其它的原因造成Case挂掉。&lt;/p>
+&lt;p>建议首先解决正确性问题，再提升效率。&lt;/p>
+&lt;h4 id="向左滚的优化重要">向左滚的优化（重要！） &lt;a href="#%e5%90%91%e5%b7%a6%e6%bb%9a%e7%9a%84%e4%bc%98%e5%8c%96%e9%87%8d%e8%a6%81" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>在论文的5.3节，介绍了一种回滚的优化。如果Leader和Follower在某个Index上的日志不一致，Leader的版本记为(Term1, Index)，Follower的版本记为(Term2, Index)。那么Follower需要回滚所有日志，直到Term小于&lt;code>Min(Term1, Term2)&lt;/code>。&lt;/p>
+&lt;p>这样的好处是可以加快回滚的效率。虽然论文上表示这种优化并非必要，但是在模拟出来的极端网络环境下，这样的优化可以帮助我们通过一些比较变态的Case。&lt;/p>
+&lt;h4 id="其它的非官方优化">其它的非官方优化 &lt;a href="#%e5%85%b6%e5%ae%83%e7%9a%84%e9%9d%9e%e5%ae%98%e6%96%b9%e4%bc%98%e5%8c%96" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>这里还有一些论文里没的提到的优化方案，不保证一定是正确的。&lt;/p>
+&lt;p>为了不剧透，放到单独的链接里了：&lt;a href="https://github.com/Wizmann/assets/blob/master/wizmann-pic/19-05-02/raft-hints.md">剧透警告！&lt;/a>&lt;/p>
+&lt;blockquote>
+&lt;p>还有一个Bonus挑战，谁比较闲可以试一下。&lt;/p>&lt;/blockquote>
+&lt;h2 id="测试结果">测试结果 &lt;a href="#%e6%b5%8b%e8%af%95%e7%bb%93%e6%9e%9c" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>&lt;img src="https://raw.githubusercontent.com/Wizmann/assets/e35dd59aa533ddd19065f070dcb85a3734cc035d/wizmann-pic/19-05-02/2019-05-02_21-37-14.png" alt="tests">&lt;/p>
+&lt;p>在Travis CI上面运行的测试。自我感觉实现的比较一般，所以你们的程序应该跑的比我快一点才正常。&lt;/p>
+&lt;h2 id="总结">总结 &lt;a href="#%e6%80%bb%e7%bb%93" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>想要完整正确的实现这个项目，首先一定要把论文读懂。并且划出实现上应该注意的重点。&lt;/p>
+&lt;p>当遇到正确性问题时，一定要回归论文，大部分的问题都可以获得解答。当遇到性能问题时，可以参考作业上面的Hints，里面也有非常有用的信息。&lt;/p>
+&lt;p>MIT的这个课程还有基于raft实现kv storage的项目，后续如果有时间应该还会做吧。&lt;/p></description></item><item><title>白话一致性协议 - Paxos、Raft和PacificA[2]</title><link>https://wizmann.top/posts/paxos-raft-pecifaca2/</link><pubDate>Mon, 18 Feb 2019 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/paxos-raft-pecifaca2/</guid><description>&lt;h2 id="pacifica是一个框架">PacificA是一个框架 &lt;a href="#pacifica%e6%98%af%e4%b8%80%e4%b8%aa%e6%a1%86%e6%9e%b6" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>虽然在题目中我们把Paxos、Raft和PacificA并列，但是Paxos和Raft在论文中称自己为一种“算法”（algorithm）；而PacificA对自己的定位是一种通用的，强一致的数据同步&lt;strong>框架&lt;/strong>。&lt;/p>
+&lt;p>在论文中，作者提到现有的可证明的数据同步协议往往过分简化了性能问题，导致看起来很美的理论设计无法转变有实际的系统（注：本篇论文应该早于Raft的论文）。所以作者的目标是将算法理论与实际相结合，进行相应的系统设计。&lt;/p>
+&lt;h2 id="pacifica的实现">PacificA的实现 &lt;a href="#pacifica%e7%9a%84%e5%ae%9e%e7%8e%b0" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>与Paxos和Raft不同的是，PacificA采用的算法非常简单。所以在这里我不进行太多铺垫，直接进入正题。&lt;/p>
+&lt;h3 id="主从同步">主从同步 &lt;a href="#%e4%b8%bb%e4%bb%8e%e5%90%8c%e6%ad%a5" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>PacificA使用了主从同步模型，用户的读写请求都会发往主节点，以保证强一致性。&lt;/p>
+&lt;p>主节点会对发来的写请求进行编号，使得所有写请求编号唯一且单调递增。这个编号也会同步到从节点。&lt;/p>
+&lt;p>无论是主节点还是从节点，所有的写请求都写入一个只追加的日志。主从节点都需要维护&lt;code>committed&lt;/code>指针，代表在这个指针之前的数据都已经被所有节点所认可，处理“已确认”状态。从节点需要额外维护一个&lt;code>prepared&lt;/code>指针，代表在这个指针之前所有的数据都处于“待确认”状态，而在&lt;code>prepared&lt;/code>指针之后的数据，都是“待同步”状态。&lt;/p>
+&lt;p>主从之间的数据同步使用两步提交模型（2-PC）：&lt;/p>
+&lt;ol>
+&lt;li>主节点首先把写请求写入日志&lt;/li>
+&lt;li>主节点发送&lt;code>prepare&lt;/code>请求到从节点，这个请求中包含写入的数据&lt;/li>
+&lt;li>从节点收到&lt;code>prepare&lt;/code>请求后，将数据加入日志，并移动&lt;code>prepared&lt;/code>指针，将其标记为“待确认”&lt;/li>
+&lt;li>当所有从节点返回ACK后，主节点移动&lt;code>committed&lt;/code>指针，表明这个数据处于“待确认”状态&lt;/li>
+&lt;li>主节点向所有从节点发送ACK消息，确认这条请求已经被最终确认&lt;/li>
+&lt;li>从节点收到ACK消息后，移动&lt;code>committed&lt;/code>指针，确认请求&lt;/li>
+&lt;/ol>
+&lt;p>所以对于一个节点，总会有:&lt;/p>
+&lt;p>&lt;img src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/19-02-18/1902180052.PNG" alt="">&lt;/p>
+&lt;h3 id="全局配置管理器">全局配置管理器 &lt;a href="#%e5%85%a8%e5%b1%80%e9%85%8d%e7%bd%ae%e7%ae%a1%e7%90%86%e5%99%a8" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>PacificA使用了一个“中心化的”全局配置管理器。这个管理器用于探测系统内的失效节点，管理、更新节点的配置。而Raft是“去中心化的”，通过节点之间的选举通信来管理配置。&lt;/p>
+&lt;p>PacificA的全局配置管理器保证在任何情况下，当且仅当全局配置管理器认可节点&lt;code>s&lt;/code>为主节点时，节点&lt;code>s&lt;/code>才会认为自己是主节点。&lt;/p>
+&lt;p>全局配置管理器在“钦点”了主节点后，主节点会与从节点发送心跳包（beacons），维护一个租期（lease）。在租期内，主节点和从节点都会互相承认相互之间的主从关系。当租期失效时，主节点会向全局配置管理器报告从节点失效。当从节点收不到心跳包时，从节点会报告主节点失效。&lt;/p>
+&lt;p>一个中心化的配置管理器会让整个系统的维护变的非常简单，但是也会带来单点失效的隐患。这里，全局配置管理器使用了Paxos算法来保证管理器节点之间的一致性，可以容忍少于半数节点的失效。&lt;/p>
+&lt;h3 id="配置变化与灾难恢复">配置变化与灾难恢复 &lt;a href="#%e9%85%8d%e7%bd%ae%e5%8f%98%e5%8c%96%e4%b8%8e%e7%81%be%e9%9a%be%e6%81%a2%e5%a4%8d" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>由于我们使用的全局的配置管理器，所以添加删除从节点会是非常简单的事情。这里我们主要讨论主节点的失效与灾难恢复。&lt;/p>
+&lt;p>当主节点失效之后，从节点会揭竿而起，向配置管理器申请成为主节点。这里要注意，根据上面的讨论，从节点中的&lt;code>committed&lt;/code>指针有可能会落后于主节点，以及不同从节点中的&lt;code>committed&lt;/code>指针可能会不一致。但是被主节点ACK的数据，一定位于从节点的日志中，并处于“待确认”状态。&lt;/p>
+&lt;p>所以在新的主节点被指派之后，会重新的向其它的从节点发出&lt;code>prepare&lt;/code>指令，要求确认其日志中待确认的数据。从而保持数据的一致性&lt;/p>
+&lt;h2 id="pacifica的正确性的简单讨论">PacificA的正确性的简单讨论 &lt;a href="#pacifica%e7%9a%84%e6%ad%a3%e7%a1%ae%e6%80%a7%e7%9a%84%e7%ae%80%e5%8d%95%e8%ae%a8%e8%ae%ba" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>一个强一致性的系统一定会包含以下三种特性：&lt;/p>
+&lt;ol>
+&lt;li>线性一致性（Linearizability） &lt;br>
+由于我们的写请求位于一个只可追加写的日志当中，并且不同的副本的日志保持强一致。所以不同的副本的状态也应该是一致的。&lt;/li>
+&lt;li>可持久性（Durability） &lt;br>
+如果用户收到了ACK，那么这个请求一定已经持久化到所有的副本之上了。即使发生了主节点失效，新的主节点仍会维持已ACK的数据。&lt;/li>
+&lt;li>前进性（Progress，不知道怎么翻译） &lt;br>
+全局配置管理器在处理完配置更新请求后，一定可以剔除失效的节点。使得整个系统可以处理用户的读写请求。&lt;/li>
+&lt;/ol>
+&lt;h2 id="一些其它的讨论">一些其它的讨论 &lt;a href="#%e4%b8%80%e4%ba%9b%e5%85%b6%e5%ae%83%e7%9a%84%e8%ae%a8%e8%ae%ba" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="全局配置管理器的可用性和性能">全局配置管理器的可用性和性能 &lt;a href="#%e5%85%a8%e5%b1%80%e9%85%8d%e7%bd%ae%e7%ae%a1%e7%90%86%e5%99%a8%e7%9a%84%e5%8f%af%e7%94%a8%e6%80%a7%e5%92%8c%e6%80%a7%e8%83%bd" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>由于全局配置管理器在逻辑上是整个系统的单点，所以其可用性和性能是非常值得关注的。&lt;/p>
+&lt;p>全局配置管理器了Paxos算法，所以在少于一半的节点失效时，它仍能对外提供服务。&lt;/p>
+&lt;p>同时，全局配置管理器的处理不在整个系统的关键路径上，所以在一般情况下不会影响系统的整体性能。同时，在系统不正常运行的情况下，即使配置管理器暂时失效，也不会影响系统的运行。&lt;/p>
+&lt;h3 id="可持久性">可持久性 &lt;a href="#%e5%8f%af%e6%8c%81%e4%b9%85%e6%80%a7" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>PacificA的日志同步采用了两步提交，所以用户收到ACK时，说明用户的写请求已经被持久化在所有的节点之上了。&lt;/p>
+&lt;p>这意味着，在一个有n台机器的集群里，即使有n - 1台节点失效，我们仍能提供可用的服务。（但是一般只提供只读服务）&lt;/p>
+&lt;h3 id="主从复制-vs-paxos">主从复制 vs. Paxos &lt;a href="#%e4%b8%bb%e4%bb%8e%e5%a4%8d%e5%88%b6-vs-paxos" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>在Paxos范式的实现中，如果一个请求被多数节点认可，我们就可以向用户端返回ACK，声明这个请求已经被整个系统所认可。但是在主从复制的范式下，必须要所有的节点都认可这个请求，我们才可以说这个请求被整个系统所认可。&lt;/p>
+&lt;p>因为这两种范式之间的不同策略导致了微妙的差别。&lt;/p>
+&lt;p>我们很容易看出，Paxos范式中对于单个节点的性能波动并不敏感，但是主从复制的一个慢节点可能会拖慢整个系统。但是，如果系统中多数节点全部失效，那么Paxos范式就无法提供服务了（读/写都不可以的）；对于主从复制范式，只要有一个节点是存活的状态，我们就可以对外提供服务，并且保持强一致性。&lt;/p>
+&lt;p>更重要的是，使用单点来管理整个系统的配置，并让开发与运维的成本降低。换做Paxos范式，一个节点若要成为主节点，则需要同多数节点进行协商。&lt;/p>
+&lt;p>这两种范式的选择是非常有争议的，PecificA选择主从复制的主要原因就是因为它简单。（太实在了）&lt;/p>
+&lt;h3 id="在强一致性上的妥协">在强一致性上的妥协 &lt;a href="#%e5%9c%a8%e5%bc%ba%e4%b8%80%e8%87%b4%e6%80%a7%e4%b8%8a%e7%9a%84%e5%a6%a5%e5%8d%8f" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>如果需要放松对强一致性的要求，我们可以让从节点支持读请求。这样带来的问题是我们有可能读到陈旧的数据，由强一致性退化到最终一致性。&lt;/p>
+&lt;p>最终一致性从本质上说需要满足以下两个要求：&lt;/p>
+&lt;ol>
+&lt;li>所有的节点需要以同样的顺序执行同样的状态更新操作&lt;/li>
+&lt;li>在处理请求时，必须返回最新的状态&lt;/li>
+&lt;/ol>
+&lt;p>如果放松第一个要求，就会面临“状态分叉”的问题（像git branch一样），所以我们需要处理这种不一致的问题（像git rebase一样）。这就会带来额外的复杂性和不确定性。&lt;/p>
+&lt;p>放松第二个要求是更加理性的，因为在PecificA中，所有的状态变化全都被写入一个“只可追加写”的日志中。并且当前的状态变化通过日志指针的移动来表示。又因为从节点的日志一定是主节点的前辍，并且日志指针稍微落后与主节点。所以如果我们可以放松强一致性的要求，就可以让从节点来处理读请求。&lt;/p>
+&lt;h2 id="写在后面">写在后面 &lt;a href="#%e5%86%99%e5%9c%a8%e5%90%8e%e9%9d%a2" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>还有好多东西没读透呢。要不再饶一篇？&lt;/p></description></item><item><title>白话一致性协议 - Paxos、Raft和PacificA[1]</title><link>https://wizmann.top/posts/paxos-raft-pecifaca1/</link><pubDate>Wed, 05 Dec 2018 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/paxos-raft-pecifaca1/</guid><description>&lt;h2 id="书接上文---multi-paxos">书接上文 - Multi Paxos &lt;a href="#%e4%b9%a6%e6%8e%a5%e4%b8%8a%e6%96%87---multi-paxos" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>在上一篇文章中，我们提到了Basic Paxos和Multi Paxos的异同。在&lt;a href="https://lamport.azurewebsites.net/pubs/paxos-simple.pdf">Paxos Made Simple&lt;/a>论文中，作者提到了Multi Paxos的一种实现。这个实现允许我们对一个连续的数据流（也可以称为复制日志，replicated log）达成共识，从而实现节点状态的一致性复制。&lt;/p>
+&lt;h3 id="确定性状态机">确定性状态机 &lt;a href="#%e7%a1%ae%e5%ae%9a%e6%80%a7%e7%8a%b6%e6%80%81%e6%9c%ba" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>我们可以将系统中的每一个节点抽象为一个有着确定性状态机，即给定多个状态一致的状态机，在执行同一个命令之后，其状态仍保持一致。（可以想一想编译原理里面的DFA）&lt;/p>
+&lt;h3 id="leader---系统中唯一的proposer">Leader - 系统中唯一的proposer &lt;a href="#leader---%e7%b3%bb%e7%bb%9f%e4%b8%ad%e5%94%af%e4%b8%80%e7%9a%84proposer" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>如果系统中存在有多个proposer，那么就很可能会出现多个提案相互干扰的情况。虽然根据证明，最终这些提案都会收敛到一致，但是性能会非常低下。所以我们可以在系统中通过选举，选出一个leader做为主proposer（distinguishied proposer），所有的提案都由leader提出。&lt;/p>
+&lt;p>这样一来，在绝大多数情况下都不会出现提案相互干扰的情况。只有在leader切换的瞬间，可能会出现相同编号的不同提案，但是我们的算法可以很好的处理这种情况。&lt;/p>
+&lt;h3 id="分布式系统中的tcp">分布式系统中的“TCP” &lt;a href="#%e5%88%86%e5%b8%83%e5%bc%8f%e7%b3%bb%e7%bb%9f%e4%b8%ad%e7%9a%84tcp" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>类似于TCP协议中序列号，Multi Paxos中的每一个命令都有一个递增的编号。即我们前一个执行的命令是100号，那么下一个执行的命令一定是101号。每一个命令都是一个Paxos实例，Leader向所有节点发布这个提案，在提案达成一致之后（多数节点返回ACK），就可以认为这个命令已经达成了一致。&lt;/p>
+&lt;p>和TCP一样，如果我们顺序的发布并表决提案，效率会非常低下（TCP停等模型）。所以，Multi Paxos采用类似滑动窗口的方案，每次对N个提案进行表决，以增加表决的带宽。&lt;/p>
+&lt;p>和TCP不同的是，如果某些序号的TCP包在传输中丢失，最坏的情况是我们会RST这条链接，其它的工作都交给应用层逻辑来解决。&lt;/p>
+&lt;p>但是对于Multi Paxos来说，如果某些提案没有被表决，那么就会在日志中留下空洞（gap）。这会直接影响系统的一致性。如果恰巧这个时候发生了Leader失效，那么新选举出来的Leader节点就要处理日志中的空洞。&lt;/p>
+&lt;p>解决空洞的原理也很简单，就是Leader向所有成员询问，对于这个提案，是否已经有达成共识的值。如果有的话，就使用这个值。如果没有，就用一个no-op（无操作）命令来填补这个空位。但是，对于实际工程中来说，我们还需要解决未达成共识时值的冲突等情况。&lt;/p>
+&lt;h2 id="为什么我们还需要raft">为什么我们还需要Raft？ &lt;a href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e6%88%91%e4%bb%ac%e8%bf%98%e9%9c%80%e8%a6%81raft" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>Multi-Paxos在现实的工程当中更多的是一种符号。因为理论与实践上的隔阂是如此之大，如果想在工程意义上实现一个可用的Multi-Paxos算法，必然会在原算法的基础上进行一系列的魔改，这些魔改虽然均声称自己实现了Multi-Paxos算法，但是这些算法大多不能被证明是正确的。&lt;/p>
+&lt;p>Raft的目标是，即让算法满足工程化需要，又能保证其正确性。&lt;/p>
+&lt;blockquote>
+&lt;p>Raft论文当中说Paxos算法难以理解，我并不这么觉得。因为Paxos论文里面把困难的部分都一笔带过了。只剩下简单的那部分了。&lt;/p>&lt;/blockquote>
+&lt;h2 id="raft-vs-paxos">Raft vs. Paxos &lt;a href="#raft-vs-paxos" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="leader选举">Leader选举 &lt;a href="#leader%e9%80%89%e4%b8%be" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>在Paxos论文中，Leader选举被视作一种特殊的“提案选举”。只需要Proposer和Acceptor进行一轮或多轮（取决于运气）投票，就可以确定Leader。&lt;/p>
+&lt;p>但在实际工程中，我们需要考虑以下的问题：&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>如何判断Leader是否存活&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>是否每一个节点都有资格担当Leader&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;h4 id="leader的任期">Leader的任期 &lt;a href="#leader%e7%9a%84%e4%bb%bb%e6%9c%9f" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>Leader在被选举出来之后，都会被赋予一个任期编号（term）。在任期里，Leader会向所有成员发送心跳包以延续自己的任期。&lt;/p>
+&lt;p>如果Leader失效无法发送心跳包的话，成员就会产生一个“选举超时”，此时就会重新触发一轮选举。&lt;/p>
+&lt;p>选举的流程和Basic-Paxos算法类似，proposer向所有成员发送“我要当老大”的提案，成员们会酌情回复。如果得到了多数成员的肯定，这个proposer就是下一个任期的Leader了。&lt;/p>
+&lt;p>从本质上说，每一个任期的Leader选举，都是一个独立的Basic-Paxos实例。任期号相当于Paxos里面的提案编号。&lt;/p>
+&lt;h4 id="leader资格的认定">Leader资格的认定 &lt;a href="#leader%e8%b5%84%e6%a0%bc%e7%9a%84%e8%ae%a4%e5%ae%9a" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>Raft采用强一致性的模型，对于已经ACK的用户请求，要尽力保证其状态不丢失。&lt;/p>
+&lt;blockquote>
+&lt;p>如果你问我，现在来一核弹把机房炸了，数据都丢了，那你怎么能保证强一致性。 &lt;br>
+其实这个问题非常简单。很明显，我们保证了丢数据的强一致性。&lt;/p>&lt;/blockquote>
+&lt;p>所以我们要选出一个Leader，使其能够包含所有已经ACK的提案。当一个proposer向其它节点发送提案时，就会收到其它节点的响应。因为一个已经ACK的提案必然被多数节点所认可，所以如果一个proposer没有包含所有被ACK的提案时，它的提案就会被其它包含更多状态的节点驳回。最后被选出来的Leader，一定是包含所有被ACK的状态的节点。&lt;/p>
+&lt;h3 id="日志复制">日志复制 &lt;a href="#%e6%97%a5%e5%bf%97%e5%a4%8d%e5%88%b6" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>当Leader被选出后，Leader就会开始处理用户的请求。用户的请求可以看做一系列的命令，在接收到提案后，提案首先被分发到所有节点，节点的状态机顺序执行这些命令。在多数节点返回ACK后，这个命令就被视为“已提交”（commited）。&lt;/p>
+&lt;p>上文中已经提到了一致性算法中的日志非常类似于网络协议中的TCP。即如果两个命令的ID一样，那么其内容必定也一样；如果两个节点都有认可了编号为p的命令，那么所有编号小于p的命令也必定保持一致。（被称为Log Matching Property）&lt;/p>
+&lt;p>Raft为了简化算法的工程实现，把节点的状态抽象为严格append only的日志。即我们可以将日志指针向后或向前移动，来“回滚”或“更新”状态。但是绝对不允许在日志中间添加或删除日志条目。所以，在Leader发生变化时，如果leader和其他follower之间的日志不同，那么follower需要回滚日志以保持和leader日志的一致性。&lt;/p>
+&lt;h3 id="安全性">安全性 &lt;a href="#%e5%ae%89%e5%85%a8%e6%80%a7" class="anchor">🔗&lt;/a>&lt;/h3>&lt;h4 id="不归我管的事我不拿主意">不归我管的事我不拿主意 &lt;a href="#%e4%b8%8d%e5%bd%92%e6%88%91%e7%ae%a1%e7%9a%84%e4%ba%8b%e6%88%91%e4%b8%8d%e6%8b%bf%e4%b8%bb%e6%84%8f" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>前文我们说到，一个节点要成为Leader，一定要拥有所有已经被ACK的状态，否则就会被其它节点驳回。&lt;/p>
+&lt;p>但是现实都会出现一些小小的意外。在系统的运行过程中，如果有一些提案只被少数节点认可，与此同时发起提案的Leader意外退出。那么在不同节点上的日志会产生“分叉”，那么我们如何解决日志当中的冲突呢？&lt;/p>
+&lt;p>很明显，因为这些以少数节点认可的提案并没有被确认。所以我们无论是接受提案还是驳回提案，都不影响我们强一致性的要求。所以关键是处理冲突，使其不产生影响系统一致性的后效。&lt;/p>
+&lt;p>&lt;img src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/18-12-02/Snipaste_2018-12-02_17-34-59.png" alt="">&lt;/p>
+&lt;p>假设在Term1，最后一个提案是&amp;quot;Value:3&amp;quot;，这个提案并没有得到多数节点的认可，Leader就挂掉了。选出来了一个新Leader，Term数加1。在Term2，被提出的第一个提案是&amp;quot;Value:1&amp;quot;，这个提案也没有得到多数节点的认可，Leader也挂掉了。&lt;/p>
+&lt;p>因为这两个分叉的提案都没有得到多数节点的认可，所以下一个Leader可能已经确认这两个提案，或者两个中的一个，也可能一个都没有确认。新的Leader在被选出后，需要面对的第一个问题是如何处理属于旧Term的提案。&lt;/p>
+&lt;p>解决方案有两种：&lt;/p>
+&lt;ol>
+&lt;li>新Leader将日志中仍没有被多数节点认可的提案重新提出，直到被多数节点认可为止&lt;/li>
+&lt;li>新Leader忽略属于旧的Term的提案，只提交属于本Term的提案；对于日志冲突，使用复制日志的方法解决，但不会显式认可旧Term的提案。&lt;/li>
+&lt;/ol>
+&lt;p>&lt;img src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/18-12-02/Snipaste_2018-12-02_22-02-45.png" alt="">&lt;/p>
+&lt;p>对于方案1，有一个隐含的问题。如上图所示，在时间点1，S2为Leader，标红的两个提案并没有被确认。此时如果Leader在时间点2重新提出&amp;quot;Term1/Value3&amp;quot;，并且得到了S1和S2的认可，那么这条提案已经被多数节点认可。但是在时间点3，S3被选举为了Leader。S1和S2需要回滚日志以保持与S3日志的一致。此时就出现了一种情况，那就是已经被确认的日志被回滚掉了，强一致性就不能满足了。&lt;/p>
+&lt;p>&lt;img src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/18-12-02/Snipaste_2018-12-02_22-12-50.png" alt="">&lt;/p>
+&lt;p>如果我们采用方案2，那么被选出的新Leader提出的第一个提案的Term一定为3。确认新提案的节点接下来会复制Leader的日志，回滚掉没有被认可的提案&amp;quot;Term2/Value1&amp;quot;。对于标绿的&amp;quot;Term1/Value3&amp;quot;，虽然被复制到了其它的节点上，但是这个值并不会被确认。这样一来，我们既保证了已经被确认的提案不会被回滚，又保证了日志的一致性。&lt;/p>
+&lt;p>在具体实现中，“T3/V1”往往是一个空命令(no-op)。这样一来，即使没有写请求，Leader就可以更快的确认新的任期并同步Log了。&lt;/p>
+&lt;h4 id="如何证明">如何证明 &lt;a href="#%e5%a6%82%e4%bd%95%e8%af%81%e6%98%8e" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>那么怎么保证上面的作法它是正确的呢？&lt;/p>
+&lt;p>假设当前任期为T1，此时由于系统故障，我们选出了新的Leader - S2，并记Term为T2。因为我们严格遵守了Log Matching Property。&lt;/p>
+&lt;p>那么，对于以下两种情况：&lt;/p>
+&lt;ol>
+&lt;li>T2的Leader和Voter的Log中最后一个提案的编号是一致的，那么可以知道他们日志中的提案都是完全一致的&lt;/li>
+&lt;li>T2中Leader的Log比Voter更新，那么Leader一定包含比Voter更多的提案；否则Voter就不会给Leader投票&lt;/li>
+&lt;/ol>
+&lt;p>我们都可以证明，对于前一个Term已经被确认的提案，一定会被包含在后一个Term的日志中。也就是说，一个被确认的提案不会中途丢失。&lt;/p>
+&lt;h2 id="成员变化">成员变化 &lt;a href="#%e6%88%90%e5%91%98%e5%8f%98%e5%8c%96" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>以上我们的讨论都基于系统的节点不会发生变更，但是在现实工程中，我们很难对此进行任何保证。所以一个实用的系统，一定能解决成员变化的问题。&lt;/p>
+&lt;p>成员变化问题的本质是系统中不能同时出现两个Leader。&lt;/p>
+&lt;p>在Raft中，我们将过渡期的配置称为“共同一致”（joint consensus），一但它被确认，说明系统已经过渡到了新的成员配置。&lt;/p>
+&lt;p>具体的策略如下：&lt;/p>
+&lt;ol>
+&lt;li>系统中只有旧的配置C_old，新加入的成员不可能成为Leader&lt;/li>
+&lt;li>当前系统的Leader接受到新的配置C_new。然后Leader向所有节点发起修改配置为C_old+new的提案。&lt;/li>
+&lt;li>即使这个时间点Leader挂掉了，新的Leader也只会拥有旧配置C_old或者过渡期配置C_old+new。这取决于Leader选举的时机（和运气）。&lt;/li>
+&lt;li>当过渡期配置C_old+new被多数节点确认后，Leader向所有节点发起修改配置为C_new的提案。&lt;/li>
+&lt;li>如果这个时间点Leader挂掉了，新Leader会从拥有C_old+new和C_new的节点中选出。新的Leader仍然可以进行配置的变更，而不影响整个系统的安全性。&lt;/li>
+&lt;li>直到C_new被确认，配置更换宣告完成。&lt;/li>
+&lt;/ol>
+&lt;p>“共同一致”允许节点无需考虑安全性的情况下，在任意时间进行配置的更换。配置的更换也不会影响客户端的请求。&lt;/p>
+&lt;p>以上我们解决的是安全性问题，但是在实际工程中我们还需要兼顾效率问题。&lt;/p>
+&lt;p>例如新加入的节点可以视作“non-voting members”，只同步数据，不能对提案进行投票。直到数据同步基本完成，才进行配置变更。这样避免了新的节点由于缺少Log不能及时的处理提案。&lt;/p>
+&lt;p>又如新的成员列表中，不包含原先的Leader节点。在旧Leader认可了新的配置提案之后，就可以退位让贤，让其它节点选举出新的Leader。&lt;/p>
+&lt;p>以及被清除出成员列表的节点，不会收到后续的心跳，它们会认为Leader已经失效，所以自己跳出来竞选Leader。这样一来，就会触发新的（无意义 的）Leader选举，影响系统的可用性。解决方案是，如果一个节点在一个时间段内收到了Leader的心跳，那么就会忽略Leader的竞选请求。这样既不会影响正常的选举，又可以屏蔽无效的选举请求。&lt;/p>
+&lt;h2 id="快照">快照 &lt;a href="#%e5%bf%ab%e7%85%a7" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>我们的提案越来越多，日志也越来越长。随之而来的是漫长的恢复时间以及磁盘空间的浪费。快照技术可以帮我们清除旧的无用日志，只保留有用的状态信息。&lt;/p>
+&lt;p>在Raft算法中，每个节点都能自主的生成快照。好处是避免Leader分发快照造成的效率降低，也简化了Leader的功能和职责。又由于日志的“TCP特性”，所以不同节点上，只要保证提案编号一致，那么其内容就可以保证一致。&lt;/p>
+&lt;h2 id="客户端交互">客户端交互 &lt;a href="#%e5%ae%a2%e6%88%b7%e7%ab%af%e4%ba%a4%e4%ba%92" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>由于客户端不了解系统内部的选举情况，所以在开始通信时，会随机选一台节点发送请求。如果这个节点不是Leader，就会拒绝这个请求，会告知客户端哪个节点是当前任期的Leader。如果Leader失效，客户端请求超时，就会重新随机选择节点，获取新任Leader信息。&lt;/p>
+&lt;p>对于客户端发送的写请求，Leader需要记录其唯一的请求ID，以避免客户端发送的重复请求。&lt;/p>
+&lt;p>对于客户端发送的读请求，Leader需要再次确认它是仍是当前任期的Leader，避免向客户端发送过期数据。如果对数据正确性和时效性的敏感性不高，就可以向系统中的任意节点发送请求，&lt;/p>
+&lt;h2 id="写在后面">写在后面 &lt;a href="#%e5%86%99%e5%9c%a8%e5%90%8e%e9%9d%a2" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>Paxos的亮点在于把复杂的东西说简单了。而Raft的亮点是把简单的东西具体化，使之成为能落地的工程项目。&lt;/p>
+&lt;p>但是Paxos做为一种Quorum协议（俗称P2P），其工程复杂性是难以避免的。Raft在Paxos协议上面加入了很多限制以简化实现，但是想要完整的实现其功能仍不是一件容易的事。（有兴趣的同学可以&lt;a href="https://pdos.csail.mit.edu/6.824/labs/lab-raft.html">挑战一下自己&lt;/a>）&lt;/p>
+&lt;p>下面一篇文章我们会换一种新思路，学习PecificA算法，看一看如何使用Paxos实现一个主从复制协议。&lt;/p>
+&lt;h2 id="写在更后面">写在更后面 &lt;a href="#%e5%86%99%e5%9c%a8%e6%9b%b4%e5%90%8e%e9%9d%a2" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>个人觉得，Raft论文的一个更大亮点是充分的思考了Paxos/Multi-Paxos在工程实践上的缺陷。思考并提出有价值的质疑，而不是被他人的观点带着走，真的是最重要的能力之一了。&lt;/p>
+&lt;p>大胆猜测是因为有足够的理解能力，有额外的带宽去发问？这是一个有意思的问题。&lt;/p></description></item><item><title>白话一致性协议 - Paxos、Raft和PacificA[0]</title><link>https://wizmann.top/posts/paxos-raft-pecifaca0/</link><pubDate>Sun, 25 Nov 2018 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/paxos-raft-pecifaca0/</guid><description>&lt;h2 id="一致性协议---paxos">一致性协议 - Paxos &lt;a href="#%e4%b8%80%e8%87%b4%e6%80%a7%e5%8d%8f%e8%ae%ae---paxos" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>在分布式系统当中，我们往往需要保持节点之间的一致性。在绝大多数情况下，我们需要让系统中的节点相互协调通力合作，有可能的让系统正确的工作。但是，由于分布式系统本身的特性，需要我们在不可靠的硬件上尽可能的构建可靠的系统。所以，看似简单的一致性问题成为了分布式系统领域的一个重要的课题。&lt;/p>
+&lt;p>Paxos算法是Leslie Lamport于1990年提出的一种一致性算法。也是目前公认解决分布式一致性问题最有效的算法之一。&lt;/p>
+&lt;p>Paxos算法的目标是在一个不可靠的分布式系统内，只通过网络通信，能够快速且正确地在集群内部对某个数据的值达成一致。并且保证不论发生任何异常，都不会破坏系统的一致性。&lt;/p>
+&lt;h2 id="paxos算法">Paxos算法 &lt;a href="#paxos%e7%ae%97%e6%b3%95" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="另一种简化了的形象的问题描述---买车位">另一种（简化了的）形象的问题描述 - 买车位 &lt;a href="#%e5%8f%a6%e4%b8%80%e7%a7%8d%e7%ae%80%e5%8c%96%e4%ba%86%e7%9a%84%e5%bd%a2%e8%b1%a1%e7%9a%84%e9%97%ae%e9%a2%98%e6%8f%8f%e8%bf%b0---%e4%b9%b0%e8%bd%a6%e4%bd%8d" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>某小区的一些居民在抢车位，而车位只有一个。居民们达成协议，只要一个报价获得半数以上居民认可，那么提出这个出价的居民则获得了车位的所有权。&lt;/p>
+&lt;p>居民之间非常友善，如果知道了车位已经有了买家，就不会继续出价购买，并且会帮忙传播这个信息。&lt;/p>
+&lt;p>居民们都是遵纪守法的好公民，在整个过程中都只会如实的与其它用户分享信息。信息的分享是在网上，通过一对一的私密聊天进行。但是小区的手机信号非常差，我们不能保证通信的质量，一些信息可能会丢失。但是居民不会掉线。也不会失去记忆，并且通信的内容是完整的，不会被篡改的。&lt;/p>
+&lt;p>划重点：&lt;/p>
+&lt;ol>
+&lt;li>需要半数以上居民的认可，才能声称拥有车位。这个居民被称为车位的“公认拥有者”&lt;/li>
+&lt;li>车位有且只有一个，所以一个车位不能同时有两个“公认拥有者”&lt;/li>
+&lt;li>车位可以暂时没有拥有者，但是需要尽快选出一个&lt;/li>
+&lt;li>通信是不可靠的(not-reliable)，但是正确性(integrity)和可持久性（durability）是可以保证的&lt;/li>
+&lt;li>整个流程的目标是确定车位的拥有者。流程的参与者不会以自己拥有车位为最终目标&lt;/li>
+&lt;/ol>
+&lt;h3 id="如何选出最终的买家">如何选出最终的买家 &lt;a href="#%e5%a6%82%e4%bd%95%e9%80%89%e5%87%ba%e6%9c%80%e7%bb%88%e7%9a%84%e4%b9%b0%e5%ae%b6" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>由于通信是一对一的，对于所有参与者来说，他们对整个系统的了解都是片面的、过时的。但是参与者会通过与其它参与者进行通信，不断获得更及时的信息，从而最终达成一致。&lt;/p>
+&lt;p>对于普通居民，会记录“已知最高报价”和“已确认报价”两个状态。会处理两种请求：&lt;/p>
+&lt;ol>
+&lt;li>询价：如果居民已确认了某个报价，则返回这个报价。否则会尝试更新已知最高报价，并报告买家当前的最高报价&lt;/li>
+&lt;li>报价：居民会将请求中的报价与自己已知的最高报价进行比较，如果高于或等于本地已经报价，无论是否已经有已确认报价，都会确认这个报价&lt;/li>
+&lt;/ol>
+&lt;p>而对于买家，会发出两种不同的信息：&lt;/p>
+&lt;ol>
+&lt;li>询价：以某一个报价问询多数居民，如果有已确认的报价，则放弃自己的报价。如果这个报价低于居民已知的报价，则提高报价。&lt;/li>
+&lt;li>报价：如果询价过程中收到了已确认的报价，则帮忙转发这个报价。否则发送自己的报价，如果报价获得了多数居民的认可，即可以认为所有权已经更新&lt;/li>
+&lt;/ol>
+&lt;h3 id="一致性的直观证明">一致性的直观证明 &lt;a href="#%e4%b8%80%e8%87%b4%e6%80%a7%e7%9a%84%e7%9b%b4%e8%a7%82%e8%af%81%e6%98%8e" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>报价阶段，除了保证正确性之外，对于居民和买家并没有任何约束。其本质参与者之间同步信息的过程。&lt;/p>
+&lt;p>而一致性在报价阶段可以被很好的保证&lt;/p>
+&lt;ul>
+&lt;li>如果车位还没有主人，那么大家就拼一拼运气和手速，直到有一个买家获得了半数居民的认可。&lt;/li>
+&lt;li>如果用户A已经声明以价格P买入车位（记为&lt;code>(P, A)&lt;/code>），此时必有多数居民已经认可&lt;code>(P, A)&lt;/code>。如果用户B想要声明以价格Q(Q &amp;gt;= P)买入车位，首先需要向多数居民询价，在询价的过程中，一定会收到用户A已经拥有车位的信息，此时B只会帮A扩散信息，而不会去争夺拥有权。系统最终会达到一个稳定的状态。&lt;/li>
+&lt;/ul>
+&lt;h3 id="失忆---放松可持久性要求">失忆 - 放松可持久性要求 &lt;a href="#%e5%a4%b1%e5%bf%86---%e6%94%be%e6%9d%be%e5%8f%af%e6%8c%81%e4%b9%85%e6%80%a7%e8%a6%81%e6%b1%82" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>如果我们放松可持久性的限制。即居民可以掉线，或者清空自己的记忆。那此时最差情况是多数已经确认报价的居民不再承认报价，那么系统就有可能退化到“仍没有人拥有车位”的状态。此时我们只需要再进行一轮选举，选出车位新的主人即可。这并不会破坏整个系统的一致性。&lt;/p>
+&lt;h3 id="旁观者视角">旁观者视角 &lt;a href="#%e6%97%81%e8%a7%82%e8%80%85%e8%a7%86%e8%a7%92" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>假如我们做为旁观者，想要观察是谁最终拥有了车位。可以有以下两种方法：&lt;/p>
+&lt;ol>
+&lt;li>“推”模型&lt;/li>
+&lt;/ol>
+&lt;p>当新的买家被选举出来时，新买家会通知所有旁观者车位的拥有者发生了变化。这样观察者们可以实时的获得状态的变化，但是由于通信是不可靠的，旁观者可能会错过状态变化的信息。如果这种情况出现，观察者只能等待下次状态变化，才能更新自己的状态。&lt;/p>
+&lt;ol start="2">
+&lt;li>“拉”模型&lt;/li>
+&lt;/ol>
+&lt;p>旁观者可以假装自己是一个买家，向多数居民进行询价。如果最终买家已经确定，那么询价的响应中一定包含着最新的拥有者信息。&lt;/p>
+&lt;h3 id="paxos如何解决活锁问题">Paxos如何解决活锁问题 &lt;a href="#paxos%e5%a6%82%e4%bd%95%e8%a7%a3%e5%86%b3%e6%b4%bb%e9%94%81%e9%97%ae%e9%a2%98" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>假设居民里有买家A、B，同时向其它居民提出询价/报价。如果他们的询价/报价顺序排列如下，会出现什么状况呢？&lt;/p>
+&lt;pre tabindex="0">&lt;code>A: 询价，1块
+众居民：好的，最高价为1块
+B：加钱，2块
+众居民：收到，最高价为2块
+（此时A仍旧认为1块是最高报价）
+A：最终报价，1块
+众居民：不行不行，B已经加到两块钱了
+A：（内心mmp）询价，3块
+（B对A提高了报价也毫无准备）
+B：最终报价，2块
+众居民：滚粗，A已经报价3块了
+B：我加钱
+A：我再加
+B：我加钱
+A：我再加
+众居民：。。。（你们玩个球啊）
+&lt;/code>&lt;/pre>&lt;p>震惊，这帮无聊的人居然为了这几块钱可以玩一天！&lt;/p>
+&lt;p>以这样的流程进行下去，系统会陷入活锁，几乎不能达成一致了。想要解决这个问题，可以将A和B的询价重试时间加入随机化因子，这样可以帮助更快的让居民们达成一致。&lt;/p>
+&lt;h3 id="paxos如何解决投票分裂问题">Paxos如何解决投票分裂问题 &lt;a href="#paxos%e5%a6%82%e4%bd%95%e8%a7%a3%e5%86%b3%e6%8a%95%e7%a5%a8%e5%88%86%e8%a3%82%e9%97%ae%e9%a2%98" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>&lt;img src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/18-11-25/split-vots.png" alt="">&lt;/p>
+&lt;p>如图所示，居民们的投票可能会发生分裂，即没有一个值达到了半数。这里的解决方案是让买家重新进行询价，同时加入随机化因子，使得投票达成半数以上的概率更大。&lt;/p>
+&lt;h2 id="说正经的">说正经的 &lt;a href="#%e8%af%b4%e6%ad%a3%e7%bb%8f%e7%9a%84" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>对于Paxos算法的官方描述和正确性的详细证明可以参考&lt;a href="https://lamport.azurewebsites.net/pubs/paxos-simple.pdf">原论文&lt;/a>。这里就不搬运了，只是把我的例子和官方通用术语进行一下讲解，避免把大家带跑偏了。&lt;/p>
+&lt;p>在上面的例子中，“车位”的通用术语被称为“共识”，整个系统中最多有一个共识。而“询价请求”被称为“prepare请求”，“报价请求”被称为“accept请求”。&lt;/p>
+&lt;p>每个请求的价格被称为“编号”，编号大的请求可以覆盖编号小的请求，和“价高者得”是一个道理。请求中所带的信息被称为“value”，在我们的例子中，代表着购买者的身份信息。&lt;/p>
+&lt;h2 id="basic-paxos和multi-paxos">Basic Paxos和Multi Paxos &lt;a href="#basic-paxos%e5%92%8cmulti-paxos" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>上面我们描述的Paxos算法又被称为Basic Paxos，因为每一轮流程执行完，所有的参与者都会（且只会）达成一个共识。而在实际的应用中，我们需要连续不断的对多个值达成共识。这时Basic Paxos算法就力不能及了，一来每一个值的共识都至少需要两次广播网络请求，性能太低，二来同时存在的多个提案会互相竞争，使得通信的效率下降。&lt;/p>
+&lt;p>所以为了解决这个问题，Multi Paxos算法应运而生，即一种可以高效的、连续不断的对多个值达成共识的算法。&lt;/p>
+&lt;p>下一篇文章中，我们会介绍一种被普遍认可，以及已经被工业界应用的Multi Paxos的实现 —— Raft算法。&lt;/p>
+&lt;h2 id="参考链接">参考链接 &lt;a href="#%e5%8f%82%e8%80%83%e9%93%be%e6%8e%a5" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://lamport.azurewebsites.net/pubs/paxos-simple.pdf">Paxos Made Simple&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://book.douban.com/subject/26292004/">从Paxos到Zookeeper&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://zhuanlan.zhihu.com/p/31780743">知乎：Paxos算法详解&lt;/a>&lt;/li>
+&lt;/ul></description></item><item><title>Windows Azure Storage Made Simple</title><link>https://wizmann.top/posts/azure-storage-made-simple/</link><pubDate>Wed, 11 Oct 2017 21:12:15 +0000</pubDate><guid>https://wizmann.top/posts/azure-storage-made-simple/</guid><description>&lt;h2 id="加机器就是一把梭">加机器就是一把梭 &lt;a href="#%e5%8a%a0%e6%9c%ba%e5%99%a8%e5%b0%b1%e6%98%af%e4%b8%80%e6%8a%8a%e6%a2%ad" class="anchor">🔗&lt;/a>&lt;/h2>&lt;blockquote>
 &lt;p>没有什么问题是加一千台机器解决不了的，如果有，就再加一千台。 &lt;br>
 —— 《21天精通分布式系统》&lt;/p>&lt;/blockquote>
-&lt;p>分布式系统在设计之初，是为了解决单机系统的可用性和可扩展性问题的。&lt;/p></description></item></channel></rss>
+&lt;p>分布式系统在设计之初，是为了解决单机系统的可用性和可扩展性问题的。&lt;/p>
+&lt;p>举个例子，单机系统就是雇一个小弟替你干活，但是这个小弟不太靠谱，偶尔泡个病号不上班，偶尔工作太多一个人干不过来。&lt;/p>
+&lt;p>分布式系统就是雇一群小弟帮你干活，偶尔有一两个小弟泡病号，我们会有富裕的人力顶上，工作太多我们可以继续拉新的小弟入伙，美滋滋。&lt;/p>
+&lt;p>这个比喻很好的描述了单机系统和分布式系统之间的关系。所以一种可能的分布式系统就是这个样子的：&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/17-9-25/28278606.jpg" alt="">&lt;/p>
+&lt;p>我们将相同功能的服务器组成一个整体，通过一个load balancer对外提供服务。&lt;/p>
+&lt;p>这样的系统初步解决了我们的问题，在面对可扩展性和可用性的问题时，我们会：&lt;/p>
+&lt;ul>
+&lt;li>容量不足就加机器&lt;/li>
+&lt;li>单机挂掉了就把流量调度到其它的节点上&lt;/li>
+&lt;/ul>
+&lt;p>不过单纯的加机器并不能完全满足我们的需要。对于CPU密集型的服务，增加副本数可以有效的均摊计算压力，但是对于存储密集型的服务，我们需要增加分库逻辑才能有效的增加系统的计算能力。&lt;/p>
+&lt;p>例如我们有100G的数据，但是数据库的容量最多只支持50G。这样无论怎么样增加副本都不能解决问题。如果我们将100G的数据均分，存储在两个50G的分库上，我们就可以支持单机系统容纳不了的数据了。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/17-9-22/14141171.jpg" alt="">&lt;/p>
+&lt;p>我们还可以把多个这样的分布式子系统组合起来，就可以组成一个小有规模的分布式系统了。现在我们在使用的一些服务，仍在使用这种模型。&lt;/p>
+&lt;p>上面分布式模型虽然有效，但是引入了一个严重的问题：因为节点之间是隔离的，并且只能通过消息传递进行通信与协调，所以基本无法完全保证副本之间保持一致的内部状态。&lt;/p>
+&lt;p>这就是所谓的一致性问题。&lt;/p>
+&lt;h2 id="补充一点理论知识">补充一点理论知识 &lt;a href="#%e8%a1%a5%e5%85%85%e4%b8%80%e7%82%b9%e7%90%86%e8%ae%ba%e7%9f%a5%e8%af%86" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="cap理论">CAP理论 &lt;a href="#cap%e7%90%86%e8%ae%ba" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>CAP理论指的是：&lt;/p>
+&lt;blockquote>
+&lt;p>一个分布式系统不可能同时满足一致性（Consistency）、可用性（Availability）和分区容错性（Partition tolerance）这三个基本要求，最多只能同时满足其中的两项。&lt;/p>&lt;/blockquote>
+&lt;p>CAP理论由Eric Brewer在2000年首次提出，并且2年后被Seth Gilbert和Nancy Lynch从理论上证明这个理论。&lt;/p>
+&lt;ul>
+&lt;li>一致性是指数据的多个副本之间保持一致的特性；&lt;/li>
+&lt;li>可用性是指系统的服务必须一直处于可用的状态;&lt;/li>
+&lt;li>而分区容错性是指系统在遭遇任何网络分区故障的时候仍然能够保证对外提供满足一致性和可用性的服务，除非是整个网络环境都发生了故障;&lt;/li>
+&lt;/ul>
+&lt;p>抛开一致性问题不谈，“可用性”和“分区容错性”从某种意义上讲是一个分布式系统的“标配”：单机和网络连接并不可靠，从一堆不可靠的硬件上层建立一个不可靠的系统并没有任何意义。&lt;/p>
+&lt;p>所以一致性常常被牺牲，来保证分布式系统的可用性和分区容错性。&lt;/p>
+&lt;h3 id="paxos算法">Paxos算法 &lt;a href="#paxos%e7%ae%97%e6%b3%95" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>Paxos是Leslie Lamport在1990年提出的一种基于消息传递且具有高度容错性的一致性算法。&lt;/p>
+&lt;p>Paxos解决的问题是如何在一个可能发生上述异常的分布式系统中，快速且正确地在集群内部对某个数据的值达成一致，并且保证不论发生任何异常，都不会破坏整个系统的一致性。&lt;/p>
+&lt;p>Paxos的描述和证明有一些复杂，这里不做展开。简单来说，就是系统中的各个节点使用类似于选举投票的算法来达成一致，选举过程中会有短暂的数据不可用中间状态。&lt;/p>
+&lt;h2 id="我最讨厌我想做的事情做不成">“我最讨厌我想做的事情做不成” &lt;a href="#%e6%88%91%e6%9c%80%e8%ae%a8%e5%8e%8c%e6%88%91%e6%83%b3%e5%81%9a%e7%9a%84%e4%ba%8b%e6%83%85%e5%81%9a%e4%b8%8d%e6%88%90" class="anchor">🔗&lt;/a>&lt;/h2>&lt;blockquote>
+&lt;p>在分布式环境中，一致性是指数据在多个副本之间是否能够保持一致的特性。在一致性的需求下，当一个系统在数据一致的状态下执行更新操作后，应该保证系统的数据仍然处于一致的状态。 &lt;br>
+—— 《从Paxos到ZooKeeper》&lt;/p>&lt;/blockquote>
+&lt;p>无数的理论和实践证明，解决分布式系统的一致性问题是非常困难的。从最直观上来说，我们找不到两片一样的树叶，也找不到两台状态完全一致的分布式节点。&lt;/p>
+&lt;p>但是前人的智慧是无穷的，我们仍然有以下几种方案来保证数据的一致性：&lt;/p>
+&lt;h3 id="2pc-and-3pc">2PC and 3PC &lt;a href="#2pc-and-3pc" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>2PC（Two-phase Commit，两阶段提交）是用来保证分布式系统一致性的一个协议。其流程可以由这个例子来表示：&lt;/p>
+&lt;blockquote>
+&lt;p>PM（协调者）: 我要加个需求！（阶段1，提交事务请求） &lt;br>
+Dev1（参与者）：你加吧 &lt;br>
+Dev2（参与者）：你加吧 &lt;br>
+PM（协调者）：我真加了！（阶段2，执行事务提交） &lt;br>
+Dev1（参与者）：加完了 &lt;br>
+Dev2（参与者）：加完了&lt;/p>&lt;/blockquote>
+&lt;blockquote>
+&lt;p>注：PM和Dev是程序员老梗而已。各个职业只是分工不同，本质上都是为人民服务。&lt;/p>&lt;/blockquote>
+&lt;p>整个流程看起来很美好，但是我们会遇到如下问题：&lt;/p>
+&lt;ol>
+&lt;li>同步阻塞 &lt;br>
+在提交过程中，系统需要等待所有参与者的响应，所以系统整体处于一种阻塞状态，影响效率。&lt;/li>
+&lt;li>单点问题 &lt;br>
+协调者是系统的单点，如果当掉，整个系统就处于不可用状态。&lt;/li>
+&lt;li>数据不一致 &lt;br>
+一个数据一致性协议会导致数据不一致，确实是非常讽刺的事情。在执行事务提交阶段，如果协调者与参与者的通信中断，可能会导致数据的不一致：
+&lt;ul>
+&lt;li>当协调者发往部分参与者的Commit消息丢失，没有收到Commit的参与者会因为超时而认为这次请求失败而进行回滚&lt;/li>
+&lt;li>当参与者发往协调者的ACK消息丢失，协调者会认为这次请求失败，但是参与者确实已经Commit了数据&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;p>3PC（Three-phace Commit，三阶段提交）是2PC协议的改进版，将整个请求分为三部分：&lt;/p>
+&lt;ul>
+&lt;li>事务询问&lt;/li>
+&lt;li>预提交&lt;/li>
+&lt;li>执行提交&lt;/li>
+&lt;/ul>
+&lt;p>这样的改进减少了同步阻塞的粒度，但是仍然没有解决单点问题和数据不一致的问题。所以2PC和3PC都不是非常理想的数据一致性协议。&lt;/p>
+&lt;h3 id="paxos">Paxos &lt;a href="#paxos" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>上文中我们提到Paxos是一种被数学证明过的，具有高度容错性的一致性算法。但是其流程复杂，通信次数较多，并且在提案未被选中之前不能保证数据的可用性。&lt;/p>
+&lt;p>所以Paxos的应用场景多为命名服务、配置管理、分布式锁等轻量级但是而又非常核心的服务，从而扬长避短，更好的为人民服务，&lt;del>更好的反三俗&lt;/del>。。&lt;/p>
+&lt;h3 id="quorum-like-algorithm-amazon-dynamo">Quorum-like Algorithm (Amazon Dynamo) &lt;a href="#quorum-like-algorithm-amazon-dynamo" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>对于分布式系统的一致性，最直观的解决方案就是在修改节点状态时，将修改广播到所有节点上。这样从理论上讲，就可以保持节点的一致性了。&lt;/p>
+&lt;p>但是在现实工程当中，广播修改是最不可靠的方案，因为通信可能失败，节点可能失效，我们的修改很有可能不会同步到所有的节点上（假设每个节点的可靠性为99.9%，那么10个节点同时可靠概率只有99%，100个节点同时可靠的概率为90%）。&lt;/p>
+&lt;p>不过，让所有节点都保持完全一致虽然很完美，但是其付出的代价也许是现有 的系统难以承受的。Amazon Dynamo使用了一种类似选举的算法来保证数据的一致性。&lt;/p>
+&lt;p>设我们有N个节点，我们再指定两个数R和W，使得 R + W &amp;gt; N。在写入数据的时候，我们同时向N个节点写入，当有W个（及以上）节点写入成功，就向客户端返回成功；在读取的时候，我们向R个节点请求数据，此时一定会读到刚刚写入新数据的节点，然后我们将最新的数据返回给用户。&lt;/p>
+&lt;p>不过这种设计并不完善，当出现网络错误或者大规模节点失效的时候，数据一致性就很难保证了。&lt;/p>
+&lt;p>我称这种一致性模型为 —— “尽力一致性”。&lt;/p>
+&lt;h3 id="event-stream-for-eventual-consistency-apache-kafka">Event Stream for Eventual Consistency (Apache Kafka) &lt;a href="#event-stream-for-eventual-consistency-apache-kafka" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>从Dynamo的经验中我们可以看出，直接将状态的修改广播到不同的节点是不可靠的。那么我们有没有办法解决这个问题呢？&lt;/p>
+&lt;p>Apache Kafka使用了类似“预写式日志”的方法来保证一致性。当状态修改请求到来时，先写入一条公共的数据流，这条数据流往往是持久化到磁盘的。然后不同的节点再访问数据流，执行同样的状态修改请求，保证节点状态的一致性。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/17-9-27/17974300.jpg" alt="">&lt;/p>
+&lt;p>这种设计的缺陷是虽然最终所有节点都会依次执行相同的命令，但是节点执行命令的速度有快有慢，所以在瞬时会有不一致的情况。&lt;/p>
+&lt;p>这种一致性模型被称为 —— “最终一致性”。&lt;/p>
+&lt;h2 id="主角登场windows-azure-storage">主角登场：Windows Azure Storage &lt;a href="#%e4%b8%bb%e8%a7%92%e7%99%bb%e5%9c%bawindows-azure-storage" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>Windows Azure Storage（以下简称WAS）采用了多种一致性算法，在提供较高性能服务的同时，来努力保证存储系统的CAP性质。&lt;/p>
+&lt;p>其中WAS使用了一些创新性的算法，不过我们还是先从它的整体架构谈起。&lt;/p>
+&lt;ul>
+&lt;li>Windows Azure Storage的架构&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/17-9-19/98830090.jpg" alt="">&lt;/p>
+&lt;p>WAS从架构上分为三层，分别是前端（FE Layer），分区层（Partition Layer）和数据流层（Stream Layer）。这三层从功能上各有分工，但是又分别解耦，可以部署在不同的机器上。&lt;/p>
+&lt;p>下面我们自底向上的讨论一下各层之间的功能与联系。&lt;/p>
+&lt;h2 id="was---数据流层">WAS - 数据流层 &lt;a href="#was---%e6%95%b0%e6%8d%ae%e6%b5%81%e5%b1%82" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>数据流包含着各种数据操作，操作包含插入、修改、删除等基本操作，“流”则可以看做是一条无限长的队列。&lt;/p>
+&lt;h3 id="为什么要使用流结构">为什么要使用流结构？ &lt;a href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e8%a6%81%e4%bd%bf%e7%94%a8%e6%b5%81%e7%bb%93%e6%9e%84" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>为什么要用流结构呢，原因非常简单，因为流中的操作都是有序的，否则会造成不确定的结果。&lt;/p>
+&lt;p>例如我们现在有三个操作：&lt;/p>
+&lt;p>操作1：插入值x=1 &lt;br>
+操作2：修改该值为x=2 &lt;br>
+操作3：修改该值为x=5&lt;/p>
+&lt;p>如果操作是按照顺序来做的话，那么我们获得的值为x=5。但是如果我们将操作2和操作3调换之后，那么我们获得的值为x=2；如果我们将操作1放置在操作2或操作3之后，我们就在修改一个不存在的值，这势必会造成错误。&lt;/p>
+&lt;p>所以，数据流的有序性保证了操作的“回放一致性”，也就是说，相同的数据流应用在不同的机器上，获得的最终状态是一致的。&lt;/p>
+&lt;p>同时，由于HDD的顺序读写性能优于随机读写性能。使用流数据结构可以将写入请求顺序化，追加写入磁盘，在廉价的硬件上获得最好的性能。&lt;/p>
+&lt;h5 id="科普时间hdd与ssd">科普时间：HDD与SSD &lt;a href="#%e7%a7%91%e6%99%ae%e6%97%b6%e9%97%b4hdd%e4%b8%8essd" class="anchor">🔗&lt;/a>&lt;/h5>&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/17-10-10/63227271.jpg" alt="image">&lt;/p>
+&lt;p>HDD指的是Hard Disk Drive，又称Spinning Disk，是计算机使用的一种以磁性碟片存储数据的一种非易失性存储设备（人话就是：断电后不丢数据）。数据存储在同心圆磁道上，工作时碟片会旋转（和CD机一样），磁头会移动到相应的磁道上进行数据的读写（CD机用的是光头）。所以，顺序读写时，HDD的性能会比随机读写要好，因为随机读写带来的大量磁盘寻址会让磁头不断移动，从而拖慢性能。&lt;/p>
+&lt;p>与此同时，由于碟片内弧的旋转&lt;strong>线速度&lt;/strong>要小于外弧，所以外弧的读写性能会优于内弧。&lt;/p>
+&lt;p>SSD指的是Solid State Disk，即固态硬盘，也是一种常见的非易失性存储设备。其使用闪存芯片来存储数据。由于其并不像HDD一样需要物理上移动磁头来进行寻址，在顺序写入与HDD或略强于HDD磁盘的同时，随机写入性能要远远强于HDD（这就是为什么我们装电脑都喜欢把系统装到SSD盘上）。&lt;/p>
+&lt;p>但是SSD在成本和质量上弱于HDD磁盘。1TB的SSD的价格约为400刀，而1TB的HHD价格仅为80~100刀（2017年10月&lt;a href="https://pcpartpicker.com/trends/internal-hard-drive/">数据&lt;/a>）；SSD有写入次数的限制，当闪存芯片损坏时，会影响SSD的性能。相比而言，HDD的技术的性能更稳定，技术更为成熟，质量会更好一些。&lt;/p>
+&lt;h3 id="数据流的一致性算法">数据流的一致性算法 &lt;a href="#%e6%95%b0%e6%8d%ae%e6%b5%81%e7%9a%84%e4%b8%80%e8%87%b4%e6%80%a7%e7%ae%97%e6%b3%95" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>因为要保证可用性，所以数据流必须要是多机的，而多机系统就要面临一致性问题。WAS提出了一种“链式提交”方法来保证了分布式数据流的一致性。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/17-10-7/32688212.jpg" alt="">&lt;/p>
+&lt;p>与之前提到的分布式一致性的多机并行的算法不同，WAS在数据流层采用了一种“链式”的提交算法：&lt;/p>
+&lt;ol>
+&lt;li>当副本1接受到数据后，会首先将数据持久化到磁盘，之后再将相同的请求转发给副本2；&lt;/li>
+&lt;li>副本2获得数据后，持久化到磁盘，再请请求转发给副本3；&lt;/li>
+&lt;li>副本3将数据成功持久化后，返回ACK；&lt;/li>
+&lt;li>副本2接收到副本3的ACK消息后，同样返回ACK；&lt;/li>
+&lt;li>副本1接收到副本2的ACK消息后，向请求方返回ACK。&lt;/li>
+&lt;/ol>
+&lt;p>这样做的好处是，当数据请求返回ACK后，一定有三个（或以上，根据系统的参数而定）副本同时写入并持久化这条请求。此时三个副本一定是“强一致”的。&lt;/p>
+&lt;p>不过，如果链式提交当中有任何一个环节出现了问题，比如机器失效、网络超时等，那么我们就要面临数据不一致的情况。WAS为了解决这个问题，引入了被称为“封存”的机制。&lt;/p>
+&lt;h3 id="封存sealing机制">封存（sealing）机制 &lt;a href="#%e5%b0%81%e5%ad%98sealing%e6%9c%ba%e5%88%b6" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>上文说到，数据流是一个无限长的队列，只能在尾部追加写入。所以我们如果想要存储这条数据流，就势必要把这条数据流分为多个节，并把它们分别存储在不同的机器上。否则数据流的大小就要受限于单机的存储容量，这并不是我们想要看到的。&lt;/p>
+&lt;p>又由于数据流的尾部追加写入特性，所以数据流被分为多个节之后，只有最后一个节是可读写的，其它的所有节都是只读的。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/17-10-7/46032879.jpg" alt="">&lt;/p>
+&lt;p>我们将把可读可追加的数据流转化为只读的数据流的操作称为“封存”。&lt;/p>
+&lt;p>封存的作用之一，就是在数据流的一节过大的时候，停止写入该节，使得数据节的大小可控。&lt;/p>
+&lt;p>第二个作用，是上面我们提到的，在“链式提交”失败的时候，我们会将所有的数据流副本封存，封存的时候取所有副本的数据的交集。这样就能排除因为写入失败而不一致的数据。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/17-9-12/93804080.jpg" alt="">&lt;/p>
+&lt;blockquote>
+&lt;p>此时有同学会问，如果我们已经成功的写入了三个副本，但是由于网络原因并没能向请求方返回ACK。请求方会认为这段数据写入失败。但是我们在封存的时候，仍然会将这部分数据封存在数据节中。这种情况怎么处理呢？ &lt;br>
+这个问题后面会有解答，请耐心阅读哦~&lt;/p>&lt;/blockquote>
+&lt;h3 id="数据流层的架构">数据流层的架构 &lt;a href="#%e6%95%b0%e6%8d%ae%e6%b5%81%e5%b1%82%e7%9a%84%e6%9e%b6%e6%9e%84" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/17-10-8/29641653.jpg" alt="">&lt;/p>
+&lt;p>在前面的文章里，没有提到“数据流管理器”（Stream Manager，简称SM）这个角色。这个角色在整个数据流层扮演了一个很重要的角色。&lt;/p>
+&lt;p>SM是由一个小型集群使用paxos选举出来的master节点，其它节点备用。SM只用来管理整个数据流的状态，并不负责具体的读写操作。&lt;/p>
+&lt;p>SM的主要功能有：&lt;/p>
+&lt;ol>
+&lt;li>统计节点状态&lt;/li>
+&lt;li>监控节点健康状况&lt;/li>
+&lt;li>负载均衡&lt;/li>
+&lt;li>封存、创建新的数据节&lt;/li>
+&lt;li>备份与垃圾回收&lt;/li>
+&lt;/ol>
+&lt;p>SM管理着一批存储着数据节的节点（Extent Node，简称EN），这些节点存储着数据流中的节。这些节点相互通信，以完成提交、备份等功能。&lt;/p>
+&lt;p>EN节点中采用了预写入日志。每一次写入操作，EN会并发的&lt;/p>
+&lt;ol>
+&lt;li>追加写入日志文件，并将新数据写入内存缓存&lt;/li>
+&lt;li>写入持久化存储&lt;/li>
+&lt;/ol>
+&lt;p>当二者有一个完成，就返回成功标记。这样做的好处是，由于HDD追加写入的性能非常好并且稳定，所以步骤1的响应时间是稳定的并且可以估计的。保证了系统整体的响应时间不出现大的颠簸。&lt;/p>
+&lt;h2 id="was---分区层">WAS - 分区层 &lt;a href="#was---%e5%88%86%e5%8c%ba%e5%b1%82" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>分区层为我们提供了一个被称为“对象表”（Object Table）的抽象。对象表提供了插入、更新、删除功能。&lt;/p>
+&lt;p>为了提供容量支持，一个对象表会被划分为多个分区（这就是“分区层”名字的来源）。分区之间相互独立，不会互相影响。&lt;/p>
+&lt;p>对象表构建在数据流层之上。但是从直观上来讲，表结构和流结构是完全不同的，那么分区层是如何将表存储在数据流层的呢？&lt;/p>
+&lt;h3 id="lsm-treelog-structed-merge-tree">LSM Tree（Log-Structed Merge-Tree） &lt;a href="#lsm-treelog-structed-merge-tree" class="anchor">🔗&lt;/a>&lt;/h3>&lt;blockquote>
+&lt;p>段子： &lt;br>
+一个学生背着满书包的书进入图书馆，叮叮叮，图书馆的报警器响了，学生赶紧把书从书包倒出来，准备一本一本的验证，看是哪本书有问题。 &lt;br>
+一旁扫地的阿姨看不下去了，过来把书分成了两挪，先检查第一挪，叮叮叮，报警器响了，说明这一挪有问题，又把这一挪分成两挪，先检查其中一挪，要是哪一挪响了，就把这一挪继续分成两挪，继续检查，不到三回合，大妈就把有问题的哪本书找出来了。 &lt;br>
+大妈用鄙视的眼神看着那学生，仿佛在说连O（n）跟O（log n）都分不清楚。&lt;/p>&lt;/blockquote>
+&lt;p>我们上文中提到，HDD磁盘可以在较低成本下提供很好的追加写入性能，但是对于随机读写的性能不佳。&lt;/p>
+&lt;p>但是对于表结构来说，必然涉及到大量的随机读写。因为输入数据就像打乱过的扑克牌，很难保证规律性；而我们又要把特定的输入数据放到特定的行上，所以数据的写入位置必然是随机的。所以，直接在磁盘中存储表结构是非常低效的。&lt;/p>
+&lt;p>那么LSM Tree是怎么解决问题的呢？&lt;/p>
+&lt;p>首先我们把已有的数据根据key进行排序，存储在磁盘中，标记第0代。所有写入磁盘的数据都是有序的、只读的。&lt;/p>
+&lt;p>当有新的数据写入时，我们首先将其缓存在内存中。当数据达到一个阈值时，我们将内存中的数据进行排序，并写入磁盘。这一部分数据被标记为第1代。&lt;/p>
+&lt;p>之后的数据依次类推，被标记为第2代，第3代&amp;hellip;第n代。代数越高，表示数据越新。并且代数高的数据在逻辑上可以覆盖代数低的数据。&lt;/p>
+&lt;p>在查询时，我们首先检索内存中的缓存数据，如果没有找到，就依次从第n代的数据查询到第0代。如果仍然没有找到，就返回未找到。由于所有的查询都使用二分查找，效率较高。同时我们还可以使用[布隆过滤器][6]，快速判定一个key是否在LSM Tree中。&lt;/p>
+&lt;blockquote>
+&lt;p>细心的同学会发现，按照上面描述的算法，LSM Tree的代数会无限膨胀下去，最终导致非常差的的检索效果。在论文中没有明确提到LSM Tree的调教参数，但是我猜测其代数不会太多。并且在冗余数据过多时，会进行垃圾回收，保证检索的效率。 &lt;br>
+同时这也提醒我们在使用WAS的时候，尽量不要向某一个或某一些连续的分区连续写入大量数据，否则会导致分区层的性能退化。&lt;/p>&lt;/blockquote>
+&lt;h3 id="分区层使用的数据流">分区层使用的数据流 &lt;a href="#%e5%88%86%e5%8c%ba%e5%b1%82%e4%bd%bf%e7%94%a8%e7%9a%84%e6%95%b0%e6%8d%ae%e6%b5%81" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>分区层使用数据流来保存LSM Tree，使用顺序写入代替随机写入以获得性能提升，这条流被称为“行数据流”（Row Data Stream）。&lt;/p>
+&lt;p>与此同时，分区层还使用了“二进制数据流”（Blob Data Stream）来保存二进制数据。以及“提交日志流”（Commit Log Stream）来持久化预写入日志。&lt;/p>
+&lt;p>分区层向数据流层写入时，只有当数据流层返回ACK后，才认为写入成功。所以，在数据流层写入成功，但未能返回ACK时，虽然数据流层保留了数据，但是分区层并不能访问这部分数据，我们就在分区层保证了数据的正确性。&lt;/p>
+&lt;h3 id="分区层的一致性保证">分区层的一致性保证 &lt;a href="#%e5%88%86%e5%8c%ba%e5%b1%82%e7%9a%84%e4%b8%80%e8%87%b4%e6%80%a7%e4%bf%9d%e8%af%81" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>分区层的持久化信息依赖于数据流层，所以如果分区层使用在线多副本，就会遇到节点状态不一致的问题。也就是说，虽然不同的节点加载了相同的数据，但是加载速度有快有慢，很难保证节点之间以一个同样的状态对外服务。同时，在线多副本的写入会引入竞态，如果再加锁，就会大大的影响系统的效率。&lt;/p>
+&lt;p>那么WAS是怎么解决这个问题的呢？&lt;/p>
+&lt;p>答：不能保证一致性就不要一致性。&lt;/p>
+&lt;p>这样的不要一致性并不是放任节点间的状态不同步，而是每一个分区只使用一个在线服务节点。对于唯一一个节点来说，一致性就是不存在的。（是不是非常暴力）&lt;/p>
+&lt;p>所以，在同一时间只有一台机器对外提供服务（读+写）。其它的副本是在线备份，在对外提供服务的机器在计划内下线或意外当掉时，就会启用另一台副本对外提供服务。当然这也会造成一致性问题，所以这里牺牲了一点可用性，也就是在旧节点下线后，新节点必须加载完所有的数据才可以对外提供服务。中间的一段时间这个分区是不可用的。&lt;/p>
+&lt;h3 id="分区层的架构">分区层的架构 &lt;a href="#%e5%88%86%e5%8c%ba%e5%b1%82%e7%9a%84%e6%9e%b6%e6%9e%84" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/17-10-10/51400577.jpg" alt="">&lt;/p>
+&lt;p>图中的PS指的就是上文提到的分区服务，每个PS维护着对象表的一个分区，其持久化信息都储存在数据流层上。&lt;/p>
+&lt;p>PM（Partition Manager）也是使用paxos算法选举出来的master节点，用来管理分区服务的负载均衡、灾备等操作。&lt;/p>
+&lt;p>Lock Service用来对分区节点进行选举，选出的唯一master节点对外提供服务。&lt;/p>
+&lt;p>Partion Map Table用来存储与检索分区所对应的节点。&lt;/p>
+&lt;h2 id="was---前端层">WAS - 前端层 &lt;a href="#was---%e5%89%8d%e7%ab%af%e5%b1%82" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>前端层只是薄薄的一层REST API封装，并没有什么其它特殊功能。这里一笔带过。&lt;/p>
+&lt;h2 id="战胜cap理论你他娘的真是个天才">战胜CAP理论？你他娘的真是个天才！ &lt;a href="#%e6%88%98%e8%83%9ccap%e7%90%86%e8%ae%ba%e4%bd%a0%e4%bb%96%e5%a8%98%e7%9a%84%e7%9c%9f%e6%98%af%e4%b8%aa%e5%a4%a9%e6%89%8d" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/17-9-20/10049124.jpg" alt="">&lt;/p>
+&lt;p>WAS宣称自己战胜了CAP理论，提供了高可用性和强一致性。WAS能做到这点主要是因为数据流层设计的好。&lt;/p>
+&lt;p>数据流层使用了只追加写的数据模型，加上链式提交提供的高一致性，所以能应对节点失效（可用性）和网络失效（分区容错性）的故障。&lt;/p>
+&lt;p>数据流层之上的分区层利用了其特性，很容易的实现了高可用性和分区容错性。同时，又由于其使用单点向外提供服务，所以一致性也有了保障。&lt;/p>
+&lt;p>所以WAS宣称自己战胜了CAP理论，也不是没有道理。但是个人感觉WAS在分区层的单点设定，是以牺牲可用性（A）换取一致性（C）的一种妥协，只是由于机器故障并非多发，触发问题的机率比较小。&lt;/p>
+&lt;h2 id="写在后面">写在后面 &lt;a href="#%e5%86%99%e5%9c%a8%e5%90%8e%e9%9d%a2" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>本文是《Windows Azure Storage: A Highly Available Cloud Storage Service with Strong Consistency》一文的读后感，删节了一部分不容易理解的细节。想要更详尽的理解WAS的设计思想，请阅读论文原文以及官方文档。一切内容和理解上的冲突，以原文和官方文档为准。&lt;/p>
+&lt;p>撰写本文时，我使用Atreus2tap迷之小键盘，在学习前人经验教训的同时，重新学习了打字。&lt;/p>
+&lt;p>小键盘的好处是便携，以及避免手指移动带来的劳损。缺点是需要精心设计并练习大量的组合键，同时成套的键帽真是不好买。&lt;/p>
+&lt;p>上一张图。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/17-10-10/71011744.jpg" alt="">&lt;/p>
+&lt;blockquote>
+&lt;p>听说用这种奇怪键盘的人都注孤了。&lt;/p>&lt;/blockquote>
+&lt;h2 id="参考链接">参考链接 &lt;a href="#%e5%8f%82%e8%80%83%e9%93%be%e6%8e%a5" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="http://wetest.qq.com/lab/view/105.html">分布式系统设计的求生之路&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://waylau.com/talk-about-distributed-system/">用大白话聊聊分布式系统&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://book.douban.com/subject/26292004/">《从Paxos到Zookeeper》&lt;/a>&lt;/li>
+&lt;li>&lt;a href="http://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf">Dynamo: Amazon’s Highly Available Key-value Store&lt;/a>&lt;/li>
+&lt;/ul></description></item></channel></rss>

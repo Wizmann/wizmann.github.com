@@ -1,2 +1,194 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Modern C++ on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/modern-c++/</link><description>Recent content in Modern C++ on Maerlyn's Rainbow</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Fri, 01 Feb 2019 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/modern-c++/index.xml" rel="self" type="application/rss+xml"/><item><title>C++类型擦除与`std::function`性能探索</title><link>https://wizmann.top/posts/cpp-type-erasure-and-std-function/</link><pubDate>Fri, 01 Feb 2019 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/cpp-type-erasure-and-std-function/</guid><description>&lt;h2 id="什么是类型擦除">什么是类型擦除&lt;/h2>
-&lt;p>对于Python这种动态类型语言来说，是不存在“类型擦除”这个概念的。Python对象的行为并不由接口定义，而是由“当前方法和属性的集合”决定。&lt;/p></description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Modern C++ on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/modern-c++/</link><description>Recent content in Modern C++ on Maerlyn's Rainbow</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Fri, 01 Feb 2019 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/modern-c++/index.xml" rel="self" type="application/rss+xml"/><item><title>C++类型擦除与`std::function`性能探索</title><link>https://wizmann.top/posts/cpp-type-erasure-and-std-function/</link><pubDate>Fri, 01 Feb 2019 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/cpp-type-erasure-and-std-function/</guid><description>&lt;h2 id="什么是类型擦除">什么是类型擦除 &lt;a href="#%e4%bb%80%e4%b9%88%e6%98%af%e7%b1%bb%e5%9e%8b%e6%93%a6%e9%99%a4" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>对于Python这种动态类型语言来说，是不存在“类型擦除”这个概念的。Python对象的行为并不由接口定义，而是由“当前方法和属性的集合”决定。&lt;/p>
+&lt;p>所以，以下的代码是完全合法的：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">Foo&lt;/span>(object):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">print&lt;/span>(self):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print &lt;span style="color:#e6db74">&amp;#39;foo&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">Bar&lt;/span>(object):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">print&lt;/span>(self):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print &lt;span style="color:#e6db74">&amp;#39;bar&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">do_print&lt;/span>(obj):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print obj&lt;span style="color:#f92672">.&lt;/span>print()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>do_print(Foo()) &lt;span style="color:#f92672">//&lt;/span> print &lt;span style="color:#e6db74">&amp;#39;foo&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>do_print(Bar()) &lt;span style="color:#f92672">//&lt;/span> print &lt;span style="color:#e6db74">&amp;#39;bar&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>但是对于C++这种静态类型语言来讲，我们就不能使用这种语法：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">Foo&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">public&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">void&lt;/span> print() { cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;foo&amp;#34;&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> endl; }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">Bar&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">public&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">void&lt;/span> print() { cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;bar&amp;#34;&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> endl; }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#a6e22e">do_print&lt;/span>(&lt;span style="color:#f92672">???&lt;/span> obj) { &lt;span style="color:#75715e">// &amp;lt;--
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> obj.print();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>do_print(Foo());
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>do_print(Bar());
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>熟悉C++的同学们都知道，因为&lt;code>Foo&lt;/code>和&lt;code>Bar&lt;/code>的类型不同，我们不能直接将不同类型的实例传入&lt;code>do_print(obj)&lt;/code>函数。所以我们需要一种方法擦除类型信息，提供一种类型的抽象。使得实现不依赖于具体类型，而是依赖于类型抽象。&lt;/p>
+&lt;h2 id="c中类型擦除的实现">C++中类型擦除的实现 &lt;a href="#c%e4%b8%ad%e7%b1%bb%e5%9e%8b%e6%93%a6%e9%99%a4%e7%9a%84%e5%ae%9e%e7%8e%b0" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="简单粗暴---void">简单粗暴 - &lt;code>void*&lt;/code> &lt;a href="#%e7%ae%80%e5%8d%95%e7%b2%97%e6%9a%b4---void" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>写过C语言同学们一定非常熟悉&lt;code>qsort&lt;/code>函数的写法：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-c" data-lang="c">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">// http://www.cplusplus.com/reference/cstdlib/qsort/
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">compare&lt;/span> (&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#f92672">*&lt;/span> a, &lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#f92672">*&lt;/span> b) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> ( &lt;span style="color:#f92672">*&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span>&lt;span style="color:#f92672">*&lt;/span>)a &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#f92672">*&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span>&lt;span style="color:#f92672">*&lt;/span>)b );
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span> () {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> values[] &lt;span style="color:#f92672">=&lt;/span> {&lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>, &lt;span style="color:#ae81ff">5&lt;/span>, &lt;span style="color:#ae81ff">2&lt;/span>, &lt;span style="color:#ae81ff">4&lt;/span>, &lt;span style="color:#ae81ff">6&lt;/span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">qsort&lt;/span> (values, &lt;span style="color:#ae81ff">6&lt;/span>, &lt;span style="color:#66d9ef">sizeof&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span>), compare);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">int&lt;/span> i&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#ae81ff">0&lt;/span>; i&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#ae81ff">6&lt;/span>; i&lt;span style="color:#f92672">++&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">printf&lt;/span> (&lt;span style="color:#e6db74">&amp;#34;%d &amp;#34;&lt;/span>,values[n]);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这里的&lt;code>compare(const void*, const void*)&lt;/code>函数就是C语言风格的类型擦除，可以支持不同类型的指针类型传入。但是缺陷是在函数中，我们仍然需要将已擦除的类型恢复，以读取其中的数据。&lt;/p>
+&lt;p>这种类型擦除方法，并不会带开额外的开销。但是这样的强制类型隐含着类型不匹配的风险，需要程序员格外注意。&lt;/p>
+&lt;h3 id="面向对象的经典方法---虚函数virtual-function">面向对象的经典方法 - 虚函数（virtual function） &lt;a href="#%e9%9d%a2%e5%90%91%e5%af%b9%e8%b1%a1%e7%9a%84%e7%bb%8f%e5%85%b8%e6%96%b9%e6%b3%95---%e8%99%9a%e5%87%bd%e6%95%b0virtual-function" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>C++做为C语言的进化，引入了面向对象的理念。而多态，做为面向对象编程的一个重要特性，为我们的代码带来了更多的弹性。&lt;/p>
+&lt;p>对于上面的例子，我们可以使用以下的代码来实现：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">IPrintable&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">public&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">virtual&lt;/span> &lt;span style="color:#66d9ef">void&lt;/span> print() &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">Foo&lt;/span> &lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#66d9ef">public&lt;/span> IPrintable {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">public&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">virtual&lt;/span> &lt;span style="color:#66d9ef">void&lt;/span> print() { cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;foo&amp;#34;&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> endl; }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">Bar&lt;/span> &lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#66d9ef">public&lt;/span> IPrintable {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">public&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">virtual&lt;/span> &lt;span style="color:#66d9ef">void&lt;/span> print() { cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;bar&amp;#34;&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> endl; }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#a6e22e">do_print&lt;/span>(IPrintable&lt;span style="color:#f92672">*&lt;/span> obj) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> obj&lt;span style="color:#f92672">-&amp;gt;&lt;/span>print();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> do_print(&lt;span style="color:#66d9ef">new&lt;/span> Foo());
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> do_print(&lt;span style="color:#66d9ef">new&lt;/span> Bar());
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>在这里，我们使用了一个&lt;code>IPrintable&lt;/code>基类，擦除了子类&lt;code>Foo&lt;/code>和&lt;code>Bar&lt;/code>的具体类型信息。也就是说，只要子类实现了基类的接口，就可以做为参数传入&lt;code>do_print(obj)&lt;/code>中。这样的好处是我们只需要为继承同样接口的类型完成一套实现，提供了更好的封装与抽象。&lt;/p>
+&lt;p>但是，这种实现的问题在于虚函数的调用是有额外的开销的。需要进行一次运行时虚表的查找，才可以确定对象需要调用哪一个函数。&lt;/p>
+&lt;h3 id="使用模板template">使用模板（template） &lt;a href="#%e4%bd%bf%e7%94%a8%e6%a8%a1%e6%9d%bftemplate" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>C++提供了模板，支持将类型以模板参数形式传入参数。使得我们可以以一种独立于特定类型的方式编写代码。&lt;/p>
+&lt;p>我们可以改写上文中的&lt;code>do_print(obj)&lt;/code>函数，使其可以支持不同的类型：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span> T&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">void&lt;/span> do_print(T obj) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> obj.print();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这里，传入参数的类型&lt;code>T&lt;/code>无需继承&lt;code>IPrintable&lt;/code>接口，只要其实现了&lt;code>print()&lt;/code>成员函数即可做为对象传入。&lt;/p>
+&lt;p>C++模板的类型擦除作用于编译期，可以尽早的发现风险，同时（一般来说）不影响运行时的性能。&lt;/p>
+&lt;blockquote>
+&lt;p>注意：Java/C#的泛型(generic)语法与C++的模板非常类似，但是Java/C#的泛型是作用于运行时的。这里注意区分二者的区别。&lt;/p>&lt;/blockquote>
+&lt;p>但是模板也有其局限性。模板有隐含的接口语义，但是由于模板所使用的对象并没有共同的基类（接口），所以它不能使用一个统一的容器来储存对象。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">???&lt;/span> objs[] &lt;span style="color:#f92672">=&lt;/span> { &lt;span style="color:#66d9ef">new&lt;/span> &lt;span style="color:#a6e22e">Foo&lt;/span>(), &lt;span style="color:#66d9ef">new&lt;/span> Bar() };
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="c类型擦除实战--stdfunction">C++类型擦除实战 —— &lt;code>std::function&lt;/code> &lt;a href="#c%e7%b1%bb%e5%9e%8b%e6%93%a6%e9%99%a4%e5%ae%9e%e6%88%98--stdfunction" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>在C语言中，我们要表示一个函数对象只能使用函数本身以及函数指针。但是在C++中，我们有了更多的选择：&lt;/p>
+&lt;ul>
+&lt;li>函数&lt;/li>
+&lt;li>inline lambda&lt;/li>
+&lt;li>函数指针（C-style）&lt;/li>
+&lt;li>仿函数（factor class）&lt;/li>
+&lt;li>&lt;code>std::bind&lt;/code>&lt;/li>
+&lt;li>&lt;code>std::function&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;p>上面的这些对象，我们可以统称为可调用（callable）对象。也就是说，我们可以使用类似&lt;code>f(obj)&lt;/code>的语法，以函数形式调用这些对象。&lt;/p>
+&lt;p>思考以下的场景：我们想要实现一个回调函数。这个函数是用户定义的，可以是以上可调用对象的任意一种。那么我们应该用什么类型来表示这个回调函数对象呢？&lt;/p>
+&lt;p>是的，答案就是&lt;code>std::function&lt;/code>。C++中的&lt;code>std::function&lt;/code>为我们提供了对可调用对象的抽象。我们可以使用&lt;code>std::function&lt;/code>封装可调用对象，从而擦除其类型信息，使用统一的方法对其进行调用。&lt;/p>
+&lt;p>请参考以下代码：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">// http://www.cplusplus.com/reference/functional/function/function/
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;iostream&amp;gt;&lt;/span>&lt;span style="color:#75715e"> &lt;/span>&lt;span style="color:#75715e">// std::cout
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;functional&amp;gt;&lt;/span>&lt;span style="color:#75715e"> &lt;/span>&lt;span style="color:#75715e">// std::function, std::negate
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">// a function:
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">half&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> x) {&lt;span style="color:#66d9ef">return&lt;/span> x&lt;span style="color:#f92672">/&lt;/span>&lt;span style="color:#ae81ff">2&lt;/span>;}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">// a function object class:
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#66d9ef">struct&lt;/span> &lt;span style="color:#a6e22e">third_t&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">operator&lt;/span>()(&lt;span style="color:#66d9ef">int&lt;/span> x) {&lt;span style="color:#66d9ef">return&lt;/span> x&lt;span style="color:#f92672">/&lt;/span>&lt;span style="color:#ae81ff">3&lt;/span>;}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">// a class with data members:
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#66d9ef">struct&lt;/span> &lt;span style="color:#a6e22e">MyValue&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> value;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">fifth&lt;/span>() {&lt;span style="color:#66d9ef">return&lt;/span> value&lt;span style="color:#f92672">/&lt;/span>&lt;span style="color:#ae81ff">5&lt;/span>;}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span> () {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>function&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span>)&lt;span style="color:#f92672">&amp;gt;&lt;/span> fn1 &lt;span style="color:#f92672">=&lt;/span> half; &lt;span style="color:#75715e">// function
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>function&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span>)&lt;span style="color:#f92672">&amp;gt;&lt;/span> fn2 &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#f92672">&amp;amp;&lt;/span>half; &lt;span style="color:#75715e">// function pointer
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>function&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span>)&lt;span style="color:#f92672">&amp;gt;&lt;/span> fn3 &lt;span style="color:#f92672">=&lt;/span> third_t(); &lt;span style="color:#75715e">// function object
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>function&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span>)&lt;span style="color:#f92672">&amp;gt;&lt;/span> fn4 &lt;span style="color:#f92672">=&lt;/span> [](&lt;span style="color:#66d9ef">int&lt;/span> x){&lt;span style="color:#66d9ef">return&lt;/span> x&lt;span style="color:#f92672">/&lt;/span>&lt;span style="color:#ae81ff">4&lt;/span>;}; &lt;span style="color:#75715e">// lambda expression
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>function&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span>)&lt;span style="color:#f92672">&amp;gt;&lt;/span> fn5 &lt;span style="color:#f92672">=&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>negate&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span>(); &lt;span style="color:#75715e">// standard function object
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;fn1(60): &amp;#34;&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> fn1(&lt;span style="color:#ae81ff">60&lt;/span>) &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#39;\n&amp;#39;&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;fn2(60): &amp;#34;&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> fn2(&lt;span style="color:#ae81ff">60&lt;/span>) &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#39;\n&amp;#39;&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;fn3(60): &amp;#34;&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> fn3(&lt;span style="color:#ae81ff">60&lt;/span>) &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#39;\n&amp;#39;&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;fn4(60): &amp;#34;&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> fn4(&lt;span style="color:#ae81ff">60&lt;/span>) &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#39;\n&amp;#39;&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;fn5(60): &amp;#34;&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> fn5(&lt;span style="color:#ae81ff">60&lt;/span>) &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#39;\n&amp;#39;&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// stuff with members:
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>function&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>(MyValue&lt;span style="color:#f92672">&amp;amp;&lt;/span>)&lt;span style="color:#f92672">&amp;gt;&lt;/span> value &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#f92672">&amp;amp;&lt;/span>MyValue&lt;span style="color:#f92672">::&lt;/span>value; &lt;span style="color:#75715e">// pointer to data member
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>function&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>(MyValue&lt;span style="color:#f92672">&amp;amp;&lt;/span>)&lt;span style="color:#f92672">&amp;gt;&lt;/span> fifth &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#f92672">&amp;amp;&lt;/span>MyValue&lt;span style="color:#f92672">::&lt;/span>fifth; &lt;span style="color:#75715e">// pointer to member function
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> MyValue sixty {&lt;span style="color:#ae81ff">60&lt;/span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;value(sixty): &amp;#34;&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> value(sixty) &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#39;\n&amp;#39;&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;fifth(sixty): &amp;#34;&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> fifth(sixty) &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#39;\n&amp;#39;&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="stdfunction的缺陷">&lt;code>std::function&lt;/code>的缺陷 &lt;a href="#stdfunction%e7%9a%84%e7%bc%ba%e9%99%b7" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>&lt;code>std::function&lt;/code>的类型擦除功能异常强大，几乎可以封装所有的可调用类型。但是，语法上面的便利却会带来了性能上的损失。&lt;/p>
+&lt;p>从&lt;a href="https://gist.github.com/Wizmann/30073037f31d796efd6f42798dd85aee">benchmark&lt;/a>结果上我们可以看出，在&lt;code>O2&lt;/code>的优化参数下，函数调用（包括函数、函数模板和仿函数）、函数指针和lambda的性能相仿。而虚函数大概需要花费5倍左右的时间，而&lt;code>std::function&lt;/code>则需要花费6倍以上的时间。对于一个会被经常调用到的函数，带来的额外的性能开销是不可以忽略的。&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>method&lt;/th>
+&lt;th style="text-align: right">Linux (Azure VM, E5-2673 v3, -O0)&lt;/th>
+&lt;th style="text-align: right">Linux (Azure VM, E5-2673 v3, -O2)&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>Function&lt;/td>
+&lt;td style="text-align: right">12.4s&lt;/td>
+&lt;td style="text-align: right">1.2s&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Function Ptr&lt;/td>
+&lt;td style="text-align: right">13.5s&lt;/td>
+&lt;td style="text-align: right">1.2s&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Inline Lambda&lt;/td>
+&lt;td style="text-align: right">12.7s&lt;/td>
+&lt;td style="text-align: right">1.2s&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Virtual Function&lt;/td>
+&lt;td style="text-align: right">14.1s&lt;/td>
+&lt;td style="text-align: right">6.3s&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>std::function&lt;/td>
+&lt;td style="text-align: right">77.3s&lt;/td>
+&lt;td style="text-align: right">7.2s&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>究其原因，是由于&lt;code>std::function&lt;/code>的模板参数中只提供了参数类型和返回值类型，所以为了进行类型擦除，其中内置了一个虚函数。所以一次&lt;code>std::function&lt;/code>调用会引发隐式的多次函数调用，其中还包含着一次虚函数的调用。所以性能下降也就不难解释了。&lt;/p>
+&lt;h3 id="解决方案">解决方案 &lt;a href="#%e8%a7%a3%e5%86%b3%e6%96%b9%e6%a1%88" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>可以确定的是，除非必要，不要使用&lt;code>std::function&lt;/code>。&lt;/p>
+&lt;p>例如，在&lt;code>std::sort&lt;/code>中，我们使用模板传入可调用类型，这样就可以避免&lt;code>std::function&lt;/code>的额外开销：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span>&lt;span style="color:#f92672">&amp;lt;&lt;/span> &lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">RandomIt&lt;/span>, &lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">Compare&lt;/span> &lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">void&lt;/span> sort( RandomIt first, RandomIt last, Compare comp );
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>又例如我们可以避免使用不同的可调用类型来规避类型擦除，如统一使用函数指针。在C++14之后，inline lambda也可以表示为函数指针，所以我们也可以通过闭包来封装其它的可调用对象了。&lt;/p>
+&lt;p>当然，也可以自己造个&lt;a href="https://codereview.stackexchange.com/questions/14730/impossibly-fast-delegate-in-c11">轮子&lt;/a>，这就又是另一个故事了。&lt;/p>
+&lt;h2 id="写在最后">写在最后 &lt;a href="#%e5%86%99%e5%9c%a8%e6%9c%80%e5%90%8e" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>新的C++规范给我们带来了很多的语法糖。对于传统C++程序员来说，好处在于我们可以写出更舒服的，更符合直觉的代码，但缺点是我们需要了解更多语言背后的东西。所以对于自己不熟悉的新式语法，无论看起来多么诱人，也需要多加谨慎。&lt;/p>
+&lt;h2 id="参考链接">参考链接 &lt;a href="#%e5%8f%82%e8%80%83%e9%93%be%e6%8e%a5" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://gist.github.com/Wizmann/30073037f31d796efd6f42798dd85aee">Benchmark for &amp;ldquo;function pointer&amp;rdquo;, &amp;ldquo;virtual function&amp;rdquo; and &amp;ldquo;std::function&amp;rdquo;&lt;/a>&lt;/li>
+&lt;li>&lt;a href="http://www.modernescpp.com/index.php/c-core-guidelines-type-erasure">C++ Core Guidelines: Type Erasure&lt;/a>&lt;/li>
+&lt;li>&lt;a href="http://davekilian.com/cpp-type-erasure.html">C++ &amp;lsquo;Type Erasure&amp;rsquo; Explained&lt;/a>&lt;/li>
+&lt;/ul></description></item></channel></rss>

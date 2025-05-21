@@ -1,16 +1,73 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>读书 on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/%E8%AF%BB%E4%B9%A6/</link><description>Recent content in 读书 on Maerlyn's Rainbow</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Sun, 16 Nov 2014 01:03:14 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/%E8%AF%BB%E4%B9%A6/index.xml" rel="self" type="application/rss+xml"/><item><title>Reasons They Recruit</title><link>https://wizmann.top/posts/reasons-they-recruit/</link><pubDate>Sun, 16 Nov 2014 01:03:14 +0000</pubDate><guid>https://wizmann.top/posts/reasons-they-recruit/</guid><description>&lt;blockquote>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>读书 on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/%E8%AF%BB%E4%B9%A6/</link><description>Recent content in 读书 on Maerlyn's Rainbow</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Sun, 16 Nov 2014 01:03:14 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/%E8%AF%BB%E4%B9%A6/index.xml" rel="self" type="application/rss+xml"/><item><title>Reasons They Recruit</title><link>https://wizmann.top/posts/reasons-they-recruit/</link><pubDate>Sun, 16 Nov 2014 01:03:14 +0000</pubDate><guid>https://wizmann.top/posts/reasons-they-recruit/</guid><description>&lt;blockquote>
 &lt;p>From &lt;em>Ace of Programming Interview&lt;/em>, Cpt1 - Hiring Programmers: The Inside Story&lt;/p>&lt;/blockquote>
-&lt;h2 id="establish-a-rapport">Establish a Rapport&lt;/h2>
-&lt;p>For an interviewee, one the the most efficient way to build a rapport is to &lt;strong>try to see things in from the interviewer&amp;rsquo;s perspective&lt;/strong>.&lt;/p>
+&lt;h2 id="establish-a-rapport">Establish a Rapport &lt;a href="#establish-a-rapport" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>For an interviewee, one the the most efficient way to build a rapport is to &lt;strong>try to see things in from the interviewer&amp;rsquo;s perspective&lt;/strong>.&lt;/p>
 &lt;ul>
 &lt;li>understand the motivation of the interviewer&lt;/li>
 &lt;li>establishing a common ground&lt;/li>
 &lt;li>adapting your responses appropritely&lt;/li>
 &lt;/ul>
-&lt;h2 id="reasons-they-recruit">Reasons They Recruit&lt;/h2>
-&lt;p>If you know what the reason is and understand the motivation for it, then you can optimize your approach accordingly.&lt;/p></description></item><item><title>读书 - 《Head first 设计模式》</title><link>https://wizmann.top/posts/read-head-first-design-pattern/</link><pubDate>Fri, 03 Jan 2014 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/read-head-first-design-pattern/</guid><description>&lt;p>&lt;img src="http://img5.douban.com/lpic/s2686916.jpg" alt="Head first设计模式">&lt;/p>
+&lt;h2 id="reasons-they-recruit">Reasons They Recruit &lt;a href="#reasons-they-recruit" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>If you know what the reason is and understand the motivation for it, then you can optimize your approach accordingly.&lt;/p>
+&lt;h3 id="planned-expansion">Planned Expansion &lt;a href="#planned-expansion" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>This is a common scenario that the company&amp;rsquo;s expansion require them to take on more programmers accordance with the comming business growth.&lt;/p>
+&lt;h4 id="the-interviewer-vs-you">The Interviewer vs. You &lt;a href="#the-interviewer-vs-you" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>As the hiring is due to a long plan, so the interviewer is unlikely to feel a great sence of urgency. The interviewer will have a well prepared job description (a.k.a JD), or even a person profile. The interviewer are unlikely to compromise their pre-determined requirements. If you are deviate from their expectation, they will probable be less open to giving you the offer.&lt;/p>
+&lt;p>Your approach is to &lt;strong>highlight&lt;/strong> these areas which matches to the job profile. That&amp;rsquo;s the easy part.&lt;/p>
+&lt;p>If your skills are not a good fit, you can use these three tricks below to change the situation.&lt;/p>
+&lt;ul>
+&lt;li>Play it down&lt;/li>
+&lt;/ul>
+&lt;p>Your first choice is to downplay the perceived gap in skills &amp;ndash; including the option of substituting other experience as being of equivalent value.&lt;/p>
+&lt;p>For example,&lt;/p>
+&lt;blockquote>
+&lt;p>“It’s been my experience that it never takes long to learn the basics of a new component library, since, as programmers, we face an endless supply of new components and frameworks both open source and from the major vendors.”&lt;/p>&lt;/blockquote>
+&lt;p>or,&lt;/p>
+&lt;blockquote>
+&lt;p>“One thing I really like about programming is the experience of learning new
+technologies and platforms. It’s part of the ongoing attraction of the job.”&lt;/p>&lt;/blockquote>
+&lt;p>However, the biggest risk in taking this approach is that you might appear evasive, so be wary of overdoing it.&lt;/p>
+&lt;ul>
+&lt;li>Take it on the chin&lt;/li>
+&lt;/ul>
+&lt;p>If you decide to take it on the chin, simply agree with the interviewer&amp;rsquo;s observation and at the same time show your enthusiasm for learning something new.&lt;/p>
+&lt;blockquote>
+&lt;p>“I don’t have experience of that particular technology but I would really enjoy learning it.”&lt;/p>&lt;/blockquote>
+&lt;p>If the interviewer persists, you might feel it appropriate to ask how other developers in the team might learn new things.&lt;/p>
+&lt;blockquote>
+&lt;p>“Could you describe how the developers in your team generally learn new skills?”&lt;/p>&lt;/blockquote>
+&lt;p>Each example the interviewer gives you is an opportunity to show how, as a part of the team, you would &lt;strong>benefit the same approach&lt;/strong> and so acquire the necessary skill.&lt;/p>
+&lt;ul>
+&lt;li>Understand the requirement&lt;/li>
+&lt;/ul>
+&lt;p>Your third option is to gently probe the motives underpinning the requirement. The basic idea is that you explore the requirement looking to show that you understand and can meaningfully address the underlying requirement despite lacking a specific skill or experience.&lt;/p>
+&lt;p>Whatever approach you take, keep in mind that you should not &lt;strong>dwell on any particular mismatch&lt;/strong>. In particular, keep you comment brief and to the point. The more you talk about it, the more prominence it will have in the interviewer&amp;rsquo;s memory of the interview when they reflect afterward.&lt;/p>
+&lt;h3 id="specific-projet">Specific Projet &lt;a href="#specific-projet" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>When a company spots an opportunity in the market, it might scramble to put
+together a development team focused on delivering a solution to capitalize on
+the opportunity.&lt;/p>
+&lt;h4 id="the-interviewer-vs-you-1">The Interviewer vs. You &lt;a href="#the-interviewer-vs-you-1" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>The interviewer wants to know that you can work under pressure, and that you are someone who finishes what you start. Sometimes that the pressure to hire can relax the strictness with which the interviewer will match your experience against the details of job specification, although of course you can&amp;rsquo;t assume that case.&lt;/p>
+&lt;p>Be ware that although you have to demonstrate how your skills and experience are good match for the position, the interviewer also probable has the need of specific project in mind. You enthusiasm and ability to adapt might count for more than usual. Showing an ability of &lt;strong>grasp key aspect of project&lt;/strong> give you an advantage over others.&lt;/p>
+&lt;p>If you are not sure of the motivation of hiring, there&amp;rsquo;s absolutely no harm to ask directly:&lt;/p>
+&lt;blockquote>
+&lt;p>Could I ask why you are recruiting? Is it for a specific project?&lt;/p>&lt;/blockquote>
+&lt;h3 id="replacing-someone">Replacing Someone &lt;a href="#replacing-someone" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>This is another common reason for hiring simply to replace someone who is leaving or has left the company.&lt;/p>
+&lt;h4 id="the-interviewer-vs-you-2">The Interviewer vs. You &lt;a href="#the-interviewer-vs-you-2" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>An interesting aspect of this situation is that they will probably have experience of a previous person i lling this role, for better or for worse, and will therefore have a list of things they want to ensure the next person will and won’t bring to the role.&lt;/p>
+&lt;p>Unless you are very lucky, you can&amp;rsquo;t gather insight into what interviewer like or dislike prior to the interview. What you can do at the interview is ask about &lt;strong>unique challenge for the role&lt;/strong>, things for which you might to need to be on guard, and so on:&lt;/p>
+&lt;blockquote>
+&lt;p>“Could you tell me a bit about the challenges of this role that might make it different from the usual programming job?”&lt;/p>&lt;/blockquote>
+&lt;p>If you ask right questions, you may get vatal clues about the things you need to highlight with regard to your experience and ability:&lt;/p>
+&lt;blockquote>
+&lt;p>“Can I ask whether there have been issues about how the team has been working together that make this ability particularly important?”&lt;/p>&lt;/blockquote></description></item><item><title>读书 - 《Head first 设计模式》</title><link>https://wizmann.top/posts/read-head-first-design-pattern/</link><pubDate>Fri, 03 Jan 2014 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/read-head-first-design-pattern/</guid><description>&lt;p>&lt;img src="http://img5.douban.com/lpic/s2686916.jpg" alt="Head first设计模式">&lt;/p>
 &lt;p>&lt;a href="http://book.douban.com/subject/2243615/">豆瓣读书&lt;/a>&lt;/p>
-&lt;h2 id="为什么读这本书">为什么读这本书&lt;/h2>
-&lt;p>在面XX家的时候，被问过一个设计模式问题。当时连面向对象都搞不懂，更不用说设计模式。&lt;/p>
+&lt;h2 id="为什么读这本书">为什么读这本书 &lt;a href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e8%af%bb%e8%bf%99%e6%9c%ac%e4%b9%a6" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>在面XX家的时候，被问过一个设计模式问题。当时连面向对象都搞不懂，更不用说设计模式。&lt;/p>
 &lt;p>于是入了“四人帮”的&lt;a href="http://book.douban.com/subject/1052241/">设计模式&lt;/a>来看，被里面的内容彻底搞晕。然后只能找了这本看起来很娱乐化的书来读。&lt;/p>
-&lt;p>这本书大概有600多页，比“四人帮”书厚很多。一个原因是这本书是“范例驱动”的，包含很多“项目”背景介绍，以及实现思路；第二个原因是，这本书的示例代码用的是&lt;strong>Java&lt;/strong>。&lt;/p></description></item></channel></rss>
+&lt;p>这本书大概有600多页，比“四人帮”书厚很多。一个原因是这本书是“范例驱动”的，包含很多“项目”背景介绍，以及实现思路；第二个原因是，这本书的示例代码用的是&lt;strong>Java&lt;/strong>。&lt;/p>
+&lt;p>（笑，不黑了好嘛。。。&lt;/p>
+&lt;h2 id="为什么要设计模式">为什么要设计模式 &lt;a href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e8%a6%81%e8%ae%be%e8%ae%a1%e6%a8%a1%e5%bc%8f" class="anchor">🔗&lt;/a>&lt;/h2>&lt;blockquote>
+&lt;p>这世界唯一不变的，就是变化&lt;/p>&lt;/blockquote>
+&lt;p>（没有逼格的人连名人名言都引用不好。。。&lt;/p>
+&lt;p>我们的代码总是需要不断的改变来适应现实世界中不断的变化。（烧死那个PM！）&lt;/p>
+&lt;p>我们需要一种&lt;code>对代码影响最小&lt;/code>的方式来修改软件以适应变化。这就是我们使用设计模式的原因。&lt;/p>
+&lt;h2 id="内隐知识">“内隐知识” &lt;a href="#%e5%86%85%e9%9a%90%e7%9f%a5%e8%af%86" class="anchor">🔗&lt;/a>&lt;/h2>&lt;blockquote>
+&lt;p>设计模式有了名字，人们就可以认识到它的存在。对于没有名字的东西，人们几乎不可能认识到它的存在，并对之进行讨论。这种不能用语言表达的知识我们称之为内隐知识。&lt;/p>&lt;/blockquote>
+&lt;p>其实我们在写程序的时候，或多或少都用到了“设计模式”，只是我们没有意识到而已。&lt;/p>
+&lt;p>而计算机科学家总结出了设计模式，使其从&lt;code>内隐知识&lt;/code>或&lt;code>经验论&lt;/code>的范畴中脱离出来，成为真正可以讨论、学习、运用的知识。&lt;/p>
+&lt;h2 id="读书当中的缺憾">读书当中的缺憾 &lt;a href="#%e8%af%bb%e4%b9%a6%e5%bd%93%e4%b8%ad%e7%9a%84%e7%bc%ba%e6%86%be" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>还是由于个人工程代码经验不足，不能100%的理解设计模式的真谛。&lt;/p>
+&lt;p>上次动手写了一个&lt;code>状态模式&lt;/code>的井字游戏，还是写的有些吃力的。也许在工作中或时个人项目中，能多实践吧。&lt;/p>
+&lt;h2 id="思维导图">思维导图 &lt;a href="#%e6%80%9d%e7%bb%b4%e5%af%bc%e5%9b%be" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>&lt;a href="https://github.com/Wizmann/assets/raw/master/wizmann-tk-pic/blog-design-pattern-mindmap.png">戳我&lt;/a>&lt;/p></description></item></channel></rss>

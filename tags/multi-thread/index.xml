@@ -1,9 +1,8 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Multi-Thread on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/multi-thread/</link><description>Recent content in Multi-Thread on Maerlyn's Rainbow</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Sun, 14 Apr 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/multi-thread/index.xml" rel="self" type="application/rss+xml"/><item><title>实现一个无锁消息队列（续与勘误）</title><link>https://wizmann.top/posts/implement-non-blocking-queue-2/</link><pubDate>Sun, 14 Apr 2024 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/implement-non-blocking-queue-2/</guid><description>&lt;ul>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Multi-Thread on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/multi-thread/</link><description>Recent content in Multi-Thread on Maerlyn's Rainbow</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Sun, 14 Apr 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/multi-thread/index.xml" rel="self" type="application/rss+xml"/><item><title>实现一个无锁消息队列（续与勘误）</title><link>https://wizmann.top/posts/implement-non-blocking-queue-2/</link><pubDate>Sun, 14 Apr 2024 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/implement-non-blocking-queue-2/</guid><description>&lt;ul>
 &lt;li>本文内容主要参考自&lt;a href="https://people.cs.pitt.edu/~jacklange/teaching/cs2510-f17/implementing_lock_free.pdf">Implementing Lock-Free Queue&lt;/a>一文（以下简称“原论文”）&lt;/li>
 &lt;li>是对&lt;a href="https://wizmann.top/implement-non-blocking-queue.html">实现一个无锁消息队列&lt;/a>一文的内容进行补充&lt;/li>
 &lt;li>
-&lt;h2 id="tldr">TL；DR&lt;/h2>
-&lt;ul>
+&lt;h2 id="tldr">TL；DR &lt;a href="#tldr" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
 &lt;li>尽管&lt;a href="https://wizmann.top/implement-non-blocking-queue.html">实现一个无锁消息队列&lt;/a>一文中的实现是正确的，但是忽略了“非阻塞性”
 &lt;ul>
 &lt;li>例如，当任一插入操作被阻塞，则其它插入操作均会陷入忙等待&lt;/li>
@@ -20,8 +19,7 @@
 &lt;/ul>
 &lt;/li>
 &lt;li>
-&lt;h2 id="理论基础">理论基础&lt;/h2>
-&lt;ul>
+&lt;h2 id="理论基础">理论基础 &lt;a href="#%e7%90%86%e8%ae%ba%e5%9f%ba%e7%a1%80" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
 &lt;li>我们的目标是实现一个支持并发enqueue/deque的队列&lt;/li>
 &lt;li>对于这样的数据结构，有两个重要的特性
 &lt;ul>
@@ -52,55 +50,363 @@
 &lt;/ul>
 &lt;/li>
 &lt;li>
-&lt;h2 id="基于链表的无锁队列实现">基于链表的无锁队列实现&lt;/h2>
-&lt;ul>
+&lt;h2 id="基于链表的无锁队列实现">基于链表的无锁队列实现 &lt;a href="#%e5%9f%ba%e4%ba%8e%e9%93%be%e8%a1%a8%e7%9a%84%e6%97%a0%e9%94%81%e9%98%9f%e5%88%97%e5%ae%9e%e7%8e%b0" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
 &lt;li>略，参考原论文与&lt;a href="https://coolshell.cn/articles/8239.html">无锁队列的实现&lt;/a>一文&lt;/li>
 &lt;/ul>
 &lt;/li>
 &lt;li>
-&lt;h2 id="基于数组的无锁队列实现">基于数组的无锁队列实现&lt;/h2>
-&lt;ul>
+&lt;h2 id="基于数组的无锁队列实现">基于数组的无锁队列实现 &lt;a href="#%e5%9f%ba%e4%ba%8e%e6%95%b0%e7%bb%84%e7%9a%84%e6%97%a0%e9%94%81%e9%98%9f%e5%88%97%e5%ae%9e%e7%8e%b0" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
 &lt;li>略，参考原论文与&lt;a href="https://coolshell.cn/articles/8239.html">无锁队列的实现&lt;/a>一文&lt;/li>
 &lt;/ul>
 &lt;/li>
 &lt;li>
-&lt;h2 id="aba问题">ABA问题&lt;/h2>
-&lt;ul>
+&lt;h2 id="aba问题">ABA问题 &lt;a href="#aba%e9%97%ae%e9%a2%98" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
 &lt;li>Compare&amp;amp;Swap操作确保了值修改的原子性。指针作为值的一种，代表着某个内存地址，但Compare&amp;amp;Swap对指针的操作无法保证其指向的内存内容不被修改&lt;/li>
 &lt;li>考虑到可能释放旧内存后再申请新内存，这两块内存虽逻辑不同却可能拥有同一地址，这对Compare&amp;amp;Swap操作造成了困扰&lt;/li>
 &lt;li>解决方案是为指针加入引用计数（ref count），以确保内存在可访问时不会被释放或重用&lt;/li>
 &lt;/ul>
 &lt;/li>
 &lt;li>
-&lt;h2 id="性能对比">性能对比&lt;/h2>
-&lt;ul>
+&lt;h2 id="性能对比">性能对比 &lt;a href="#%e6%80%a7%e8%83%bd%e5%af%b9%e6%af%94" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
 &lt;li>上面我们已经提到，&lt;a href="https://dl.acm.org/doi/pdf/10.5555/110382.110466">A simple and correct shared-queue algorithm using Compare-and-Swap&lt;/a>一文中的方法缺少了“非阻塞性”，，但其性能与原论文中的实现十分接近&lt;/li>
 &lt;li>但是在原理上，“非阻塞性”实现可以避免意外的线程停止或延迟&lt;/li>
 &lt;li>疑问：是否会在P99级别的Latency上才会体现出明显的差异？&lt;/li>
 &lt;/ul>
 &lt;/li>
 &lt;li>
-&lt;h2 id="参考链接">参考链接&lt;/h2>
-&lt;ul>
+&lt;h2 id="参考链接">参考链接 &lt;a href="#%e5%8f%82%e8%80%83%e9%93%be%e6%8e%a5" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
 &lt;li>&lt;a href="https://people.cs.pitt.edu/~jacklange/teaching/cs2510-f17/implementing_lock_free.pdf">Implementing Lock-Free Queue&lt;/a>&lt;/li>
 &lt;li>&lt;a href="https://dl.acm.org/doi/pdf/10.5555/110382.110466">A simple and correct shared-queue algorithm using Compare-and-Swap&lt;/a>&lt;/li>
 &lt;li>&lt;a href="https://cs.nyu.edu/~wies/teaching/cso-fa19/class27_concurrency.pdf">Concurrency – Correctness of Concurrent Objects&lt;/a>&lt;/li>
 &lt;/ul>
 &lt;/li>
 &lt;li>
-&lt;h2 id="后续">后续&lt;/h2>
-&lt;ul>
+&lt;h2 id="后续">后续 &lt;a href="#%e5%90%8e%e7%bb%ad" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
 &lt;li>&lt;a href="https://www.cs.rochester.edu/~scott/papers/1996_PODC_queues.pdf">Simple, Fast, and Practical Non-Blocking and Blocking Concurrent Queue Algorithms&lt;/a>&lt;/li>
 &lt;li>&lt;a href="https://zhuanlan.zhihu.com/p/690872647">C++ 单生产者&amp;amp;单消费者 无锁队列&lt;/a>&lt;/li>
 &lt;li>&lt;a href="https://www.youtube.com/watch?v=K3P_Lmq6pw0&amp;amp;ab_channel=CppCon">Single Producer Single Consumer Lock-free FIFO From the Ground Up - Charles Frasch - CppCon 2023&lt;/a>&lt;/li>
 &lt;/ul>
 &lt;/li>
 &lt;/ul>
-&lt;div class="alert alert-info" role="alert">本文大（划掉）部分内容由ChatGPT4生成&lt;/div></description></item><item><title>使用 SPIN/Promela 对多线程 Concurrent FIFO Queue 进行建模与验证</title><link>https://wizmann.top/posts/spin-promela-concurrent-queue-1/</link><pubDate>Sun, 17 Dec 2023 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/spin-promela-concurrent-queue-1/</guid><description>&lt;h2 id="引言">引言&lt;/h2>
-&lt;p>并发编程中设计和验证多线程数据结构是一项极大的挑战，即使是实现一个简单的数据结构（见&lt;a href="https://wizmann.top/implement-non-blocking-queue.html">《实现一个无锁消息队列》&lt;/a>一文），都需要不少的脑力、讨论与实践才可以尽可能保证其正确性。&lt;/p>
-&lt;p>本文尝试使用 SPIN/Promela 对多线程环境下的 Concurrent FIFO Queue 的一种实现进行建模与验证。&lt;/p></description></item><item><title>实现一个无锁消息队列</title><link>https://wizmann.top/posts/implement-non-blocking-queue/</link><pubDate>Wed, 02 May 2018 00:39:00 +0000</pubDate><guid>https://wizmann.top/posts/implement-non-blocking-queue/</guid><description>&lt;blockquote>
+&lt;div class="alert alert-info" role="alert">本文大（划掉）部分内容由ChatGPT4生成&lt;/div></description></item><item><title>使用 SPIN/Promela 对多线程 Concurrent FIFO Queue 进行建模与验证</title><link>https://wizmann.top/posts/spin-promela-concurrent-queue-1/</link><pubDate>Sun, 17 Dec 2023 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/spin-promela-concurrent-queue-1/</guid><description>&lt;h2 id="引言">引言 &lt;a href="#%e5%bc%95%e8%a8%80" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>并发编程中设计和验证多线程数据结构是一项极大的挑战，即使是实现一个简单的数据结构（见&lt;a href="https://wizmann.top/implement-non-blocking-queue.html">《实现一个无锁消息队列》&lt;/a>一文），都需要不少的脑力、讨论与实践才可以尽可能保证其正确性。&lt;/p>
+&lt;p>本文尝试使用 SPIN/Promela 对多线程环境下的 Concurrent FIFO Queue 的一种实现进行建模与验证。&lt;/p>
+&lt;h2 id="concurrent-fifo-queue-的设计">Concurrent FIFO Queue 的设计 &lt;a href="#concurrent-fifo-queue-%e7%9a%84%e8%ae%be%e8%ae%a1" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>为了保证多线程操作的正确性，我们采用了以下关键设计：&lt;/p>
+&lt;ul>
+&lt;li>Dummy Head 和 Dummy Tail 节点：引入这两个节点简化了队列操作逻辑，降低并发中的复杂性&lt;/li>
+&lt;li>Dummy Tail Data 指针作为“锁”：这个方法确保多个线程不会同时操作尾节点，降低了对锁的依赖&lt;/li>
+&lt;li>利用指针赋值的原子性：通过这种方式，减少了锁的使用，提高了效率&lt;/li>
+&lt;/ul>
+&lt;h2 id="spinpromela-建模中的考虑因素">SPIN/Promela 建模中的考虑因素 &lt;a href="#spinpromela-%e5%bb%ba%e6%a8%a1%e4%b8%ad%e7%9a%84%e8%80%83%e8%99%91%e5%9b%a0%e7%b4%a0" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>在使用 SPIN/Promela 建模时，我们面临了几个挑战：&lt;/p>
+&lt;ul>
+&lt;li>静态内存管理：SPIN/Promela 缺乏动态内存操作，因此我们实现了一个极简的手动管理的静态内存堆栈。&lt;/li>
+&lt;li>减少状态空间：队列的长度可以是无限的，这也就意味着无限的状态空间。因此，我们将队列的最大长度设为3，以减少状态的穷举空间。&lt;/li>
+&lt;li>模拟CAS操作：由于缺少CAS指令，我们使用 do 循环和 atomic 块来模拟，同时开启 weak fairness 避免无限循环。（见&lt;a href="https://wizmann.top/simple-cas-model-in-spin-promela.html">《在SPIN/Promela中模拟CAS》&lt;/a>一文）&lt;/li>
+&lt;li>LTL表达式的使用：使用 LTL 表达式来穷举检查所有可能的程序状态，包括边缘情况。
+&lt;ul>
+&lt;li>LTL表达式偶尔会有一些”反直觉“的情况出现&lt;/li>
+&lt;li>例如在程序验证路径中，虽然理论上队列大小可以为0~3当中的任意数。但是也存在一种可能，即队列大小可以在2和3之间反复变化。如果我们声明“&lt;strong>永远&lt;/strong> &lt;strong>最终&lt;/strong> 一定存在 queue size==1” 的表达式会失败，因为队列大小在这种“人造场景”下永远不会为1。&lt;/li>
+&lt;li>这种情况要求我们非常精确地设计 LTL 表达式&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>代码与断言的结合：因为 LTL 表达式的表达能力有限，需要结合代码中的 assert 语句来进行更全面的验证&lt;/li>
+&lt;/ul>
+&lt;h2 id="代码示例">代码示例 &lt;a href="#%e4%bb%a3%e7%a0%81%e7%a4%ba%e4%be%8b" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>下面是我们用于建模和验证 Concurrent FIFO Queue 的 Promela 代码示例：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-promela" data-lang="promela">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#define MAX_CAPACITY 3
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#define NUM_NODES MAX_CAPACITY + 2
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#define EMPTY -1
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#define INVALID_PTR -1
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#define QUEUE_NOT_FULL (memptr &amp;gt; 0)
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#define QUEUE_NOT_EMPTY (memptr &amp;lt; MAX_CAPACITY)
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#define QUEUE_IS_EMPTY (memptr == MAX_CAPACITY)
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#define QUEUE_IS_FULL (memptr == 0)
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#define HEAD 0
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">typedef&lt;/span> QueueNode {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> nextptr;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> data;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">// 1 dummy head + 1 dummy tail + #(data nodes)
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>QueueNode nodes[NUM_NODES];
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">// data nodes + dummy tail
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span> memory[MAX_CAPACITY &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>];
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> memptr &lt;span style="color:#f92672">=&lt;/span> MAX_CAPACITY;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> tail;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> queue_size &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">bool&lt;/span> running &lt;span style="color:#f92672">=&lt;/span> false;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">init&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> i &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (i &lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span> .. NUM_NODES &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> nodes[i]&lt;span style="color:#f92672">.&lt;/span>&lt;span style="color:#a6e22e">nextptr&lt;/span> &lt;span style="color:#f92672">=&lt;/span> INVALID_PTR;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> nodes[i]&lt;span style="color:#f92672">.&lt;/span>&lt;span style="color:#a6e22e">data&lt;/span> &lt;span style="color:#f92672">=&lt;/span> EMPTY;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (i &lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span> .. MAX_CAPACITY &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> memory[i] &lt;span style="color:#f92672">=&lt;/span> i &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">2&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> memory[MAX_CAPACITY] &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">-1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> nodes[HEAD]&lt;span style="color:#f92672">.&lt;/span>&lt;span style="color:#a6e22e">nextptr&lt;/span> &lt;span style="color:#f92672">=&lt;/span> HEAD &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> tail &lt;span style="color:#f92672">=&lt;/span> HEAD &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">atomic&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">run&lt;/span> worker(&lt;span style="color:#ae81ff">0&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">run&lt;/span> worker(&lt;span style="color:#ae81ff">1&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> running &lt;span style="color:#f92672">=&lt;/span> true;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">inline&lt;/span> update_queue_size() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">d_step&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> cur &lt;span style="color:#f92672">=&lt;/span> HEAD;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> size &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">do&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">::&lt;/span> nodes[cur]&lt;span style="color:#f92672">.&lt;/span>&lt;span style="color:#a6e22e">nextptr&lt;/span> &lt;span style="color:#f92672">!=&lt;/span> INVALID_PTR &lt;span style="color:#f92672">-&amp;gt;&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> size&lt;span style="color:#f92672">++&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">assert&lt;/span>(cur &lt;span style="color:#f92672">!=&lt;/span> INVALID_PTR);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> cur &lt;span style="color:#f92672">=&lt;/span> nodes[cur]&lt;span style="color:#f92672">.&lt;/span>&lt;span style="color:#a6e22e">nextptr&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">::&lt;/span> else &lt;span style="color:#f92672">-&amp;gt;&lt;/span> &lt;span style="color:#66d9ef">break&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">od&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">assert&lt;/span>(nodes[cur]&lt;span style="color:#f92672">.&lt;/span>&lt;span style="color:#a6e22e">nextptr&lt;/span> &lt;span style="color:#f92672">==&lt;/span> INVALID_PTR);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> size&lt;span style="color:#f92672">--&lt;/span>; &lt;span style="color:#75715e">// remove HEAD
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#a6e22e">assert&lt;/span>(size &lt;span style="color:#f92672">&amp;gt;=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span> &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> size &lt;span style="color:#f92672">&amp;lt;=&lt;/span> MAX_CAPACITY);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> queue_size &lt;span style="color:#f92672">=&lt;/span> size;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">inline&lt;/span> enqueue(workerId) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> cur1 &lt;span style="color:#f92672">=&lt;/span> INVALID_PTR;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">atomic&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">::&lt;/span> (memptr &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span> &lt;span style="color:#f92672">&amp;gt;=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>) &lt;span style="color:#f92672">-&amp;gt;&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> cur1 &lt;span style="color:#f92672">=&lt;/span> memory[memptr &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>];
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> memory[memptr &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>] &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">-1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> memptr&lt;span style="color:#f92672">--&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">assert&lt;/span>(nodes[cur1]&lt;span style="color:#f92672">.&lt;/span>&lt;span style="color:#a6e22e">data&lt;/span> &lt;span style="color:#f92672">==&lt;/span> EMPTY);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">assert&lt;/span>(nodes[cur1]&lt;span style="color:#f92672">.&lt;/span>&lt;span style="color:#a6e22e">nextptr&lt;/span> &lt;span style="color:#f92672">==&lt;/span> INVALID_PTR);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">::&lt;/span> else &lt;span style="color:#f92672">-&amp;gt;&lt;/span> &lt;span style="color:#66d9ef">skip&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">fi&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">::&lt;/span> cur1 &lt;span style="color:#f92672">!=&lt;/span> INVALID_PTR &lt;span style="color:#f92672">-&amp;gt;&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">do&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">::&lt;/span> (true) &lt;span style="color:#f92672">-&amp;gt;&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// CAS
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#66d9ef">atomic&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">::&lt;/span> (nodes[tail]&lt;span style="color:#f92672">.&lt;/span>&lt;span style="color:#a6e22e">data&lt;/span> &lt;span style="color:#f92672">==&lt;/span> EMPTY) &lt;span style="color:#f92672">-&amp;gt;&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> nodes[tail]&lt;span style="color:#f92672">.&lt;/span>&lt;span style="color:#a6e22e">data&lt;/span> &lt;span style="color:#f92672">=&lt;/span> workerId;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">break&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">::&lt;/span> else &lt;span style="color:#f92672">-&amp;gt;&lt;/span> &lt;span style="color:#66d9ef">skip&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">fi&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> update_queue_size();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">od&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> nodes[tail]&lt;span style="color:#f92672">.&lt;/span>&lt;span style="color:#a6e22e">nextptr&lt;/span> &lt;span style="color:#f92672">=&lt;/span> cur1;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> tail &lt;span style="color:#f92672">=&lt;/span> cur1;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">::&lt;/span> else &lt;span style="color:#f92672">-&amp;gt;&lt;/span> &lt;span style="color:#66d9ef">skip&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">fi&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">inline&lt;/span> dequeue(workerId) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> cur2 &lt;span style="color:#f92672">=&lt;/span> INVALID_PTR;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">do&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">::&lt;/span> (true) &lt;span style="color:#f92672">-&amp;gt;&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> nxt2 &lt;span style="color:#f92672">=&lt;/span> nodes[HEAD]&lt;span style="color:#f92672">.&lt;/span>&lt;span style="color:#a6e22e">nextptr&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> cur2 &lt;span style="color:#f92672">=&lt;/span> INVALID_PTR;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">::&lt;/span> (nxt2 &lt;span style="color:#f92672">!=&lt;/span> tail) &lt;span style="color:#f92672">-&amp;gt;&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> cur2 &lt;span style="color:#f92672">=&lt;/span> nxt2;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">atomic&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> update_queue_size();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">::&lt;/span> (nodes[HEAD]&lt;span style="color:#f92672">.&lt;/span>&lt;span style="color:#a6e22e">nextptr&lt;/span> &lt;span style="color:#f92672">==&lt;/span> nxt2 &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> nxt2 &lt;span style="color:#f92672">!=&lt;/span> tail) &lt;span style="color:#f92672">-&amp;gt;&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> nodes[HEAD]&lt;span style="color:#f92672">.&lt;/span>&lt;span style="color:#a6e22e">nextptr&lt;/span> &lt;span style="color:#f92672">=&lt;/span> nodes[cur2]&lt;span style="color:#f92672">.&lt;/span>&lt;span style="color:#a6e22e">nextptr&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> nodes[cur2]&lt;span style="color:#f92672">.&lt;/span>&lt;span style="color:#a6e22e">nextptr&lt;/span> &lt;span style="color:#f92672">=&lt;/span> INVALID_PTR;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> nodes[cur2]&lt;span style="color:#f92672">.&lt;/span>&lt;span style="color:#a6e22e">data&lt;/span> &lt;span style="color:#f92672">=&lt;/span> EMPTY;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> update_queue_size();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">break&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">::&lt;/span> else &lt;span style="color:#f92672">-&amp;gt;&lt;/span> &lt;span style="color:#66d9ef">skip&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">fi&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">::&lt;/span> else &lt;span style="color:#f92672">-&amp;gt;&lt;/span> &lt;span style="color:#66d9ef">break&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">fi&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">od&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">::&lt;/span> (cur2 &lt;span style="color:#f92672">!=&lt;/span> INVALID_PTR) &lt;span style="color:#f92672">-&amp;gt;&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">d_step&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">assert&lt;/span>(nodes[cur2]&lt;span style="color:#f92672">.&lt;/span>&lt;span style="color:#a6e22e">nextptr&lt;/span> &lt;span style="color:#f92672">==&lt;/span> INVALID_PTR);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">assert&lt;/span>(nodes[cur2]&lt;span style="color:#f92672">.&lt;/span>&lt;span style="color:#a6e22e">data&lt;/span> &lt;span style="color:#f92672">==&lt;/span> EMPTY);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">assert&lt;/span>(memptr &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span> &lt;span style="color:#f92672">&amp;lt;=&lt;/span> MAX_CAPACITY);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> i;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (i &lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span> .. memptr &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">assert&lt;/span>(memory[i] &lt;span style="color:#f92672">!=&lt;/span> cur2);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">assert&lt;/span>(memory[memptr] &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">-1&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> memory[memptr] &lt;span style="color:#f92672">=&lt;/span> cur2;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> memptr&lt;span style="color:#f92672">++&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">::&lt;/span> else &lt;span style="color:#f92672">-&amp;gt;&lt;/span> &lt;span style="color:#66d9ef">skip&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">fi&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">proctype&lt;/span> worker(&lt;span style="color:#66d9ef">int&lt;/span> workerId) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>end:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">do&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">::&lt;/span> (QUEUE_NOT_FULL) &lt;span style="color:#f92672">-&amp;gt;&lt;/span> enqueue(workerId);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">::&lt;/span> (QUEUE_NOT_EMPTY) &lt;span style="color:#f92672">-&amp;gt;&lt;/span> dequeue(workerId);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">od&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">ltl&lt;/span> valid_first_node { &lt;span style="color:#f92672">[]&lt;/span>( running &lt;span style="color:#f92672">-&amp;gt;&lt;/span> ((nodes[HEAD]&lt;span style="color:#f92672">.&lt;/span>&lt;span style="color:#a6e22e">nextptr&lt;/span> &lt;span style="color:#f92672">!=&lt;/span> INVALID_PTR) &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> (nodes[HEAD]&lt;span style="color:#f92672">.&lt;/span>&lt;span style="color:#a6e22e">nextptr&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span> NUM_NODES)) ); }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">ltl&lt;/span> not_always_empty { &lt;span style="color:#f92672">[]&lt;/span>(running &lt;span style="color:#f92672">-&amp;gt;&lt;/span> (QUEUE_IS_EMPTY &lt;span style="color:#f92672">-&amp;gt;&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;gt;&lt;/span>QUEUE_NOT_EMPTY)); };
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">ltl&lt;/span> not_always_full { &lt;span style="color:#f92672">[]&lt;/span>(running &lt;span style="color:#f92672">-&amp;gt;&lt;/span> (QUEUE_IS_FULL &lt;span style="color:#f92672">-&amp;gt;&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;gt;&lt;/span>QUEUE_NOT_FULL)); };
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">ltl&lt;/span> size_change_by_1 { &lt;span style="color:#f92672">[]&lt;/span>(running &lt;span style="color:#f92672">-&amp;gt;&lt;/span> (
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> (queue_size &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span> &lt;span style="color:#f92672">U&lt;/span> queue_size &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>) &lt;span style="color:#f92672">||&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> (queue_size &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span> &lt;span style="color:#f92672">U&lt;/span> (queue_size &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span> &lt;span style="color:#f92672">||&lt;/span> queue_size &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">2&lt;/span>)) &lt;span style="color:#f92672">||&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> (queue_size &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">2&lt;/span> &lt;span style="color:#f92672">U&lt;/span> (queue_size &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span> &lt;span style="color:#f92672">||&lt;/span> queue_size &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">3&lt;/span>)) &lt;span style="color:#f92672">||&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> (queue_size &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">3&lt;/span> &lt;span style="color:#f92672">U&lt;/span> queue_size &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">2&lt;/span>))) }
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="讨论">讨论 &lt;a href="#%e8%ae%a8%e8%ae%ba" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="混合编程的可能性">混合编程的可能性 &lt;a href="#%e6%b7%b7%e5%90%88%e7%bc%96%e7%a8%8b%e7%9a%84%e5%8f%af%e8%83%bd%e6%80%a7" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>我们是否可以通过 Promela 与 C/C++ 的混合编程来解决模型中的一些困难？这种方法或许能提供更加灵活的解决方案，但代价又是什么呢？&lt;/p>
+&lt;h3 id="ltl语句的合理性">LTL语句的合理性 &lt;a href="#ltl%e8%af%ad%e5%8f%a5%e7%9a%84%e5%90%88%e7%90%86%e6%80%a7" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>在多线程环境下验证数据结构的正确性始终是一项艰巨的任务。对于代码中使用的LTL语句，是否需要继续完善以保证其在更多（甚至所有）场景下的正确性?&lt;/p>
+&lt;h3 id="对于其他实现的验证">对于其他实现的验证 &lt;a href="#%e5%af%b9%e4%ba%8e%e5%85%b6%e4%bb%96%e5%ae%9e%e7%8e%b0%e7%9a%84%e9%aa%8c%e8%af%81" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>在&lt;a href="https://wizmann.top/implement-non-blocking-queue.html">《实现一个无锁消息队列》&lt;/a>一文中，涉及了更多的多线程队列模型，后续会对其进行验证。&lt;/p>
+&lt;div class="alert alert-info" role="alert">本文大（划掉）部分内容由ChatGPT4生成&lt;/div></description></item><item><title>实现一个无锁消息队列</title><link>https://wizmann.top/posts/implement-non-blocking-queue/</link><pubDate>Wed, 02 May 2018 00:39:00 +0000</pubDate><guid>https://wizmann.top/posts/implement-non-blocking-queue/</guid><description>&lt;blockquote>
 &lt;p>240414更新：后续补充了一篇勘误文章，见&lt;a href="https://wizmann.top/implement-non-blocking-queue-2.html">这里&lt;/a>&lt;/p>&lt;/blockquote>
-&lt;h2 id="目标">目标&lt;/h2>
-&lt;p>实现一个多读多写的无锁消息队列。&lt;/p>
-&lt;h2 id="cmpxchg---比较并替换">cmpxchg - 比较并替换&lt;/h2>
-&lt;p>比较并替换（compare-and-swap, CAS）是一个用于多线程同步的原子操作。&lt;/p></description></item></channel></rss>
+&lt;h2 id="目标">目标 &lt;a href="#%e7%9b%ae%e6%a0%87" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>实现一个多读多写的无锁消息队列。&lt;/p>
+&lt;h2 id="cmpxchg---比较并替换">cmpxchg - 比较并替换 &lt;a href="#cmpxchg---%e6%af%94%e8%be%83%e5%b9%b6%e6%9b%bf%e6%8d%a2" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>比较并替换（compare-and-swap, CAS）是一个用于多线程同步的原子操作。&lt;/p>
+&lt;p>其工作流程是：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">cmpxchg&lt;/span>(val, oldval, newval):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> val &lt;span style="color:#f92672">==&lt;/span> oldval:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> val &lt;span style="color:#f92672">=&lt;/span> newval
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#66d9ef">True&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#66d9ef">False&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>也就是说，只有当&lt;code>val&lt;/code>等于&lt;code>oldval&lt;/code>时，我们才会将&lt;code>val&lt;/code>的值替换成&lt;code>newval&lt;/code>。在多线程的场景下，cmpxchg用来保证多线程写的原子性。&lt;/p>
+&lt;p>例如，线程1和线程2都要写入&lt;code>val&lt;/code>变量，但是我们需要保证只有一个线程能写成功。使用cmpxchg，能保证只有一个线程能成功的将&lt;code>val&lt;/code>变量替换成新值，写失败的线程会得到&lt;code>False&lt;/code>的返回值。&lt;/p>
+&lt;h2 id="access_once---消除优化歧义">ACCESS_ONCE - 消除优化歧义 &lt;a href="#access_once---%e6%b6%88%e9%99%a4%e4%bc%98%e5%8c%96%e6%ad%a7%e4%b9%89" class="anchor">🔗&lt;/a>&lt;/h2>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#define ACCESS_ONCE(x) (*(volatile typeof(x) *)&amp;amp;(x))；
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>ACCESS_ONCE&lt;/code>的作用是将一个指针转化成&lt;code>volatile&lt;/code>指针，使得读取操作“真的”去读取指针的值而不被编译器优化掉。&lt;/p>
+&lt;h2 id="实现">实现 &lt;a href="#%e5%ae%9e%e7%8e%b0" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="原子操作与nullable">原子操作与Nullable &lt;a href="#%e5%8e%9f%e5%ad%90%e6%93%8d%e4%bd%9c%e4%b8%8enullable" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>说到多线程，我们就不能不谈原子操作。对于一个队列来说，我们可以在其中存储任意复杂的数据结构，但是这些数据结构大部分都不支持原子操作。&lt;/p>
+&lt;p>同样，我们也没有一种有效的手段来标识一个值是“不存在的”。是的，我们可以自己实现一个&lt;code>Nullable&amp;lt;T&amp;gt;&lt;/code>的模板，但是带来的额外成本就是对于任意&lt;code>Nullable&amp;lt;T&amp;gt;&lt;/code>的赋值都要经过两步以上的中间步骤，这简直就是竞态bug产生的温床。&lt;/p>
+&lt;p>不过，在C++中自带着一个有着&amp;quot;Nullable&amp;quot;语意的数据结构 —— 指针。当指针为NULL时，意味着值是不存在的，而指针不为NULL时，它代表着它所指向的值。更重要的是，指针的赋值、读取、拷贝都是原子的，这给我们的代码实现提供了非常大的便利。&lt;/p>
+&lt;h3 id="数据结构">数据结构 &lt;a href="#%e6%95%b0%e6%8d%ae%e7%bb%93%e6%9e%84" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/18-5-1/40471673.jpg" alt="">&lt;/p>
+&lt;p>我们使用单链表做为基础数据结构，链表的头代表着队列的头，链表的尾对应着队列的尾。这样添加数据时，我们在TAIL节点处写入，弹出数据时从HEAD节点处弹出。&lt;/p>
+&lt;p>那么问题来了，在单线程下，维护头尾节点是非常容易的操作。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#e6db74">&amp;#34;&amp;#34;&amp;#34;
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#e6db74">维护头节点
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#e6db74">&amp;#34;&amp;#34;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cur &lt;span style="color:#f92672">=&lt;/span> HEAD&lt;span style="color:#f92672">.&lt;/span>next
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>HEAD&lt;span style="color:#f92672">.&lt;/span>next &lt;span style="color:#f92672">=&lt;/span> HEAD&lt;span style="color:#f92672">.&lt;/span>next&lt;span style="color:#f92672">.&lt;/span>next &lt;span style="color:#75715e"># 操作链表&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#e6db74">&amp;#34;&amp;#34;&amp;#34;
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#e6db74">维护尾节点
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#e6db74">&amp;#34;&amp;#34;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>newnode &lt;span style="color:#f92672">=&lt;/span> Node(value)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>TAIL&lt;span style="color:#f92672">.&lt;/span>next &lt;span style="color:#f92672">=&lt;/span> newnode &lt;span style="color:#75715e"># 操作链表&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>TAIL &lt;span style="color:#f92672">=&lt;/span> TAIL&lt;span style="color:#f92672">.&lt;/span>next &lt;span style="color:#75715e"># 操作链表&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>但是在多线程环境下，维护尾节点需要对链表进行两次操作，我们很难把它做为原子的。这大概是实现无锁队列最大的难点之一。&lt;/p>
+&lt;h3 id="框架代码">框架代码 &lt;a href="#%e6%a1%86%e6%9e%b6%e4%bb%a3%e7%a0%81" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>无锁队列中，&lt;code>push&lt;/code>和&lt;code>pop&lt;/code>两个函数是核心代码。但是我们需要先把框架代码先搭好。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span> T&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">NonBlockingQueue&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">public&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> NonBlockingQueue() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> head &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#f92672">&amp;amp;&lt;/span>dummy;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> tail &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">new&lt;/span> InnerNode();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> dummy.next &lt;span style="color:#f92672">=&lt;/span> tail;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#a6e22e">push&lt;/span>(&lt;span style="color:#66d9ef">const&lt;/span> T&lt;span style="color:#f92672">*&lt;/span> item) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// pass
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">bool&lt;/span> &lt;span style="color:#a6e22e">pop&lt;/span>(T&lt;span style="color:#f92672">*&amp;amp;&lt;/span> item) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// pass
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">private&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">struct&lt;/span> &lt;span style="color:#a6e22e">InnerNode&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> T&lt;span style="color:#f92672">*&lt;/span> value_ptr;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> InnerNode&lt;span style="color:#f92672">*&lt;/span> next;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> };
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">private&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> InnerNode dummy;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> InnerNode&lt;span style="color:#f92672">*&lt;/span> head;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> InnerNode&lt;span style="color:#f92672">*&lt;/span> tail;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这里的&lt;code>dummy&lt;/code>是一个假的头节点，是为了方便节点的插入的，可以替换成一个头节点指针。&lt;code>tail&lt;/code>是尾节点，在构造函数里，我们也将其置为一个假的尾节点，注意这里尾节点的设计，后文会再次提到。&lt;/p>
+&lt;h3 id="出队操作">出队操作 &lt;a href="#%e5%87%ba%e9%98%9f%e6%93%8d%e4%bd%9c" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>我们先从最简单的出队操作开始&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">bool&lt;/span> &lt;span style="color:#a6e22e">pop&lt;/span>(T&lt;span style="color:#f92672">*&amp;amp;&lt;/span> item) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> InnerNode&lt;span style="color:#f92672">*&lt;/span> cur &lt;span style="color:#f92672">=&lt;/span> NULL;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">do&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> cur &lt;span style="color:#f92672">=&lt;/span> ACCESS_ONCE(head&lt;span style="color:#f92672">-&amp;gt;&lt;/span>next);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (cur &lt;span style="color:#f92672">==&lt;/span> tail) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> false;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> } &lt;span style="color:#66d9ef">while&lt;/span> (&lt;span style="color:#f92672">!&lt;/span>__sync_bool_compare_and_swap(&lt;span style="color:#f92672">&amp;amp;&lt;/span>(head&lt;span style="color:#f92672">-&amp;gt;&lt;/span>next), cur, cur&lt;span style="color:#f92672">-&amp;gt;&lt;/span>next));
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> item &lt;span style="color:#f92672">=&lt;/span> cur&lt;span style="color:#f92672">-&amp;gt;&lt;/span>value_ptr;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// delete(cur); &amp;lt;- why?
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#66d9ef">return&lt;/span> true;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>代码中的&lt;code>__sync_bool_compare_and_swap&lt;/code>即上文所说的&lt;code>cmpxchg&lt;/code>函数，保证了赋值的原子性。&lt;/p>
+&lt;p>操作过程非常简单，我们先找到位于队列头的值（HEAD节点后面的第一个）。然后使用CAS操作将其换出链表。&lt;/p>
+&lt;p>由于tail节点是假的尾节点，所以在&lt;code>head-&amp;gt;next == tail&lt;/code>时，我们认为队列为空，返回false。&lt;/p>
+&lt;p>这里有一点需要注意，&lt;code>cur&lt;/code>指针在while循环外看似已经脱离了链表，可以放心的删除了。但是由于其它线程仍有可能持有该指针，所以我们并不能在这里对它进行删除操作。&lt;/p>
+&lt;p>在实际工程中，我们可以将其放置于一个回收队列中，待一小段时间后（如500ms），所有的线程都不持有该指针时，就可以安全的将其回收了。这里由于篇幅原因（注释：懒），就不实现了。&lt;/p>
+&lt;h3 id="入队操作">入队操作 &lt;a href="#%e5%85%a5%e9%98%9f%e6%93%8d%e4%bd%9c" class="anchor">🔗&lt;/a>&lt;/h3>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#a6e22e">push&lt;/span>(&lt;span style="color:#66d9ef">const&lt;/span> T&lt;span style="color:#f92672">*&lt;/span> item) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> assert (item &lt;span style="color:#f92672">!=&lt;/span> NULL);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> InnerNode&lt;span style="color:#f92672">*&lt;/span> cur &lt;span style="color:#f92672">=&lt;/span> NULL;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> InnerNode&lt;span style="color:#f92672">*&lt;/span> newNode &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">new&lt;/span> InnerNode();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">while&lt;/span> (true) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> cur &lt;span style="color:#f92672">=&lt;/span> ACCESS_ONCE(tail);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (__sync_bool_compare_and_swap(&lt;span style="color:#f92672">&amp;amp;&lt;/span>(cur&lt;span style="color:#f92672">-&amp;gt;&lt;/span>value_ptr), NULL, item)) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> cur&lt;span style="color:#f92672">-&amp;gt;&lt;/span>next &lt;span style="color:#f92672">=&lt;/span> newNode;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> tail &lt;span style="color:#f92672">=&lt;/span> tail&lt;span style="color:#f92672">-&amp;gt;&lt;/span>next;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">break&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这里的&lt;code>push&lt;/code>操作有一个trick，我们将&lt;code>tail-&amp;gt;value_ptr&lt;/code>做为“一把锁”。当&lt;code>value_ptr&lt;/code>为空时，tail指针代表着一个“假尾节点”。当我们向尾部追加数据时，先将数据写入&lt;code>value_ptr&lt;/code>，代表这个节点已经被“占领”。然后再向它的后面追加新的“假尾节点”，最后将指针移动过去。&lt;/p>
+&lt;p>这样一来，进入&lt;code>if&lt;/code>代码块的线程一定是写入&lt;code>tail-&amp;gt;value_ptr&lt;/code>成功的那一个，后面的指针移动也是单线程的了。&lt;/p>
+&lt;h2 id="感悟与可能的改进">感悟与可能的改进 &lt;a href="#%e6%84%9f%e6%82%9f%e4%b8%8e%e5%8f%af%e8%83%bd%e7%9a%84%e6%94%b9%e8%bf%9b" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>最近确实好久不写这么底层的代码，手生的厉害，对于多线程状态的分析也不是很灵光。确实需要多努力了。本文中的代码也许还有一些问题，所以欢迎大家指正。&lt;/p>
+&lt;p>在写这段代码的过程中，感觉有如下需要注意的地方：&lt;/p>
+&lt;ul>
+&lt;li>析构一块内存是否是安全的，会不会别的线程仍在持有这块内存的指针&lt;/li>
+&lt;li>编译器会不会给我们捣乱，比如重排指令等&lt;/li>
+&lt;li>利用CAS的特性，我们可以实现一个锁的结构，但是以哪个变量/指针做为锁可以获得最好的效果&lt;/li>
+&lt;/ul>
+&lt;p>除了用链表实现队列之外，还可以使用环型数组。感觉上来说比使用链表更优雅一点。关键在于环型数组中隐含着前驱指针和后继节点的信息，所以不需要进行复杂的内存管理工作。&lt;/p>
+&lt;p>完整实现请参考&lt;a href="https://paste.ubuntu.com/p/vYD6h5sm9n/">链接&lt;/a>，亲测在Ubuntu 16.04下使用&lt;code>g++ main.cc -lpthread&lt;/code>编译运行成功。（p.s. 不要加C++11标签，编不过的）&lt;/p>
+&lt;h2 id="相关链接">相关链接 &lt;a href="#%e7%9b%b8%e5%85%b3%e9%93%be%e6%8e%a5" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://coolshell.cn/articles/8239.html">无锁队列的实现 - 酷壳&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;blockquote>
+&lt;p>弱弱感觉文章里说的实现有问题（240414更新：其实是没有问题的，见勘误文章）&lt;/p>&lt;/blockquote>
+&lt;ul>
+&lt;li>&lt;a href="https://cloud.tencent.com/developer/article/1006241">共享内存无锁队列的实现&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;blockquote>
+&lt;p>指出了实现上面可能踩到的坑&lt;/p>&lt;/blockquote>
+&lt;ul>
+&lt;li>&lt;a href="https://cloud.tencent.com/developer/article/1071029">一种高效无锁内存队列的实现&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;blockquote>
+&lt;p>环形数组的实现&lt;/p>&lt;/blockquote></description></item></channel></rss>

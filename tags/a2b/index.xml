@@ -1,8 +1,523 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>A2b on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/a2b/</link><description>Recent content in A2b on Maerlyn's Rainbow</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Thu, 18 Nov 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/a2b/index.xml" rel="self" type="application/rss+xml"/><item><title>A2B Game Solutions</title><link>https://wizmann.top/posts/a2b/</link><pubDate>Thu, 18 Nov 2021 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/a2b/</guid><description>&lt;p>A2B is a &amp;ldquo;zach-like&amp;rdquo; programming game, which let you to use a very simple &amp;ldquo;programming language&amp;rdquo; to solve different problems for strings.&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>A2b on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/a2b/</link><description>Recent content in A2b on Maerlyn's Rainbow</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Thu, 18 Nov 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/a2b/index.xml" rel="self" type="application/rss+xml"/><item><title>A2B Game Solutions</title><link>https://wizmann.top/posts/a2b/</link><pubDate>Thu, 18 Nov 2021 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/a2b/</guid><description>&lt;p>A2B is a &amp;ldquo;zach-like&amp;rdquo; programming game, which let you to use a very simple &amp;ldquo;programming language&amp;rdquo; to solve different problems for strings.&lt;/p>
 &lt;p>Personally, I highly recommand this game along with &amp;ldquo;Shenzhen IO&amp;rdquo; and &amp;ldquo;Factorio&amp;rdquo; as an beginner tutorial for anyone who wants to be a software engineer.&lt;/p>
 &lt;iframe src="https://store.steampowered.com/widget/1720850/" frameborder="0" width="646" height="190">&lt;/iframe>
 &lt;iframe src="https://store.steampowered.com/widget/504210/" frameborder="0" width="646" height="190">&lt;/iframe>
 &lt;iframe src="https://store.steampowered.com/widget/427520/" frameborder="0" width="646" height="190">&lt;/iframe>
-&lt;h2 id="spoiler-alert">Spoiler Alert&lt;/h2>
-&lt;p>** The following article includes huge spoilers for A=B Game. **&lt;/p>
-&lt;p>If you have a different solution or a better solution. Feel free to share it with a comment.&lt;/p></description></item></channel></rss>
+&lt;h2 id="spoiler-alert">Spoiler Alert &lt;a href="#spoiler-alert" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>** The following article includes huge spoilers for A=B Game. **&lt;/p>
+&lt;p>If you have a different solution or a better solution. Feel free to share it with a comment.&lt;/p>
+&lt;h2 id="cpt1-ab">Cpt1. A=B &lt;a href="#cpt1-ab" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="1-1-a-to-b">1-1. A to B &lt;a href="#1-1-a-to-b" class="anchor">🔗&lt;/a>&lt;/h3>&lt;pre tabindex="0">&lt;code>a=b
+&lt;/code>&lt;/pre>&lt;h3 id="1-2-uppercase">1-2. Uppercase &lt;a href="#1-2-uppercase" class="anchor">🔗&lt;/a>&lt;/h3>&lt;pre tabindex="0">&lt;code>a=A
+b=B
+c=C
+&lt;/code>&lt;/pre>&lt;h3 id="1-3-singleton">1-3. Singleton &lt;a href="#1-3-singleton" class="anchor">🔗&lt;/a>&lt;/h3>&lt;pre tabindex="0">&lt;code>aa=a
+bb=b
+cc=c
+&lt;/code>&lt;/pre>&lt;h3 id="1-4-singleton-2">1-4. Singleton 2 &lt;a href="#1-4-singleton-2" class="anchor">🔗&lt;/a>&lt;/h3>&lt;pre tabindex="0">&lt;code>aaa=aa
+aa=
+&lt;/code>&lt;/pre>&lt;ul>
+&lt;li>For all substring which has more than &lt;code>n&lt;/code> &amp;lsquo;a&amp;rsquo;s, replace them with &lt;code>n-1&lt;/code> &amp;lsquo;a&amp;rsquo;s.&lt;/li>
+&lt;li>For all &amp;ldquo;aa&amp;quot;s, remove them.&lt;/li>
+&lt;li>For all singleton &amp;ldquo;a&amp;quot;s, keep it as-is.&lt;/li>
+&lt;/ul>
+&lt;h3 id="1-5-sort">1-5. Sort &lt;a href="#1-5-sort" class="anchor">🔗&lt;/a>&lt;/h3>&lt;pre tabindex="0">&lt;code>ba=ab
+ca=ac
+cb=bc
+&lt;/code>&lt;/pre>&lt;p>Bubble sort.&lt;/p>
+&lt;h3 id="1-6-compare">1-6. Compare &lt;a href="#1-6-compare" class="anchor">🔗&lt;/a>&lt;/h3>&lt;pre tabindex="0">&lt;code>ba=ab
+ab=
+aa=a
+bb=b
+&lt;/code>&lt;/pre>&lt;ul>
+&lt;li>Firstly, sort the string. Make it to &amp;ldquo;aaaa&amp;hellip;aabbb&amp;hellip;bb&amp;rdquo; pattern.&lt;/li>
+&lt;li>If there&amp;rsquo;s an &amp;ldquo;ab&amp;rdquo; substring in the middle, remove it.&lt;/li>
+&lt;li>After that, there will be only &amp;ldquo;a&amp;rdquo; or &amp;ldquo;b&amp;rdquo; in the string.&lt;/li>
+&lt;li>Remove the redundant characters to make the answer.&lt;/li>
+&lt;/ul>
+&lt;h2 id="cpt2-keyword">Cpt2. Keyword &lt;a href="#cpt2-keyword" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="2-1-hello-world">2-1. Hello World &lt;a href="#2-1-hello-world" class="anchor">🔗&lt;/a>&lt;/h3>&lt;pre tabindex="0">&lt;code>=(return)helloworld
+&lt;/code>&lt;/pre>&lt;h3 id="2-2-aaa">2-2. AAA &lt;a href="#2-2-aaa" class="anchor">🔗&lt;/a>&lt;/h3>&lt;pre tabindex="0">&lt;code>aaa=(return)true
+b=
+c=
+=(return)false
+&lt;/code>&lt;/pre>&lt;h3 id="2-3-exactly-three">2-3. Exactly Three &lt;a href="#2-3-exactly-three" class="anchor">🔗&lt;/a>&lt;/h3>&lt;pre tabindex="0">&lt;code>b=a
+c=a
+aaaa=(return)false
+aaa=(return)true
+=(return)false
+&lt;/code>&lt;/pre>&lt;h3 id="2-4-remainder">2-4. Remainder &lt;a href="#2-4-remainder" class="anchor">🔗&lt;/a>&lt;/h3>&lt;pre tabindex="0">&lt;code>b=a
+c=a
+aaa=
+aa=(return)2
+a=(return)1
+=(return)0
+&lt;/code>&lt;/pre>&lt;h3 id="2-5-odd">2-5. Odd &lt;a href="#2-5-odd" class="anchor">🔗&lt;/a>&lt;/h3>&lt;pre tabindex="0">&lt;code>ba=ab
+ca=ac
+cb=bc
+aaa=a
+bbb=b
+ccc=c
+aa=(return)false
+bb=(return)false
+cc=(return)false
+=(return)true
+&lt;/code>&lt;/pre>&lt;ul>
+&lt;li>Sort the string to &amp;ldquo;aa&amp;hellip;aabbb&amp;hellip;bbbcc&amp;hellip;cc&amp;rdquo; pattern.&lt;/li>
+&lt;li>Remove all &amp;ldquo;aaa&amp;rdquo;, &amp;ldquo;bbb&amp;rdquo;, &amp;ldquo;ccc&amp;rdquo; substring, this will keep the &lt;a href="https://en.wikipedia.org/wiki/Parity_(mathematics)">parity&lt;/a> of each characters.&lt;/li>
+&lt;li>If theres &amp;ldquo;aa&amp;rdquo;, &amp;ldquo;bb&amp;rdquo; or &amp;ldquo;cc&amp;rdquo; in the remaining string, it means that there&amp;rsquo;s at least one type of character has even number of appearances.&lt;/li>
+&lt;/ul>
+&lt;h3 id="2-6-the-only">2-6. The Only &lt;a href="#2-6-the-only" class="anchor">🔗&lt;/a>&lt;/h3>&lt;pre tabindex="0">&lt;code>aaa=aa
+bbb=bb
+ccc=cc
+aa=X
+bb=X
+cc=X
+a=Y
+b=Y
+c=Y
+X=
+YY=(return)false
+Y=(return)true
+=(return)false
+&lt;/code>&lt;/pre>&lt;ul>
+&lt;li>Because for substring like &amp;ldquo;aaa..aa&amp;rdquo;, all &amp;ldquo;a&amp;quot;s has at least 1 neighbour which is same to itself.&lt;/li>
+&lt;li>It means we can safely replace those substrings with a delimeter, marked as &amp;ldquo;X&amp;rdquo;.&lt;/li>
+&lt;li>Check if the remaining string has exactly 1 character which is not &amp;ldquo;X&amp;rdquo;.&lt;/li>
+&lt;/ul>
+&lt;h3 id="2-7-ascend">2-7. Ascend &lt;a href="#2-7-ascend" class="anchor">🔗&lt;/a>&lt;/h3>&lt;h4 id="solution1-9-lines">Solution1 (9 Lines) &lt;a href="#solution1-9-lines" class="anchor">🔗&lt;/a>&lt;/h4>&lt;pre tabindex="0">&lt;code>ba=ab
+cb=bc
+ca=ac
+b=xy
+yx=xy
+ax=
+yc=
+xc=(return)true
+=(return)false
+&lt;/code>&lt;/pre>&lt;ul>
+&lt;li>Sort string to parttern &amp;ldquo;aa&amp;hellip;bb..cc&amp;rdquo;.&lt;/li>
+&lt;li>Split every character &amp;ldquo;b&amp;rdquo; to &amp;ldquo;xy&amp;rdquo;, then sort the string to &amp;ldquo;aaa&amp;hellip;xx&amp;hellip;yy..cc&amp;rdquo;.&lt;/li>
+&lt;li>Remove all the occurrences of &amp;ldquo;ax&amp;rdquo; and &amp;ldquo;yc&amp;rdquo;.&lt;/li>
+&lt;li>If:
+&lt;ul>
+&lt;li>there&amp;rsquo;re remaining &amp;ldquo;a&amp;quot;s means &lt;code>count(a) &amp;gt; count(b)&lt;/code>&lt;/li>
+&lt;li>there&amp;rsquo;re remaining &amp;ldquo;x&amp;quot;s means &lt;code>count(b) &amp;gt; count(a)&lt;/code>&lt;/li>
+&lt;li>there&amp;rsquo;re remaining &amp;ldquo;y&amp;quot;s means &lt;code>count(b) &amp;gt; count(c)&lt;/code>&lt;/li>
+&lt;li>there&amp;rsquo;re remaining &amp;ldquo;c&amp;quot;s means &lt;code>count(b) &amp;gt; count(b)&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Only if there&amp;rsquo;re any &amp;ldquo;xc&amp;quot;s in the remaining string, we&amp;rsquo;ll return &lt;code>true&lt;/code>.&lt;/li>
+&lt;li>Otherwise, return &lt;code>false&lt;/code>.&lt;/li>
+&lt;/ul>
+&lt;h4 id="solution2-8-lines">Solution2 (8 Lines) &lt;a href="#solution2-8-lines" class="anchor">🔗&lt;/a>&lt;/h4>&lt;pre tabindex="0">&lt;code>ba=ab
+ca=ac
+bc=cb
+cb=x
+cx=xc
+ax=
+xc=(return)true
+=(return)false
+&lt;/code>&lt;/pre>&lt;ul>
+&lt;li>Sort string to pattern &amp;ldquo;aaa&amp;hellip;cccc&amp;hellip;bb&amp;rdquo;.&lt;/li>
+&lt;li>For every occurrence of &amp;ldquo;cb&amp;rdquo;, replace it with &amp;ldquo;x&amp;rdquo;. If there&amp;rsquo;re &lt;code>n&lt;/code> &amp;ldquo;x&amp;quot;s, means there&amp;rsquo;re &lt;code>n&lt;/code> &amp;ldquo;b&amp;quot;s and &lt;code>n&lt;/code> &amp;ldquo;c&amp;quot;s.&lt;/li>
+&lt;li>Move every &amp;ldquo;x&amp;rdquo; to the front of &amp;ldquo;c&amp;quot;s.&lt;/li>
+&lt;li>Eliminate every &amp;ldquo;a&amp;rdquo; with adjacent &amp;ldquo;x&amp;rdquo;.&lt;/li>
+&lt;li>If:
+&lt;ul>
+&lt;li>there&amp;rsquo;re remaining &amp;ldquo;a&amp;quot;s means &lt;code>count(a) &amp;gt; count(b)&lt;/code>&lt;/li>
+&lt;li>there&amp;rsquo;re remaining &amp;ldquo;x&amp;quot;s means &lt;code>count(b) &amp;gt; count(a)&lt;/code>&lt;/li>
+&lt;li>there&amp;rsquo;s no remaining &amp;ldquo;c&amp;quot;s means &lt;code>count(b) &amp;gt; count(a)&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>We match the pattern &amp;ldquo;xc&amp;rdquo; as a signal for returning &amp;ldquo;true&amp;rdquo;.&lt;/li>
+&lt;li>Otherwise, return &amp;ldquo;false&amp;rdquo;.&lt;/li>
+&lt;/ul>
+&lt;h3 id="2-8-most">2-8. Most &lt;a href="#2-8-most" class="anchor">🔗&lt;/a>&lt;/h3>&lt;pre tabindex="0">&lt;code>ba=ab
+ca=ac
+cb=bc
+b=xy
+yx=xy
+ax=
+yc=
+ac=
+a=(return)a
+y=(return)b
+c=(return)c
+&lt;/code>&lt;/pre>&lt;ul>
+&lt;li>Similar idea from 2-7.&lt;/li>
+&lt;li>Sort then split, make the string like &amp;ldquo;aaa&amp;hellip;xxx..yyy&amp;hellip;ccc&amp;rdquo;.&lt;/li>
+&lt;li>It&amp;rsquo;s easy to know that &lt;code>count(x) == count(y) == count(b)&lt;/code>.&lt;/li>
+&lt;li>Eliminate all occurances of &amp;ldquo;ax&amp;quot;s and &amp;ldquo;yc&amp;quot;s.&lt;/li>
+&lt;li>It means:
+&lt;ul>
+&lt;li>&lt;code>count(remaining a) = count(a) - count(b)&lt;/code> if there&amp;rsquo;re remaining &amp;ldquo;a&amp;quot;s&lt;/li>
+&lt;li>&lt;code>count(remaining x) = count(b) - count(a)&lt;/code> if there&amp;rsquo;re remaining &amp;ldquo;x&amp;quot;s&lt;/li>
+&lt;li>&lt;code>count(remaining y) = count(b) - count(c)&lt;/code> if there&amp;rsquo;re remaining &amp;ldquo;y&amp;quot;s&lt;/li>
+&lt;li>&lt;code>count(remaining c) = count(c) - count(b)&lt;/code> if there&amp;rsquo;re remaining &amp;ldquo;c&amp;quot;s&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>If there&amp;rsquo;re only &amp;ldquo;x&amp;quot;s and &amp;ldquo;y&amp;quot;s remain, it means &amp;ldquo;b&amp;rdquo; has the largests count&lt;/li>
+&lt;li>If there&amp;rsquo;re only &amp;ldquo;a&amp;quot;s or &amp;ldquo;ay&amp;quot;s remain, it means &lt;code>count(a) &amp;gt; count(b) &amp;gt;= count(c)&lt;/code>&lt;/li>
+&lt;li>If there&amp;rsquo;re only &amp;ldquo;c&amp;quot;s or &amp;ldquo;xc&amp;quot;s remain, it means &lt;code>count(c) &amp;gt; count(b) &amp;gt;= count(a)&lt;/code>&lt;/li>
+&lt;li>If there&amp;rsquo;re only &amp;ldquo;a&amp;quot;s and &amp;ldquo;c&amp;quot;s remain, we will eliminate all &amp;ldquo;ac&amp;quot;s, the type of character left is the final answer.&lt;/li>
+&lt;/ul>
+&lt;h3 id="2-9-least">2-9. Least &lt;a href="#2-9-least" class="anchor">🔗&lt;/a>&lt;/h3>&lt;h4 id="solution1-11-lines">Solution1 (11 Lines) &lt;a href="#solution1-11-lines" class="anchor">🔗&lt;/a>&lt;/h4>&lt;pre tabindex="0">&lt;code>ba=ab
+ca=ac
+cb=bc
+b=xy
+yx=xy
+ax=
+yc=
+xy=
+ac=(return)b
+x=(return)a
+y=(return)c
+&lt;/code>&lt;/pre>&lt;ul>
+&lt;li>Similar idea from 2-8&lt;/li>
+&lt;/ul>
+&lt;h4 id="solution2-9-lines">Solution2 (9 Lines) &lt;a href="#solution2-9-lines" class="anchor">🔗&lt;/a>&lt;/h4>&lt;pre tabindex="0">&lt;code>ba=ab
+ca=ac
+cb=bc
+ab=x
+xb=bx
+xc=
+bc=(return)a
+x=(return)c
+ac=(return)b
+&lt;/code>&lt;/pre>&lt;ul>
+&lt;li>Similar idea from 2-7, solution2&lt;/li>
+&lt;/ul>
+&lt;h2 id="cpt3-start-and-end">Cpt3. Start and End &lt;a href="#cpt3-start-and-end" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="3-1-remove">3-1. Remove &lt;a href="#3-1-remove" class="anchor">🔗&lt;/a>&lt;/h3>&lt;pre tabindex="0">&lt;code>(start)a=
+(end)a=
+&lt;/code>&lt;/pre>&lt;h3 id="3-2-spin">3-2. Spin &lt;a href="#3-2-spin" class="anchor">🔗&lt;/a>&lt;/h3>&lt;pre tabindex="0">&lt;code>(start)b=(end)b
+(start)c=(end)c
+&lt;/code>&lt;/pre>&lt;h3 id="3-3-a-to-b-2">3-3. A to B 2 &lt;a href="#3-3-a-to-b-2" class="anchor">🔗&lt;/a>&lt;/h3>&lt;h4 id="solution1-4-lines">Solution1 (4 Lines) &lt;a href="#solution1-4-lines" class="anchor">🔗&lt;/a>&lt;/h4>&lt;pre tabindex="0">&lt;code>(end)a=(start)A
+(start)A=(end)b
+(start)a=(end)A
+(end)A=(start)b
+&lt;/code>&lt;/pre>&lt;h4 id="solution2-5-lines">Solution2 (5 Lines) &lt;a href="#solution2-5-lines" class="anchor">🔗&lt;/a>&lt;/h4>&lt;pre tabindex="0">&lt;code>(end)a=X
+aX=XX
+(start)a=X
+Xa=XX
+X=b
+&lt;/code>&lt;/pre>&lt;h3 id="3-4-swap">3-4. Swap &lt;a href="#3-4-swap" class="anchor">🔗&lt;/a>&lt;/h3>&lt;pre tabindex="0">&lt;code>(start)a=(end)XXXXXXXXa
+bX=(start)b
+X=
+&lt;/code>&lt;/pre>&lt;ol>
+&lt;li>Move all starting &amp;ldquo;a&amp;quot;s to the end of the string, and make it &amp;ldquo;XXXXXXXXa&amp;rdquo;. e.g. &lt;code>aacbbb -&amp;gt; cbbbXXXXXXXXaXXXXXXXXa&lt;/code>.&lt;/li>
+&lt;li>If there&amp;rsquo;re &amp;ldquo;b&amp;quot;s at the end of the original string, it will definitely followed with &amp;ldquo;X&amp;rdquo;. So we move &amp;ldquo;bX&amp;rdquo; to the beginning of the string.&lt;/li>
+&lt;li>Remove all redundant &amp;ldquo;X&amp;quot;s.&lt;/li>
+&lt;/ol>
+&lt;h3 id="3-5-match">3-5. Match &lt;a href="#3-5-match" class="anchor">🔗&lt;/a>&lt;/h3>&lt;pre tabindex="0">&lt;code>(end)aXaY=(return)true
+(end)bXbY=(return)true
+(end)cXcY=(return)true
+(start)a=(end)XaY
+(start)b=(end)XbY
+(start)c=(end)XcY
+=(return)false
+&lt;/code>&lt;/pre>&lt;ol>
+&lt;li>Say the original string is &amp;ldquo;uv&amp;hellip;w&amp;rdquo; (&amp;ldquo;u&amp;rdquo;, &amp;ldquo;v&amp;rdquo; and &amp;ldquo;w&amp;rdquo; could be arbitrary characters among &amp;ldquo;a&amp;rdquo;, &amp;ldquo;b&amp;rdquo; and &amp;ldquo;c&amp;rdquo;).&lt;/li>
+&lt;li>Firstly move the starting &amp;ldquo;u&amp;rdquo; to the end of the string, added with &amp;ldquo;X&amp;rdquo; and &amp;ldquo;Y&amp;rdquo;, i.e. &lt;code>uv...w -&amp;gt; v...wXuY&lt;/code>.&lt;/li>
+&lt;li>If &amp;ldquo;wXuY&amp;rdquo; is &amp;ldquo;aXaY&amp;rdquo;, &amp;ldquo;bXbY&amp;rdquo; or &amp;ldquo;cXcY&amp;rdquo;, return &lt;code>true&lt;/code>. Otherwise, return &lt;code>false&lt;/code>.&lt;/li>
+&lt;/ol>
+&lt;h3 id="3-6-most-2">3-6. Most 2 &lt;a href="#3-6-most-2" class="anchor">🔗&lt;/a>&lt;/h3>&lt;h3 id="solution1-12-lines">Solution1 (12 Lines) &lt;a href="#solution1-12-lines" class="anchor">🔗&lt;/a>&lt;/h3>&lt;pre tabindex="0">&lt;code>ba=ab
+cb=bc
+ca=ac
+ab=(start)X
+Xa=aa
+X=b
+bc=(start)Y
+Yb=bb
+Y=c
+ac=(start)Z
+Za=aa
+Z=c
+&lt;/code>&lt;/pre>&lt;h3 id="solution2-11-lines">Solution2 (11 Lines) &lt;a href="#solution2-11-lines" class="anchor">🔗&lt;/a>&lt;/h3>&lt;pre tabindex="0">&lt;code>ba=ab
+cb=bc
+ca=ac
+ab=(start)X
+Xa=aa
+X=b
+bc=(start)Y
+Yc=cc
+ac=(start)Y
+Ya=aa
+Y=b
+&lt;/code>&lt;/pre>&lt;h3 id="3-7-palindrome">3-7. Palindrome &lt;a href="#3-7-palindrome" class="anchor">🔗&lt;/a>&lt;/h3>&lt;h4 id="solution1-10-lines">Solution1 (10 Lines) &lt;a href="#solution1-10-lines" class="anchor">🔗&lt;/a>&lt;/h4>&lt;pre tabindex="0">&lt;code>XaX=(return)false
+XbX=(return)false
+XcX=(return)false
+(end)aXa=
+(end)bXb=
+(end)cXc=
+(start)a=(end)Xa
+(start)b=(end)Xb
+(start)c=(end)Xc
+=(return)true
+&lt;/code>&lt;/pre>&lt;h4 id="solution2-8-lines-1">Solution2 (8 Lines) &lt;a href="#solution2-8-lines-1" class="anchor">🔗&lt;/a>&lt;/h4>&lt;pre tabindex="0">&lt;code>(end)aXaX=
+(end)bXbX=
+(end)cXcX=
+(start)a=(end)XaX
+(start)b=(end)XbX
+(start)c=(end)XcX
+XX=(return)false
+=(return)true
+&lt;/code>&lt;/pre>&lt;h2 id="cpt4-once-upon-a-time">Cpt4. Once Upon A Time &lt;a href="#cpt4-once-upon-a-time" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="4-1-hello-2">4-1. Hello 2 &lt;a href="#4-1-hello-2" class="anchor">🔗&lt;/a>&lt;/h3>&lt;pre tabindex="0">&lt;code>(once)=(start)hello
+&lt;/code>&lt;/pre>&lt;h3 id="4-2-remove-2">4-2. Remove 2 &lt;a href="#4-2-remove-2" class="anchor">🔗&lt;/a>&lt;/h3>&lt;pre tabindex="0">&lt;code>(once)a=
+(once)a=
+(once)a=
+&lt;/code>&lt;/pre>&lt;h3 id="4-3-cut">4-3. Cut &lt;a href="#4-3-cut" class="anchor">🔗&lt;/a>&lt;/h3>&lt;pre tabindex="0">&lt;code>(once)=(start)XXX
+Xa=
+Xb=
+Xc=
+&lt;/code>&lt;/pre>&lt;h3 id="4-4-remove-3">4-4. Remove 3 &lt;a href="#4-4-remove-3" class="anchor">🔗&lt;/a>&lt;/h3>&lt;pre tabindex="0">&lt;code>(once)=(end)XXX
+bX=Xb
+cX=Xc
+aX=
+X=
+&lt;/code>&lt;/pre>&lt;h3 id="4-5-reverse">4-5. Reverse &lt;a href="#4-5-reverse" class="anchor">🔗&lt;/a>&lt;/h3>&lt;pre tabindex="0">&lt;code>(once)=(start)X
+Xa=(end)Ya
+Xb=(end)Yb
+Xc=(end)Yc
+aY=(start)a
+bY=(start)b
+cY=(start)c
+&lt;/code>&lt;/pre>&lt;h3 id="4-6-reverse-2">4-6. Reverse 2 &lt;a href="#4-6-reverse-2" class="anchor">🔗&lt;/a>&lt;/h3>&lt;pre tabindex="0">&lt;code>(once)=(end)XXXXXXXXXX
+aX=(end)a
+bX=(end)b
+cX=(end)c
+X=
+&lt;/code>&lt;/pre>&lt;h3 id="4-7-cut-2">4-7. Cut 2 &lt;a href="#4-7-cut-2" class="anchor">🔗&lt;/a>&lt;/h3>&lt;pre tabindex="0">&lt;code>(once)=(start)XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXDXX
+Xa=(end)a
+Xb=(end)b
+Xc=(end)c
+Da=
+Db=
+Dc=
+&lt;/code>&lt;/pre>&lt;ul>
+&lt;li>&amp;ldquo;XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXDXX&amp;rdquo; = 58 * &amp;ldquo;X&amp;rdquo; + &amp;ldquo;D&amp;rdquo; + 2 * &amp;ldquo;X&amp;rdquo;.&lt;/li>
+&lt;li>60 &amp;ldquo;X&amp;quot;s is the &lt;a href="https://en.wikipedia.org/wiki/Least_common_multiple">LCM&lt;/a> of all possible length of the remaing string (2, 3, 4, 5, 6)&lt;/li>
+&lt;/ul>
+&lt;h3 id="4-8-clone">4-8. Clone &lt;a href="#4-8-clone" class="anchor">🔗&lt;/a>&lt;/h3>&lt;h4 id="solution1-13-lines">Solution1 (13 Lines) &lt;a href="#solution1-13-lines" class="anchor">🔗&lt;/a>&lt;/h4>&lt;pre tabindex="0">&lt;code>(once)=(start)XXX
+Ya=(end)a
+Yb=(end)b
+Yc=(end)c
+XXXa=YaaXX
+XXXb=YbbXX
+XXXc=YccXX
+XXa=YaaX
+XXb=YbbX
+XXc=YccX
+Xa=Yaa
+Xb=Ybb
+Xc=Ycc
+&lt;/code>&lt;/pre>&lt;h4 id="solution2-16-lines">Solution2 (16 Lines) &lt;a href="#solution2-16-lines" class="anchor">🔗&lt;/a>&lt;/h4>&lt;pre tabindex="0">&lt;code>(once)=(start)XXX
+Xa=(end)aA
+Xb=(end)bB
+Xc=(end)cC
+Aa=aA
+Ab=bA
+Ac=cA
+Ba=aB
+Bb=bB
+Bc=cB
+Cc=cC
+Cb=bC
+Ca=aC
+(end)A=(start)a
+(end)B=(start)b
+(end)C=(start)c
+&lt;/code>&lt;/pre>&lt;h4 id="solution3-10-lines">Solution3 (10 Lines) &lt;a href="#solution3-10-lines" class="anchor">🔗&lt;/a>&lt;/h4>&lt;pre tabindex="0">&lt;code>(once)=(start)X
+A=(end)a
+B=(end)b
+C=(end)c
+Xa=AaY
+Xb=BbY
+Xc=CcY
+(once)Y=X
+(once)Y=X
+Y=
+&lt;/code>&lt;/pre>&lt;h3 id="4-9-a-to-b-3">4-9. A to B 3 &lt;a href="#4-9-a-to-b-3" class="anchor">🔗&lt;/a>&lt;/h3>&lt;pre tabindex="0">&lt;code>(once)=(start)X
+Xa=bX
+Xb=aX
+Xc=cX
+X=
+&lt;/code>&lt;/pre>&lt;h3 id="4-10-half">4-10. Half &lt;a href="#4-10-half" class="anchor">🔗&lt;/a>&lt;/h3>&lt;h4 id="solution1-9-lines-1">Solution1 (9 Lines) &lt;a href="#solution1-9-lines-1" class="anchor">🔗&lt;/a>&lt;/h4>&lt;pre tabindex="0">&lt;code>(once)=(start)X
+Xa=Y
+Xb=Y
+Xc=Y
+Ya=aX
+Yb=bX
+Yc=cX
+Y=
+X=
+&lt;/code>&lt;/pre>&lt;ul>
+&lt;li>&amp;ldquo;X&amp;rdquo; is the operator to remove the character.&lt;/li>
+&lt;li>&amp;ldquo;Y&amp;rdquo; is the operator to keep current character and remove the next character.&lt;/li>
+&lt;/ul>
+&lt;h4 id="solution2-8-lines-2">Solution2 (8 Lines) &lt;a href="#solution2-8-lines-2" class="anchor">🔗&lt;/a>&lt;/h4>&lt;pre tabindex="0">&lt;code>(once)=(start)XX
+XXa=X
+XXb=X
+XXc=X
+Xa=aXX
+Xb=bXX
+Xc=cXX
+X=
+&lt;/code>&lt;/pre>&lt;ul>
+&lt;li>&amp;ldquo;XX&amp;rdquo; is the operator to remove the character.&lt;/li>
+&lt;li>&amp;ldquo;X&amp;rdquo; is the operator to keep current character and remove the next character.&lt;/li>
+&lt;li>This could help us to save 1 line of code.&lt;/li>
+&lt;/ul>
+&lt;h3 id="4-11-clone-2">4-11. Clone 2 &lt;a href="#4-11-clone-2" class="anchor">🔗&lt;/a>&lt;/h3>&lt;pre tabindex="0">&lt;code>(once)=X
+(once)=(end)Z
+XZ=
+AY=(end)a
+BY=(end)b
+CY=(end)c
+Xa=AYaX
+Xb=BYbX
+Xc=CYcX
+&lt;/code>&lt;/pre>&lt;h3 id="4-12-to-b-or-not-to-b">4-12. To B or not to B &lt;a href="#4-12-to-b-or-not-to-b" class="anchor">🔗&lt;/a>&lt;/h3>&lt;pre tabindex="0">&lt;code>(once)b=bX
+(once)=Y
+X=(start)Y
+YYa=bYY
+Yb=bY
+Yc=cY
+Ya=cY
+Y=
+&lt;/code>&lt;/pre>&lt;h3 id="4-13-center">4-13. Center &lt;a href="#4-13-center" class="anchor">🔗&lt;/a>&lt;/h3>&lt;pre tabindex="0">&lt;code>(once)=(end)Y
+(start)aY=(return)a
+(start)bY=(return)b
+(start)cY=(return)c
+aYX=Y
+bYX=Y
+cYX=Y
+(start)a=(end)X
+(start)b=(end)X
+(start)c=(end)X
+&lt;/code>&lt;/pre>&lt;h3 id="4-14-center-2">4-14. Center 2 &lt;a href="#4-14-center-2" class="anchor">🔗&lt;/a>&lt;/h3>&lt;pre tabindex="0">&lt;code>(once)=Lx
+(once)=(end)R
+LxaR=
+LxbR=
+LxcR=
+Lxa=aLY
+Lxb=bLY
+Lxc=cLY
+Y=(end)x
+aRx=xRa
+bRx=xRb
+cRx=xRc
+ax=xa
+bx=xb
+cx=xc
+&lt;/code>&lt;/pre>&lt;h3 id="4-15-expansion">4-15. Expansion &lt;a href="#4-15-expansion" class="anchor">🔗&lt;/a>&lt;/h3>&lt;pre tabindex="0">&lt;code>(once)=YYYYYYXXXXXYYYYYXXXXYYYYXXXYYYXXYYXY
+(once)=(end)E
+Xa=aa
+Xb=bb
+Xc=cc
+Ya=(end)a
+Yb=(end)b
+Yc=(end)c
+XE=E
+YE=E
+E=
+&lt;/code>&lt;/pre>&lt;h3 id="4-16-merge">4-16. Merge &lt;a href="#4-16-merge" class="anchor">🔗&lt;/a>&lt;/h3>&lt;h4 id="solution1-10-lines-1">Solution1 (10 Lines) &lt;a href="#solution1-10-lines-1" class="anchor">🔗&lt;/a>&lt;/h4>&lt;pre tabindex="0">&lt;code>(once),=XXXXXXXXXXXZ
+YXX=YX
+YX=
+Z=(start)Y
+Ya=(end)a
+Yb=(end)b
+Yc=(end)c
+Xa=(end)aZ
+Xb=(end)bZ
+Xc=(end)cZ
+&lt;/code>&lt;/pre>&lt;h4 id="solution2-9-lines-1">Solution2 (9 Lines) &lt;a href="#solution2-9-lines-1" class="anchor">🔗&lt;/a>&lt;/h4>&lt;pre tabindex="0">&lt;code>(once)=(start)X
+(start)Xa=(end)a
+(start)Xb=(end)b
+(start)Xc=(end)c
+Xa=(start)XaX
+Xb=(start)XbX
+Xc=(start)XcX
+X,=
+,=,X
+&lt;/code>&lt;/pre>&lt;h2 id="cpt5-math">Cpt5. Math &lt;a href="#cpt5-math" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="5-1-count">5-1. Count &lt;a href="#5-1-count" class="anchor">🔗&lt;/a>&lt;/h3>&lt;h4 id="solution1-11-lines-1">Solution1 (11 Lines) &lt;a href="#solution1-11-lines-1" class="anchor">🔗&lt;/a>&lt;/h4>&lt;pre tabindex="0">&lt;code>(once)=(end)XYXXYXXXYXXXXYXXXXXYXXXXXXY
+0X=0
+0Y=
+1XY=(start)a
+1XXY=(start)aa
+1XXXY=(start)aaaa
+1XXXXY=(start)aaaaaaaa
+1XXXXXY=(start)aaaaaaaaaaaaaaaa
+1XXXXXXY=(start)aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+aX=a
+Y=
+&lt;/code>&lt;/pre>&lt;h4 id="solution2-8-lines-3">Solution2 (8 Lines) &lt;a href="#solution2-8-lines-3" class="anchor">🔗&lt;/a>&lt;/h4>&lt;pre tabindex="0">&lt;code>(once)=(end)XYXXYXXXXYXXXXXXXXYXXXXXXXXXXXXXXXXYXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXY
+0X=0
+0Y=
+1X=AX1
+1Y=
+AX=(start)a
+X=
+Y=
+&lt;/code>&lt;/pre>&lt;h4 id="solution3-7-lines">Solution3 (7 Lines) &lt;a href="#solution3-7-lines" class="anchor">🔗&lt;/a>&lt;/h4>&lt;pre tabindex="0">&lt;code>(once)=(end)XYXXYXXXXYXXXXXXXXYXXXXXXXXXXXXXXXXYXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXY
+0X=0
+0Y=
+1X=aX1
+1Y=
+aX=(start)a
+Y=
+&lt;/code>&lt;/pre>&lt;h4 id="solution4-5-lines">Solution4 (5 Lines) &lt;a href="#solution4-5-lines" class="anchor">🔗&lt;/a>&lt;/h4>&lt;pre tabindex="0">&lt;code>(once)=X
+X1=(start)aX
+X0=(start)X
+Xa=aaX
+X=
+&lt;/code>&lt;/pre>&lt;h3 id="5-2-a--1">5-2. A + 1 &lt;a href="#5-2-a--1" class="anchor">🔗&lt;/a>&lt;/h3>&lt;pre tabindex="0">&lt;code>(once)=(end)X
+0X=1
+1X=X0
+X=1
+&lt;/code>&lt;/pre>&lt;h3 id="5-3-a--b">5-3. A + B &lt;a href="#5-3-a--b" class="anchor">🔗&lt;/a>&lt;/h3>&lt;blockquote>
+&lt;p>Not a good solution&lt;/p>&lt;/blockquote>
+&lt;pre tabindex="0">&lt;code>(once)+=x+x+x+x+x+x+x+x+x+z
+(start)y=(end)y
+(end)0y=
+(end)1y=(start)1
+(end)y=
+0x+=(start)y|
+1x+=(start)y1|
+x+=(start)y|
+||z=|z0
+|1|z=|z1
+|11|z=1|z0
+|111|z=1|z1
+|z=
+(start)0=
+&lt;/code>&lt;/pre>&lt;h3 id="5-4-a---b">5-4. A - B &lt;a href="#5-4-a---b" class="anchor">🔗&lt;/a>&lt;/h3>&lt;blockquote>
+&lt;p>Not a good solution, too&lt;/p>&lt;/blockquote>
+&lt;pre tabindex="0">&lt;code>(once)-=x-x-x-x-x-x-x-x-x-z
+(start)y=(end)y
+(end)0y=
+(end)1y=(start)G
+(end)y=
+0x-=(start)y|
+1x-=(start)y1|
+x-=(start)y|
+||z=|z0
+1G=G1
+G1=
+|1|z=|z1
+|G|z=G|z1
+|G1|z=|z0
+|GG|z=G|z0
+|z=
+|=
+(start)0=
+&lt;/code>&lt;/pre>&lt;h3 id="5-5-a--b">5-5. A * B &lt;a href="#5-5-a--b" class="anchor">🔗&lt;/a>&lt;/h3>&lt;blockquote>
+&lt;p>No solution yet&lt;/p>&lt;/blockquote>
+&lt;h3 id="5-6-a--b">5-6. A / B &lt;a href="#5-6-a--b" class="anchor">🔗&lt;/a>&lt;/h3>&lt;blockquote>
+&lt;p>No solution yet&lt;/p>&lt;/blockquote>
+&lt;h2 id="cpt6-aftermath">Cpt6. Aftermath &lt;a href="#cpt6-aftermath" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="6-1-hello-again">6-1. Hello Again &lt;a href="#6-1-hello-again" class="anchor">🔗&lt;/a>&lt;/h3>&lt;pre tabindex="0">&lt;code>c=a
+b=a
+aa=a
+a=helloworld
+&lt;/code>&lt;/pre>&lt;h3 id="6-2-palinedrome-2">6-2. Palinedrome 2 &lt;a href="#6-2-palinedrome-2" class="anchor">🔗&lt;/a>&lt;/h3>&lt;blockquote>
+&lt;p>No solution yet&lt;/p>&lt;/blockquote>
+&lt;h3 id="6-3-to-b-or-not-to-b-2">6-3. To B or not to B 2 &lt;a href="#6-3-to-b-or-not-to-b-2" class="anchor">🔗&lt;/a>&lt;/h3>&lt;blockquote>
+&lt;p>No solution yet&lt;/p>&lt;/blockquote>
+&lt;h2 id="appendix">Appendix &lt;a href="#appendix" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="proof-of-turing-completeness-explained">Proof of Turing Completeness Explained &lt;a href="#proof-of-turing-completeness-explained" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>&lt;a href="https://web.stanford.edu/class/archive/cs/cs103/cs103.1176/lectures/20/Small20.pdf">Ref&lt;/a>&lt;/p>
+&lt;h3 id="implement-your-own-a2b-language">Implement Your Own A2B Language &lt;a href="#implement-your-own-a2b-language" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>&lt;a href="https://github.com/Wizmann/a2b-lang">Wizmann/a2b-lang&lt;/a>&lt;/p></description></item></channel></rss>

@@ -1,9 +1,47 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>面试 on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/%E9%9D%A2%E8%AF%95/</link><description>Recent content in 面试 on Maerlyn's Rainbow</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Fri, 24 Jan 2014 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/%E9%9D%A2%E8%AF%95/index.xml" rel="self" type="application/rss+xml"/><item><title>如何判断一个网站的地理信息</title><link>https://wizmann.top/posts/find-the-geo-location-of-a-host/</link><pubDate>Fri, 24 Jan 2014 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/find-the-geo-location-of-a-host/</guid><description>&lt;h2 id="啥">啥？&lt;/h2>
-&lt;p>面试题：&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>面试 on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/%E9%9D%A2%E8%AF%95/</link><description>Recent content in 面试 on Maerlyn's Rainbow</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Fri, 24 Jan 2014 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/%E9%9D%A2%E8%AF%95/index.xml" rel="self" type="application/rss+xml"/><item><title>如何判断一个网站的地理信息</title><link>https://wizmann.top/posts/find-the-geo-location-of-a-host/</link><pubDate>Fri, 24 Jan 2014 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/find-the-geo-location-of-a-host/</guid><description>&lt;h2 id="啥">啥？ &lt;a href="#%e5%95%a5" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>面试题：&lt;/p>
 &lt;blockquote>
 &lt;p>有一个网站，如何判断这个网站的地理信息&lt;/p>&lt;/blockquote>
-&lt;h2 id="方法">方法&lt;/h2>
-&lt;h3 id="使用反向dns">使用反向DNS&lt;/h3>
-&lt;p>当我们只有网站的IP地址时，我们可以使用&lt;strong>反向DNS&lt;/strong>来获得这个IP地址对应的域名。&lt;/p>
+&lt;h2 id="方法">方法 &lt;a href="#%e6%96%b9%e6%b3%95" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="使用反向dns">使用反向DNS &lt;a href="#%e4%bd%bf%e7%94%a8%e5%8f%8d%e5%90%91dns" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>当我们只有网站的IP地址时，我们可以使用&lt;strong>反向DNS&lt;/strong>来获得这个IP地址对应的域名。&lt;/p>
 &lt;blockquote>
-&lt;p>反向域名解析，Reverse DNS。反向域名解析与通常的正向域名解析相反，提供IP地址到域名的对应。&lt;/p></description></item></channel></rss>
+&lt;p>反向域名解析，Reverse DNS。反向域名解析与通常的正向域名解析相反，提供IP地址到域名的对应。&lt;/p>&lt;/blockquote>
+&lt;p>我们可以使用&lt;code>dig -x&lt;/code>来进行查询&lt;/p>
+&lt;pre tabindex="0">&lt;code>$ dig -x 75.126.43.235
+; &amp;lt;&amp;lt;&amp;gt;&amp;gt; DiG 9.8.1-P1 &amp;lt;&amp;lt;&amp;gt;&amp;gt; -x 75.126.43.235
+;; global options: +cmd
+;; Got answer:
+;; -&amp;gt;&amp;gt;HEADER&amp;lt;&amp;lt;- opcode: QUERY, status: NOERROR, id: 26688
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 0
+;; QUESTION SECTION:
+;235.43.126.75.in-addr.arpa. IN PTR
+;; ANSWER SECTION:
+235.43.126.75.in-addr.arpa. 3518 IN PTR 75.126.43.235-static.reverse.softlayer.com.
+;; Query time: 76 msec
+;; SERVER: 8.8.4.4#53(8.8.4.4)
+;; WHEN: Fri Jan 24 18:15:22 2014
+;; MSG SIZE rcvd: 100
+&lt;/code>&lt;/pre>&lt;p>我们可以从接续出来的域名中，获得一些信息，例如公司名/机构名，以及&lt;code>.cn&lt;/code>, &lt;code>.us&lt;/code>等有可能标识地理位置的信息。&lt;/p>
+&lt;p>但是，反向DNS不一定成功。&lt;/p>
+&lt;h2 id="查询dns-loc信息">查询DNS LOC信息 &lt;a href="#%e6%9f%a5%e8%af%a2dns-loc%e4%bf%a1%e6%81%af" class="anchor">🔗&lt;/a>&lt;/h2>&lt;blockquote>
+&lt;p>In the Domain Name System, a LOC record (RFC 1876) is a means for expressing geographic location information for a domain name.&lt;/p>&lt;/blockquote>
+&lt;p>所以我们可以尝试使用&lt;code>dig loc&lt;/code>命令来查询位置信息。（不一定成功&lt;/p>
+&lt;pre tabindex="0">&lt;code>$ dig loc SW1A2AA.find.me.uk
+; &amp;lt;&amp;lt;&amp;gt;&amp;gt; DiG 9.8.1-P1 &amp;lt;&amp;lt;&amp;gt;&amp;gt; loc SW1A2AA.find.me.uk
+;; global options: +cmd
+;; Got answer:
+;; -&amp;gt;&amp;gt;HEADER&amp;lt;&amp;lt;- opcode: QUERY, status: NOERROR, id: 49682
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 0
+;; QUESTION SECTION:
+;SW1A2AA.find.me.uk. IN LOC
+;; ANSWER SECTION:
+SW1A2AA.find.me.uk. 21600 IN LOC 51 30 12.748 N 0 7 39.611 W 0.00m 0.00m 0.00m 0.00m
+;; Query time: 1232 msec
+;; SERVER: 8.8.4.4#53(8.8.4.4)
+;; WHEN: Fri Jan 24 18:21:44 2014
+;; MSG SIZE rcvd: 64
+&lt;/code>&lt;/pre>&lt;h2 id="随便看看">随便看看 &lt;a href="#%e9%9a%8f%e4%be%bf%e7%9c%8b%e7%9c%8b" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>查看我们要调查的网站，找寻可用的线索。（囧&lt;/p>
+&lt;h2 id="使用whois服务">使用whois服务 &lt;a href="#%e4%bd%bf%e7%94%a8whois%e6%9c%8d%e5%8a%a1" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>&lt;a href="http://whois.chinaz.com/sina.com">http://whois.chinaz.com/sina.com&lt;/a>&lt;/p>
+&lt;p>我们可以看到域名的注册信息，其中也必然透露了线索。&lt;/p>
+&lt;h2 id="traceroute与whois配合使用">traceroute与whois配合使用 &lt;a href="#traceroute%e4%b8%8ewhois%e9%85%8d%e5%90%88%e4%bd%bf%e7%94%a8" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>可以根据包的转发状况来获得最终的地理位置&lt;/p>
+&lt;h2 id="使用time-of-day-service">使用Time of day service &lt;a href="#%e4%bd%bf%e7%94%a8time-of-day-service" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>&lt;code>telnet www.bupt.edu.cn 13&lt;/code>可以获得主机的当前时间，从而判断主机所在的经度。（不一定成功。。。&lt;/p>
+&lt;h2 id="参考链接">参考链接 &lt;a href="#%e5%8f%82%e8%80%83%e9%93%be%e6%8e%a5" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>&lt;a href="http://www.private.org.il/IP2geo.html">http://www.private.org.il/IP2geo.html&lt;/a>&lt;/p>
+&lt;p>&lt;a href="http://www.ipgeo.com/">http://www.ipgeo.com/&lt;/a>&lt;/p></description></item></channel></rss>

@@ -1,3 +1,1059 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Modern Cpp on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/modern-cpp/</link><description>Recent content in Modern Cpp on Maerlyn's Rainbow</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Tue, 21 Jan 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/modern-cpp/index.xml" rel="self" type="application/rss+xml"/><item><title>动手实现智能指针 （上篇） - C++ for the Antiquated（之四）</title><link>https://wizmann.top/posts/std-smart-ptrs-cpp-for-the-antiquated-4/</link><pubDate>Tue, 21 Jan 2025 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/std-smart-ptrs-cpp-for-the-antiquated-4/</guid><description>&lt;p>智能指针（如 &lt;code>std::shared_ptr&lt;/code> 和 &lt;code>std::weak_ptr&lt;/code>）已经成为现代 C++ 编程的重要工具，尽管它们并不算是“新兴”的特性。在 C++11 标准之前，Boost 库就已经引入了智能指针的实现，特别是 &lt;code>boost::shared_ptr&lt;/code> 和 &lt;code>boost::weak_ptr&lt;/code>，它们为 C++11 的智能指针特性奠定了基础。因此，可以说智能指针在 C++ 中的发展历程已经有很长时间，而它们的引入极大地简化了内存管理和避免了常见的内存泄漏和悬挂指针问题。&lt;/p></description></item><item><title>std::visit实现运行时多态 - C++ for the Antiquated（之三）</title><link>https://wizmann.top/posts/std-visit-polymorphism-cpp-for-the-antiquated-3/</link><pubDate>Sat, 04 Jan 2025 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/std-visit-polymorphism-cpp-for-the-antiquated-3/</guid><description>&lt;p>在传统的 &lt;strong>C++&lt;/strong> 中，&lt;strong>运行时多态&lt;/strong> 通常依赖于 &lt;strong>“接口 - 虚函数”&lt;/strong> 机制，通过抽象类、具体类与对象的设计来实现。这种多态方式通常被称为 &lt;strong>子类型多态&lt;/strong>（&lt;em>Subtype Polymorphism&lt;/em>）。&lt;/p></description></item><item><title>动手实现std::visit - C++ for the Antiquated（之二）</title><link>https://wizmann.top/posts/std-visit-cpp-for-the-antiquated-2/</link><pubDate>Wed, 01 Jan 2025 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/std-visit-cpp-for-the-antiquated-2/</guid><description>&lt;h2 id="stdvariant-与-stdvisit">std::variant 与 std::visit&lt;/h2>
-&lt;h3 id="stdvariant">std::variant&lt;/h3>
-&lt;p>&lt;code>std::variant&lt;/code> 是 C++17 引入的类型安全的联合体（type-safe union），可以在多个预定义类型中存储任意一个值。与传统的 &lt;code>union&lt;/code> 不同，&lt;code>std::variant&lt;/code> 能够在运行时安全地检查当前存储的类型，避免未定义行为。&lt;/p></description></item><item><title>constexpr详解 - C++ for the Antiquated（之一）</title><link>https://wizmann.top/posts/constexpr-cpp-for-the-antiquated-1/</link><pubDate>Sat, 28 Dec 2024 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/constexpr-cpp-for-the-antiquated-1/</guid><description>&lt;p>在这篇文章中，我们将深入讨论 C++ 中的常量表达式（&lt;code>constexpr&lt;/code>）及其与传统的&lt;code>const&lt;/code>常量的区别，并结合实际代码示例进行说明。同时，我们还会探讨&lt;code>constexpr&lt;/code>函数在模板编程中的应用，以及 C++11 之后对常量表达式的优化与扩展。&lt;/p></description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Modern Cpp on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/modern-cpp/</link><description>Recent content in Modern Cpp on Maerlyn's Rainbow</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Tue, 21 Jan 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/modern-cpp/index.xml" rel="self" type="application/rss+xml"/><item><title>动手实现智能指针 （上篇） - C++ for the Antiquated（之四）</title><link>https://wizmann.top/posts/std-smart-ptrs-cpp-for-the-antiquated-4/</link><pubDate>Tue, 21 Jan 2025 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/std-smart-ptrs-cpp-for-the-antiquated-4/</guid><description>&lt;p>智能指针（如 &lt;code>std::shared_ptr&lt;/code> 和 &lt;code>std::weak_ptr&lt;/code>）已经成为现代 C++ 编程的重要工具，尽管它们并不算是“新兴”的特性。在 C++11 标准之前，Boost 库就已经引入了智能指针的实现，特别是 &lt;code>boost::shared_ptr&lt;/code> 和 &lt;code>boost::weak_ptr&lt;/code>，它们为 C++11 的智能指针特性奠定了基础。因此，可以说智能指针在 C++ 中的发展历程已经有很长时间，而它们的引入极大地简化了内存管理和避免了常见的内存泄漏和悬挂指针问题。&lt;/p>
+&lt;p>本文将围绕以下主题展开讨论：&lt;/p>
+&lt;ul>
+&lt;li>C++ 智能指针的实现原理&lt;/li>
+&lt;li>非侵入式智能指针与侵入式智能指针的区别&lt;/li>
+&lt;li>利用 &lt;code>atomic&lt;/code> 避免多线程竞态条件&lt;/li>
+&lt;li>如何实现侵入式版本的 &lt;code>shared_ptr&lt;/code> 和 &lt;code>weak_ptr&lt;/code>&lt;/li>
+&lt;li>采用 &lt;code>concept&lt;/code> 约束模板类型&lt;/li>
+&lt;li>探讨完美转发（&lt;code>std::forward&amp;lt;T&amp;gt;&lt;/code>）在智能指针中的应用&lt;/li>
+&lt;/ul>
+&lt;h2 id="c-中的智能指针">C++ 中的智能指针 &lt;a href="#c-%e4%b8%ad%e7%9a%84%e6%99%ba%e8%83%bd%e6%8c%87%e9%92%88" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="stdshared_ptr的实现">&lt;code>std::shared_ptr&lt;/code>的实现 &lt;a href="#stdshared_ptr%e7%9a%84%e5%ae%9e%e7%8e%b0" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>&lt;code>std::shared_ptr&lt;/code> 是一种智能指针，能够自动管理对象的生命周期。它通过引用计数的方式来跟踪有多少个 &lt;code>shared_ptr&lt;/code> 实例指向同一个对象，确保当最后一个 &lt;code>shared_ptr&lt;/code> 被销毁时，对象的内存能够自动释放。&lt;/p>
+&lt;h4 id="引用计数与原子操作">引用计数与原子操作 &lt;a href="#%e5%bc%95%e7%94%a8%e8%ae%a1%e6%95%b0%e4%b8%8e%e5%8e%9f%e5%ad%90%e6%93%8d%e4%bd%9c" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>&lt;code>std::shared_ptr&lt;/code> 的核心机制是引用计数。每个 &lt;code>shared_ptr&lt;/code> 会维护一个引用计数。当多个 &lt;code>shared_ptr&lt;/code> 指向同一个对象时，计数器会增加；当一个 &lt;code>shared_ptr&lt;/code> 被销毁时，计数器会减少。如果计数器归零，表明没有任何 &lt;code>shared_ptr&lt;/code> 再指向该对象，这时对象会被删除。&lt;/p>
+&lt;p>引用计数通常由一个控制块（control block）管理。控制块不仅保存引用计数，还会保存对象本身以及与对象生命周期相关的其他信息。&lt;code>std::shared_ptr&lt;/code> 的实现一般使用“非侵入式引用计数”（即不嵌入对象本身）。&lt;/p>
+&lt;p>示例代码如下：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span> T&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">control_block&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">public&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> control_block(T&lt;span style="color:#f92672">*&lt;/span> ptr)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">:&lt;/span> ref_count(&lt;span style="color:#ae81ff">1&lt;/span>), obj(ptr) {}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// 增加引用计数
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#a6e22e">add_ref&lt;/span>() { &lt;span style="color:#f92672">++&lt;/span>ref_count; }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// 减少引用计数
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#a6e22e">release_ref&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (&lt;span style="color:#f92672">--&lt;/span>ref_count &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">delete&lt;/span> obj; &lt;span style="color:#75715e">// 删除对象
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#66d9ef">delete&lt;/span> &lt;span style="color:#66d9ef">this&lt;/span>; &lt;span style="color:#75715e">// 删除控制块
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> T&lt;span style="color:#f92672">*&lt;/span> &lt;span style="color:#a6e22e">get&lt;/span>() { &lt;span style="color:#66d9ef">return&lt;/span> obj; }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">private&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>atomic&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span> ref_count; &lt;span style="color:#75715e">// 引用计数
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> T&lt;span style="color:#f92672">*&lt;/span> obj; &lt;span style="color:#75715e">// 实际对象
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>};
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h4 id="简化版-shared_ptr-实现">简化版 &lt;code>shared_ptr&lt;/code> 实现 &lt;a href="#%e7%ae%80%e5%8c%96%e7%89%88-shared_ptr-%e5%ae%9e%e7%8e%b0" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>下面是一个简化版的 &lt;code>shared_ptr&lt;/code> 实现示例。这个版本仍然有一些重要细节需要注意，比如原子操作和异常安全等问题，但可以帮助理解 &lt;code>shared_ptr&lt;/code> 的基本原理：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span> T&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">my_shared_ptr&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">private&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> T&lt;span style="color:#f92672">*&lt;/span> ptr;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> control_block&lt;span style="color:#f92672">&amp;lt;&lt;/span>T&lt;span style="color:#f92672">&amp;gt;*&lt;/span> ctrl_block;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">public&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">explicit&lt;/span> my_shared_ptr(T&lt;span style="color:#f92672">*&lt;/span> p &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">nullptr&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">:&lt;/span> ptr(p), ctrl_block(&lt;span style="color:#66d9ef">new&lt;/span> control_block&lt;span style="color:#f92672">&amp;lt;&lt;/span>T&lt;span style="color:#f92672">&amp;gt;&lt;/span>(p)) {}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// 拷贝构造函数
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> my_shared_ptr(&lt;span style="color:#66d9ef">const&lt;/span> my_shared_ptr&lt;span style="color:#f92672">&amp;amp;&lt;/span> other)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">:&lt;/span> ptr(other.ptr), ctrl_block(other.ctrl_block) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (ctrl_block) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ctrl_block&lt;span style="color:#f92672">-&amp;gt;&lt;/span>add_ref();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// 析构函数
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#f92672">~&lt;/span>my_shared_ptr() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (ctrl_block) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ctrl_block&lt;span style="color:#f92672">-&amp;gt;&lt;/span>release_ref();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> T&lt;span style="color:#f92672">*&lt;/span> &lt;span style="color:#66d9ef">operator&lt;/span>&lt;span style="color:#f92672">-&amp;gt;&lt;/span>() { &lt;span style="color:#66d9ef">return&lt;/span> ptr; }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> T&lt;span style="color:#f92672">&amp;amp;&lt;/span> &lt;span style="color:#66d9ef">operator&lt;/span>&lt;span style="color:#f92672">*&lt;/span>() { &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#f92672">*&lt;/span>ptr; }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="stdweak_ptr的实现">&lt;code>std::weak_ptr&lt;/code>的实现 &lt;a href="#stdweak_ptr%e7%9a%84%e5%ae%9e%e7%8e%b0" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>&lt;code>std::weak_ptr&lt;/code> 是与 &lt;code>std::shared_ptr&lt;/code> 配合使用的智能指针，它解决了 &lt;code>shared_ptr&lt;/code> 在某些场景下的循环引用问题。&lt;/p>
+&lt;p>循环引用问题发生在两个或多个对象通过 &lt;code>shared_ptr&lt;/code> 相互引用时，导致引用计数永远不为零，从而引发内存泄漏。为了避免这个问题，我们引入了 &lt;code>weak_ptr&lt;/code>。&lt;/p>
+&lt;h4 id="为什么需要-weak_ptr">为什么需要 &lt;code>weak_ptr&lt;/code> &lt;a href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81-weak_ptr" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>&lt;code>std::weak_ptr&lt;/code> 不增加引用计数，因此它不会影响对象的生命周期。当一个对象的所有 &lt;code>shared_ptr&lt;/code> 被销毁后，&lt;code>weak_ptr&lt;/code> 将变为“悬挂”状态。这与普通指针的“空悬指针”（dangling pointer）不同，空悬的 &lt;code>weak_ptr&lt;/code> 会返回空指针 &lt;code>nullptr&lt;/code>，表明该对象的生命周期已经结束。&lt;/p>
+&lt;p>&lt;code>weak_ptr&lt;/code> 提供了一种访问 &lt;code>shared_ptr&lt;/code> 的方式，但并不控制对象的销毁，因此它可以有效避免循环引用问题。&lt;/p>
+&lt;p>通过 &lt;code>weak_ptr&lt;/code>，我们可以在不延长对象生命周期的前提下，检查对象是否仍然存在，并访问它。具体来说，&lt;code>weak_ptr&lt;/code> 可以通过调用 &lt;code>lock()&lt;/code> 方法来创建一个 &lt;code>shared_ptr&lt;/code>，如果对象还存在（即引用计数大于零），则返回一个有效的 &lt;code>shared_ptr&lt;/code>，否则返回空指针。&lt;/p>
+&lt;h4 id="控制块的扩展">控制块的扩展 &lt;a href="#%e6%8e%a7%e5%88%b6%e5%9d%97%e7%9a%84%e6%89%a9%e5%b1%95" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>为了支持&lt;code>std::weak_ptr&lt;/code>， 我们需要扩展控制块的功能 ，使其能同时管理对象的引用计数（&lt;code>ref_count&lt;/code>）和弱引用计数（&lt;code>weak_count&lt;/code>），从而保持对对象的生命周期的正确管理。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span> T&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">control_block&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">public&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> control_block(T&lt;span style="color:#f92672">*&lt;/span> ptr)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">:&lt;/span> ref_count(&lt;span style="color:#ae81ff">1&lt;/span>), weak_count(&lt;span style="color:#ae81ff">1&lt;/span>), obj(ptr) {}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// 增加引用计数
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#a6e22e">add_ref&lt;/span>() { &lt;span style="color:#f92672">++&lt;/span>ref_count; }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// 增加引用计数
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#66d9ef">bool&lt;/span> &lt;span style="color:#a6e22e">lock&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> prev &lt;span style="color:#f92672">=&lt;/span> ref_count.load(); &lt;span style="color:#75715e">// 使用加载当前值，避免重复读取
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#66d9ef">while&lt;/span> (prev &lt;span style="color:#f92672">&amp;gt;&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span> &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> &lt;span style="color:#f92672">!&lt;/span>ref_count.compare_exchange_weak(prev, prev &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>)) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> prev &lt;span style="color:#f92672">=&lt;/span> ref_count.load(); &lt;span style="color:#75715e">// 如果失败，重新加载当前值
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> prev &lt;span style="color:#f92672">&amp;gt;&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>; &lt;span style="color:#75715e">// 如果 prev &amp;gt; 0，表示锁定成功
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// 减少引用计数
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#a6e22e">release_ref&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (&lt;span style="color:#f92672">--&lt;/span>ref_count &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">delete&lt;/span> obj; &lt;span style="color:#75715e">// 删除对象
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> release_control_block(); &lt;span style="color:#75715e">// 尝试删除控制块
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// 增加弱引用计数
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#a6e22e">add_weak_ref&lt;/span>() { &lt;span style="color:#f92672">++&lt;/span>weak_count; }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// 减少弱引用计数
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#a6e22e">release_weak_ref&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (weak_count.fetch_sub(&lt;span style="color:#ae81ff">1&lt;/span>) &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">delete&lt;/span> &lt;span style="color:#66d9ef">this&lt;/span>; &lt;span style="color:#75715e">// 删除控制块
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> T&lt;span style="color:#f92672">*&lt;/span> &lt;span style="color:#a6e22e">get&lt;/span>() { &lt;span style="color:#66d9ef">return&lt;/span> obj; }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">private&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// 删除控制块，只有在弱引用计数为0时才删除控制块
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#66d9ef">void&lt;/span> release_control_block() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (weak_count &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">delete&lt;/span> &lt;span style="color:#66d9ef">this&lt;/span>; &lt;span style="color:#75715e">// 删除控制块
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>atomic&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span> ref_count; &lt;span style="color:#75715e">// 强引用计数
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>atomic&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span> weak_count; &lt;span style="color:#75715e">// 弱引用计数
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> T&lt;span style="color:#f92672">*&lt;/span> obj; &lt;span style="color:#75715e">// 实际对象
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>};
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h4 id="weak_ptr-的简化版实现">&lt;code>weak_ptr&lt;/code> 的简化版实现 &lt;a href="#weak_ptr-%e7%9a%84%e7%ae%80%e5%8c%96%e7%89%88%e5%ae%9e%e7%8e%b0" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>下面是一个简化版的 &lt;code>weak_ptr&lt;/code> 实现，它与 &lt;code>shared_ptr&lt;/code> 共享相同的控制块。&lt;code>weak_ptr&lt;/code> 本身不增加引用计数，因此不会影响对象的生命周期。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span> T&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">my_weak_ptr&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">public&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> my_weak_ptr() &lt;span style="color:#f92672">:&lt;/span> ctrl_block(&lt;span style="color:#66d9ef">nullptr&lt;/span>) {}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// 从 shared_ptr 构造 my_weak_ptr
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> my_weak_ptr(&lt;span style="color:#66d9ef">const&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>shared_ptr&lt;span style="color:#f92672">&amp;lt;&lt;/span>T&lt;span style="color:#f92672">&amp;gt;&amp;amp;&lt;/span> shared)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">:&lt;/span> ctrl_block(shared.ctrl_block) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ctrl_block&lt;span style="color:#f92672">-&amp;gt;&lt;/span>add_weak_ref();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">~&lt;/span>my_weak_ptr() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (ctrl_block) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ctrl_block&lt;span style="color:#f92672">-&amp;gt;&lt;/span>release_weak_ref();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// 尝试获取指向对象的 shared_ptr
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>shared_ptr&lt;span style="color:#f92672">&amp;lt;&lt;/span>T&lt;span style="color:#f92672">&amp;gt;&lt;/span> lock() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>shared_ptr&lt;span style="color:#f92672">&amp;lt;&lt;/span>T&lt;span style="color:#f92672">&amp;gt;&lt;/span>(&lt;span style="color:#f92672">*&lt;/span>&lt;span style="color:#66d9ef">this&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">private&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> control_block&lt;span style="color:#f92672">&amp;lt;&lt;/span>T&lt;span style="color:#f92672">&amp;gt;*&lt;/span> ctrl_block; &lt;span style="color:#75715e">// 控制块
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span> T&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">my_shared_ptr&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">private&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> T&lt;span style="color:#f92672">*&lt;/span> ptr;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> control_block&lt;span style="color:#f92672">&amp;lt;&lt;/span>T&lt;span style="color:#f92672">&amp;gt;*&lt;/span> ctrl_block;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">public&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// ...
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> my_shared_ptr(&lt;span style="color:#66d9ef">const&lt;/span> my_weak_ptr&lt;span style="color:#f92672">&amp;lt;&lt;/span>T&lt;span style="color:#f92672">&amp;gt;&amp;amp;&lt;/span> weak_ptr) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (weak_ptr.ctrl_block &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> weak_ptr.ctrl_block&lt;span style="color:#f92672">-&amp;gt;&lt;/span>lock()) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ptr &lt;span style="color:#f92672">=&lt;/span> weak_ptr.ptr;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ctrl_block &lt;span style="color:#f92672">=&lt;/span> weak_ptr.ctrl_block();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> } &lt;span style="color:#66d9ef">else&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">throw&lt;/span> &lt;span style="color:#a6e22e">exception&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;bad weak ptr&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// ...
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>};
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="理解并优化stdatomict操作">理解并优化&lt;code>std::atomic&amp;lt;T&amp;gt;&lt;/code>操作 &lt;a href="#%e7%90%86%e8%a7%a3%e5%b9%b6%e4%bc%98%e5%8c%96stdatomict%e6%93%8d%e4%bd%9c" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>在上面的代码示例中，我们使用了&lt;code>std::atomic&amp;lt;int&amp;gt;&lt;/code>作为智能指针的引用计数。与直接使用&lt;code>int&lt;/code>变量不同，&lt;code>std::atomic&amp;lt;int&amp;gt;&lt;/code>可以在多线程环境中正确地管理对同一智能指针的引用计数。&lt;/p>
+&lt;p>然而，在上述代码中，我们仅使用了&lt;code>std::atomic&amp;lt;int&amp;gt;&lt;/code>的基本操作（如自增、自减和赋值等），这些操作默认使用&lt;code>memory_order_seq_cst&lt;/code>内存序（稍后会讨论）。在多线程编程中，&lt;code>std::atomic&amp;lt;T&amp;gt;&lt;/code>提供了多种内存序（memory ordering）选项，用以控制操作的可见性和执行顺序，以确保数据一致性。不同的内存序策略决定了编译器和CPU对指令的重排序程度。&lt;/p>
+&lt;p>开发者的目标是选择合适的内存序，优化程序性能，同时确保程序的正确性。&lt;/p>
+&lt;h3 id="内存序的核心概念">内存序的核心概念 &lt;a href="#%e5%86%85%e5%ad%98%e5%ba%8f%e7%9a%84%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>理解内存序的关键在于&lt;strong>重排序&lt;/strong>和&lt;strong>跨线程可见性&lt;/strong>：&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>&lt;strong>重排序（Reordering）&lt;/strong>&lt;br>
+编译器和CPU可能会重排指令，以优化性能。例如，它们可能会提前执行某些计算，或者将存储操作推迟执行。正确使用&lt;code>std::atomic&lt;/code>可以防止某些关键操作被错误地重排序。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>可见性（Visibility）&lt;/strong>&lt;br>
+在多线程环境中，一个线程对变量的修改可能不会立即被其他线程看到，或者多个线程对同一变量的操作顺序可能不确定。原子操作的内存序决定了其他线程何时能看到这些修改。&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;h3 id="不同内存序的作用及使用场景">不同内存序的作用及使用场景 &lt;a href="#%e4%b8%8d%e5%90%8c%e5%86%85%e5%ad%98%e5%ba%8f%e7%9a%84%e4%bd%9c%e7%94%a8%e5%8f%8a%e4%bd%bf%e7%94%a8%e5%9c%ba%e6%99%af" class="anchor">🔗&lt;/a>&lt;/h3>&lt;h4 id="memory_order_relaxed松散顺序最低开销">&lt;code>memory_order_relaxed&lt;/code>（松散顺序，最低开销） &lt;a href="#memory_order_relaxed%e6%9d%be%e6%95%a3%e9%a1%ba%e5%ba%8f%e6%9c%80%e4%bd%8e%e5%bc%80%e9%94%80" class="anchor">🔗&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>&lt;strong>特点&lt;/strong>：不保证顺序，仅保证操作是&lt;strong>原子的&lt;/strong>。&lt;/li>
+&lt;li>&lt;strong>作用&lt;/strong>：确保同一&lt;code>std::atomic&amp;lt;T&amp;gt;&lt;/code>变量的读写操作是原子的，但不提供线程间的同步，不影响可见性或顺序。&lt;/li>
+&lt;li>&lt;strong>适用场景&lt;/strong>：适用于&lt;strong>数据竞争不影响程序正确性&lt;/strong>的场景，如&lt;strong>无依赖的计数&lt;/strong>（统计线程数、事件计数等）。&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>示例&lt;/strong>&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>std&lt;span style="color:#f92672">::&lt;/span>atomic&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span> counter{&lt;span style="color:#ae81ff">0&lt;/span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>counter.fetch_add(&lt;span style="color:#ae81ff">1&lt;/span>, std&lt;span style="color:#f92672">::&lt;/span>memory_order_relaxed); &lt;span style="color:#75715e">// 仅保证原子性，不保证可见性
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这里，&lt;code>fetch_add&lt;/code>确保&lt;code>counter&lt;/code>自增操作不会丢失，但不同线程的修改可能会被延迟看到。&lt;/p>
+&lt;h4 id="memory_order_acquire获取防止重排序到前">&lt;code>memory_order_acquire&lt;/code>（获取，防止重排序到前） &lt;a href="#memory_order_acquire%e8%8e%b7%e5%8f%96%e9%98%b2%e6%ad%a2%e9%87%8d%e6%8e%92%e5%ba%8f%e5%88%b0%e5%89%8d" class="anchor">🔗&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>&lt;strong>特点&lt;/strong>：保证&lt;strong>当前线程&lt;/strong>在&lt;code>acquire&lt;/code>之后的所有操作不会被重排序到&lt;code>acquire&lt;/code>之前，因此，其他线程中相同原子变量的释放操作（release operation）之前的写入对当前线程是可见的。&lt;/li>
+&lt;li>&lt;strong>适用场景&lt;/strong>：用于&lt;strong>读取&lt;/strong>共享数据，确保当前线程能够看到其他线程之前对该变量的修改。&lt;/li>
+&lt;/ul>
+&lt;h4 id="memory_order_release释放防止重排序到后">&lt;code>memory_order_release&lt;/code>（释放，防止重排序到后） &lt;a href="#memory_order_release%e9%87%8a%e6%94%be%e9%98%b2%e6%ad%a2%e9%87%8d%e6%8e%92%e5%ba%8f%e5%88%b0%e5%90%8e" class="anchor">🔗&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>&lt;strong>特点&lt;/strong>：确保&lt;strong>当前线程&lt;/strong>在&lt;code>release&lt;/code>之前的所有操作不会被重排序到&lt;code>release&lt;/code>之后，因此，当前操作所在线程之前的写入，在其他线程施加占有操作（acquire operation）之后是可见的。&lt;/li>
+&lt;li>&lt;strong>适用场景&lt;/strong>：用于&lt;strong>写入&lt;/strong>共享数据，确保其他线程能在&lt;code>acquire&lt;/code>读取时看到修改。&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>示例&lt;/strong>&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>std&lt;span style="color:#f92672">::&lt;/span>atomic&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span> flag{&lt;span style="color:#ae81ff">0&lt;/span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> data &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#a6e22e">producer&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> data &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">42&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> flag.store(&lt;span style="color:#ae81ff">1&lt;/span>, std&lt;span style="color:#f92672">::&lt;/span>memory_order_release); &lt;span style="color:#75715e">// 让消费者可以看到 data=42
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#a6e22e">consumer&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">while&lt;/span> (flag.load(std&lt;span style="color:#f92672">::&lt;/span>memory_order_acquire) &lt;span style="color:#f92672">!=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>); &lt;span style="color:#75715e">// 确保 data=42 可见
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> data &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>endl; &lt;span style="color:#75715e">// 确保 data 的修改对本线程可见
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;ul>
+&lt;li>&lt;code>store(release)&lt;/code>确保&lt;code>data=42&lt;/code>发生在&lt;code>flag=1&lt;/code>之前。&lt;/li>
+&lt;li>&lt;code>load(acquire)&lt;/code>确保&lt;code>flag=1&lt;/code>之后，&lt;code>data=42&lt;/code>对消费者线程可见。&lt;/li>
+&lt;li>通过&lt;code>acquire-release&lt;/code>，消费者线程能够正确看到生产者线程的&lt;code>data&lt;/code>修改。&lt;/li>
+&lt;/ul>
+&lt;h4 id="memory_order_acq_rel获取-释放双向同步">&lt;code>memory_order_acq_rel&lt;/code>（获取-释放，双向同步） &lt;a href="#memory_order_acq_rel%e8%8e%b7%e5%8f%96-%e9%87%8a%e6%94%be%e5%8f%8c%e5%90%91%e5%90%8c%e6%ad%a5" class="anchor">🔗&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>&lt;strong>特点&lt;/strong>：结合&lt;code>acquire&lt;/code>和&lt;code>release&lt;/code>，用于**读-改-写（Read-Modify-Write, RMW）**操作，确保：
+&lt;ul>
+&lt;li>读取时使用&lt;code>acquire&lt;/code>语义，保证之前的修改对当前线程可见。&lt;/li>
+&lt;li>写入时使用&lt;code>release&lt;/code>语义，保证当前修改对后续线程可见。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;strong>适用场景&lt;/strong>：用于&lt;strong>读-改-写&lt;/strong>（如&lt;code>fetch_add()&lt;/code>、&lt;code>exchange()&lt;/code>）操作，确保多个线程能够正确协调。&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>示例&lt;/strong>&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>std&lt;span style="color:#f92672">::&lt;/span>atomic&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span> value{&lt;span style="color:#ae81ff">0&lt;/span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>value.fetch_add(&lt;span style="color:#ae81ff">1&lt;/span>, std&lt;span style="color:#f92672">::&lt;/span>memory_order_acq_rel); &lt;span style="color:#75715e">// 读写都保证可见性
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>在这里，&lt;code>fetch_add&lt;/code>同时读取旧值并写入新值：&lt;/p>
+&lt;ul>
+&lt;li>读取时使用&lt;code>acquire&lt;/code>语义，确保它能看到其他线程的修改。&lt;/li>
+&lt;li>写入时使用&lt;code>release&lt;/code>语义，确保它的修改能被其他线程看到。&lt;/li>
+&lt;/ul>
+&lt;h4 id="memory_order_seq_cst顺序一致性最严格">&lt;code>memory_order_seq_cst&lt;/code>（顺序一致性，最严格） &lt;a href="#memory_order_seq_cst%e9%a1%ba%e5%ba%8f%e4%b8%80%e8%87%b4%e6%80%a7%e6%9c%80%e4%b8%a5%e6%a0%bc" class="anchor">🔗&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>&lt;strong>特点&lt;/strong>：所有使用&lt;code>memory_order_seq_cst&lt;/code>的原子操作在&lt;strong>所有线程看来&lt;/strong>都是按照相同的顺序执行的，即全局一致的时序。&lt;/li>
+&lt;li>&lt;strong>适用场景&lt;/strong>：
+&lt;ul>
+&lt;li>需要严格同步的场景，如&lt;strong>锁&lt;/strong>、&lt;strong>同步变量&lt;/strong>、&lt;strong>临界区保护&lt;/strong>等。&lt;/li>
+&lt;li>适用于&lt;strong>多线程交互复杂&lt;/strong>、难以管理依赖关系的情况。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>保证&lt;/strong>：&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>seq_cst&lt;/code>确保所有操作严格按照全局统一顺序执行，避免乱序问题。&lt;/li>
+&lt;/ul>
+&lt;h3 id="直观比喻">直观比喻 &lt;a href="#%e7%9b%b4%e8%a7%82%e6%af%94%e5%96%bb" class="anchor">🔗&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>&lt;code>relaxed&lt;/code>：随意写笔记，但不保证别人能看到。&lt;/li>
+&lt;li>&lt;code>acquire&lt;/code>：&lt;strong>进门检查公告栏&lt;/strong>，确保看到之前的通知。&lt;/li>
+&lt;li>&lt;code>release&lt;/code>：&lt;strong>离开时更新公告栏&lt;/strong>，让后来的人看到。&lt;/li>
+&lt;li>&lt;code>acq_rel&lt;/code>：&lt;strong>进门看公告 + 走前更新公告&lt;/strong>。&lt;/li>
+&lt;li>&lt;code>seq_cst&lt;/code>：&lt;strong>所有人按同样顺序写、看公告&lt;/strong>，保证一致性。&lt;/li>
+&lt;/ul>
+&lt;p>根据不同场景合理选择内存序，可以提高并发程序的正确性和性能。&lt;/p>
+&lt;h3 id="优化控制块中的原子变量">优化控制块中的原子变量 &lt;a href="#%e4%bc%98%e5%8c%96%e6%8e%a7%e5%88%b6%e5%9d%97%e4%b8%ad%e7%9a%84%e5%8e%9f%e5%ad%90%e5%8f%98%e9%87%8f" class="anchor">🔗&lt;/a>&lt;/h3>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;atomic&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span> T&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">control_block&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">public&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> control_block(T&lt;span style="color:#f92672">*&lt;/span> ptr)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">:&lt;/span> ref_count(&lt;span style="color:#ae81ff">1&lt;/span>), weak_count(&lt;span style="color:#ae81ff">1&lt;/span>), obj(ptr) {}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// 增加引用计数
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#a6e22e">add_ref&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ref_count.fetch_add(&lt;span style="color:#ae81ff">1&lt;/span>, std&lt;span style="color:#f92672">::&lt;/span>memory_order_relaxed);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// 尝试增加强引用计数（仅当对象仍然存活时）
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#66d9ef">bool&lt;/span> &lt;span style="color:#a6e22e">lock&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> prev &lt;span style="color:#f92672">=&lt;/span> ref_count.load(std&lt;span style="color:#f92672">::&lt;/span>memory_order_acquire);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">while&lt;/span> (prev &lt;span style="color:#f92672">&amp;gt;&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (ref_count.compare_exchange_weak(prev, prev &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>memory_order_acquire, std&lt;span style="color:#f92672">::&lt;/span>memory_order_relaxed)) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> true; &lt;span style="color:#75715e">// 成功锁定
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> false; &lt;span style="color:#75715e">// 对象已被释放
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// 释放强引用
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#a6e22e">release_ref&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (ref_count.fetch_sub(&lt;span style="color:#ae81ff">1&lt;/span>, std&lt;span style="color:#f92672">::&lt;/span>memory_order_acq_rel) &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">delete&lt;/span> obj; &lt;span style="color:#75715e">// 删除对象
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> release_control_block(); &lt;span style="color:#75715e">// 尝试删除控制块
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// 增加弱引用计数
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#a6e22e">add_weak_ref&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> weak_count.fetch_add(&lt;span style="color:#ae81ff">1&lt;/span>, std&lt;span style="color:#f92672">::&lt;/span>memory_order_relaxed);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// 释放弱引用计数
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#a6e22e">release_weak_ref&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (weak_count.fetch_sub(&lt;span style="color:#ae81ff">1&lt;/span>, std&lt;span style="color:#f92672">::&lt;/span>memory_order_acq_rel) &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">delete&lt;/span> &lt;span style="color:#66d9ef">this&lt;/span>; &lt;span style="color:#75715e">// 删除控制块
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> T&lt;span style="color:#f92672">*&lt;/span> &lt;span style="color:#a6e22e">get&lt;/span>() { &lt;span style="color:#66d9ef">return&lt;/span> obj; }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">private&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// 删除控制块，仅当弱引用计数也归零时
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#66d9ef">void&lt;/span> release_control_block() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (weak_count.fetch_sub(&lt;span style="color:#ae81ff">1&lt;/span>, std&lt;span style="color:#f92672">::&lt;/span>memory_order_acq_rel) &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">delete&lt;/span> &lt;span style="color:#66d9ef">this&lt;/span>; &lt;span style="color:#75715e">// 删除控制块
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>atomic&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span> ref_count; &lt;span style="color:#75715e">// 强引用计数
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>atomic&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span> weak_count; &lt;span style="color:#75715e">// 弱引用计数
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> T&lt;span style="color:#f92672">*&lt;/span> obj; &lt;span style="color:#75715e">// 实际对象
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>};
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="参考">参考 &lt;a href="#%e5%8f%82%e8%80%83" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://zhuanlan.zhihu.com/p/532215950">C++内存管理：shared_ptr/weak_ptr源码&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://www.cnblogs.com/Solstice/archive/2010/02/10/dtor_meets_threads.html">当析构函数遇到多线程 ── C++ 中线程安全的对象回调&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://liam.page/2021/12/11/memory-order-cpp-02/">程序员的自我修养（⑫）：C++ 的内存顺序&lt;/a>&lt;/li>
+&lt;/ul></description></item><item><title>std::visit实现运行时多态 - C++ for the Antiquated（之三）</title><link>https://wizmann.top/posts/std-visit-polymorphism-cpp-for-the-antiquated-3/</link><pubDate>Sat, 04 Jan 2025 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/std-visit-polymorphism-cpp-for-the-antiquated-3/</guid><description>&lt;p>在传统的 &lt;strong>C++&lt;/strong> 中，&lt;strong>运行时多态&lt;/strong> 通常依赖于 &lt;strong>“接口 - 虚函数”&lt;/strong> 机制，通过抽象类、具体类与对象的设计来实现。这种多态方式通常被称为 &lt;strong>子类型多态&lt;/strong>（&lt;em>Subtype Polymorphism&lt;/em>）。&lt;/p>
+&lt;p>在之前的文章中，我们介绍了现代 C++ 引入的 &lt;code>std::variant&lt;/code> —— 一种类型安全的联合体，以及如何借助 &lt;code>std::visit&lt;/code> 在类型安全的前提下，动态地访问联合体中的不同类型，并执行相应的逻辑。这种多态方式被称为 &lt;strong>临时多态&lt;/strong>（&lt;em>Ad-hoc Polymorphism&lt;/em>）。&lt;/p>
+&lt;p>除此之外，还有一种被称为 &lt;strong>参数化多态&lt;/strong>（&lt;em>Parametric Polymorphism&lt;/em>），即我们熟知的 &lt;strong>C++ 模板&lt;/strong>。它允许我们编写与类型无关的代码，提供更强的泛型编程能力。由于本篇文章的重点并不在此，我们暂且不展开。&lt;/p>
+&lt;p>在本篇文章中，我们将重点对比 &lt;strong>子类型多态&lt;/strong> 和 &lt;strong>临时多态&lt;/strong> 的优劣，分析它们在实际场景中的应用与权衡，希望能更好地理解和选择合适的多态机制。&lt;/p>
+&lt;h2 id="临时多态的实现原理">&lt;strong>临时多态的实现原理&lt;/strong> &lt;a href="#%e4%b8%b4%e6%97%b6%e5%a4%9a%e6%80%81%e7%9a%84%e5%ae%9e%e7%8e%b0%e5%8e%9f%e7%90%86" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>&lt;strong>临时多态&lt;/strong>（&lt;em>Ad-hoc Polymorphism&lt;/em>）与 &lt;strong>子类型多态&lt;/strong>（&lt;em>Subtype Polymorphism&lt;/em>）在实现原理上有一定的相似性：它们都依赖于在类型中引入额外的信息来决定不同类型应执行的函数逻辑。&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>子类型多态&lt;/strong>：依赖于&lt;strong>虚表（vtable）&lt;/strong> 和 &lt;strong>虚指针（vptr）&lt;/strong>，通过运行时的动态分派来确定调用哪个派生类的成员函数。&lt;/li>
+&lt;li>&lt;strong>临时多态&lt;/strong>：依赖一个 &lt;strong>枚举值（enum）&lt;/strong> 来表示类型信息，通过显式的 &lt;code>switch-case&lt;/code> 或 &lt;code>if-else&lt;/code> 语句来选择不同的逻辑分支。&lt;/li>
+&lt;/ul>
+&lt;h3 id="简单示例模拟-stdvisit">&lt;strong>简单示例：模拟 std::visit&lt;/strong> &lt;a href="#%e7%ae%80%e5%8d%95%e7%a4%ba%e4%be%8b%e6%a8%a1%e6%8b%9f-stdvisit" class="anchor">🔗&lt;/a>&lt;/h3>&lt;blockquote>
+&lt;p>这里只使用了传统C++的实现，关于&lt;code>std::visit&lt;/code>的更详细的解读，可以参考本系列的“动手实现std::visit”一文。&lt;/p>&lt;/blockquote>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;iostream&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;string&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cassert&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">enum&lt;/span> &lt;span style="color:#a6e22e">EType&lt;/span> &lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#66d9ef">uint8_t&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> TYPE_Int &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> TYPE_Float &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> TYPE_String &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">2&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">struct&lt;/span> &lt;span style="color:#a6e22e">MyVariant&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> EType type;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">void&lt;/span>&lt;span style="color:#f92672">*&lt;/span> obj;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#a6e22e">MyVisitor&lt;/span>(MyVariant&lt;span style="color:#f92672">&amp;amp;&lt;/span> var) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">switch&lt;/span> (var.type) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">case&lt;/span> TYPE_Int:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;Int: &amp;#34;&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#f92672">*&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span>&lt;span style="color:#f92672">*&lt;/span>)var.obj &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>endl;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">break&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">case&lt;/span> TYPE_Float:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;Float: &amp;#34;&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#f92672">*&lt;/span>(&lt;span style="color:#66d9ef">float&lt;/span>&lt;span style="color:#f92672">*&lt;/span>)var.obj &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>endl;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">break&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">case&lt;/span> TYPE_String:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;String: &amp;#34;&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#f92672">*&lt;/span>(std&lt;span style="color:#f92672">::&lt;/span>string&lt;span style="color:#f92672">*&lt;/span>)var.obj &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>endl;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">break&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">default&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> assert(false &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;Unknown type!&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">break&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> i &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">42&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">float&lt;/span> f &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">3.14f&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>string s &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;Hello&amp;#34;&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> MyVariant var1 &lt;span style="color:#f92672">=&lt;/span> {TYPE_Int, &lt;span style="color:#f92672">&amp;amp;&lt;/span>i};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> MyVariant var2 &lt;span style="color:#f92672">=&lt;/span> {TYPE_Float, &lt;span style="color:#f92672">&amp;amp;&lt;/span>f};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> MyVariant var3 &lt;span style="color:#f92672">=&lt;/span> {TYPE_String, &lt;span style="color:#f92672">&amp;amp;&lt;/span>s};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> MyVisitor(var1);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> MyVisitor(var2);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> MyVisitor(var3);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="原理解析">&lt;strong>原理解析&lt;/strong> &lt;a href="#%e5%8e%9f%e7%90%86%e8%a7%a3%e6%9e%90" class="anchor">🔗&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>&lt;strong>EType 枚举&lt;/strong>
+&lt;ul>
+&lt;li>定义了一个枚举类型 &lt;code>EType&lt;/code>，用于标识 &lt;code>MyVariant&lt;/code> 当前存储的具体类型。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;strong>MyVariant 结构体&lt;/strong>
+&lt;ul>
+&lt;li>&lt;code>type&lt;/code> 字段保存当前对象的类型信息。&lt;/li>
+&lt;li>&lt;code>obj&lt;/code> 字段是一个通用指针，指向实际存储的数据对象。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;strong>MyVisitor 函数&lt;/strong>
+&lt;ul>
+&lt;li>通过 &lt;code>switch-case&lt;/code> 语句，基于 &lt;code>type&lt;/code> 字段选择不同的分支逻辑来访问和打印不同类型的数据。&lt;/li>
+&lt;li>如果遇到未知类型，程序会触发 &lt;code>assert&lt;/code> 以防止未定义行为。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h3 id="性能优化思考">&lt;strong>性能优化思考&lt;/strong> &lt;a href="#%e6%80%a7%e8%83%bd%e4%bc%98%e5%8c%96%e6%80%9d%e8%80%83" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>在实际应用中，&lt;code>switch-case&lt;/code> 语句可能随着类型数量的增加而导致性能开销。可以通过二分查找（Binary Search）方法进行优化，减少 &lt;code>switch-case&lt;/code> 的分支深度。&lt;/p>
+&lt;h2 id="临时多态的性能分析">临时多态的性能分析 &lt;a href="#%e4%b8%b4%e6%97%b6%e5%a4%9a%e6%80%81%e7%9a%84%e6%80%a7%e8%83%bd%e5%88%86%e6%9e%90" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>虚函数常因其较低的性能而受到批评。为了更好地了解这一点，我们将对比使用虚函数实现的“子类型多态”和通过 &lt;code>std::visit&lt;/code> 实现的“临时多态”在性能上的差异。&lt;/p>
+&lt;ul>
+&lt;li>使用虚函数实现的&lt;a href="https://gist.github.com/Wizmann/df65af6d214c3b4ae296363839477b94">代码&lt;/a>&lt;/li>
+&lt;li>使用&lt;code>std::visit&lt;/code> + &lt;code>std::variant&amp;lt;object&amp;gt;&lt;/code> 实现的&lt;a href="https://gist.github.com/Wizmann/f1494312a8e0cf30b97e9d8580fa9d6d">代码&lt;/a>&lt;/li>
+&lt;li>使用&lt;code>std::visit&lt;/code> + &lt;code>std::variant&amp;lt;ptr&amp;gt;&lt;/code> 实现的&lt;a href="https://gist.github.com/Wizmann/a25708bcd732df8f6e3d158f7105b6c9">代码&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;p>结果如下：&lt;/p>
+&lt;pre tabindex="0">&lt;code># 使用g++ --std=c++17 -O2编译运行
+# 使用虚函数实现
+Total Object Creation Time: 55.53 ms
+Total Visit Time: 6.99 ms
+# 使用std::visit + std::variant&amp;lt;object&amp;gt;实现
+Total Object Creation Time: 26.88 ms
+Total Visit Time: 5.93 ms
+# 使用std::visit + std::variant&amp;lt;ptr&amp;gt;实现
+Total Object Creation Time: 52.15 ms
+Total Visit Time: 6.05 ms
+&lt;/code>&lt;/pre>&lt;h3 id="结果分析">结果分析 &lt;a href="#%e7%bb%93%e6%9e%9c%e5%88%86%e6%9e%90" class="anchor">🔗&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>内存管理开销：
+使用虚函数的子类型多态实现通常需要动态申请和释放内存，从而引入了额外的内存管理开销。而使用基于 &lt;code>std::variant&amp;lt;object&amp;gt;&lt;/code>的临时多态可以一次性分配所有内存，虽然可能存在一定程度的内存浪费，但避免了频繁的动态内存管理。&lt;/li>
+&lt;li>性能接近，&lt;code>std::visit&lt;/code> 略优：
+虽然虚函数和 &lt;code>std::visit&lt;/code> 的性能差距不大，但 &lt;code>std::visit&lt;/code> 略微优于虚函数。两者都引入了额外的开销以实现多态。&lt;/li>
+&lt;/ul>
+&lt;h2 id="通过临时多态实现vistor模式">通过临时多态实现Vistor模式 &lt;a href="#%e9%80%9a%e8%bf%87%e4%b8%b4%e6%97%b6%e5%a4%9a%e6%80%81%e5%ae%9e%e7%8e%b0vistor%e6%a8%a1%e5%bc%8f" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>Visitor模式是一种行为设计模式，用于将数据结构的操作与数据结构本身分离。它通常通过“子类型多态”来实现，其中每个具体类型的对象都接受一个访问者（Visitor）并对其进行相应的处理。使用虚函数和继承是实现这一模式的一种方式，但有时我们可以用更轻量的方式来实现，比如通过临时多态结合 &lt;code>std::variant&lt;/code> 和 &lt;code>std::visit&lt;/code>。&lt;/p>
+&lt;h3 id="使用虚函数实现visitor模式">使用虚函数实现Visitor模式 &lt;a href="#%e4%bd%bf%e7%94%a8%e8%99%9a%e5%87%bd%e6%95%b0%e5%ae%9e%e7%8e%b0visitor%e6%a8%a1%e5%bc%8f" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>我们首先来看一个传统的通过子类型多态实现Visitor模式的例子：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">struct&lt;/span> &lt;span style="color:#a6e22e">IVisitor&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">struct&lt;/span> &lt;span style="color:#a6e22e">IResource&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">virtual&lt;/span> &lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#a6e22e">accept&lt;/span>(IVisitor&lt;span style="color:#f92672">*&lt;/span> visitor) &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">struct&lt;/span> &lt;span style="color:#a6e22e">IVisitor&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">virtual&lt;/span> &lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#a6e22e">visit&lt;/span>(IResource&lt;span style="color:#f92672">*&lt;/span> res) &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">MyResource&lt;/span> &lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#66d9ef">public&lt;/span> IResource {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">public&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">void&lt;/span> accept(IVisitor&lt;span style="color:#f92672">*&lt;/span> visitor) &lt;span style="color:#66d9ef">override&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> visitor&lt;span style="color:#f92672">-&amp;gt;&lt;/span>visit(&lt;span style="color:#66d9ef">this&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">MyVisitor&lt;/span> &lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#66d9ef">public&lt;/span> IVisitor {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">public&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">void&lt;/span> visit(IResource&lt;span style="color:#f92672">*&lt;/span> res) &lt;span style="color:#66d9ef">override&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// 处理资源
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这种实现方式虽然能很好地分离数据和操作，但它也有一些不足之处：&lt;/p>
+&lt;ul>
+&lt;li>每次调用 &lt;code>visit&lt;/code> 都需要通过虚函数来间接调用方法，这会引入额外的性能开销。&lt;/li>
+&lt;li>&lt;code>visitor&lt;/code> 无法在 &lt;code>visit&lt;/code> 时直接获取资源对象的类型信息，通常需要额外传递类型信息或者让资源类暴露更多的接口。&lt;/li>
+&lt;/ul>
+&lt;h3 id="使用-stdvisit-实现visitor模式">使用 &lt;code>std::visit&lt;/code> 实现Visitor模式 &lt;a href="#%e4%bd%bf%e7%94%a8-stdvisit-%e5%ae%9e%e7%8e%b0visitor%e6%a8%a1%e5%bc%8f" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>通过 &lt;code>std::visit&lt;/code> 和 &lt;code>std::variant&lt;/code>，我们可以显式地通过类型信息来处理每种资源类型，避免了虚函数调用的开销，同时使得代码更加简洁和类型安全。下面是一个通过临时多态实现Visitor模式的例子：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> ResourceUnion &lt;span style="color:#f92672">=&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>variant&lt;span style="color:#f92672">&amp;lt;&lt;/span>ResourceA, ResourceB, ResourceC&lt;span style="color:#f92672">&amp;gt;&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>std&lt;span style="color:#f92672">::&lt;/span>vector&lt;span style="color:#f92672">&amp;lt;&lt;/span>ResourceUnion&lt;span style="color:#f92672">&amp;gt;&lt;/span> resources;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">auto&lt;/span>&lt;span style="color:#f92672">&amp;amp;&lt;/span> res : resources) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>visit([](&lt;span style="color:#66d9ef">auto&lt;/span>&lt;span style="color:#f92672">&amp;amp;&lt;/span> res) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">using&lt;/span> T &lt;span style="color:#f92672">=&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>decay_t&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">decltype&lt;/span>(res)&lt;span style="color:#f92672">&amp;gt;&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> &lt;span style="color:#a6e22e">constexpr&lt;/span> (std&lt;span style="color:#f92672">::&lt;/span>is_same_v&lt;span style="color:#f92672">&amp;lt;&lt;/span>T, ResourceA&lt;span style="color:#f92672">&amp;gt;&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// 处理类型为 ResourceA 的资源
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> } &lt;span style="color:#66d9ef">else&lt;/span> &lt;span style="color:#66d9ef">if&lt;/span> &lt;span style="color:#a6e22e">constexpr&lt;/span> (std&lt;span style="color:#f92672">::&lt;/span>is_same_v&lt;span style="color:#f92672">&amp;lt;&lt;/span>T, ResourceB&lt;span style="color:#f92672">&amp;gt;&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// 处理类型为 ResourceB 的资源
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> } &lt;span style="color:#66d9ef">else&lt;/span> &lt;span style="color:#66d9ef">if&lt;/span> &lt;span style="color:#a6e22e">constexpr&lt;/span> (std&lt;span style="color:#f92672">::&lt;/span>is_same_v&lt;span style="color:#f92672">&amp;lt;&lt;/span>T, ResourceC&lt;span style="color:#f92672">&amp;gt;&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// 处理类型为 ResourceC 的资源
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> } &lt;span style="color:#66d9ef">else&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">static_assert&lt;/span>(always_false_v&lt;span style="color:#f92672">&amp;lt;&amp;gt;&lt;/span>, &lt;span style="color:#e6db74">&amp;#34;Unhandled type!&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }, res);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="优点与分析">优点与分析 &lt;a href="#%e4%bc%98%e7%82%b9%e4%b8%8e%e5%88%86%e6%9e%90" class="anchor">🔗&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>
+&lt;p>&lt;strong>类型安全&lt;/strong>：
+使用 &lt;code>std::visit&lt;/code> 时，编译器可以根据类型推断并为每种类型生成不同的代码路径，从而避免了运行时错误和类型错误，提升了类型安全性。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>性能&lt;/strong>：
+由于不再依赖虚函数，&lt;code>std::visit&lt;/code> 能避免每次调用 &lt;code>visit&lt;/code> 时的虚函数开销，从而提高了性能。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>简洁性&lt;/strong>：
+通过 &lt;code>std::variant&lt;/code> 和 &lt;code>std::visit&lt;/code>，代码更加简洁且不需要繁琐的继承结构。每个资源类型只需关注其自身的实现，而无需处理不同访问者的逻辑。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>扩展性&lt;/strong>：
+如果要新增资源类型，只需在 &lt;code>std::variant&lt;/code> 中添加新类型，并在 &lt;code>std::visit&lt;/code> 的 lambda 表达式中添加对应的分支，避免了修改现有代码的风险。&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;h2 id="临时多态的优点与缺点">临时多态的优点与缺点 &lt;a href="#%e4%b8%b4%e6%97%b6%e5%a4%9a%e6%80%81%e7%9a%84%e4%bc%98%e7%82%b9%e4%b8%8e%e7%bc%ba%e7%82%b9" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="优点">优点： &lt;a href="#%e4%bc%98%e7%82%b9" class="anchor">🔗&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>&lt;strong>类型安全&lt;/strong>：&lt;code>std::variant&lt;/code> 与 &lt;code>std::visit&lt;/code> 确保了类型安全，避免了许多传统多态机制中的错误。&lt;/li>
+&lt;li>&lt;strong>性能优化&lt;/strong>：相较于虚函数，&lt;code>std::visit&lt;/code> 通过类型折叠和编译时分支优化，通常表现出更好的性能，尤其在没有动态内存管理时。&lt;/li>
+&lt;li>&lt;strong>自由组织功能函数&lt;/strong>：你可以灵活地将功能函数组织在一个地方，而无需修改每个具体类型。&lt;/li>
+&lt;/ol>
+&lt;h3 id="缺点">缺点： &lt;a href="#%e7%bc%ba%e7%82%b9" class="anchor">🔗&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>&lt;strong>职责分散&lt;/strong>：每个类型的行为都可能分散到多个&lt;code>visit&lt;/code>函数中，导致代码难以维护。&lt;/li>
+&lt;li>&lt;strong>高耦合风险&lt;/strong>：当新增类型时，所有访问逻辑需要修改，可能带来较高的耦合度，尤其在类型较多时。&lt;/li>
+&lt;/ol>
+&lt;h2 id="参考">参考 &lt;a href="#%e5%8f%82%e8%80%83" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>C++20高级编程（罗能） —— 1.6 运行时多态&lt;/li>
+&lt;li>&lt;a href="https://wiyi.org/polymorphism-in-java.html">深入理解面向对象中的多态&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://refactoringguru.cn/design-patterns/visitor/cpp/example">C++ 访问者模式讲解和代码示例&lt;/a>&lt;/li>
+&lt;/ul></description></item><item><title>动手实现std::visit - C++ for the Antiquated（之二）</title><link>https://wizmann.top/posts/std-visit-cpp-for-the-antiquated-2/</link><pubDate>Wed, 01 Jan 2025 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/std-visit-cpp-for-the-antiquated-2/</guid><description>&lt;h2 id="stdvariant-与-stdvisit">std::variant 与 std::visit &lt;a href="#stdvariant-%e4%b8%8e-stdvisit" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="stdvariant">std::variant &lt;a href="#stdvariant" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>&lt;code>std::variant&lt;/code> 是 C++17 引入的类型安全的联合体（type-safe union），可以在多个预定义类型中存储任意一个值。与传统的 &lt;code>union&lt;/code> 不同，&lt;code>std::variant&lt;/code> 能够在运行时安全地检查当前存储的类型，避免未定义行为。&lt;/p>
+&lt;p>其核心特点如下：&lt;/p>
+&lt;ul>
+&lt;li>类型安全：访问值时进行类型检查，防止类型错误。&lt;/li>
+&lt;li>固定类型集合：存储类型在编译时确定。&lt;/li>
+&lt;li>异常安全：在赋值失败时会进入无效状态（std::monostate）。&lt;/li>
+&lt;/ul>
+&lt;h3 id="stdvisit">std::visit &lt;a href="#stdvisit" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>&lt;code>std::visit&lt;/code> 是一个访问器函数，用于访问 &lt;code>std::variant&lt;/code> 中当前存储的值。它通过一个可调用对象（如 Lambda 表达式）来处理存储的值，从而实现编译时多态。&lt;/p>
+&lt;p>其核心特点如下：&lt;/p>
+&lt;ul>
+&lt;li>统一访问接口：无论存储的是哪种类型，都可以通过同一个函数进行访问。&lt;/li>
+&lt;li>类型安全：确保所有可能的类型都被正确处理。&lt;/li>
+&lt;/ul>
+&lt;h3 id="代码示例">代码示例 &lt;a href="#%e4%bb%a3%e7%a0%81%e7%a4%ba%e4%be%8b" class="anchor">🔗&lt;/a>&lt;/h3>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;iostream&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;vector&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;variant&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;type_traits&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span>&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span> T&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">inline&lt;/span> &lt;span style="color:#66d9ef">constexpr&lt;/span> &lt;span style="color:#66d9ef">bool&lt;/span> always_false_v &lt;span style="color:#f92672">=&lt;/span> false;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>vector&lt;span style="color:#f92672">&amp;lt;&lt;/span>std&lt;span style="color:#f92672">::&lt;/span>variant&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>, &lt;span style="color:#66d9ef">float&lt;/span>, std&lt;span style="color:#f92672">::&lt;/span>string&lt;span style="color:#f92672">&amp;gt;&amp;gt;&lt;/span> items {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#ae81ff">10&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#ae81ff">3.14f&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#e6db74">&amp;#34;foobar&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> };
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">auto&lt;/span>&lt;span style="color:#f92672">&amp;amp;&lt;/span> item : items) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>visit([](&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">auto&lt;/span>&lt;span style="color:#f92672">&amp;amp;&lt;/span> arg) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">using&lt;/span> T &lt;span style="color:#f92672">=&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>decay_t&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">decltype&lt;/span>(arg)&lt;span style="color:#f92672">&amp;gt;&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> &lt;span style="color:#66d9ef">constexpr&lt;/span> (std&lt;span style="color:#f92672">::&lt;/span>is_same_v&lt;span style="color:#f92672">&amp;lt;&lt;/span>T, &lt;span style="color:#66d9ef">int&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;int: &amp;#34;&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> arg &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>endl;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> } &lt;span style="color:#66d9ef">else&lt;/span> &lt;span style="color:#66d9ef">if&lt;/span> &lt;span style="color:#66d9ef">constexpr&lt;/span> (std&lt;span style="color:#f92672">::&lt;/span>is_same_v&lt;span style="color:#f92672">&amp;lt;&lt;/span>T, &lt;span style="color:#66d9ef">float&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;float: &amp;#34;&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> arg &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>endl;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> } &lt;span style="color:#66d9ef">else&lt;/span> &lt;span style="color:#66d9ef">if&lt;/span> &lt;span style="color:#66d9ef">constexpr&lt;/span> (std&lt;span style="color:#f92672">::&lt;/span>is_same_v&lt;span style="color:#f92672">&amp;lt;&lt;/span>T, std&lt;span style="color:#f92672">::&lt;/span>string&lt;span style="color:#f92672">&amp;gt;&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;std::string: &amp;#34;&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> arg &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>endl;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> } &lt;span style="color:#66d9ef">else&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">static_assert&lt;/span>(always_false_v&lt;span style="color:#f92672">&amp;lt;&amp;gt;&lt;/span>, &lt;span style="color:#e6db74">&amp;#34;Unhandled type!&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }, item);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="代码分析">代码分析 &lt;a href="#%e4%bb%a3%e7%a0%81%e5%88%86%e6%9e%90" class="anchor">🔗&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>
+&lt;p>&lt;strong>&lt;code>std::variant&amp;lt;int, float, std::string&amp;gt;&lt;/code>&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>这是一个类型安全的联合体，可以存储 &lt;code>int&lt;/code>、&lt;code>float&lt;/code> 或 &lt;code>std::string&lt;/code> 中的任意一种类型。&lt;/li>
+&lt;li>将多个 &lt;code>std::variant&lt;/code> 存储在 &lt;code>std::vector&lt;/code> 中，形成一个统一的容器。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>&lt;code>std::visit&lt;/code>&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>使用 &lt;code>std::visit&lt;/code> 访问每个 &lt;code>std::variant&lt;/code> 元素。&lt;/li>
+&lt;li>传入一个&lt;strong>泛型 Lambda 表达式&lt;/strong>，通过 &lt;code>if constexpr&lt;/code> 在编译时分发到不同的分支，处理不同类型的值。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>&lt;code>if constexpr&lt;/code> 与 &lt;code>std::is_same_v&lt;/code>&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>使用 &lt;code>std::is_same_v&lt;/code> 判断存储的实际类型。&lt;/li>
+&lt;li>根据类型进行不同的输出操作。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>类型安全&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>如果添加一个未处理的类型，编译器会在 &lt;code>static_assert&lt;/code> 中报错，提醒开发者补充处理逻辑。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h2 id="使用传统c实现stdvisit">使用传统C++实现std::visit &lt;a href="#%e4%bd%bf%e7%94%a8%e4%bc%a0%e7%bb%9fc%e5%ae%9e%e7%8e%b0stdvisit" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="实现stdvariant">实现std::variant &lt;a href="#%e5%ae%9e%e7%8e%b0stdvariant" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>在传统 C++ 中，我们只有简单的 &lt;code>union&lt;/code> 来实现“联合体”语义。然而，&lt;code>union&lt;/code> 存在一些局限性：&lt;/p>
+&lt;ul>
+&lt;li>无法存储非平凡类型（例如 &lt;code>std::string&lt;/code>）。&lt;/li>
+&lt;li>无法跟踪当前存储的类型。&lt;/li>
+&lt;li>无法进行类型安全检查。&lt;/li>
+&lt;/ul>
+&lt;p>而 &lt;code>std::variant&lt;/code> 通过类型索引和类型匹配来提供类型安全，支持多种类型的存储与访问。&lt;/p>
+&lt;h3 id="实现-stdvisit">实现 std::visit &lt;a href="#%e5%ae%9e%e7%8e%b0-stdvisit" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>实现 &lt;code>std::visit&lt;/code> 需要使用一个可调用对象（例如 Visitor）来访问 &lt;code>std::variant&lt;/code> 中的值。具体来说，它在编译时根据实际类型匹配相应的 &lt;code>operator()&lt;/code> 方法。&lt;/p>
+&lt;p>示例代码如下：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;iostream&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;vector&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;variant&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;type_traits&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">struct&lt;/span> &lt;span style="color:#a6e22e">Visitor&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">operator&lt;/span>()(&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span>&lt;span style="color:#f92672">&amp;amp;&lt;/span> item) &lt;span style="color:#66d9ef">const&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;int: &amp;#34;&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> item &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>endl;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">operator&lt;/span>()(&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">float&lt;/span>&lt;span style="color:#f92672">&amp;amp;&lt;/span> item) &lt;span style="color:#66d9ef">const&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;float: &amp;#34;&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> item &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>endl;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">operator&lt;/span>()(&lt;span style="color:#66d9ef">const&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>string&lt;span style="color:#f92672">&amp;amp;&lt;/span> item) &lt;span style="color:#66d9ef">const&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;string: &amp;#34;&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> item &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>endl;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">2&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>variant&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>, &lt;span style="color:#66d9ef">float&lt;/span>, std&lt;span style="color:#f92672">::&lt;/span>string&lt;span style="color:#f92672">&amp;gt;&lt;/span> item(&lt;span style="color:#ae81ff">114.514f&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// 获取当前类型的索引
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> item.index() &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>endl; &lt;span style="color:#75715e">// 输出: 1 (float 的索引)
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// 获取当前存储的值
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>get&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">float&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span>(item) &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>endl; &lt;span style="color:#75715e">// 输出: 114.514
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">try&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>get&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span>(item) &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>endl;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> } &lt;span style="color:#66d9ef">catch&lt;/span> (&lt;span style="color:#66d9ef">const&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>bad_variant_access&lt;span style="color:#f92672">&amp;amp;&lt;/span> e) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> e.what() &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>endl; &lt;span style="color:#75715e">// 类型不匹配，抛出异常
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// 使用 Visitor 访问值
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>visit(Visitor{}, item) &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>endl; &lt;span style="color:#75715e">// 输出: 1 (float 类型返回 1)
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="实现的核心要点">实现的核心要点 &lt;a href="#%e5%ae%9e%e7%8e%b0%e7%9a%84%e6%a0%b8%e5%bf%83%e8%a6%81%e7%82%b9" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>实现 &lt;code>std::visit&lt;/code> 的关键在于以下几个方面：&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;strong>类型索引 (&lt;code>index()&lt;/code>)&lt;/strong>&lt;br>
+根据传入的 &lt;code>std::variant&lt;/code> 参数类型，确定其在类型集合中的索引。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>类型访问 (&lt;code>std::get&amp;lt;T&amp;gt;&lt;/code>)&lt;/strong>&lt;br>
+根据传入的模板类型 &lt;code>T&lt;/code>，获取存储的值。如果类型不匹配，抛出异常，确保类型安全。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>类型分派 (&lt;code>std::visit&lt;/code>)&lt;/strong>&lt;br>
+根据当前存储的类型，调用 &lt;code>Visitor&lt;/code> 中对应的 &lt;code>operator()&lt;/code> 方法。可以通过 &lt;code>switch-case&lt;/code> 或模板匹配来实现类型分发。&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="代码实现0---基本框架">代码实现0 - 基本框架 &lt;a href="#%e4%bb%a3%e7%a0%81%e5%ae%9e%e7%8e%b00---%e5%9f%ba%e6%9c%ac%e6%a1%86%e6%9e%b6" class="anchor">🔗&lt;/a>&lt;/h3>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span>... Ts&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">MyVariant&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">public&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">template&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span> T&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> MyVariant(&lt;span style="color:#66d9ef">const&lt;/span> T&lt;span style="color:#f92672">&amp;amp;&lt;/span> item) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> setValue(item);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">private&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">template&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span> T&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">void&lt;/span> setValue(&lt;span style="color:#66d9ef">const&lt;/span> T&lt;span style="color:#f92672">&amp;amp;&lt;/span> item) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// TODO
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// 用于存储“联合体”的数据
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#66d9ef">union&lt;/span> &lt;span style="color:#a6e22e">Storage&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Storage() {}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">~&lt;/span>Storage() {}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>aligned_union_t&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#ae81ff">0&lt;/span>, Ts...&lt;span style="color:#f92672">&amp;gt;&lt;/span> data;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> } storage;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="代码实现1---index函数">代码实现1 - index()函数 &lt;a href="#%e4%bb%a3%e7%a0%81%e5%ae%9e%e7%8e%b01---index%e5%87%bd%e6%95%b0" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>我们使用经典的模板递归来查找类型对应的索引。同时，利用 &lt;code>constexpr&lt;/code> 来简化编译时计算的过程。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span>std&lt;span style="color:#f92672">::&lt;/span>size_t N, &lt;span style="color:#66d9ef">typename&lt;/span>... Types&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> TupleElement &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">typename&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>tuple_element&lt;span style="color:#f92672">&amp;lt;&lt;/span>N, std&lt;span style="color:#f92672">::&lt;/span>tuple&lt;span style="color:#f92672">&amp;lt;&lt;/span>Types...&lt;span style="color:#f92672">&amp;gt;&amp;gt;::&lt;/span>type;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span> T, &lt;span style="color:#66d9ef">typename&lt;/span>... Types&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">struct&lt;/span> &lt;span style="color:#a6e22e">TypeIndex&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span> T, &lt;span style="color:#66d9ef">typename&lt;/span> First, &lt;span style="color:#66d9ef">typename&lt;/span>... Rest&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">struct&lt;/span> &lt;span style="color:#a6e22e">TypeIndex&lt;/span>&lt;span style="color:#f92672">&amp;lt;&lt;/span>T, First, Rest...&lt;span style="color:#f92672">&amp;gt;&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">static&lt;/span> &lt;span style="color:#66d9ef">constexpr&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> value &lt;span style="color:#f92672">=&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>is_same&lt;span style="color:#f92672">&amp;lt;&lt;/span>T, First&lt;span style="color:#f92672">&amp;gt;::&lt;/span>value
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">?&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">:&lt;/span> (TypeIndex&lt;span style="color:#f92672">&amp;lt;&lt;/span>T, Rest...&lt;span style="color:#f92672">&amp;gt;::&lt;/span>value &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span> &lt;span style="color:#f92672">?&lt;/span> &lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span> &lt;span style="color:#f92672">:&lt;/span> TypeIndex&lt;span style="color:#f92672">&amp;lt;&lt;/span>T, Rest...&lt;span style="color:#f92672">&amp;gt;::&lt;/span>value &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span> T&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">struct&lt;/span> &lt;span style="color:#a6e22e">TypeIndex&lt;/span>&lt;span style="color:#f92672">&amp;lt;&lt;/span>T&lt;span style="color:#f92672">&amp;gt;&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">static&lt;/span> &lt;span style="color:#66d9ef">constexpr&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> value &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span> T, &lt;span style="color:#66d9ef">typename&lt;/span>... Ts&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">constexpr&lt;/span> &lt;span style="color:#66d9ef">bool&lt;/span> containsType() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> TypeIndex&lt;span style="color:#f92672">&amp;lt;&lt;/span>T, Ts...&lt;span style="color:#f92672">&amp;gt;::&lt;/span>value &lt;span style="color:#f92672">!=&lt;/span> &lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>通过上述代码，我们实现了在编译期确定传入类型对应的类型索引。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span>... Ts&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span> T&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">void&lt;/span> MyVariant&lt;span style="color:#f92672">&amp;lt;&lt;/span>Ts...&lt;span style="color:#f92672">&amp;gt;::&lt;/span>setValue(&lt;span style="color:#66d9ef">const&lt;/span> T&lt;span style="color:#f92672">&amp;amp;&lt;/span> item) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">using&lt;/span> TargetType &lt;span style="color:#f92672">=&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>decay_t&lt;span style="color:#f92672">&amp;lt;&lt;/span>T&lt;span style="color:#f92672">&amp;gt;&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">static_assert&lt;/span>(containsType&lt;span style="color:#f92672">&amp;lt;&lt;/span>TargetType&lt;span style="color:#f92672">&amp;gt;&lt;/span>(), &lt;span style="color:#e6db74">&amp;#34;Type not supported&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">new&lt;/span> (&lt;span style="color:#f92672">&amp;amp;&lt;/span>storage.data) TargetType(item);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> typeIndex &lt;span style="color:#f92672">=&lt;/span> getTypeIndex&lt;span style="color:#f92672">&amp;lt;&lt;/span>TargetType&lt;span style="color:#f92672">&amp;gt;&lt;/span>();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="代码实现2---get-函数">代码实现2 - &lt;code>get()&lt;/code> 函数 &lt;a href="#%e4%bb%a3%e7%a0%81%e5%ae%9e%e7%8e%b02---get-%e5%87%bd%e6%95%b0" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>我们实现了一个函数 &lt;code>MyVariant::get()&lt;/code>，通过检查 &lt;code>typeIndex&lt;/code> 来确保获取的类型与存储类型一致。&lt;/p>
+&lt;p>我们也能可以通过&lt;code>MyGet&lt;/code>函数模拟&lt;code>std::get&amp;lt;T&amp;gt;&lt;/code>函数的行为。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span>... Ts&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">MyVariant&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span> T, &lt;span style="color:#66d9ef">typename&lt;/span>... Ts&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>T&lt;span style="color:#f92672">&amp;amp;&lt;/span> MyGet(MyVariant&lt;span style="color:#f92672">&amp;lt;&lt;/span>Ts...&lt;span style="color:#f92672">&amp;gt;&amp;amp;&lt;/span> var) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> var.&lt;span style="color:#66d9ef">template&lt;/span> get&lt;span style="color:#f92672">&amp;lt;&lt;/span>T&lt;span style="color:#f92672">&amp;gt;&lt;/span>();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span>... Ts&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span> T&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>T&lt;span style="color:#f92672">&amp;amp;&lt;/span> MyVariant&lt;span style="color:#f92672">&amp;lt;&lt;/span>Ts...&lt;span style="color:#f92672">&amp;gt;::&lt;/span>get() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">using&lt;/span> TargetType &lt;span style="color:#f92672">=&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>decay_t&lt;span style="color:#f92672">&amp;lt;&lt;/span>T&lt;span style="color:#f92672">&amp;gt;&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (TypeIndex&lt;span style="color:#f92672">&amp;lt;&lt;/span>T, Ts...&lt;span style="color:#f92672">&amp;gt;::&lt;/span>value &lt;span style="color:#f92672">!=&lt;/span> typeIndex) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">throw&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>runtime_error(&lt;span style="color:#e6db74">&amp;#34;Wrong type&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#f92672">*&lt;/span>&lt;span style="color:#66d9ef">reinterpret_cast&lt;/span>&lt;span style="color:#f92672">&amp;lt;&lt;/span>TargetType&lt;span style="color:#f92672">*&amp;gt;&lt;/span>(&lt;span style="color:#f92672">&amp;amp;&lt;/span>storage.data);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="代码实现3---visit函数">代码实现3 - &lt;code>visit&lt;/code>函数 &lt;a href="#%e4%bb%a3%e7%a0%81%e5%ae%9e%e7%8e%b03---visit%e5%87%bd%e6%95%b0" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>接下来是 &lt;code>visit()&lt;/code> 函数的实现。它通过递归方式依次访问 &lt;code>std::variant&lt;/code> 中的每种类型，并调用与之对应的处理函数。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span>std&lt;span style="color:#f92672">::&lt;/span>size_t N, &lt;span style="color:#66d9ef">typename&lt;/span>... Types&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> TupleElement &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">typename&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>tuple_element&lt;span style="color:#f92672">&amp;lt;&lt;/span>N, std&lt;span style="color:#f92672">::&lt;/span>tuple&lt;span style="color:#f92672">&amp;lt;&lt;/span>Types...&lt;span style="color:#f92672">&amp;gt;&amp;gt;::&lt;/span>type;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span>... Ts&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span> TVisitor&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">auto&lt;/span> MyVariant&lt;span style="color:#f92672">&amp;lt;&lt;/span>Ts...&lt;span style="color:#f92672">&amp;gt;::&lt;/span>visit(TVisitor&lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> visitor) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">using&lt;/span> FirstType &lt;span style="color:#f92672">=&lt;/span> TupleElement&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#ae81ff">0&lt;/span>, Ts...&lt;span style="color:#f92672">&amp;gt;&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">using&lt;/span> RetT &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">decltype&lt;/span>(visitor(std&lt;span style="color:#f92672">::&lt;/span>declval&lt;span style="color:#f92672">&amp;lt;&lt;/span>FirstType&lt;span style="color:#f92672">&amp;gt;&lt;/span>()));
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> visitImpl&lt;span style="color:#f92672">&amp;lt;&lt;/span>RetT, TVisitor, Ts...&lt;span style="color:#f92672">&amp;gt;&lt;/span>(std&lt;span style="color:#f92672">::&lt;/span>forward&lt;span style="color:#f92672">&amp;lt;&lt;/span>TVisitor&lt;span style="color:#f92672">&amp;gt;&lt;/span>(visitor));
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span>... Ts&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span> RetT, &lt;span style="color:#66d9ef">typename&lt;/span> TVisitor, &lt;span style="color:#66d9ef">typename&lt;/span> First, &lt;span style="color:#66d9ef">typename&lt;/span>... Rest&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>RetT MyVariant&lt;span style="color:#f92672">&amp;lt;&lt;/span>Ts...&lt;span style="color:#f92672">&amp;gt;::&lt;/span>visitImpl(TVisitor&lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> visitor) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (getTypeIndex&lt;span style="color:#f92672">&amp;lt;&lt;/span>First&lt;span style="color:#f92672">&amp;gt;&lt;/span>() &lt;span style="color:#f92672">==&lt;/span> typeIndex) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#a6e22e">visitor&lt;/span>(get&lt;span style="color:#f92672">&amp;lt;&lt;/span>First&lt;span style="color:#f92672">&amp;gt;&lt;/span>());
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> } &lt;span style="color:#66d9ef">else&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// 递归访问剩余的类型
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#66d9ef">return&lt;/span> visitImpl&lt;span style="color:#f92672">&amp;lt;&lt;/span>RetT, TVisitor, Rest...&lt;span style="color:#f92672">&amp;gt;&lt;/span>(std&lt;span style="color:#f92672">::&lt;/span>forward&lt;span style="color:#f92672">&amp;lt;&lt;/span>TVisitor&lt;span style="color:#f92672">&amp;gt;&lt;/span>(visitor));
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span>... Ts&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span> RetT, &lt;span style="color:#66d9ef">typename&lt;/span> TVisitor&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>RetT MyVariant&lt;span style="color:#f92672">&amp;lt;&lt;/span>Ts...&lt;span style="color:#f92672">&amp;gt;::&lt;/span>visitImpl(&lt;span style="color:#a6e22e">[[maybe_unused]]&lt;/span>TVisitor&lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> visitor) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// 基础情况：所有类型都已检查，未找到匹配的类型
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#66d9ef">throw&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>runtime_error(&lt;span style="color:#e6db74">&amp;#34;Wrong type&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="总结">总结 &lt;a href="#%e6%80%bb%e7%bb%93" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>在本文中，我们实现了一个简单版的 &lt;code>std::variant&lt;/code> 和 &lt;code>std::visit&lt;/code>，通过传统 C++ 实现了类型安全的联合体数据结构。我们依次通过以下步骤构建了这一系统：&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>&lt;strong>&lt;code>MyVariant&lt;/code> 类的基本框架&lt;/strong>：通过联合体 (&lt;code>union&lt;/code>) 存储不同类型的数据，并使用模板构造函数动态设置值。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>类型索引 (&lt;code>index()&lt;/code>) 的实现&lt;/strong>：使用模板递归技术结合 &lt;code>constexpr&lt;/code> 来实现类型的编译时索引查找，从而在运行时根据类型索引来访问对应的值。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>&lt;code>get()&lt;/code> 函数&lt;/strong>：实现了获取存储值的函数，并通过类型检查确保类型安全。如果访问了错误类型的数据，则抛出异常。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>&lt;code>visit()&lt;/code> 函数&lt;/strong>：实现了一个可扩展的访问机制，使得不同类型的值可以通过同一个 &lt;code>Visitor&lt;/code> 被访问和处理。通过递归的方式，系统能够动态地访问不同类型的值，并调用相应的处理函数。&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;p>通过这些实现，我们成功模拟了 C++ 标准库中的 &lt;code>std::variant&lt;/code> 和 &lt;code>std::visit&lt;/code> 功能。同时，通过对比可以看出，现代 C++ 提供了更强大的模板元编程能力。利用这些特性，我们能够使用更直观的语法，在编译期间实现高效且类型安全的联合体访问，从而提供一种灵活、类型安全的方式来处理多类型数据。&lt;/p></description></item><item><title>constexpr详解 - C++ for the Antiquated（之一）</title><link>https://wizmann.top/posts/constexpr-cpp-for-the-antiquated-1/</link><pubDate>Sat, 28 Dec 2024 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/constexpr-cpp-for-the-antiquated-1/</guid><description>&lt;p>在这篇文章中，我们将深入讨论 C++ 中的常量表达式（&lt;code>constexpr&lt;/code>）及其与传统的&lt;code>const&lt;/code>常量的区别，并结合实际代码示例进行说明。同时，我们还会探讨&lt;code>constexpr&lt;/code>函数在模板编程中的应用，以及 C++11 之后对常量表达式的优化与扩展。&lt;/p>
+&lt;h2 id="常量表达式constexpr">常量表达式（constexpr） &lt;a href="#%e5%b8%b8%e9%87%8f%e8%a1%a8%e8%be%be%e5%bc%8fconstexpr" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>在 C++ 中，&lt;code>const&lt;/code> 关键字通常用于修饰变量、引用和指针，使得它们在运行时不能被修改。需要注意的是，&lt;code>const&lt;/code> 并没有区分编译期常量和运行时常量，它只是保证了这些变量在运行时不可修改。&lt;/p>
+&lt;p>例如，使用 &lt;code>const&lt;/code> 声明的变量在运行时其值是固定的，但并不意味着它们在编译时已知。&lt;/p>
+&lt;p>下面是传统 C++ 中 &lt;code>const&lt;/code> 关键字的一些常见用法：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#define CONSTANT_1 114514 &lt;/span>&lt;span style="color:#75715e">// 宏也是一种常量
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span>&lt;span style="color:#f92672">*&lt;/span> helloworld1 &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;helloworld&amp;#34;&lt;/span>; &lt;span style="color:#75715e">// const 字符串
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> value1 &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>; &lt;span style="color:#75715e">// 常量值
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> value2 &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">2&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> value3 &lt;span style="color:#f92672">=&lt;/span> value1 &lt;span style="color:#f92672">+&lt;/span> value2; &lt;span style="color:#75715e">// 运行时计算
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> value8 &lt;span style="color:#f92672">=&lt;/span> pow(value2, value3);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> arr_pow_of_2[] &lt;span style="color:#f92672">=&lt;/span> {&lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">2&lt;/span>, &lt;span style="color:#ae81ff">4&lt;/span>}; &lt;span style="color:#75715e">// 数组初始化
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>在上述代码中，虽然 const 修饰的变量在程序运行期间不能修改，但它们的值是在运行时计算的。因此，我们无法在编译时将它们视为常量。所以，&lt;code>const&lt;/code> 变量也可以有内存地址，并且在某些情况下可以使用 &lt;code>const_cast&lt;/code> 强行进行修改。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstdio&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstdint&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;iostream&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cmath&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#a6e22e">MakeChange&lt;/span>(&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span>&lt;span style="color:#f92672">&amp;amp;&lt;/span> x) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">*&lt;/span>(&lt;span style="color:#66d9ef">const_cast&lt;/span>&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>&lt;span style="color:#f92672">*&amp;gt;&lt;/span>(&lt;span style="color:#f92672">&amp;amp;&lt;/span>x)) &lt;span style="color:#f92672">=&lt;/span> x &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> x &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> MakeChange(x);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> x &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>endl; &lt;span style="color:#75715e">// 输出：2
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="引入-constexpr">引入 constexpr &lt;a href="#%e5%bc%95%e5%85%a5-constexpr" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>C++11 引入了 &lt;code>constexpr&lt;/code>，它的字面意思是 &lt;code>constant expression&lt;/code>（常量表达式），用于在编译时计算常量值。与 &lt;code>const&lt;/code> 不同，&lt;code>constexpr&lt;/code> 确保一个变量或者函数的值是在编译时已知的，编译器会在编译时对其进行求值。&lt;/p>
+&lt;p>通过使用 &lt;code>constexpr&lt;/code>，我们可以定义编译时常量，并且 &lt;code>constexpr&lt;/code> 函数在某些情况下也能够在编译期计算结果。&lt;/p>
+&lt;p>使用 &lt;code>constexpr&lt;/code> 重写上述代码：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">constexpr&lt;/span> &lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span>&lt;span style="color:#f92672">*&lt;/span> helloworld1 &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;helloworld&amp;#34;&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">constexpr&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> value1 &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">constexpr&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> value2 &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">2&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">constexpr&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> value3 &lt;span style="color:#f92672">=&lt;/span> value1 &lt;span style="color:#f92672">+&lt;/span> value2; &lt;span style="color:#75715e">// 编译期计算
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#66d9ef">constexpr&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> value8 &lt;span style="color:#f92672">=&lt;/span> pow(value2, value3); &lt;span style="color:#75715e">// 编译期计算
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">// 编译期初始化数组
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#66d9ef">constexpr&lt;/span> &lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> arr_pow_of_2[] &lt;span style="color:#f92672">=&lt;/span> {&lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">2&lt;/span>, &lt;span style="color:#ae81ff">4&lt;/span>};
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="常量表达式函数">常量表达式函数 &lt;a href="#%e5%b8%b8%e9%87%8f%e8%a1%a8%e8%be%be%e5%bc%8f%e5%87%bd%e6%95%b0" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>&lt;code>constexpr&lt;/code> 不仅可以修饰变量，还可以修饰函数。&lt;code>constexpr&lt;/code> 函数的特性是，若输入的参数是编译时常量，那么它的返回值也是一个编译时常量。&lt;/p>
+&lt;p>以下是一个计算 Fibonacci 数列的示例：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">constexpr&lt;/span> &lt;span style="color:#66d9ef">uint64_t&lt;/span> MOD &lt;span style="color:#f92672">=&lt;/span> (&lt;span style="color:#ae81ff">1LL&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#ae81ff">62&lt;/span>) &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>; &lt;span style="color:#75715e">// 编译时常量
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">constexpr&lt;/span> &lt;span style="color:#66d9ef">uint64_t&lt;/span> &lt;span style="color:#a6e22e">fib&lt;/span>(&lt;span style="color:#66d9ef">uint64_t&lt;/span> n) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">uint64_t&lt;/span> a &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>, b &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">int&lt;/span> i &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>; i &lt;span style="color:#f92672">&amp;lt;&lt;/span> n; &lt;span style="color:#f92672">++&lt;/span>i) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">uint64_t&lt;/span> temp &lt;span style="color:#f92672">=&lt;/span> a &lt;span style="color:#f92672">+&lt;/span> b;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> a &lt;span style="color:#f92672">=&lt;/span> b;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> b &lt;span style="color:#f92672">=&lt;/span> temp &lt;span style="color:#f92672">%&lt;/span> MOD;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> b;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// 在编译期计算 Fibonacci 数列
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#66d9ef">constexpr&lt;/span> &lt;span style="color:#66d9ef">uint64_t&lt;/span> result &lt;span style="color:#f92672">=&lt;/span> fib(&lt;span style="color:#ae81ff">123456&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> result &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>endl;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>在这段代码中，&lt;code>fib&lt;/code> 函数被标记为 &lt;code>constexpr&lt;/code>，因此当传入常量参数时，编译器会在编译期间计算出 Fibonacci 数列的第 &lt;code>123456&lt;/code> 项。需要注意的是，&lt;code>constexpr&lt;/code> 函数的计算存在一些限制：&lt;/p>
+&lt;ol>
+&lt;li>&lt;strong>递归深度限制&lt;/strong>：constexpr 函数的递归深度通常受到编译器的限制，如果递归过深，编译器可能会产生错误或警告。&lt;/li>
+&lt;li>&lt;strong>计算效率&lt;/strong>：尽管常量表达式函数可以在编译期计算，但对于复杂的运算，可能会增加编译时间，因为编译器需要进行更多的计算。&lt;/li>
+&lt;/ol>
+&lt;h3 id="constexpr-vs-模板元编程">constexpr vs 模板元编程 &lt;a href="#constexpr-vs-%e6%a8%a1%e6%9d%bf%e5%85%83%e7%bc%96%e7%a8%8b" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>&lt;code>constexpr&lt;/code> 函数的使用在某种程度上简化了模板元编程。传统的模板元编程可以实现与 &lt;code>constexpr&lt;/code> 类似的功能，但代码结构通常更加复杂。下面是使用模板元编程计算 Fibonacci 数列的代码：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">uint64_t&lt;/span> MOD &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1999&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">uint64_t&lt;/span> N&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">struct&lt;/span> &lt;span style="color:#a6e22e">Fibonacci&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">static&lt;/span> &lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">uint64_t&lt;/span> value &lt;span style="color:#f92672">=&lt;/span> (Fibonacci&lt;span style="color:#f92672">&amp;lt;&lt;/span>N &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>&lt;span style="color:#f92672">&amp;gt;::&lt;/span>value &lt;span style="color:#f92672">+&lt;/span> Fibonacci&lt;span style="color:#f92672">&amp;lt;&lt;/span>N &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">2&lt;/span>&lt;span style="color:#f92672">&amp;gt;::&lt;/span>value) &lt;span style="color:#f92672">%&lt;/span> MOD;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;gt;&lt;/span> &lt;span style="color:#66d9ef">struct&lt;/span> &lt;span style="color:#a6e22e">Fibonacci&lt;/span>&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#ae81ff">0&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span> { &lt;span style="color:#66d9ef">static&lt;/span> &lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">uint64_t&lt;/span> value &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>; };
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;gt;&lt;/span> &lt;span style="color:#66d9ef">struct&lt;/span> &lt;span style="color:#a6e22e">Fibonacci&lt;/span>&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span> { &lt;span style="color:#66d9ef">static&lt;/span> &lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">uint64_t&lt;/span> value &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>; };
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;Fibonacci(40): &amp;#34;&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> Fibonacci&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#ae81ff">40&lt;/span>&lt;span style="color:#f92672">&amp;gt;::&lt;/span>value &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>endl;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>在这个模板元编程示例中，Fibonacci 结构体使用递归模板计算 Fibonacci 数列的第 N 项。这与 &lt;code>constexpr&lt;/code> 函数类似，但模板元编程的语法更加繁琐。&lt;code>constexpr&lt;/code> 的优势在于它能够写出更加接近正常逻辑代码的形式，并且具有更强的表达能力&lt;/p>
+&lt;h3 id="c14-对常量表达式函数的增强">C++14 对常量表达式函数的增强 &lt;a href="#c14-%e5%af%b9%e5%b8%b8%e9%87%8f%e8%a1%a8%e8%be%be%e5%bc%8f%e5%87%bd%e6%95%b0%e7%9a%84%e5%a2%9e%e5%bc%ba" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>在 C++14 中，常量表达式函数得到了进一步的增强。具体增强包括：&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>支持局部变量&lt;/strong>：&lt;code>constexpr&lt;/code> 函数可以声明和初始化局部变量，但不能声明未初始化的变量、&lt;code>static&lt;/code> 或 &lt;code>thread_local&lt;/code> 变量。&lt;/li>
+&lt;li>&lt;strong>支持 if 和 switch 语句&lt;/strong>：&lt;code>constexpr&lt;/code> 函数可以使用 &lt;code>if&lt;/code> 和 &lt;code>switch&lt;/code> 语句来控制流程，但不能使用 &lt;code>got&lt;/code>o。&lt;/li>
+&lt;li>&lt;strong>支持循环语句&lt;/strong>：&lt;code>constexpr&lt;/code> 函数支持所有类型的循环语句，包括 &lt;code>for&lt;/code>、&lt;code>while&lt;/code> 和 &lt;code>do-while&lt;/code>。&lt;/li>
+&lt;li>&lt;strong>修改生命周期&lt;/strong>：在 constexpr 函数内部，可以修改局部变量和非常量引用参数&lt;/li>
+&lt;li>&lt;strong>返回值可以是 void&lt;/strong>：&lt;code>constexpr&lt;/code> 函数可以声明返回类型为 &lt;code>void&lt;/code>。&lt;/li>
+&lt;/ul>
+&lt;h2 id="常量表达式与模板函数">常量表达式与模板函数 &lt;a href="#%e5%b8%b8%e9%87%8f%e8%a1%a8%e8%be%be%e5%bc%8f%e4%b8%8e%e6%a8%a1%e6%9d%bf%e5%87%bd%e6%95%b0" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>在 C++11 引入 &lt;code>constexpr&lt;/code> 后，建议在所有需要常量语义的场景中使用 &lt;code>constexpr&lt;/code>。&lt;code>constexpr&lt;/code> 变量和函数作为编译时常量，在模板函数中具有广泛的应用场景，能够显著提升程序的效率和可读性。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstdio&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstdint&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span> T&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">constexpr&lt;/span> T square(T x) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> x &lt;span style="color:#f92672">*&lt;/span> x;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">constexpr&lt;/span> &lt;span style="color:#66d9ef">uint64_t&lt;/span> square2 &lt;span style="color:#f92672">=&lt;/span> square(&lt;span style="color:#ae81ff">2&lt;/span>); &lt;span style="color:#75715e">// 计算常量的平方
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#66d9ef">constexpr&lt;/span> &lt;span style="color:#66d9ef">double&lt;/span> square2_0 &lt;span style="color:#f92672">=&lt;/span> square(&lt;span style="color:#ae81ff">2.0&lt;/span>); &lt;span style="color:#75715e">// 计算浮点数的平方
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> printf(&lt;span style="color:#e6db74">&amp;#34;%lu&lt;/span>&lt;span style="color:#ae81ff">\t&lt;/span>&lt;span style="color:#e6db74">%.04lf&lt;/span>&lt;span style="color:#ae81ff">\n&lt;/span>&lt;span style="color:#e6db74">&amp;#34;&lt;/span>, square2, square2_0); &lt;span style="color:#75715e">// 输出结果
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>模板函数 &lt;code>square&lt;/code> 使用了 &lt;code>constexpr&lt;/code>，确保在编译时就可以计算结果。对于不同类型的参数（如整数、浮点数），模板会自动进行实例化。&lt;/p>
+&lt;p>如果模板参数不是编译期常量，&lt;code>constexpr&lt;/code> 将不会在编译期执行，但函数本身仍然是有效的。&lt;/p>
+&lt;h2 id="constexpr-函数中的动态内存分配">constexpr 函数中的动态内存分配 &lt;a href="#constexpr-%e5%87%bd%e6%95%b0%e4%b8%ad%e7%9a%84%e5%8a%a8%e6%80%81%e5%86%85%e5%ad%98%e5%88%86%e9%85%8d" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>在 C++20 中，&lt;code>constexpr&lt;/code> 函数得到了进一步增强，支持在编译期进行动态内存分配，但仍然存在一些限制。&lt;/p>
+&lt;p>&lt;code>std::array&lt;/code> 的所有数据都存储在栈上，而不是堆上。严格的说，&lt;code>std::array&lt;/code>不涉及动态内存分配。所以&lt;code>std::array&lt;/code>可以在&lt;code>constexpr&lt;/code>函数中被初始化、修改并返回。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstdio&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstdint&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;vector&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;array&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span> maxstep&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#ae81ff">100&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">constexpr&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>array&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>, maxstep&lt;span style="color:#f92672">&amp;gt;&lt;/span> Collatz(&lt;span style="color:#66d9ef">int&lt;/span> x) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>array&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>, maxstep&lt;span style="color:#f92672">&amp;gt;&lt;/span> path;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> idx &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">while&lt;/span> (true) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> path[idx&lt;span style="color:#f92672">++&lt;/span>] &lt;span style="color:#f92672">=&lt;/span> x;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (x &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">break&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (x &lt;span style="color:#f92672">%&lt;/span> &lt;span style="color:#ae81ff">2&lt;/span> &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> x &lt;span style="color:#f92672">/=&lt;/span> &lt;span style="color:#ae81ff">2&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> } &lt;span style="color:#66d9ef">else&lt;/span> &lt;span style="color:#a6e22e">if&lt;/span> (x &lt;span style="color:#f92672">%&lt;/span> &lt;span style="color:#ae81ff">2&lt;/span> &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> x &lt;span style="color:#f92672">=&lt;/span> x &lt;span style="color:#f92672">*&lt;/span> &lt;span style="color:#ae81ff">3&lt;/span> &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> path;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">constexpr&lt;/span> &lt;span style="color:#66d9ef">auto&lt;/span> path &lt;span style="color:#f92672">=&lt;/span> Collatz(&lt;span style="color:#ae81ff">12345&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">auto&lt;/span> item : path) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (item &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">break&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> printf(&lt;span style="color:#e6db74">&amp;#34;%d&lt;/span>&lt;span style="color:#ae81ff">\n&lt;/span>&lt;span style="color:#e6db74">&amp;#34;&lt;/span>, item);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>而对于&lt;code>std::string&lt;/code>或者&lt;code>std::vector&lt;/code>这种 需要在堆上分配内存的数据结构，我们则不可以在constexpr函数中直接返回。但是可以在constexpr函数中则用其进行计算。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstdio&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstdint&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;vector&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;array&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;string&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">constexpr&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">square&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> x) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> x &lt;span style="color:#f92672">*&lt;/span> x;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">constexpr&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">CountPrimes&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> n) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>vector&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span> primes{&lt;span style="color:#ae81ff">2&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">int&lt;/span> i &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">5&lt;/span>; i &lt;span style="color:#f92672">&amp;lt;=&lt;/span> n; i &lt;span style="color:#f92672">+=&lt;/span> &lt;span style="color:#ae81ff">2&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">bool&lt;/span> flag &lt;span style="color:#f92672">=&lt;/span> true;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">auto&lt;/span> prime : primes) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (i &lt;span style="color:#f92672">%&lt;/span> prime &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> flag &lt;span style="color:#f92672">=&lt;/span> false;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">break&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (square(prime) &lt;span style="color:#f92672">&amp;gt;=&lt;/span> i) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">break&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (flag) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> primes.push_back(i);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> primes.size();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">constexpr&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> cnt &lt;span style="color:#f92672">=&lt;/span> CountPrimes(&lt;span style="color:#ae81ff">100&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> printf(&lt;span style="color:#e6db74">&amp;#34;%d&lt;/span>&lt;span style="color:#ae81ff">\n&lt;/span>&lt;span style="color:#e6db74">&amp;#34;&lt;/span>, cnt);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="constexpr-virtual-函数">constexpr virtual 函数 &lt;a href="#constexpr-virtual-%e5%87%bd%e6%95%b0" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>在 C++20 中，&lt;code>constexpr&lt;/code> 函数可以与 &lt;code>virtual&lt;/code> 关键字结合使用，实现在编译期进行多态求值。&lt;/p>
+&lt;p>虚函数的 constexpr 限制：constexpr 虚函数只能在编译期求值，前提是其被调用的具体对象类型是确定的。&lt;/p>
+&lt;p>在 constexpr 上下文中调用 virtual 函数时，调用将绑定到具体派生类的实现。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstdio&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstdint&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">struct&lt;/span> &lt;span style="color:#a6e22e">Base&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">constexpr&lt;/span> &lt;span style="color:#66d9ef">virtual&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">Value&lt;/span>() &lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>; &lt;span style="color:#75715e">// 虚拟 constexpr 函数
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">struct&lt;/span> &lt;span style="color:#a6e22e">Derived1&lt;/span> &lt;span style="color:#f92672">:&lt;/span> Base {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">constexpr&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">Value&lt;/span>() &lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">override&lt;/span> { &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>; }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">struct&lt;/span> &lt;span style="color:#a6e22e">Derived2&lt;/span> &lt;span style="color:#f92672">:&lt;/span> Base {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">constexpr&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">Value&lt;/span>() &lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">override&lt;/span> { &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">2&lt;/span>; }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">constexpr&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">Calc&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Base&lt;span style="color:#f92672">*&lt;/span> d1 &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">new&lt;/span> Derived1(); &lt;span style="color:#75715e">// constexpr 中分配内存
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> Base&lt;span style="color:#f92672">*&lt;/span> d2 &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">new&lt;/span> Derived2();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> value &lt;span style="color:#f92672">=&lt;/span> d1&lt;span style="color:#f92672">-&amp;gt;&lt;/span>Value() &lt;span style="color:#f92672">+&lt;/span> d2&lt;span style="color:#f92672">-&amp;gt;&lt;/span>Value(); &lt;span style="color:#75715e">// 调用虚函数
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#66d9ef">delete&lt;/span> d1; &lt;span style="color:#75715e">// 必须释放内存
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#66d9ef">delete&lt;/span> d2;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> value;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">constexpr&lt;/span> &lt;span style="color:#66d9ef">auto&lt;/span> v &lt;span style="color:#f92672">=&lt;/span> Calc(); &lt;span style="color:#75715e">// 在编译期计算
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> printf(&lt;span style="color:#e6db74">&amp;#34;%d&lt;/span>&lt;span style="color:#ae81ff">\n&lt;/span>&lt;span style="color:#e6db74">&amp;#34;&lt;/span>, v);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> v;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="常量表达式用于模板函数的类型判断">常量表达式用于模板函数的类型判断 &lt;a href="#%e5%b8%b8%e9%87%8f%e8%a1%a8%e8%be%be%e5%bc%8f%e7%94%a8%e4%ba%8e%e6%a8%a1%e6%9d%bf%e5%87%bd%e6%95%b0%e7%9a%84%e7%b1%bb%e5%9e%8b%e5%88%a4%e6%96%ad" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>在 C++17 中引入的 &lt;code>if constexpr&lt;/code> 提供了一种更加简洁和可读的方式来进行模板元编程的类型判断。根据类型特性，在编译期选择不同的分支路径。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstdio&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstdint&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;iostream&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cmath&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;type_traits&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span> T&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">bool&lt;/span> equal(&lt;span style="color:#66d9ef">const&lt;/span> T&lt;span style="color:#f92672">&amp;amp;&lt;/span> a, &lt;span style="color:#66d9ef">const&lt;/span> T&lt;span style="color:#f92672">&amp;amp;&lt;/span> b) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> &lt;span style="color:#a6e22e">constexpr&lt;/span> (std&lt;span style="color:#f92672">::&lt;/span>is_integral_v&lt;span style="color:#f92672">&amp;lt;&lt;/span>T&lt;span style="color:#f92672">&amp;gt;&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> a &lt;span style="color:#f92672">==&lt;/span> b; &lt;span style="color:#75715e">// 整数类型直接比较
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> } &lt;span style="color:#66d9ef">else&lt;/span> &lt;span style="color:#66d9ef">if&lt;/span> &lt;span style="color:#a6e22e">constexpr&lt;/span> (std&lt;span style="color:#f92672">::&lt;/span>is_floating_point_v&lt;span style="color:#f92672">&amp;lt;&lt;/span>T&lt;span style="color:#f92672">&amp;gt;&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> fabs(a &lt;span style="color:#f92672">-&lt;/span> b) &lt;span style="color:#f92672">&amp;lt;=&lt;/span> &lt;span style="color:#ae81ff">1e-3&lt;/span>; &lt;span style="color:#75715e">// 浮点数进行误差比较
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> } &lt;span style="color:#66d9ef">else&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">static_assert&lt;/span>(std&lt;span style="color:#f92672">::&lt;/span>is_arithmetic_v&lt;span style="color:#f92672">&amp;lt;&lt;/span>T&lt;span style="color:#f92672">&amp;gt;&lt;/span> &lt;span style="color:#f92672">||&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>is_pointer_v&lt;span style="color:#f92672">&amp;lt;&lt;/span>T&lt;span style="color:#f92672">&amp;gt;&lt;/span>, &lt;span style="color:#e6db74">&amp;#34;not supported&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>boolalpha;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> equal(&lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">1&lt;/span>) &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>endl; &lt;span style="color:#75715e">// true
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> equal(&lt;span style="color:#ae81ff">1L&lt;/span>, &lt;span style="color:#ae81ff">1L&lt;/span>) &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>endl; &lt;span style="color:#75715e">// true
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> equal(&lt;span style="color:#ae81ff">1.0000001&lt;/span>, &lt;span style="color:#ae81ff">1.000002&lt;/span>) &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>endl; &lt;span style="color:#75715e">// true
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> equal(&lt;span style="color:#ae81ff">1.0000001&lt;/span>, &lt;span style="color:#ae81ff">2.000002&lt;/span>) &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>endl; &lt;span style="color:#75715e">// false
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>在传统C++中，我们常用&lt;code>std::enable_if&lt;/code>来实现类似的功能。但是很明显，语法会显得过于笨重。&lt;/p>
+&lt;pre tabindex="0">&lt;code>#include &amp;lt;type_traits&amp;gt;
+#include &amp;lt;cmath&amp;gt;
+#include &amp;lt;cstdio&amp;gt;
+// 整数类型
+template &amp;lt;typename T&amp;gt;
+typename std::enable_if&amp;lt;std::is_integral&amp;lt;T&amp;gt;::value, bool&amp;gt;::type
+equal(const T&amp;amp; a, const T&amp;amp; b) {
+return a == b;
+}
+// 浮点类型
+template &amp;lt;typename T&amp;gt;
+typename std::enable_if&amp;lt;std::is_floating_point&amp;lt;T&amp;gt;::value, bool&amp;gt;::type
+equal(const T&amp;amp; a, const T&amp;amp; b) {
+return std::fabs(a - b) &amp;lt;= 1e-3;
+}
+// 其他类型
+template &amp;lt;typename T&amp;gt;
+typename std::enable_if&amp;lt;
+!(std::is_integral&amp;lt;T&amp;gt;::value || std::is_floating_point&amp;lt;T&amp;gt;::value), bool&amp;gt;::type
+equal(const T&amp;amp; a, const T&amp;amp; b) {
+static_assert(std::is_arithmetic&amp;lt;T&amp;gt;::value || std::is_pointer&amp;lt;T&amp;gt;::value, &amp;#34;not supported&amp;#34;);
+return false;
+}
+int main() {
+puts(equal(1, 1) ? &amp;#34;true&amp;#34; : &amp;#34;false&amp;#34;); // 整数
+puts(equal(1.0000001, 1.000002) ? &amp;#34;true&amp;#34; : &amp;#34;false&amp;#34;); // 浮点
+return 0;
+}
+&lt;/code>&lt;/pre>&lt;h2 id="使用consteval强制使用编译期求值">使用&lt;code>consteval&lt;/code>强制使用编译期求值 &lt;a href="#%e4%bd%bf%e7%94%a8consteval%e5%bc%ba%e5%88%b6%e4%bd%bf%e7%94%a8%e7%bc%96%e8%af%91%e6%9c%9f%e6%b1%82%e5%80%bc" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>&lt;code>consteval&lt;/code> 是在 C++20 中引入的关键字，用于声明立即函数（immediate function）。立即函数要求在编译时进行求值，不能在运行时调用。
+如果调用一个&lt;code>consteval&lt;/code>。如果调用 &lt;code>consteval&lt;/code> 函数时无法在编译期计算，编译器将报错。&lt;/p>
+&lt;p>&lt;code>constexpr&lt;/code> 函数在某些情况下可能会退化为运行时调用，&lt;code>consteval&lt;/code> 可以避免这种情况。&lt;/p>
+&lt;p>例如：&lt;/p>
+&lt;pre tabindex="0">&lt;code>#include &amp;lt;iostream&amp;gt;
+// consteval 强制要求在编译时进行计算
+consteval int factorial(int n) {
+return (n &amp;lt;= 1) ? 1 : (n * factorial(n - 1));
+}
+int main() {
+constexpr int result = factorial(5); // OK：在编译时计算
+std::cout &amp;lt;&amp;lt; &amp;#34;Factorial of 5 is: &amp;#34; &amp;lt;&amp;lt; result &amp;lt;&amp;lt; std::endl;
+// int runtime = 5;
+// std::cout &amp;lt;&amp;lt; &amp;#34;Factorial of runtime: &amp;#34; &amp;lt;&amp;lt; factorial(runtime) &amp;lt;&amp;lt; std::endl;
+// 错误：factorial 必须在编译时调用
+return 0;
+}
+&lt;/code>&lt;/pre>&lt;h2 id="使用constinit显式要求编译时初始化">使用&lt;code>constinit&lt;/code>显式要求编译时初始化 &lt;a href="#%e4%bd%bf%e7%94%a8constinit%e6%98%be%e5%bc%8f%e8%a6%81%e6%b1%82%e7%bc%96%e8%af%91%e6%97%b6%e5%88%9d%e5%a7%8b%e5%8c%96" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>&lt;code>constinit&lt;/code> 关键字用于显式要求全局或静态变量在编译期完成初始化。
+如果变量无法在编译时初始化，编译器将报错。
+&lt;code>constinit&lt;/code> 不能用于局部变量。&lt;/p>
+&lt;p>与 &lt;code>constexpr&lt;/code> 不同，&lt;code>constinit&lt;/code> 变量可以在运行时被修改。
+线程安全性：在多线程环境中，&lt;code>constinit&lt;/code> 确保变量在编译期初始化，避免线程安全问题。&lt;/p>
+&lt;pre tabindex="0">&lt;code>#include &amp;lt;array&amp;gt;
+// 编译时初始化
+constexpr int compute(int v) { return v * v * v; }
+constinit int global = compute(10);
+// 错误：constinit 变量不能依赖运行时初始化
+// constinit int another = global;
+int main() {
+global = 100; // 允许在运行时修改
+// 错误：constinit 变量不是常量，不能用作数组大小
+// std::array&amp;lt;int, global&amp;gt; arr;
+std::cout &amp;lt;&amp;lt; &amp;#34;Global value: &amp;#34; &amp;lt;&amp;lt; global &amp;lt;&amp;lt; std::endl;
+return 0;
+}
+&lt;/code>&lt;/pre>&lt;h2 id="总结">总结 &lt;a href="#%e6%80%bb%e7%bb%93" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;code>constexpr&lt;/code>在多数情况下可以替代&lt;code>const&lt;/code>以表达“编译期常量”的语义，可用于函数、变量、类等场景。constexpr 支持在编译期和运行期进行求值，但在某些情况下可能会退化为运行期求值。&lt;/li>
+&lt;li>常量表达式函数 提供了一种更清晰的编译期计算方式，能够在一定程度上取代复杂且晦涩的模板元编程。随着 C++ 标准的演进，&lt;code>constexpr&lt;/code> 函数逐步支持了更复杂的语法和逻辑，例如条件语句、循环语句和局部变量。但对于极端复杂的计算场景，编译期计算可能导致显著的编译时间开销。&lt;/li>
+&lt;li>&lt;code>constexpr&lt;/code>可以在模板函数中用于类型判断，通过&lt;code>if constexpr&lt;/code>语法有效地取代&lt;code>std::enable_if&lt;/code>，从而简化模板编程，提高代码的可读性和可维护性。&lt;/li>
+&lt;li>&lt;code>constexpr&lt;/code>函数的隐式退化风险：在某些场景下，&lt;code>constexpr&lt;/code> 函数可能在运行时执行。若需要严格保证仅在编译期求值，可以使用 &lt;code>consteval&lt;/code> 来强制进行编译期求值，避免不必要的运行时开销。&lt;/li>
+&lt;li>&lt;code>constinit&lt;/code>提供了一种显式要求变量在编译时完成初始化的机制，适用于非&lt;code>constexpr&lt;/code>变量。这在全局和静态变量的初始化中尤为有用，同时也保证了多线程环境下的初始化安全性。&lt;/li>
+&lt;/ul></description></item></channel></rss>

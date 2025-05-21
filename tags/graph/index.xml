@@ -1,5 +1,50 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Graph on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/graph/</link><description>Recent content in Graph on Maerlyn's Rainbow</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Thu, 12 Jun 2014 17:42:51 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/graph/index.xml" rel="self" type="application/rss+xml"/><item><title>A simple problem - World at War</title><link>https://wizmann.top/posts/world-at-war/</link><pubDate>Thu, 12 Jun 2014 17:42:51 +0000</pubDate><guid>https://wizmann.top/posts/world-at-war/</guid><description>&lt;h2 id="background">Background&lt;/h2>
-&lt;blockquote>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Graph on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/graph/</link><description>Recent content in Graph on Maerlyn's Rainbow</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Thu, 12 Jun 2014 17:42:51 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/graph/index.xml" rel="self" type="application/rss+xml"/><item><title>A simple problem - World at War</title><link>https://wizmann.top/posts/world-at-war/</link><pubDate>Thu, 12 Jun 2014 17:42:51 +0000</pubDate><guid>https://wizmann.top/posts/world-at-war/</guid><description>&lt;h2 id="background">Background &lt;a href="#background" class="anchor">🔗&lt;/a>&lt;/h2>&lt;blockquote>
 &lt;p>This problem is from the book &amp;ldquo;&lt;a href="http://book.douban.com/subject/19952400/">Algorithm 4th edition&lt;/a>&amp;rdquo; (Exersise 4.1.10)&lt;/p>&lt;/blockquote>
 &lt;p>There are N cities and M undirected roads between those cities. People can travel to any city along the roads.&lt;/p>
-&lt;p>One day, a war breaks out. Our cities are under attack! As we can&amp;rsquo;t defend all these N cities, the commander wants you to find the least important city, which means that if this city fell to the enemy, the traffic among other cities would not be affected.&lt;/p></description></item></channel></rss>
+&lt;p>One day, a war breaks out. Our cities are under attack! As we can&amp;rsquo;t defend all these N cities, the commander wants you to find the least important city, which means that if this city fell to the enemy, the traffic among other cities would not be affected.&lt;/p>
+&lt;p>If there are multiple answers, print any one of them. If there&amp;rsquo;s no that kind of city, print -1.&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-tk-pic/blog-world-at-war.png" alt="world-at-war">&lt;/p>
+&lt;h2 id="the-spanning-tree-of-a-graph">The spanning tree of a graph &lt;a href="#the-spanning-tree-of-a-graph" class="anchor">🔗&lt;/a>&lt;/h2>&lt;blockquote>
+&lt;p>It is a spanning tree of a graph G if it spans G (that is, it includes every vertex of G) and is a subgraph of G (every edge in the tree belongs to G).
+&amp;ndash; wikipedia&lt;/p>&lt;/blockquote>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-tk-pic/blog-spanning-tree.png" alt="spanning-tree">&lt;/p>
+&lt;p>For example, there is a spanning tree of a graph. These nodes in green is leaf node. So it is easy to know that if we remove a leaf node, the graph won&amp;rsquo;t be affect. The rest of the graph (and the spanning tree) are still connected.&lt;/p>
+&lt;p>So the answer is here.&lt;/p>
+&lt;h2 id="how-to-generate-a-spanning-tree">How to generate a spanning tree &lt;a href="#how-to-generate-a-spanning-tree" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>There are multiple ways to generate a spanning three of a undirected graph. The most famous algorithm is &lt;strong>prim&lt;/strong>, which will generate a MST(minimum spanning tree) with O(n**2) time complexity.&lt;/p>
+&lt;p>However, MST is not needed in this scenario, because an arbitrary spanning tree is enough to find one of the leaf nodes.&lt;/p>
+&lt;p>Depth first search (a.k.a DFS) is one of the simplest way to generate the spanning tree. We just start from arbitrary node of the graph, and search through the graph until it comes to a dead-end &amp;ndash; the leaf node. Then print the answer.&lt;/p>
+&lt;p>Problem solved.&lt;/p>
+&lt;h2 id="show-me-the-code">Show me the code &lt;a href="#show-me-the-code" class="anchor">🔗&lt;/a>&lt;/h2>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">Solution&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">public&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> least_important_city(vector&lt;span style="color:#f92672">&amp;lt;&lt;/span>vector&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span> &lt;span style="color:#f92672">&amp;gt;&lt;/span> g) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (g.size() &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> n &lt;span style="color:#f92672">=&lt;/span> g.size();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> vector&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">bool&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span> visit;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> visit.resize(n);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> fill(visit.begin(), visit.end(), false);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> now &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">while&lt;/span> (true) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">bool&lt;/span> flag &lt;span style="color:#f92672">=&lt;/span> false;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> visit[now] &lt;span style="color:#f92672">=&lt;/span> true;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">auto&lt;/span> iter &lt;span style="color:#f92672">=&lt;/span> g[now].begin();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> iter &lt;span style="color:#f92672">!=&lt;/span> g[now].end();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">++&lt;/span>iter) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> next &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#f92672">*&lt;/span>iter;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (&lt;span style="color:#f92672">!&lt;/span>visit[next]) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> now &lt;span style="color:#f92672">=&lt;/span> next;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> flag &lt;span style="color:#f92672">=&lt;/span> true;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">break&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (&lt;span style="color:#f92672">!&lt;/span>flag) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">break&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> now;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div></description></item></channel></rss>

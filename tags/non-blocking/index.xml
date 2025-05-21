@@ -1,9 +1,8 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Non-Blocking on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/non-blocking/</link><description>Recent content in Non-Blocking on Maerlyn's Rainbow</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Sun, 14 Apr 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/non-blocking/index.xml" rel="self" type="application/rss+xml"/><item><title>实现一个无锁消息队列（续与勘误）</title><link>https://wizmann.top/posts/implement-non-blocking-queue-2/</link><pubDate>Sun, 14 Apr 2024 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/implement-non-blocking-queue-2/</guid><description>&lt;ul>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Non-Blocking on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/non-blocking/</link><description>Recent content in Non-Blocking on Maerlyn's Rainbow</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Sun, 14 Apr 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/non-blocking/index.xml" rel="self" type="application/rss+xml"/><item><title>实现一个无锁消息队列（续与勘误）</title><link>https://wizmann.top/posts/implement-non-blocking-queue-2/</link><pubDate>Sun, 14 Apr 2024 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/implement-non-blocking-queue-2/</guid><description>&lt;ul>
 &lt;li>本文内容主要参考自&lt;a href="https://people.cs.pitt.edu/~jacklange/teaching/cs2510-f17/implementing_lock_free.pdf">Implementing Lock-Free Queue&lt;/a>一文（以下简称“原论文”）&lt;/li>
 &lt;li>是对&lt;a href="https://wizmann.top/implement-non-blocking-queue.html">实现一个无锁消息队列&lt;/a>一文的内容进行补充&lt;/li>
 &lt;li>
-&lt;h2 id="tldr">TL；DR&lt;/h2>
-&lt;ul>
+&lt;h2 id="tldr">TL；DR &lt;a href="#tldr" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
 &lt;li>尽管&lt;a href="https://wizmann.top/implement-non-blocking-queue.html">实现一个无锁消息队列&lt;/a>一文中的实现是正确的，但是忽略了“非阻塞性”
 &lt;ul>
 &lt;li>例如，当任一插入操作被阻塞，则其它插入操作均会陷入忙等待&lt;/li>
@@ -20,8 +19,7 @@
 &lt;/ul>
 &lt;/li>
 &lt;li>
-&lt;h2 id="理论基础">理论基础&lt;/h2>
-&lt;ul>
+&lt;h2 id="理论基础">理论基础 &lt;a href="#%e7%90%86%e8%ae%ba%e5%9f%ba%e7%a1%80" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
 &lt;li>我们的目标是实现一个支持并发enqueue/deque的队列&lt;/li>
 &lt;li>对于这样的数据结构，有两个重要的特性
 &lt;ul>
@@ -52,44 +50,38 @@
 &lt;/ul>
 &lt;/li>
 &lt;li>
-&lt;h2 id="基于链表的无锁队列实现">基于链表的无锁队列实现&lt;/h2>
-&lt;ul>
+&lt;h2 id="基于链表的无锁队列实现">基于链表的无锁队列实现 &lt;a href="#%e5%9f%ba%e4%ba%8e%e9%93%be%e8%a1%a8%e7%9a%84%e6%97%a0%e9%94%81%e9%98%9f%e5%88%97%e5%ae%9e%e7%8e%b0" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
 &lt;li>略，参考原论文与&lt;a href="https://coolshell.cn/articles/8239.html">无锁队列的实现&lt;/a>一文&lt;/li>
 &lt;/ul>
 &lt;/li>
 &lt;li>
-&lt;h2 id="基于数组的无锁队列实现">基于数组的无锁队列实现&lt;/h2>
-&lt;ul>
+&lt;h2 id="基于数组的无锁队列实现">基于数组的无锁队列实现 &lt;a href="#%e5%9f%ba%e4%ba%8e%e6%95%b0%e7%bb%84%e7%9a%84%e6%97%a0%e9%94%81%e9%98%9f%e5%88%97%e5%ae%9e%e7%8e%b0" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
 &lt;li>略，参考原论文与&lt;a href="https://coolshell.cn/articles/8239.html">无锁队列的实现&lt;/a>一文&lt;/li>
 &lt;/ul>
 &lt;/li>
 &lt;li>
-&lt;h2 id="aba问题">ABA问题&lt;/h2>
-&lt;ul>
+&lt;h2 id="aba问题">ABA问题 &lt;a href="#aba%e9%97%ae%e9%a2%98" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
 &lt;li>Compare&amp;amp;Swap操作确保了值修改的原子性。指针作为值的一种，代表着某个内存地址，但Compare&amp;amp;Swap对指针的操作无法保证其指向的内存内容不被修改&lt;/li>
 &lt;li>考虑到可能释放旧内存后再申请新内存，这两块内存虽逻辑不同却可能拥有同一地址，这对Compare&amp;amp;Swap操作造成了困扰&lt;/li>
 &lt;li>解决方案是为指针加入引用计数（ref count），以确保内存在可访问时不会被释放或重用&lt;/li>
 &lt;/ul>
 &lt;/li>
 &lt;li>
-&lt;h2 id="性能对比">性能对比&lt;/h2>
-&lt;ul>
+&lt;h2 id="性能对比">性能对比 &lt;a href="#%e6%80%a7%e8%83%bd%e5%af%b9%e6%af%94" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
 &lt;li>上面我们已经提到，&lt;a href="https://dl.acm.org/doi/pdf/10.5555/110382.110466">A simple and correct shared-queue algorithm using Compare-and-Swap&lt;/a>一文中的方法缺少了“非阻塞性”，，但其性能与原论文中的实现十分接近&lt;/li>
 &lt;li>但是在原理上，“非阻塞性”实现可以避免意外的线程停止或延迟&lt;/li>
 &lt;li>疑问：是否会在P99级别的Latency上才会体现出明显的差异？&lt;/li>
 &lt;/ul>
 &lt;/li>
 &lt;li>
-&lt;h2 id="参考链接">参考链接&lt;/h2>
-&lt;ul>
+&lt;h2 id="参考链接">参考链接 &lt;a href="#%e5%8f%82%e8%80%83%e9%93%be%e6%8e%a5" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
 &lt;li>&lt;a href="https://people.cs.pitt.edu/~jacklange/teaching/cs2510-f17/implementing_lock_free.pdf">Implementing Lock-Free Queue&lt;/a>&lt;/li>
 &lt;li>&lt;a href="https://dl.acm.org/doi/pdf/10.5555/110382.110466">A simple and correct shared-queue algorithm using Compare-and-Swap&lt;/a>&lt;/li>
 &lt;li>&lt;a href="https://cs.nyu.edu/~wies/teaching/cso-fa19/class27_concurrency.pdf">Concurrency – Correctness of Concurrent Objects&lt;/a>&lt;/li>
 &lt;/ul>
 &lt;/li>
 &lt;li>
-&lt;h2 id="后续">后续&lt;/h2>
-&lt;ul>
+&lt;h2 id="后续">后续 &lt;a href="#%e5%90%8e%e7%bb%ad" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
 &lt;li>&lt;a href="https://www.cs.rochester.edu/~scott/papers/1996_PODC_queues.pdf">Simple, Fast, and Practical Non-Blocking and Blocking Concurrent Queue Algorithms&lt;/a>&lt;/li>
 &lt;li>&lt;a href="https://zhuanlan.zhihu.com/p/690872647">C++ 单生产者&amp;amp;单消费者 无锁队列&lt;/a>&lt;/li>
 &lt;li>&lt;a href="https://www.youtube.com/watch?v=K3P_Lmq6pw0&amp;amp;ab_channel=CppCon">Single Producer Single Consumer Lock-free FIFO From the Ground Up - Charles Frasch - CppCon 2023&lt;/a>&lt;/li>

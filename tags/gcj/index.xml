@@ -1,6 +1,252 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>GCJ on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/gcj/</link><description>Recent content in GCJ on Maerlyn's Rainbow</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Sun, 12 Apr 2015 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/gcj/index.xml" rel="self" type="application/rss+xml"/><item><title>GCJ Qualification Round 2015 题解</title><link>https://wizmann.top/posts/gcj-qualification-round-2015-tutorial/</link><pubDate>Sun, 12 Apr 2015 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/gcj-qualification-round-2015-tutorial/</guid><description>&lt;h2 id="前言">前言&lt;/h2>
-&lt;p>这篇日志用中文写是因为想省点时间打游戏。。。（请鄙视我吧。。。&lt;/p>
-&lt;h2 id="a-standing-ovation">A. Standing Ovation&lt;/h2>
-&lt;h3 id="题意">题意&lt;/h3>
-&lt;p>这是一个骗掌声的故事。&lt;/p>
-&lt;p>当演出结束后，观众们要站起来鼓掌。但是有些观众比较羞涩，只有在k个人站起来鼓掌后才会故障。&lt;/p></description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>GCJ on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/gcj/</link><description>Recent content in GCJ on Maerlyn's Rainbow</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Sun, 12 Apr 2015 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/gcj/index.xml" rel="self" type="application/rss+xml"/><item><title>GCJ Qualification Round 2015 题解</title><link>https://wizmann.top/posts/gcj-qualification-round-2015-tutorial/</link><pubDate>Sun, 12 Apr 2015 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/gcj-qualification-round-2015-tutorial/</guid><description>&lt;h2 id="前言">前言 &lt;a href="#%e5%89%8d%e8%a8%80" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>这篇日志用中文写是因为想省点时间打游戏。。。（请鄙视我吧。。。&lt;/p>
+&lt;h2 id="a-standing-ovation">A. Standing Ovation &lt;a href="#a-standing-ovation" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="题意">题意 &lt;a href="#%e9%a2%98%e6%84%8f" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>这是一个骗掌声的故事。&lt;/p>
+&lt;p>当演出结束后，观众们要站起来鼓掌。但是有些观众比较羞涩，只有在k个人站起来鼓掌后才会故障。&lt;/p>
+&lt;p>你的目标是在观众中安插一些卧底领掌，让所有观众都站起来鼓掌。（臭不要脸）&lt;/p>
+&lt;p>求最少的卧底数。&lt;/p>
+&lt;h3 id="数据规模">数据规模 &lt;a href="#%e6%95%b0%e6%8d%ae%e8%a7%84%e6%a8%a1" class="anchor">🔗&lt;/a>&lt;/h3>&lt;blockquote>
+&lt;p>抛开数据规模谈解题，都是TM耍流氓。 —— Wizmann&lt;/p>&lt;/blockquote>
+&lt;p>100组数据。&lt;/p>
+&lt;p>小数据集，观众羞涩值的范围：0 ≤ Smax ≤ 6.&lt;/p>
+&lt;p>大数据集，观众羞涩值的范围：0 ≤ Smax ≤ 1000.&lt;/p>
+&lt;h3 id="解题">解题 &lt;a href="#%e8%a7%a3%e9%a2%98" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>本题比较简单。有两种方法，一是暴力枚举，因为大数据集中，观众羞涩值最大只为1000,即最大安插卧底数不超过1000。(当然，二分也可以，不过对于1000的数据集，真心没啥必要。)&lt;/p>
+&lt;p>二是O(N)的一个遍历，在观众羞涩的不想鼓掌时，安插相应数量的卧底。&lt;/p>
+&lt;p>本题推荐方法一。因为个人感觉，在编程竞赛中，在时限和空间允许的情况下，尽量让方法简单化。这样不容易出错。但是在要体现逼格的时候，尽量“优化”你的代码，提升思考复杂度来换取尽可能多的优化。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">solve&lt;/span>():
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> (n, aud) &lt;span style="color:#f92672">=&lt;/span> raw_input()&lt;span style="color:#f92672">.&lt;/span>split()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> n &lt;span style="color:#f92672">=&lt;/span> int(n)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> aud &lt;span style="color:#f92672">=&lt;/span> map(int, aud)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> stand &lt;span style="color:#f92672">=&lt;/span> aud[&lt;span style="color:#ae81ff">0&lt;/span>]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> res &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> i &lt;span style="color:#f92672">in&lt;/span> xrange(&lt;span style="color:#ae81ff">1&lt;/span>, n &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> u &lt;span style="color:#f92672">=&lt;/span> aud[i]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> &lt;span style="color:#f92672">not&lt;/span> u:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">continue&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> i &lt;span style="color:#f92672">&amp;gt;&lt;/span> stand:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> res &lt;span style="color:#f92672">+=&lt;/span> i &lt;span style="color:#f92672">-&lt;/span> stand
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> stand &lt;span style="color:#f92672">=&lt;/span> i
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> stand &lt;span style="color:#f92672">+=&lt;/span> u
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> res
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>T &lt;span style="color:#f92672">=&lt;/span> int(raw_input())
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">for&lt;/span> i &lt;span style="color:#f92672">in&lt;/span> xrange(T):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print &lt;span style="color:#e6db74">&amp;#39;Case #&lt;/span>&lt;span style="color:#e6db74">%d&lt;/span>&lt;span style="color:#e6db74">: &lt;/span>&lt;span style="color:#e6db74">%d&lt;/span>&lt;span style="color:#e6db74">&amp;#39;&lt;/span> &lt;span style="color:#f92672">%&lt;/span> (i &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>, solve())
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="b-infinite-house-of-pancakes">B. Infinite House of Pancakes &lt;a href="#b-infinite-house-of-pancakes" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="题意-1">题意 &lt;a href="#%e9%a2%98%e6%84%8f-1" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>在一个宴会厅中（想到了“米阿的宴会厅”)，有无限的客人，但是只有有限的煎饼。你的目标是让所有客人尽可能快的吃完所有的煎饼。&lt;/p>
+&lt;p>每个客人在一个单位时间只能吃一块煎饼。你也可以在一个单位时间内，调整一个客人的煎饼，即把他的煎饼给别人。&lt;/p>
+&lt;p>求所有客人吃完所有煎饼的时间。&lt;/p>
+&lt;blockquote>
+&lt;p>&amp;lsquo;Here comes Mia, daughter of none!&amp;rsquo; &lt;br>
+&amp;ndash; &lt;em>The Dark Tower V: Wolves of the Calla&lt;/em>&lt;/p>&lt;/blockquote>
+&lt;h3 id="数据规模-1">数据规模 &lt;a href="#%e6%95%b0%e6%8d%ae%e8%a7%84%e6%a8%a1-1" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>100组测试数据。&lt;/p>
+&lt;p>D为有煎饼的客人的数目。Pi为客人拥有煎饼的最大值。&lt;/p>
+&lt;p>小数据： &lt;br>
+1 ≤ D ≤ 6.&lt;br>
+1 ≤ Pi ≤ 9.&lt;/p>
+&lt;p>大数据： &lt;br>
+1 ≤ D ≤ 1000.&lt;br>
+1 ≤ Pi ≤ 1000.&lt;/p>
+&lt;h3 id="解题-1">解题 &lt;a href="#%e8%a7%a3%e9%a2%98-1" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>一开始想用二分做。但是这道题并不能满足二分的条件。因为无论是二分时间还是二分最大煎饼数，客人都可以吃完煎饼，这样的二分是没有意义的。&lt;/p>
+&lt;p>换个思路，在吃煎饼前，我们可以对所有客人的煎饼数进行调整。又由于客人的数目是无限多的，所以我们的调整就是&lt;strong>把煎饼送给没有煎饼的客人&lt;/strong>。调整的目标是&lt;strong>让煎饼数尽量平均&lt;/strong>（“尽量”和“尽可能”是不同的，“尽量”的范围更宽范一些）。&lt;/p>
+&lt;p>于是，我们尝试枚举“调整后的最大煎饼数量”。通过枚举这个值，我们可以很容易得到“调整煎饼时间 + 吃煎饼时间”。又由于数据规模比较小，搞起来不是很困难。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstdio&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstdlib&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstring&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;iostream&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;algorithm&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;vector&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;set&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> &lt;span style="color:#66d9ef">namespace&lt;/span> std;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#define print(x) cout &amp;lt;&amp;lt; x &amp;lt;&amp;lt; endl
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#define input(x) cin &amp;gt;&amp;gt; x
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> SIZE &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1024&lt;/span> &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">233&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> n;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>vector&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span> vec;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> T, a, cas &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> input(T);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">while&lt;/span> (T&lt;span style="color:#f92672">--&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> input(n);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> vec.clear();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">int&lt;/span> i &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>; i &lt;span style="color:#f92672">&amp;lt;&lt;/span> n; i&lt;span style="color:#f92672">++&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> input(a);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> vec.push_back(a);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> ans &lt;span style="color:#f92672">=&lt;/span> SIZE &lt;span style="color:#f92672">*&lt;/span> &lt;span style="color:#ae81ff">233&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">int&lt;/span> i &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>; i &lt;span style="color:#f92672">&amp;lt;=&lt;/span> SIZE; i&lt;span style="color:#f92672">++&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> step &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> maxi &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">auto&lt;/span>&lt;span style="color:#f92672">&amp;amp;&lt;/span> num: vec) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (num &lt;span style="color:#f92672">&amp;gt;&lt;/span> i) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> step &lt;span style="color:#f92672">+=&lt;/span> num &lt;span style="color:#f92672">%&lt;/span> i&lt;span style="color:#f92672">?&lt;/span> num &lt;span style="color:#f92672">/&lt;/span> i: num &lt;span style="color:#f92672">/&lt;/span> i &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> maxi &lt;span style="color:#f92672">=&lt;/span> i;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> } &lt;span style="color:#66d9ef">else&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> maxi &lt;span style="color:#f92672">=&lt;/span> max(maxi, num);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ans &lt;span style="color:#f92672">=&lt;/span> min(ans, step &lt;span style="color:#f92672">+&lt;/span> maxi);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> printf(&lt;span style="color:#e6db74">&amp;#34;Case #%d: %d&lt;/span>&lt;span style="color:#ae81ff">\n&lt;/span>&lt;span style="color:#e6db74">&amp;#34;&lt;/span>, cas&lt;span style="color:#f92672">++&lt;/span>, ans);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="c-dijkstra">C. Dijkstra &lt;a href="#c-dijkstra" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="题意-2">题意 &lt;a href="#%e9%a2%98%e6%84%8f-2" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>给你一个代数系统（可以这么说吧），包括“1, i, j, k”。&lt;/p>
+&lt;p>已知它们的运算规律。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/ba89abba98064a7e42e52e9e5b2de57f" alt="Alt text">&lt;/p>
+&lt;p>现在，有一个包含&amp;quot;i, j, k&amp;quot;的连乘式。它是由一段连乘式重复X遍得出的。&lt;/p>
+&lt;p>问，能否把它转化为&lt;code>i * j * k&lt;/code>的形式。&lt;/p>
+&lt;h3 id="数据规模-2">数据规模 &lt;a href="#%e6%95%b0%e6%8d%ae%e8%a7%84%e6%a8%a1-2" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>测试组数： 1 ≤ T ≤ 100. &lt;br>
+给出的连乘式长度： 1 ≤ L ≤ 10000.&lt;/p>
+&lt;p>连乘式的重复次数为X。&lt;/p>
+&lt;p>小数据集： &lt;br>
+1 ≤ X ≤ 10000. &lt;br>
+1 ≤ L * X ≤ 10000.&lt;/p>
+&lt;p>大数据集：&lt;br>
+1 ≤ X ≤ 10^12. &lt;br>
+1 ≤ L * X ≤ 10^16.&lt;/p>
+&lt;h3 id="解题-2">解题 &lt;a href="#%e8%a7%a3%e9%a2%98-2" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>题中给出了乘法的规律。我们不难从中推测出除法的规律。&lt;/p>
+&lt;p>假设我们已经把连乘式转化为&lt;code>i * j&lt;/code>的形式，那么我们只需要把剩下的部分转化为数字&lt;code>k&lt;/code>，即可满足题意。&lt;/p>
+&lt;p>我们可以去思考转化的过程，当然，也可以逆向思考，去思考转化后的结果。&lt;/p>
+&lt;p>我们知道，&lt;code>i * j * k == -1&lt;/code>，当我们把前辍转化为&lt;code>i * j&lt;/code>的形式后，如果判断整个连乘式的结果为&lt;code>-1&lt;/code>，此时，我们可以断定，该连乘式可以转化为&lt;code>i * j * k&lt;/code>的形式。&lt;/p>
+&lt;p>i与j的转化是类似的。&lt;/p>
+&lt;p>所以整个算法的时间复杂度为O(N)。&lt;/p>
+&lt;p>但是，O(N)的算法是无法通过大数据集的。因为，连乘式是循环的，总长度可能会非常长。&lt;/p>
+&lt;p>我们继续使用同样的思路。如果我们有了i和j，当整体连乘式之积为&lt;code>-1&lt;/code>时，即断定满足条件。这里，我们使用快速幂算法，直接计算循环节的乘积。复杂度为&lt;code>O(L) + O(logX)&lt;/code>。&lt;/p>
+&lt;p>对于i和j，我们可以这样考虑。循环节之积只有以下几种可能：&lt;code>±1, ±i, ±j, ±k&lt;/code>。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/252e0e81143f2dd5cb6e01e1e69d0709" alt="the table">&lt;/p>
+&lt;p>我们可以看出，对于&lt;code>1, i, j, k&lt;/code>，乘法都是有一个循环节的。这里不需要定量分析，我们可以直接断定，如果在一定的循环节中，不能把算式转化为&lt;code>i * j&lt;/code>的形式，那么就不可能转化。&lt;/p>
+&lt;p>所以，代码如下：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstdio&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstdlib&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstring&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;iostream&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;algorithm&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;vector&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> &lt;span style="color:#66d9ef">namespace&lt;/span> std;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#define print(x) cout &amp;lt;&amp;lt; x &amp;lt;&amp;lt; endl
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#define input(x) cin &amp;gt;&amp;gt; x
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#define error(x) cerr &amp;lt;&amp;lt; x &amp;lt;&amp;lt; endl
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> SIZE &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">12345&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">enum&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ONE &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> II &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">2&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> JJ &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">3&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> KK &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">4&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> trans[&lt;span style="color:#ae81ff">5&lt;/span>][&lt;span style="color:#ae81ff">5&lt;/span>] &lt;span style="color:#f92672">=&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {&lt;span style="color:#ae81ff">0&lt;/span>, &lt;span style="color:#ae81ff">0&lt;/span>, &lt;span style="color:#ae81ff">0&lt;/span>, &lt;span style="color:#ae81ff">0&lt;/span>, &lt;span style="color:#ae81ff">0&lt;/span>},
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {&lt;span style="color:#ae81ff">0&lt;/span>, ONE, II, JJ, KK},
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {&lt;span style="color:#ae81ff">0&lt;/span>, II, &lt;span style="color:#f92672">-&lt;/span>ONE, KK, &lt;span style="color:#f92672">-&lt;/span>JJ},
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {&lt;span style="color:#ae81ff">0&lt;/span>, JJ, &lt;span style="color:#f92672">-&lt;/span>KK, &lt;span style="color:#f92672">-&lt;/span>ONE, II},
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {&lt;span style="color:#ae81ff">0&lt;/span>, KK, JJ, &lt;span style="color:#f92672">-&lt;/span>II, &lt;span style="color:#f92672">-&lt;/span>ONE}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">conv&lt;/span>(&lt;span style="color:#66d9ef">char&lt;/span> c) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">switch&lt;/span> (c) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">case&lt;/span> &lt;span style="color:#e6db74">&amp;#39;1&amp;#39;&lt;/span>&lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#66d9ef">return&lt;/span> ONE;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">case&lt;/span> &lt;span style="color:#e6db74">&amp;#39;i&amp;#39;&lt;/span>&lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#66d9ef">return&lt;/span> II;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">case&lt;/span> &lt;span style="color:#e6db74">&amp;#39;j&amp;#39;&lt;/span>&lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#66d9ef">return&lt;/span> JJ;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">case&lt;/span> &lt;span style="color:#e6db74">&amp;#39;k&amp;#39;&lt;/span>&lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#66d9ef">return&lt;/span> KK;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">struct&lt;/span> &lt;span style="color:#a6e22e">Number&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> sign;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> value;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Number() {}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Number(&lt;span style="color:#66d9ef">char&lt;/span> c) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> sign &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> value &lt;span style="color:#f92672">=&lt;/span> conv(c);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Number(&lt;span style="color:#66d9ef">int&lt;/span> isign, &lt;span style="color:#66d9ef">int&lt;/span> ivalue)&lt;span style="color:#f92672">:&lt;/span> sign(isign), value(ivalue){}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Number &lt;span style="color:#66d9ef">operator&lt;/span> &lt;span style="color:#f92672">*&lt;/span> (&lt;span style="color:#66d9ef">const&lt;/span> Number&lt;span style="color:#f92672">&amp;amp;&lt;/span> num) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> a &lt;span style="color:#f92672">=&lt;/span> num.sign &lt;span style="color:#f92672">*&lt;/span> sign;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> b &lt;span style="color:#f92672">=&lt;/span> trans[value][num.value];
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (b &lt;span style="color:#f92672">&amp;lt;&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> a &lt;span style="color:#f92672">*=&lt;/span> &lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> b &lt;span style="color:#f92672">=&lt;/span> abs(b);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> Number{a, b};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>string _word;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>string word;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">long&lt;/span> &lt;span style="color:#66d9ef">long&lt;/span> L, X;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">bool&lt;/span> &lt;span style="color:#a6e22e">get_whole&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Number num(&lt;span style="color:#e6db74">&amp;#39;1&amp;#39;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">auto&lt;/span>&lt;span style="color:#f92672">&amp;amp;&lt;/span> c: _word) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> num &lt;span style="color:#f92672">=&lt;/span> num &lt;span style="color:#f92672">*&lt;/span> Number(c);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Number ans(&lt;span style="color:#e6db74">&amp;#39;1&amp;#39;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">long&lt;/span> &lt;span style="color:#66d9ef">long&lt;/span> x &lt;span style="color:#f92672">=&lt;/span> X;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">while&lt;/span> (x) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (x &lt;span style="color:#f92672">&amp;amp;&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ans &lt;span style="color:#f92672">=&lt;/span> ans &lt;span style="color:#f92672">*&lt;/span> num;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> num &lt;span style="color:#f92672">=&lt;/span> num &lt;span style="color:#f92672">*&lt;/span> num;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> x &lt;span style="color:#f92672">&amp;gt;&amp;gt;=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> ans.sign &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span> and ans.value &lt;span style="color:#f92672">==&lt;/span> ONE;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> T, cas &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> input(T);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">while&lt;/span> (T&lt;span style="color:#f92672">--&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> input(L &lt;span style="color:#f92672">&amp;gt;&amp;gt;&lt;/span> X);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> input(_word);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> word &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;&amp;#34;&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">int&lt;/span> i &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>; i &lt;span style="color:#f92672">&amp;lt;&lt;/span> min(X, &lt;span style="color:#ae81ff">19LL&lt;/span>); i&lt;span style="color:#f92672">++&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> word &lt;span style="color:#f92672">+=&lt;/span> _word;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Number num(&lt;span style="color:#e6db74">&amp;#39;1&amp;#39;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">bool&lt;/span> ii &lt;span style="color:#f92672">=&lt;/span> false;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">bool&lt;/span> jj &lt;span style="color:#f92672">=&lt;/span> false;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">bool&lt;/span> kk &lt;span style="color:#f92672">=&lt;/span> get_whole();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> n &lt;span style="color:#f92672">=&lt;/span> word.size();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">int&lt;/span> i &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>; i &lt;span style="color:#f92672">&amp;lt;&lt;/span> n &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>; i&lt;span style="color:#f92672">++&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> num &lt;span style="color:#f92672">=&lt;/span> num &lt;span style="color:#f92672">*&lt;/span> word[i];
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (num.sign &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span> &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> num.value &lt;span style="color:#f92672">==&lt;/span> II) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ii &lt;span style="color:#f92672">=&lt;/span> true;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }&lt;span style="color:#66d9ef">else&lt;/span> &lt;span style="color:#66d9ef">if&lt;/span> (ii &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> num.sign &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span> &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> num.value &lt;span style="color:#f92672">==&lt;/span> KK) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> jj &lt;span style="color:#f92672">=&lt;/span> true;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">break&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> kk &lt;span style="color:#f92672">=&lt;/span> (kk &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> ii &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> jj);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> printf(&lt;span style="color:#e6db74">&amp;#34;Case #%d: &amp;#34;&lt;/span>, cas&lt;span style="color:#f92672">++&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> puts(kk&lt;span style="color:#f92672">?&lt;/span> &lt;span style="color:#e6db74">&amp;#34;YES&amp;#34;&lt;/span>&lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#e6db74">&amp;#34;NO&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>19&lt;/code>是一个magic number。还有，小心&lt;del>Dandelo&lt;/del>数据超int。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/625c5bb804b76545978bcb11310099a6" alt="Alt text">&lt;/p>
+&lt;h2 id="d-ominous-omino">D. Ominous Omino &lt;a href="#d-ominous-omino" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>充满玄学的一题。网上看到的最精彩的题解是人工模拟出了所有可能。&lt;/p>
+&lt;p>我觉得像我这种内存小的人，估计是想不出来的。&lt;/p>
+&lt;p>貌似也有人用模拟。。。我觉得。。。可能会有更优雅的方法。。。&lt;/p>
+&lt;p>题解在&lt;a href="http://www.huangwenchao.com.cn/2015/04/gcj-2015-qual-d.html">这里&lt;/a>，真心是给跪了。&lt;/p></description></item></channel></rss>

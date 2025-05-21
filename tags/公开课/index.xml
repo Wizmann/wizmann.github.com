@@ -1,19 +1,113 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>公开课 on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/%E5%85%AC%E5%BC%80%E8%AF%BE/</link><description>Recent content in 公开课 on Maerlyn's Rainbow</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Tue, 29 Dec 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/%E5%85%AC%E5%BC%80%E8%AF%BE/index.xml" rel="self" type="application/rss+xml"/><item><title>我到底从UW-CSE341学到了什么</title><link>https://wizmann.top/posts/uw-cse341-au20/</link><pubDate>Tue, 29 Dec 2020 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/uw-cse341-au20/</guid><description>&lt;blockquote>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>公开课 on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/%E5%85%AC%E5%BC%80%E8%AF%BE/</link><description>Recent content in 公开课 on Maerlyn's Rainbow</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Tue, 29 Dec 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/%E5%85%AC%E5%BC%80%E8%AF%BE/index.xml" rel="self" type="application/rss+xml"/><item><title>我到底从UW-CSE341学到了什么</title><link>https://wizmann.top/posts/uw-cse341-au20/</link><pubDate>Tue, 29 Dec 2020 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/uw-cse341-au20/</guid><description>&lt;blockquote>
 &lt;p>TL;DR 什么也没学到&lt;/p>&lt;/blockquote>
 &lt;p>&lt;a href="https://sites.google.com/cs.washington.edu/cse341au20/home">课程首页&lt;/a>&lt;/p>
 &lt;p>Coursera-课程-&lt;a href="https://www.coursera.org/learn/programming-languages">A&lt;/a>, &lt;a href="https://www.coursera.org/learn/programming-languages-part-b">B&lt;/a>, &lt;a href="https://www.coursera.org/learn/programming-languages-part-c">C&lt;/a>&lt;/p>
 &lt;p>介绍当中说，本课程主要内容是FP，并且顺道讨论一下程序语言的设计。&lt;/p>
-&lt;p>UW官方上面的课程只有Slides和assignments，video不提供。Coursera有video，但是版本比较老，是2013年的。下面的讨论都是基于au20的新版本。&lt;/p></description></item><item><title>機器學習基石 - PLA算法初步</title><link>https://wizmann.top/posts/ml-foundations-pla/</link><pubDate>Fri, 29 Nov 2013 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/ml-foundations-pla/</guid><description>&lt;h2 id="什么是pla算法">什么是PLA算法&lt;/h2>
-&lt;p>PLA = Perceptrons Learning Alogrithm&lt;/p>
+&lt;p>UW官方上面的课程只有Slides和assignments，video不提供。Coursera有video，但是版本比较老，是2013年的。下面的讨论都是基于au20的新版本。&lt;/p>
+&lt;p>简单来说，前半学期（hw1-hw4)是关于OCaml，一种静态类型的FP。后半学期(hw5-hw7)是Racket，一种动态语言FP。课程里面80%+（的难度）都在于新的FP编程语言，只包含少数PL的内容。例如HW4中，需要实践一个简单粗暴的tokenizer/parser；HW6实现了一个虚假的编程语言MUPL，这个实现并不需要你解析代码，而是手写解析好的语法树，在上面实现求值、闭包、递归等。&lt;/p>
+&lt;blockquote>
+&lt;p>调试与debug也是一个非常蛋疼的问题，尤其是Racket写闭包的时候。。。&lt;/p>&lt;/blockquote>
+&lt;p>学习建议：&lt;/p>
+&lt;ol>
+&lt;li>OCaml的部分比较简单，7天一个小长假就可以搞定。做为平时的娱乐调剂也可以，周期不会超过一个月。&lt;/li>
+&lt;li>如果不想使用OCaml，可以尝试F#。因为都是一个流派的，语法接近。使用VS还可以有实时的提示。&lt;/li>
+&lt;li>Racket的部分难度较大，主要是与平时所使用的语言差别较大。没啥好办法，只能多打log。&lt;/li>
+&lt;li>HW7难度不高，但是提供的代码里面有一个在构造函数里面Call虚函数的迷惑操作。&lt;/li>
+&lt;li>多写测试。&lt;/li>
+&lt;/ol>
+&lt;p>Repo地址：https://github.com/Wizmann/UW-CSE341-au20&lt;/p>
+&lt;p>仅供参考。&lt;/p>
+&lt;blockquote>
+&lt;p>感谢华大（&lt;/p>&lt;/blockquote>
+&lt;p>&lt;img src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/20-12-29/2020-12-29_16-42-28.png" alt="">&lt;/p></description></item><item><title>機器學習基石 - PLA算法初步</title><link>https://wizmann.top/posts/ml-foundations-pla/</link><pubDate>Fri, 29 Nov 2013 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/ml-foundations-pla/</guid><description>&lt;h2 id="什么是pla算法">什么是PLA算法 &lt;a href="#%e4%bb%80%e4%b9%88%e6%98%afpla%e7%ae%97%e6%b3%95" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>PLA = Perceptrons Learning Alogrithm&lt;/p>
 &lt;p>WikiPedia上有一个大概的历史背景介绍。&lt;/p>
 &lt;blockquote>
-&lt;p>感知机（英语：Perceptron）是Frank Rosenblatt在1957年就职于Cornell航空实验室(Cornell Aeronautical Laboratory)时所发明的一种人工神经网络。它可以被视为一种最简单形式的前馈式人工神经网络，是一种二元线性分类器。&lt;/p></description></item><item><title>CSE351 - Lab 1: Manipulating Bits Using C</title><link>https://wizmann.top/posts/cse351-lab1/</link><pubDate>Wed, 27 Nov 2013 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/cse351-lab1/</guid><description>&lt;p>今天做了CSE351 - Lab1，深深的感觉国外的计算机教学爆了我校一条街。&lt;/p>
+&lt;p>感知机（英语：Perceptron）是Frank Rosenblatt在1957年就职于Cornell航空实验室(Cornell Aeronautical Laboratory)时所发明的一种人工神经网络。它可以被视为一种最简单形式的前馈式人工神经网络，是一种二元线性分类器。&lt;/p>&lt;/blockquote>
+&lt;h2 id="pla算法的原理">PLA算法的原理 &lt;a href="#pla%e7%ae%97%e6%b3%95%e7%9a%84%e5%8e%9f%e7%90%86" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-tk-pic/blog-perceptron-Ncell.png" alt="感知机示意图">&lt;/p>
+&lt;blockquote>
+&lt;p>对于每种输入值(1 - D)，我们计算一个权重。当前神经元的总激发值(a)就等于每种输入值(x)乘以权重(w)之和。&lt;/p>&lt;/blockquote>
+&lt;p>由此我们就可以推导出公式如下。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-tk-pic/blog-perceptron-formula-1.jpg" alt="neuron sum">&lt;/p>
+&lt;p>我们可以为这个“神经元”的激发值设定一个阈值&lt;code>threshold&lt;/code>。&lt;/p>
+&lt;p>如果 &lt;code>a &amp;gt; threshold&lt;/code>，则判定输入为正例。
+如果 &lt;code>a &amp;lt; threshold&lt;/code>，则判定输入为负例。
+对于 &lt;code>a == threshold&lt;/code>的情况，认为是特殊情况，不予考虑。&lt;/p>
+&lt;p>所以，我们的感知器分类器就可以得到以下式子。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-tk-pic/blog-perceptron-formula-2.png" alt="perceptron-formula-2">&lt;/p>
+&lt;p>我们在数据向量中加入了阈值，并把式子统一成向量积的形式。&lt;/p>
+&lt;h2 id="pla算法的错误修正">PLA算法的错误修正 &lt;a href="#pla%e7%ae%97%e6%b3%95%e7%9a%84%e9%94%99%e8%af%af%e4%bf%ae%e6%ad%a3" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>PLA算法是_错误驱动_的算法。&lt;/p>
+&lt;blockquote>
+&lt;p>当我们训练这个算法时，只要输出值是正确的，这个算法就不会进行任何数据的调整。反之，当输出值与实际值异号，这个算法就会自动调整参数的比重。&lt;/p>&lt;/blockquote>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-tk-pic/blog-perceptron-update.png" alt="错误修正">&lt;/p>
+&lt;p>我们先取一个随机向量&lt;code>W&lt;/code>，与现有的数据&lt;code>X[i]&lt;/code>做点乘，取得结果的符号。&lt;/p>
+&lt;p>如果符号符合我们的预期的话，则&lt;code>continue&lt;/code>。
+否则就要对&lt;code>W&lt;/code>进行修正。&lt;/p>
+&lt;p>修正的方式是&lt;code>W += y * X[i]&lt;/code>，每一次修正都是减少现有向量&lt;code>W&lt;/code>与向量&lt;code>y * X[i]&lt;/code>的夹角，从而调整答案的正确性。&lt;/p>
+&lt;h2 id="naive-pla-与-pocket-pla">Naive PLA 与 Pocket PLA &lt;a href="#naive-pla-%e4%b8%8e-pocket-pla" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="naive-pla">Naive PLA &lt;a href="#naive-pla" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>Naive PLA算法的思想很简单。一直修正向量&lt;code>W&lt;/code>，直到向量&lt;code>W&lt;/code>满足所有数据为止。&lt;/p>
+&lt;p>代码如下：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">from&lt;/span> numpy &lt;span style="color:#f92672">import&lt;/span> &lt;span style="color:#f92672">*&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">naive_pla&lt;/span>(datas):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> w &lt;span style="color:#f92672">=&lt;/span> datas[&lt;span style="color:#ae81ff">0&lt;/span>][&lt;span style="color:#ae81ff">0&lt;/span>]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> iteration &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">while&lt;/span> &lt;span style="color:#66d9ef">True&lt;/span>:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> iteration &lt;span style="color:#f92672">+=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> false_data &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> data &lt;span style="color:#f92672">in&lt;/span> datas:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> t &lt;span style="color:#f92672">=&lt;/span> dot(w, data[&lt;span style="color:#ae81ff">0&lt;/span>])
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> sign(data[&lt;span style="color:#ae81ff">1&lt;/span>]) &lt;span style="color:#f92672">!=&lt;/span> sign(t):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> error &lt;span style="color:#f92672">=&lt;/span> data[&lt;span style="color:#ae81ff">1&lt;/span>]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> false_data &lt;span style="color:#f92672">+=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> w &lt;span style="color:#f92672">+=&lt;/span> error &lt;span style="color:#f92672">*&lt;/span> data[&lt;span style="color:#ae81ff">0&lt;/span>]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print &lt;span style="color:#e6db74">&amp;#39;iter&lt;/span>&lt;span style="color:#e6db74">%d&lt;/span>&lt;span style="color:#e6db74"> (&lt;/span>&lt;span style="color:#e6db74">%d&lt;/span>&lt;span style="color:#e6db74"> / &lt;/span>&lt;span style="color:#e6db74">%d&lt;/span>&lt;span style="color:#e6db74">)&amp;#39;&lt;/span> &lt;span style="color:#f92672">%&lt;/span> (iteration, false_data, len(datas))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> &lt;span style="color:#f92672">not&lt;/span> false_data:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">break&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> w
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="pocket-pla">Pocket PLA &lt;a href="#pocket-pla" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>Naive PLA的一大问题就是如果数据有杂音，不能完美的分类的话，算法就不会中止。&lt;/p>
+&lt;p>所以，对于有杂音的数据，我们只能期望找到错误最少的结果。然后这是一个&lt;code>NP Hard&lt;/code>问题。&lt;/p>
+&lt;p>Pocket PLA一个贪心的近似算法。和Naive PLA算法类似。&lt;/p>
+&lt;p>变顺序迭代为随机迭代，如果找出错误，则修正结果。在修正过程中，记录犯错误最少的向量。&lt;/p>
+&lt;p>代码如下：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">import&lt;/span> numpy &lt;span style="color:#66d9ef">as&lt;/span> np
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">pocket_pla&lt;/span>(datas, limit):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">###############&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">_calc_false&lt;/span>(vec):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> res &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> data &lt;span style="color:#f92672">in&lt;/span> datas:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> t &lt;span style="color:#f92672">=&lt;/span> np&lt;span style="color:#f92672">.&lt;/span>dot(vec, data[&lt;span style="color:#ae81ff">0&lt;/span>])
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> np&lt;span style="color:#f92672">.&lt;/span>sign(data[&lt;span style="color:#ae81ff">1&lt;/span>]) &lt;span style="color:#f92672">!=&lt;/span> np&lt;span style="color:#f92672">.&lt;/span>sign(t):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> res &lt;span style="color:#f92672">+=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> res
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">###############&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> w &lt;span style="color:#f92672">=&lt;/span> np&lt;span style="color:#f92672">.&lt;/span>random&lt;span style="color:#f92672">.&lt;/span>rand(&lt;span style="color:#ae81ff">5&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> least_false &lt;span style="color:#f92672">=&lt;/span> _calc_false(w)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> res &lt;span style="color:#f92672">=&lt;/span> w
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> i &lt;span style="color:#f92672">in&lt;/span> xrange(limit):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> data &lt;span style="color:#f92672">=&lt;/span> random&lt;span style="color:#f92672">.&lt;/span>choice(datas)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> t &lt;span style="color:#f92672">=&lt;/span> np&lt;span style="color:#f92672">.&lt;/span>dot(w, data[&lt;span style="color:#ae81ff">0&lt;/span>])
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> np&lt;span style="color:#f92672">.&lt;/span>sign(data[&lt;span style="color:#ae81ff">1&lt;/span>]) &lt;span style="color:#f92672">!=&lt;/span> np&lt;span style="color:#f92672">.&lt;/span>sign(t):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> t &lt;span style="color:#f92672">=&lt;/span> w &lt;span style="color:#f92672">+&lt;/span> data[&lt;span style="color:#ae81ff">1&lt;/span>] &lt;span style="color:#f92672">*&lt;/span> data[&lt;span style="color:#ae81ff">0&lt;/span>]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> t_false &lt;span style="color:#f92672">=&lt;/span> _calc_false(t)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> w &lt;span style="color:#f92672">=&lt;/span> t
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> t_false &lt;span style="color:#f92672">&amp;lt;=&lt;/span> least_false:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> least_false &lt;span style="color:#f92672">=&lt;/span> t_false
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> res &lt;span style="color:#f92672">=&lt;/span> t
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> res, least_false
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="参考链接">参考链接 &lt;a href="#%e5%8f%82%e8%80%83%e9%93%be%e6%8e%a5" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>本文主要参考了&lt;a href="http://shaoxiongjiang.com/2013/03/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A8-%E6%84%9F%E7%9F%A5%E5%99%A8-perceptron/">机器学习入门 - 感知器 (Perceptron)&lt;/a>和Wikipedia上面&lt;a href="http://zh.wikipedia.org/wiki/%E6%84%9F%E7%9F%A5%E5%99%A8">感知机&lt;/a>的词条。&lt;/p>
+&lt;p>以及&lt;a href="https://class.coursera.org/ntumlone-001/class">機器學習基石 (Machine Learning Foundations)&lt;/a>公开课的幻灯片。&lt;/p>
+&lt;h2 id="updated">Updated &lt;a href="#updated" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>2013-12-8&lt;/p>
+&lt;p>修改了pocket-pla算法，提升了效率和准确性。&lt;/p>
+&lt;p>参考了&lt;a href="https://class.coursera.org/ntumlone-001/forum/thread?thread_id=116#post-632">课程论坛&lt;/a>的讨论。并且感谢Li Tianyi同学指出我的问题。&lt;/p></description></item><item><title>CSE351 - Lab 1: Manipulating Bits Using C</title><link>https://wizmann.top/posts/cse351-lab1/</link><pubDate>Wed, 27 Nov 2013 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/cse351-lab1/</guid><description>&lt;p>今天做了CSE351 - Lab1，深深的感觉国外的计算机教学爆了我校一条街。&lt;/p>
 &lt;p>以上是前言。&lt;/p>
 &lt;hr>
-&lt;h3 id="bitand--bitor">bitAnd &amp;amp; bitOr&lt;/h3>
-&lt;p>德摩根定理的应用&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">/* 
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * bitAnd - x&amp;amp;y using only ~ and | 
+&lt;h3 id="bitand--bitor">bitAnd &amp;amp; bitOr &lt;a href="#bitand--bitor" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>德摩根定理的应用&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">/*
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * bitAnd - x&amp;amp;y using only ~ and |
 &lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Example: bitAnd(6, 5) = 4
 &lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Legal ops: ~ |
 &lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Max ops: 8
@@ -21,8 +115,8 @@
 &lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> */&lt;/span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">bitAnd&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> x, &lt;span style="color:#66d9ef">int&lt;/span> y) {
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#f92672">~&lt;/span>(&lt;span style="color:#f92672">~&lt;/span>x &lt;span style="color:#f92672">|&lt;/span> &lt;span style="color:#f92672">~&lt;/span>y);
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">/* 
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * bitOr - x|y using only ~ and &amp;amp; 
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">/*
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * bitOr - x|y using only ~ and &amp;amp;
 &lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Example: bitOr(6, 5) = 7
 &lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Legal ops: ~ &amp;amp;
 &lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Max ops: 8
@@ -31,7 +125,156 @@
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">bitOr&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> x, &lt;span style="color:#66d9ef">int&lt;/span> y) {
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#f92672">~&lt;/span>(&lt;span style="color:#f92672">~&lt;/span>x &lt;span style="color:#f92672">&amp;amp;&lt;/span> &lt;span style="color:#f92672">~&lt;/span>y);
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="istmax">isTmax&lt;/h3>
-&lt;p>因为&lt;/p></description></item><item><title>CSE 351 - Hardware/Software Interface</title><link>https://wizmann.top/posts/washington-university-cse351/</link><pubDate>Tue, 26 Nov 2013 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/washington-university-cse351/</guid><description>&lt;p>开一门公开课，Washington University的Hardware/Software Interface。&lt;/p>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="istmax">isTmax &lt;a href="#istmax" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>因为&lt;/p>
+&lt;p>&lt;code>Tmax == INT_MAX == 0x7fff ffff&lt;/code>&lt;/p>
+&lt;p>=&amp;gt; &lt;code>INT_MAX + INT_MAX + 2 == 0&lt;/code>&lt;/p>
+&lt;p>又因为&lt;code>-1 == 0xffff ffff&lt;/code>&lt;/p>
+&lt;p>=&amp;gt; &lt;code>-1 + -1 + 2 = 0&lt;/code>&lt;/p>
+&lt;p>于是我们还要加一条判断是否是-1的逻辑。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">/*
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * isTmax - returns 1 if x is the maximum, two&amp;#39;s complement number,
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * and 0 otherwise
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Legal ops: ! ~ &amp;amp; ^ | +
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Max ops: 10
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Rating: 1
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> */&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">isTmax&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> x) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#f92672">!&lt;/span>((x &lt;span style="color:#f92672">+&lt;/span> x &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">2&lt;/span>) &lt;span style="color:#f92672">|&lt;/span> &lt;span style="color:#f92672">!&lt;/span>(&lt;span style="color:#f92672">~&lt;/span>x));
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="iszero">isZero &lt;a href="#iszero" class="anchor">🔗&lt;/a>&lt;/h3>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">/*
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * isZero - returns 1 if x == 0, and 0 otherwise
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Examples: isZero(5) = 0, isZero(0) = 1
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Legal ops: ! ~ &amp;amp; ^ | + &amp;lt;&amp;lt; &amp;gt;&amp;gt;
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Max ops: 2
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Rating: 1
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> */&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">isZero&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> x) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#f92672">!&lt;/span>x;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="fitsbits">fitsBits &lt;a href="#fitsbits" class="anchor">🔗&lt;/a>&lt;/h3>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">/*
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * fitsBits - return 1 if x can be represented as an
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * n-bit, two&amp;#39;s complement integer.
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * 1 &amp;lt;= n &amp;lt;= 32
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Examples: fitsBits(5,3) = 0, fitsBits(-4,3) = 1
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Legal ops: ! ~ &amp;amp; ^ | + &amp;lt;&amp;lt; &amp;gt;&amp;gt;
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Max ops: 15
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Rating: 2
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> */&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">fitsBits&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> x, &lt;span style="color:#66d9ef">int&lt;/span> n) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> shift &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">32&lt;/span> &lt;span style="color:#f92672">+&lt;/span> (&lt;span style="color:#f92672">~&lt;/span>n &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>); &lt;span style="color:#75715e">// equal to 32 - n
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#f92672">!&lt;/span>(((x &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> shift) &lt;span style="color:#f92672">&amp;gt;&amp;gt;&lt;/span> shift) &lt;span style="color:#f92672">^&lt;/span> x);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="getbyte">getByte &lt;a href="#getbyte" class="anchor">🔗&lt;/a>&lt;/h3>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">/*
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * getByte - Extract byte n from word x
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Bytes numbered from 0 (LSB) to 3 (MSB)
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Examples: getByte(0x12345678,1) = 0x56
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Legal ops: ! ~ &amp;amp; ^ | + &amp;lt;&amp;lt; &amp;gt;&amp;gt;
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Max ops: 6
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Rating: 2
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> */&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">getByte&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> x, &lt;span style="color:#66d9ef">int&lt;/span> n) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> ((x &lt;span style="color:#f92672">&amp;amp;&lt;/span> (&lt;span style="color:#ae81ff">0xFF&lt;/span>&lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span>(n &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#ae81ff">3&lt;/span>))) &lt;span style="color:#f92672">&amp;gt;&amp;gt;&lt;/span> (n &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#ae81ff">3&lt;/span>)) &lt;span style="color:#f92672">&amp;amp;&lt;/span> &lt;span style="color:#ae81ff">0xFF&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="isnegative">isNegative &lt;a href="#isnegative" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>找到符号位&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">/*
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * isNegative - return 1 if x &amp;lt; 0, return 0 otherwise
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Example: isNegative(-1) = 1.
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Legal ops: ! ~ &amp;amp; ^ | + &amp;lt;&amp;lt; &amp;gt;&amp;gt;
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Max ops: 6
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Rating: 2
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> */&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">isNegative&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> x) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#f92672">!!&lt;/span>(x &lt;span style="color:#f92672">&amp;amp;&lt;/span> (&lt;span style="color:#ae81ff">1&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#ae81ff">31&lt;/span>));
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="addok">addOK &lt;a href="#addok" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>如果a和b同号，且a + b与a异号，则不可以加&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">/*
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * addOK - Determine if can compute x+y without overflow
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Example: addOK(0x80000000,0x80000000) = 0,
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * addOK(0x80000000,0x70000000) = 1,
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Legal ops: ! ~ &amp;amp; ^ | + &amp;lt;&amp;lt; &amp;gt;&amp;gt;
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Max ops: 20
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Rating: 3
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> */&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">addOK&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> x, &lt;span style="color:#66d9ef">int&lt;/span> y) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> sum &lt;span style="color:#f92672">=&lt;/span> ((x &lt;span style="color:#f92672">+&lt;/span> y) &lt;span style="color:#f92672">&amp;gt;&amp;gt;&lt;/span> &lt;span style="color:#ae81ff">31&lt;/span>) &lt;span style="color:#f92672">&amp;amp;&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> sx &lt;span style="color:#f92672">=&lt;/span> (x &lt;span style="color:#f92672">&amp;gt;&amp;gt;&lt;/span> &lt;span style="color:#ae81ff">31&lt;/span>) &lt;span style="color:#f92672">&amp;amp;&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> sy &lt;span style="color:#f92672">=&lt;/span> (y &lt;span style="color:#f92672">&amp;gt;&amp;gt;&lt;/span> &lt;span style="color:#ae81ff">31&lt;/span>) &lt;span style="color:#f92672">&amp;amp;&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#f92672">!&lt;/span>((&lt;span style="color:#f92672">!&lt;/span>(sx &lt;span style="color:#f92672">^&lt;/span> sy)) &lt;span style="color:#f92672">&amp;amp;&lt;/span> (sx &lt;span style="color:#f92672">^&lt;/span> sum));
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="isgreater">isGreater &lt;a href="#isgreater" class="anchor">🔗&lt;/a>&lt;/h3>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">/*
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * isGreater - if x &amp;gt; y then return 1, else return 0
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Example: isGreater(4,5) = 0, isGreater(5,4) = 1
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Legal ops: ! ~ &amp;amp; ^ | + &amp;lt;&amp;lt; &amp;gt;&amp;gt;
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Max ops: 24
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Rating: 3
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> */&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">isGreater&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> x, &lt;span style="color:#66d9ef">int&lt;/span> y) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> sx &lt;span style="color:#f92672">=&lt;/span> (x &lt;span style="color:#f92672">&amp;gt;&amp;gt;&lt;/span> &lt;span style="color:#ae81ff">31&lt;/span>) &lt;span style="color:#f92672">&amp;amp;&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> sy &lt;span style="color:#f92672">=&lt;/span> (y &lt;span style="color:#f92672">&amp;gt;&amp;gt;&lt;/span> &lt;span style="color:#ae81ff">31&lt;/span>) &lt;span style="color:#f92672">&amp;amp;&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> x_minus_y &lt;span style="color:#f92672">=&lt;/span> (x &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span> &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#f92672">~&lt;/span>y);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> sminus &lt;span style="color:#f92672">=&lt;/span> (((x_minus_y) &lt;span style="color:#f92672">&amp;gt;&amp;gt;&lt;/span> &lt;span style="color:#ae81ff">31&lt;/span>) &lt;span style="color:#f92672">&amp;amp;&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>) &lt;span style="color:#f92672">|&lt;/span> &lt;span style="color:#f92672">!&lt;/span>(&lt;span style="color:#ae81ff">0&lt;/span> &lt;span style="color:#f92672">^&lt;/span> x_minus_y);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> (&lt;span style="color:#f92672">!&lt;/span>(sx &lt;span style="color:#f92672">^&lt;/span> sy) &lt;span style="color:#f92672">&amp;amp;&lt;/span> &lt;span style="color:#f92672">!&lt;/span>sminus) &lt;span style="color:#f92672">|&lt;/span> ((sx &lt;span style="color:#f92672">^&lt;/span> sy) &lt;span style="color:#f92672">&amp;amp;&lt;/span> &lt;span style="color:#f92672">!&lt;/span>sx);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="replacebyte">replaceByte &lt;a href="#replacebyte" class="anchor">🔗&lt;/a>&lt;/h3>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">/*
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * replaceByte(x,n,c) - Replace byte n in x with c
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Bytes numbered from 0 (LSB) to 3 (MSB)
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Examples: replaceByte(0x12345678,1,0xab) = 0x1234ab78
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * You can assume 0 &amp;lt;= n &amp;lt;= 3 and 0 &amp;lt;= c &amp;lt;= 255
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Legal ops: ! ~ &amp;amp; ^ | + &amp;lt;&amp;lt; &amp;gt;&amp;gt;
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Max ops: 10
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Rating: 3
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> */&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">replaceByte&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> x, &lt;span style="color:#66d9ef">int&lt;/span> n, &lt;span style="color:#66d9ef">int&lt;/span> c) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> (x &lt;span style="color:#f92672">&amp;amp;&lt;/span> (&lt;span style="color:#f92672">~&lt;/span>&lt;span style="color:#ae81ff">0&lt;/span> &lt;span style="color:#f92672">^&lt;/span> &lt;span style="color:#ae81ff">0xFF&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> (n &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#ae81ff">3&lt;/span>))) &lt;span style="color:#f92672">|&lt;/span> (c &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> (n &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#ae81ff">3&lt;/span>));
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="rotateleft">rotateLeft &lt;a href="#rotateleft" class="anchor">🔗&lt;/a>&lt;/h3>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">/*
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * rotateLeft - Rotate x to the left by n
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Can assume that 0 &amp;lt;= n &amp;lt;= 31
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Examples: rotateLeft(0x87654321,4) = 0x76543218
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Legal ops: ~ &amp;amp; ^ | + &amp;lt;&amp;lt; &amp;gt;&amp;gt;
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Max ops: 25
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Rating: 3
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> */&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">rotateLeft&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> x, &lt;span style="color:#66d9ef">int&lt;/span> n) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> mask &lt;span style="color:#f92672">=&lt;/span> ((&lt;span style="color:#ae81ff">1&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> n) &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span> &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#f92672">~&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>) &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> (&lt;span style="color:#ae81ff">33&lt;/span> &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#f92672">~&lt;/span>n);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> t &lt;span style="color:#f92672">=&lt;/span> ((x &lt;span style="color:#f92672">&amp;amp;&lt;/span> mask) &lt;span style="color:#f92672">&amp;gt;&amp;gt;&lt;/span> (&lt;span style="color:#ae81ff">33&lt;/span> &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#f92672">~&lt;/span>n)) &lt;span style="color:#f92672">&amp;amp;&lt;/span> ((&lt;span style="color:#ae81ff">1&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> n) &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span> &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#f92672">~&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> (x &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> n) &lt;span style="color:#f92672">|&lt;/span> t;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="bitcount">bitCount &lt;a href="#bitcount" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>这个是从&lt;a href="http://stackoverflow.com/a/3815253/2927439">stackoverflow&lt;/a>上找来的答案，很厉害，不过还没看明白为啥。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">/*
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * bitCount - returns count of number of 1&amp;#39;s in word
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Examples: bitCount(5) = 2, bitCount(7) = 3
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Legal ops: ! ~ &amp;amp; ^ | + &amp;lt;&amp;lt; &amp;gt;&amp;gt;
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Max ops: 40
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Rating: 4
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> */&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">bitCount&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> x) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> c &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> c &lt;span style="color:#f92672">=&lt;/span> (x &lt;span style="color:#f92672">&amp;amp;&lt;/span> &lt;span style="color:#ae81ff">0x55555555&lt;/span>) &lt;span style="color:#f92672">+&lt;/span> ((x &lt;span style="color:#f92672">&amp;gt;&amp;gt;&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>) &lt;span style="color:#f92672">&amp;amp;&lt;/span> &lt;span style="color:#ae81ff">0x55555555&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> c &lt;span style="color:#f92672">=&lt;/span> (c &lt;span style="color:#f92672">&amp;amp;&lt;/span> &lt;span style="color:#ae81ff">0x33333333&lt;/span>) &lt;span style="color:#f92672">+&lt;/span> ((c &lt;span style="color:#f92672">&amp;gt;&amp;gt;&lt;/span> &lt;span style="color:#ae81ff">2&lt;/span>) &lt;span style="color:#f92672">&amp;amp;&lt;/span> &lt;span style="color:#ae81ff">0x33333333&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> c &lt;span style="color:#f92672">=&lt;/span> (c &lt;span style="color:#f92672">&amp;amp;&lt;/span> &lt;span style="color:#ae81ff">0x0F0F0F0F&lt;/span>) &lt;span style="color:#f92672">+&lt;/span> ((c &lt;span style="color:#f92672">&amp;gt;&amp;gt;&lt;/span> &lt;span style="color:#ae81ff">4&lt;/span>) &lt;span style="color:#f92672">&amp;amp;&lt;/span> &lt;span style="color:#ae81ff">0x0F0F0F0F&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> c &lt;span style="color:#f92672">=&lt;/span> (c &lt;span style="color:#f92672">&amp;amp;&lt;/span> &lt;span style="color:#ae81ff">0x00FF00FF&lt;/span>) &lt;span style="color:#f92672">+&lt;/span> ((c &lt;span style="color:#f92672">&amp;gt;&amp;gt;&lt;/span> &lt;span style="color:#ae81ff">8&lt;/span>) &lt;span style="color:#f92672">&amp;amp;&lt;/span> &lt;span style="color:#ae81ff">0x00FF00FF&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> c &lt;span style="color:#f92672">=&lt;/span> (c &lt;span style="color:#f92672">&amp;amp;&lt;/span> &lt;span style="color:#ae81ff">0x0000FFFF&lt;/span>) &lt;span style="color:#f92672">+&lt;/span> ((c &lt;span style="color:#f92672">&amp;gt;&amp;gt;&lt;/span> &lt;span style="color:#ae81ff">16&lt;/span>)&lt;span style="color:#f92672">&amp;amp;&lt;/span> &lt;span style="color:#ae81ff">0x0000FFFF&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> c;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="isnonzero">isNonZero &lt;a href="#isnonzero" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>&lt;code>(~x + 1) == -x&lt;/code>&lt;/p>
+&lt;p>=&amp;gt; &lt;code>x | -x&lt;/code>的符号位为负&lt;/p>
+&lt;p>对于特殊数据&lt;code>INT_MIN&lt;/code>也可以处理&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">/*
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * isNonZero - Check whether x is nonzero using
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * the legal operators except !
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Examples: isNonZero(3) = 1, isNonZero(0) = 0
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Legal ops: ~ &amp;amp; ^ | + &amp;lt;&amp;lt; &amp;gt;&amp;gt;
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Max ops: 10
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Rating: 4
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> */&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">isNonZero&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> x) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> ((x &lt;span style="color:#f92672">|&lt;/span> (&lt;span style="color:#f92672">~&lt;/span>x &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>)) &lt;span style="color:#f92672">&amp;gt;&amp;gt;&lt;/span> &lt;span style="color:#ae81ff">31&lt;/span>) &lt;span style="color:#f92672">&amp;amp;&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div></description></item><item><title>CSE 351 - Hardware/Software Interface</title><link>https://wizmann.top/posts/washington-university-cse351/</link><pubDate>Tue, 26 Nov 2013 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/washington-university-cse351/</guid><description>&lt;p>开一门公开课，Washington University的Hardware/Software Interface。&lt;/p>
 &lt;p>传说是很不错的计算机科学公开课。使用&lt;a href="http://book.douban.com/subject/5333562/">深入理解计算机系统&lt;/a>做教材，正好是我要读的书，所以顺便听听课。&lt;/p>
-&lt;p>豆瓣上有人写了&lt;a href="http://book.douban.com/review/6093947/">推荐&lt;/a>，观点是这课虽然不错，但是比较浅。根据我现在的理解来说，确实比较浅，如果有不错的高级语言编程基础（C/C++/Java/Pascal等，脚本就算了），很多东西可以速推。&lt;/p></description></item></channel></rss>
+&lt;p>豆瓣上有人写了&lt;a href="http://book.douban.com/review/6093947/">推荐&lt;/a>，观点是这课虽然不错，但是比较浅。根据我现在的理解来说，确实比较浅，如果有不错的高级语言编程基础（C/C++/Java/Pascal等，脚本就算了），很多东西可以速推。&lt;/p>
+&lt;p>接下来的一些日志会是这门课的作业、实验和感想。现在先挖个坑。慢慢填上。&lt;/p>
+&lt;hr>
+&lt;p>课程视频：&lt;a href="http://pan.baidu.com/wap/link?&amp;amp;shareid=3687486382&amp;amp;uk=2919707929&amp;amp;third=0&amp;amp;page=1">戳我&lt;/a>&lt;/p>
+&lt;p>课程主页：&lt;a href="https://courses.cs.washington.edu/courses/cse351/13su/index.html">戳我&lt;/a>&lt;/p></description></item></channel></rss>

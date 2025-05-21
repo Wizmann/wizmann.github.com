@@ -1,7 +1,6 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Kubernetes on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/kubernetes/</link><description>Recent content in Kubernetes on Maerlyn's Rainbow</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Wed, 27 Dec 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/kubernetes/index.xml" rel="self" type="application/rss+xml"/><item><title>[tl;dr] 论文阅读：Borg - Large-scale cluster management at Google</title><link>https://wizmann.top/posts/tl-dr-borg/</link><pubDate>Wed, 27 Dec 2023 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/tl-dr-borg/</guid><description>&lt;ul>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Kubernetes on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/kubernetes/</link><description>Recent content in Kubernetes on Maerlyn's Rainbow</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Wed, 27 Dec 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/kubernetes/index.xml" rel="self" type="application/rss+xml"/><item><title>[tl;dr] 论文阅读：Borg - Large-scale cluster management at Google</title><link>https://wizmann.top/posts/tl-dr-borg/</link><pubDate>Wed, 27 Dec 2023 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/tl-dr-borg/</guid><description>&lt;ul>
 &lt;li>
-&lt;h2 id="系统概览">系统概览&lt;/h2>
-&lt;ul>
+&lt;h2 id="系统概览">系统概览 &lt;a href="#%e7%b3%bb%e7%bb%9f%e6%a6%82%e8%a7%88" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
 &lt;li>Borg是谷歌开发的一种高效的集群管理系统，旨在优化资源利用率和提高系统的可靠性及可用性
 &lt;ul>
 &lt;li>隐藏资源管理细节与故障处理，允许用户专注于应用程序的开发&lt;/li>
@@ -12,8 +11,7 @@
 &lt;/ul>
 &lt;/li>
 &lt;li>
-&lt;h2 id="用户视角">用户视角&lt;/h2>
-&lt;ul>
+&lt;h2 id="用户视角">用户视角 &lt;a href="#%e7%94%a8%e6%88%b7%e8%a7%86%e8%a7%92" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
 &lt;li>用户通过定义&lt;em>job&lt;/em>和&lt;em>task&lt;/em>与Borg进行交互
 &lt;ul>
 &lt;li>一个&lt;em>job&lt;/em>由运行相同程序的一个或多个&lt;em>task&lt;/em>组成&lt;/li>
@@ -45,8 +43,7 @@
 &lt;/ul>
 &lt;/li>
 &lt;li>
-&lt;h2 id="borg的架构">Borg的架构&lt;/h2>
-&lt;ul>
+&lt;h2 id="borg的架构">Borg的架构 &lt;a href="#borg%e7%9a%84%e6%9e%b6%e6%9e%84" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
 &lt;li>&lt;em>Borgmaster&lt;/em>
 &lt;ul>
 &lt;li>主管理进程
@@ -125,8 +122,7 @@
 &lt;/ul>
 &lt;/li>
 &lt;li>
-&lt;h2 id="可靠性">可靠性&lt;/h2>
-&lt;ul>
+&lt;h2 id="可靠性">可靠性 &lt;a href="#%e5%8f%af%e9%9d%a0%e6%80%a7" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
 &lt;li>自动重新调度器被驱逐的任务&lt;/li>
 &lt;li>将任务分散到不同的失败域中&lt;/li>
 &lt;li>限制一个作业中同时失败任务的个数和中断率&lt;/li>
@@ -137,8 +133,7 @@
 &lt;/ul>
 &lt;/li>
 &lt;li>
-&lt;h2 id="资源利用和效率">资源利用和效率&lt;/h2>
-&lt;ul>
+&lt;h2 id="资源利用和效率">资源利用和效率 &lt;a href="#%e8%b5%84%e6%ba%90%e5%88%a9%e7%94%a8%e5%92%8c%e6%95%88%e7%8e%87" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
 &lt;li>评估方法
 &lt;ul>
 &lt;li>&lt;em>cell compaction&lt;/em>：通过移除机器来找出给定工作负载能适应的最小的单元大小，然后反复从头开始重新打包工作负载，以确保不会因错误的配置而陷入困境&lt;/li>
@@ -167,8 +162,7 @@
 &lt;/ul>
 &lt;/li>
 &lt;li>
-&lt;h2 id="隔离与安全性">隔离与安全性：&lt;/h2>
-&lt;ul>
+&lt;h2 id="隔离与安全性">隔离与安全性： &lt;a href="#%e9%9a%94%e7%a6%bb%e4%b8%8e%e5%ae%89%e5%85%a8%e6%80%a7" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
 &lt;li>安全隔离
 &lt;ul>
 &lt;li>使用Linux chroot jail在共享同一台机器的任务之间确保安全性&lt;/li>
@@ -194,11 +188,9 @@
 &lt;/ul>
 &lt;/li>
 &lt;li>
-&lt;h2 id="经验教训">经验教训：&lt;/h2>
-&lt;ul>
+&lt;h2 id="经验教训">经验教训： &lt;a href="#%e7%bb%8f%e9%aa%8c%e6%95%99%e8%ae%ad" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
 &lt;li>
-&lt;h3 id="负面经验">负面经验&lt;/h3>
-&lt;ul>
+&lt;h3 id="负面经验">负面经验 &lt;a href="#%e8%b4%9f%e9%9d%a2%e7%bb%8f%e9%aa%8c" class="anchor">🔗&lt;/a>&lt;/h3>&lt;ul>
 &lt;li>&lt;em>Job&lt;/em>作为&lt;em>Task&lt;/em>的唯一分组机制的局限性
 &lt;ul>
 &lt;li>缺乏将整个多&lt;em>Job&lt;/em>服务作为单一实体进行管理，或引用服务相关&lt;em>Job&lt;/em>（如Canary与Prod滚动更新）的方式&lt;/li>
@@ -223,8 +215,7 @@
 &lt;/ul>
 &lt;/li>
 &lt;li>
-&lt;h3 id="积极经验">积极经验&lt;/h3>
-&lt;ul>
+&lt;h3 id="积极经验">积极经验 &lt;a href="#%e7%a7%af%e6%9e%81%e7%bb%8f%e9%aa%8c" class="anchor">🔗&lt;/a>&lt;/h3>&lt;ul>
 &lt;li>Allocs是有用的
 &lt;ul>
 &lt;li>Kubernetes中的Alloc等效物是Pod，它是一个资源包，用于一个或多个容器，总是被调度到同一台机器上并可以共享资源&lt;/li>

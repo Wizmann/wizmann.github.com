@@ -1,11 +1,56 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Programming Interview on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/programming-interview/</link><description>Recent content in Programming Interview on Maerlyn's Rainbow</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Sun, 16 Nov 2014 01:03:14 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/programming-interview/index.xml" rel="self" type="application/rss+xml"/><item><title>Reasons They Recruit</title><link>https://wizmann.top/posts/reasons-they-recruit/</link><pubDate>Sun, 16 Nov 2014 01:03:14 +0000</pubDate><guid>https://wizmann.top/posts/reasons-they-recruit/</guid><description>&lt;blockquote>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Programming Interview on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/programming-interview/</link><description>Recent content in Programming Interview on Maerlyn's Rainbow</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Sun, 16 Nov 2014 01:03:14 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/programming-interview/index.xml" rel="self" type="application/rss+xml"/><item><title>Reasons They Recruit</title><link>https://wizmann.top/posts/reasons-they-recruit/</link><pubDate>Sun, 16 Nov 2014 01:03:14 +0000</pubDate><guid>https://wizmann.top/posts/reasons-they-recruit/</guid><description>&lt;blockquote>
 &lt;p>From &lt;em>Ace of Programming Interview&lt;/em>, Cpt1 - Hiring Programmers: The Inside Story&lt;/p>&lt;/blockquote>
-&lt;h2 id="establish-a-rapport">Establish a Rapport&lt;/h2>
-&lt;p>For an interviewee, one the the most efficient way to build a rapport is to &lt;strong>try to see things in from the interviewer&amp;rsquo;s perspective&lt;/strong>.&lt;/p>
+&lt;h2 id="establish-a-rapport">Establish a Rapport &lt;a href="#establish-a-rapport" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>For an interviewee, one the the most efficient way to build a rapport is to &lt;strong>try to see things in from the interviewer&amp;rsquo;s perspective&lt;/strong>.&lt;/p>
 &lt;ul>
 &lt;li>understand the motivation of the interviewer&lt;/li>
 &lt;li>establishing a common ground&lt;/li>
 &lt;li>adapting your responses appropritely&lt;/li>
 &lt;/ul>
-&lt;h2 id="reasons-they-recruit">Reasons They Recruit&lt;/h2>
-&lt;p>If you know what the reason is and understand the motivation for it, then you can optimize your approach accordingly.&lt;/p></description></item></channel></rss>
+&lt;h2 id="reasons-they-recruit">Reasons They Recruit &lt;a href="#reasons-they-recruit" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>If you know what the reason is and understand the motivation for it, then you can optimize your approach accordingly.&lt;/p>
+&lt;h3 id="planned-expansion">Planned Expansion &lt;a href="#planned-expansion" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>This is a common scenario that the company&amp;rsquo;s expansion require them to take on more programmers accordance with the comming business growth.&lt;/p>
+&lt;h4 id="the-interviewer-vs-you">The Interviewer vs. You &lt;a href="#the-interviewer-vs-you" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>As the hiring is due to a long plan, so the interviewer is unlikely to feel a great sence of urgency. The interviewer will have a well prepared job description (a.k.a JD), or even a person profile. The interviewer are unlikely to compromise their pre-determined requirements. If you are deviate from their expectation, they will probable be less open to giving you the offer.&lt;/p>
+&lt;p>Your approach is to &lt;strong>highlight&lt;/strong> these areas which matches to the job profile. That&amp;rsquo;s the easy part.&lt;/p>
+&lt;p>If your skills are not a good fit, you can use these three tricks below to change the situation.&lt;/p>
+&lt;ul>
+&lt;li>Play it down&lt;/li>
+&lt;/ul>
+&lt;p>Your first choice is to downplay the perceived gap in skills &amp;ndash; including the option of substituting other experience as being of equivalent value.&lt;/p>
+&lt;p>For example,&lt;/p>
+&lt;blockquote>
+&lt;p>“It’s been my experience that it never takes long to learn the basics of a new component library, since, as programmers, we face an endless supply of new components and frameworks both open source and from the major vendors.”&lt;/p>&lt;/blockquote>
+&lt;p>or,&lt;/p>
+&lt;blockquote>
+&lt;p>“One thing I really like about programming is the experience of learning new
+technologies and platforms. It’s part of the ongoing attraction of the job.”&lt;/p>&lt;/blockquote>
+&lt;p>However, the biggest risk in taking this approach is that you might appear evasive, so be wary of overdoing it.&lt;/p>
+&lt;ul>
+&lt;li>Take it on the chin&lt;/li>
+&lt;/ul>
+&lt;p>If you decide to take it on the chin, simply agree with the interviewer&amp;rsquo;s observation and at the same time show your enthusiasm for learning something new.&lt;/p>
+&lt;blockquote>
+&lt;p>“I don’t have experience of that particular technology but I would really enjoy learning it.”&lt;/p>&lt;/blockquote>
+&lt;p>If the interviewer persists, you might feel it appropriate to ask how other developers in the team might learn new things.&lt;/p>
+&lt;blockquote>
+&lt;p>“Could you describe how the developers in your team generally learn new skills?”&lt;/p>&lt;/blockquote>
+&lt;p>Each example the interviewer gives you is an opportunity to show how, as a part of the team, you would &lt;strong>benefit the same approach&lt;/strong> and so acquire the necessary skill.&lt;/p>
+&lt;ul>
+&lt;li>Understand the requirement&lt;/li>
+&lt;/ul>
+&lt;p>Your third option is to gently probe the motives underpinning the requirement. The basic idea is that you explore the requirement looking to show that you understand and can meaningfully address the underlying requirement despite lacking a specific skill or experience.&lt;/p>
+&lt;p>Whatever approach you take, keep in mind that you should not &lt;strong>dwell on any particular mismatch&lt;/strong>. In particular, keep you comment brief and to the point. The more you talk about it, the more prominence it will have in the interviewer&amp;rsquo;s memory of the interview when they reflect afterward.&lt;/p>
+&lt;h3 id="specific-projet">Specific Projet &lt;a href="#specific-projet" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>When a company spots an opportunity in the market, it might scramble to put
+together a development team focused on delivering a solution to capitalize on
+the opportunity.&lt;/p>
+&lt;h4 id="the-interviewer-vs-you-1">The Interviewer vs. You &lt;a href="#the-interviewer-vs-you-1" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>The interviewer wants to know that you can work under pressure, and that you are someone who finishes what you start. Sometimes that the pressure to hire can relax the strictness with which the interviewer will match your experience against the details of job specification, although of course you can&amp;rsquo;t assume that case.&lt;/p>
+&lt;p>Be ware that although you have to demonstrate how your skills and experience are good match for the position, the interviewer also probable has the need of specific project in mind. You enthusiasm and ability to adapt might count for more than usual. Showing an ability of &lt;strong>grasp key aspect of project&lt;/strong> give you an advantage over others.&lt;/p>
+&lt;p>If you are not sure of the motivation of hiring, there&amp;rsquo;s absolutely no harm to ask directly:&lt;/p>
+&lt;blockquote>
+&lt;p>Could I ask why you are recruiting? Is it for a specific project?&lt;/p>&lt;/blockquote>
+&lt;h3 id="replacing-someone">Replacing Someone &lt;a href="#replacing-someone" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>This is another common reason for hiring simply to replace someone who is leaving or has left the company.&lt;/p>
+&lt;h4 id="the-interviewer-vs-you-2">The Interviewer vs. You &lt;a href="#the-interviewer-vs-you-2" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>An interesting aspect of this situation is that they will probably have experience of a previous person i lling this role, for better or for worse, and will therefore have a list of things they want to ensure the next person will and won’t bring to the role.&lt;/p>
+&lt;p>Unless you are very lucky, you can&amp;rsquo;t gather insight into what interviewer like or dislike prior to the interview. What you can do at the interview is ask about &lt;strong>unique challenge for the role&lt;/strong>, things for which you might to need to be on guard, and so on:&lt;/p>
+&lt;blockquote>
+&lt;p>“Could you tell me a bit about the challenges of this role that might make it different from the usual programming job?”&lt;/p>&lt;/blockquote>
+&lt;p>If you ask right questions, you may get vatal clues about the things you need to highlight with regard to your experience and ability:&lt;/p>
+&lt;blockquote>
+&lt;p>“Can I ask whether there have been issues about how the team has been working together that make this ability particularly important?”&lt;/p>&lt;/blockquote></description></item></channel></rss>

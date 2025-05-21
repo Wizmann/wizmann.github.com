@@ -1,21 +1,674 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>System Design on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/system-design/</link><description>Recent content in System Design on Maerlyn's Rainbow</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Sun, 29 Nov 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/system-design/index.xml" rel="self" type="application/rss+xml"/><item><title>Introduction to Ceph</title><link>https://wizmann.top/posts/introduction-to-ceph/</link><pubDate>Sun, 29 Nov 2020 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/introduction-to-ceph/</guid><description>&lt;h2 id="什么是ceph">什么是Ceph&lt;/h2>
-&lt;p>Ceph是一个可扩展的，高性能的分布式存储系统。提供了三种不同类型的接口以适应不同的应用场景：&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>System Design on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/system-design/</link><description>Recent content in System Design on Maerlyn's Rainbow</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Sun, 29 Nov 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/system-design/index.xml" rel="self" type="application/rss+xml"/><item><title>Introduction to Ceph</title><link>https://wizmann.top/posts/introduction-to-ceph/</link><pubDate>Sun, 29 Nov 2020 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/introduction-to-ceph/</guid><description>&lt;h2 id="什么是ceph">什么是Ceph &lt;a href="#%e4%bb%80%e4%b9%88%e6%98%afceph" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>Ceph是一个可扩展的，高性能的分布式存储系统。提供了三种不同类型的接口以适应不同的应用场景：&lt;/p>
 &lt;ul>
 &lt;li>block-based: 块存储，可以用做VM的虚拟磁盘&lt;/li>
 &lt;li>object-based: 对象存储，与Amazon S3等常用对象存储兼容&lt;/li>
 &lt;li>file system: POSIX兼容的分布式文件系统，可以被本地系统挂载，并且能被多个客户端共享&lt;/li>
 &lt;/ul>
-&lt;p>&lt;img src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/20-11-28/2020-11-28_22-04-49.png" alt="">&lt;/p></description></item><item><title>自定义你的stream buffer - phxrpc阅读笔记(1)</title><link>https://wizmann.top/posts/phxrpc-1/</link><pubDate>Wed, 28 Sep 2016 22:35:55 +0000</pubDate><guid>https://wizmann.top/posts/phxrpc-1/</guid><description>&lt;h2 id="写在前面">写在前面&lt;/h2>
-&lt;p>&lt;a href="https://github.com/tencent-wechat/phxrpc">phxrpc&lt;/a>是微信团队开源的一个轻量级RPC框架。&lt;/p>
-&lt;p>我对RPC这些东西了解不多，看到phxrpc的代码相对简单，而且还在初步开发阶段（在本文写作时，版本号是0.8）。所以想读一读，提高一下姿势水平。&lt;/p></description></item><item><title>Using Set Cover to Optimize a Large-Scale Low Latency Distributed Graph</title><link>https://wizmann.top/posts/using-set-cover-algorithm-to-optimize-a-large-scale-low-latency-distributed-graph/</link><pubDate>Sun, 26 Jul 2015 22:48:33 +0000</pubDate><guid>https://wizmann.top/posts/using-set-cover-algorithm-to-optimize-a-large-scale-low-latency-distributed-graph/</guid><description>&lt;h2 id="background">Background&lt;/h2>
-&lt;p>Linkedin (or other social networks, such as Facebook and G+) use the &amp;ldquo;social graph information&amp;rdquo; to show the social relationship between you and other members.&lt;/p>
+&lt;p>&lt;img src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/20-11-28/2020-11-28_22-04-49.png" alt="">&lt;/p>
+&lt;h3 id="ceph的特性">Ceph的特性 &lt;a href="#ceph%e7%9a%84%e7%89%b9%e6%80%a7" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>由于采用了CRUSH算法，Ceph有着优异的可扩展性（宣称可以无限扩展）。并且借助可扩展性，进而实现高性能、高可靠性和高可用性。&lt;/p>
+&lt;p>Ceph是一个去中心化的存储系统，无需中心节点进行资源的管理与调度，全部的管理功能由存储节点自治完成。使得整个系统可以自我管理与自我恢复，减少运维成本与管理成本。&lt;/p>
+&lt;h2 id="rados---ceph的存储引擎">RADOS - Ceph的存储引擎 &lt;a href="#rados---ceph%e7%9a%84%e5%ad%98%e5%82%a8%e5%bc%95%e6%93%8e" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>RADOS=Reliable Autonomic Distributed Object Store。RADOS是Ceph底层的存储引擎，所有的接口都建立在RADOS的功能之上。&lt;/p>
+&lt;h3 id="rados中的存储结构">RADOS中的存储结构 &lt;a href="#rados%e4%b8%ad%e7%9a%84%e5%ad%98%e5%82%a8%e7%bb%93%e6%9e%84" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>&lt;img src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/20-11-28/2020-11-28_22-24-56.png" alt="">&lt;/p>
+&lt;ul>
+&lt;li>存储池（pool）：逻辑层，每一个pool里都包含一些放置组&lt;/li>
+&lt;li>放置组（placement-group, PG)：逻辑层，一份数据会在PG当中进行灾备复制。每一个PG都对应着一系列的存储节点&lt;/li>
+&lt;li>存储节点（OSD）：用以存储数据的物理节点。与PG之间形成多对多的关系。&lt;/li>
+&lt;/ul>
+&lt;p>一份数据在写入RADOS时，会先选中一个pool。Pool中再使用一定的hash规则，伪随机的选中某一个PG。PG会将数据写入多个OSD中。读取数据时，也是类似的规则。&lt;/p>
+&lt;p>Pool是用户可见的管理数据的基本单位，用户可以对Pool进行一系列的配置（权限控制、使用SSD or HDD、使用数据拷贝 or 纠删码，etc.）。而PG与OSD对于用户是不可见的。&lt;/p>
+&lt;p>&lt;img src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/20-11-28/2020-11-28_23-00-51.png" alt="">&lt;/p>
+&lt;h4 id="pg的组织">PG的组织 &lt;a href="#pg%e7%9a%84%e7%bb%84%e7%bb%87" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>在一致性哈希中，我们使用节点来划分哈希值域。这种方法的问题是，如果产生了数据不平衡，我们需要重新进行划分值域来进行再平衡。这会造成大量的数据迁移。&lt;/p>
+&lt;p>CRUSH采用了虚拟节点（也就是PG）将哈希值域划分成了固定的等长区域。这种方法在单条数据与物理节点之间加入了一个虚拟层。之后，再使用哈希取模的算法确定数据属于哪个PG。使得数据的迁移是以虚拟节点为单位，而不是对每一条数据都重新计算。Ceph官方的建议是，每1个OSD对应着100个PG。&lt;/p>
+&lt;p>一般情况下，在规划的初期需要确定PG的数目，如果后期需要调整PG，有可能会导致大量的数据迁移，甚至需要服务暂时停止服务。&lt;/p>
+&lt;h3 id="监控子集群mon与cluster-map">监控子集群（MON）与Cluster Map &lt;a href="#%e7%9b%91%e6%8e%a7%e5%ad%90%e9%9b%86%e7%be%a4mon%e4%b8%8ecluster-map" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>&lt;img src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/20-11-28/2020-11-28_22-48-10.png" alt="">&lt;/p>
+&lt;p>RADOS集群中除了OSD存储节点之外，还有监控子集群（MON），用于存储系统的拓扑结构——Cluster Map。&lt;/p>
+&lt;blockquote>
+&lt;p>元数组管理（MDS）节点用于管理CephFS中的文件元信息，后文会有介绍。&lt;/p>&lt;/blockquote>
+&lt;p>不同于传统的中心化管理节点，MON并不会对资源进行调配与调度，而仅仅是一个观测者，用以存储系统当前的拓扑与状态。&lt;/p>
+&lt;p>MON与OSD、OSD与OSD之间会定时发送心跳包，检测OSD是否健康。如果某个节点失效，MON会更新内部存储的拓扑结构信息（ClusterMap），并且通过P2P协议广播出去，从而使得整个系统都有着（最终）一致的拓扑信息。&lt;/p>
+&lt;h3 id="主从同步与节点自治">主从同步与节点自治 &lt;a href="#%e4%b8%bb%e4%bb%8e%e5%90%8c%e6%ad%a5%e4%b8%8e%e8%8a%82%e7%82%b9%e8%87%aa%e6%b2%bb" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>在一个PG中，会有一个主节点（Primary）和一个或多个从节点（Secondary）。主节点负责维护从节点的状态，包括数据复制（replication）、失效检测（failure detection）和失效恢复（failure recovery）。&lt;/p>
+&lt;h2 id="crush---ceph皇冠上的明珠">CRUSH - Ceph皇冠上的明珠 &lt;a href="#crush---ceph%e7%9a%87%e5%86%a0%e4%b8%8a%e7%9a%84%e6%98%8e%e7%8f%a0" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>CRUSH是一个可扩展的，伪随机的数据放置算法。以去中心化方法，将PG按规则映射到相应的存储设备上。并且系统的拓扑结构发生变化时，尽可能的减少数据的迁移。&lt;/p>
+&lt;h3 id="crush的优势">CRUSH的优势 &lt;a href="#crush%e7%9a%84%e4%bc%98%e5%8a%bf" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>CRUSH对于每一个数据元素使用一个伪随机算法，决定其放置的位置。所以，只要所有参与者都拥有相同的系统拓扑结构信息，那么数据的位置就是一定的。所以我们可以去掉中心节点，采用P2P的方法来进行数据的存储与检索。&lt;/p>
+&lt;p>并且，由于伪随机算法只与单个PG相关，如果我们操作得当，节点数量的变化并不会引起大量的数据迁移，而是会接近理论最优值。&lt;/p>
+&lt;h3 id="数据放置data-placement">数据放置（Data Placement） &lt;a href="#%e6%95%b0%e6%8d%ae%e6%94%be%e7%bd%aedata-placement" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>CRUSH的数据放置算法有很多不同的实现，这里只介绍最常用的straw算法。&lt;/p>
+&lt;p>Ceph中，每一个OSD节点都有一个权值w，代表着某个节点能支持多少数据的存储与检索。一般来说，权值与节点的容量成正比。&lt;/p>
+&lt;p>假设一个pool里面有n个PG，在一条新的数据写入时，我们分别会计算这n个PG的length值。&lt;/p>
+&lt;p>$$ length_{i} = f(w_{i}) * hash(x) $$&lt;/p>
+&lt;p>$f(w_{i})$是一个只于当前OSD节点权值有关的函数。$hash(x)$代表当前PG的哈希值。所以，PG会放置在哪个OSD上，仅与其权值相关。&lt;/p>
+&lt;p>假设某个OSD节点发生变化时（新加、删除、权值变化），在此受影响节点的数据会迁移到其它的OSD节点。其它OSD节点的原有数据并不会受到影响。&lt;/p>
+&lt;blockquote>
+&lt;p>Ceph当中的straw算法有&lt;code>straw1&lt;/code>和&lt;code>straw2&lt;/code>。&lt;code>straw1&lt;/code>的实现采用了有缺陷f(w)函数，会导致意外的数据迁移。&lt;code>straw2&lt;/code>解决了这个问题。
+详情请戳&lt;a href="https://www.spinics.net/lists/ceph-devel/msg21635.html">这里&lt;/a>&lt;/p>&lt;/blockquote>
+&lt;h4 id="主从架构">主从架构 &lt;a href="#%e4%b8%bb%e4%bb%8e%e6%9e%b6%e6%9e%84" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>每个PG所包含的OSD都由CRUSH算法计算得出，并根据配置选出前r个OSD进行主从配对。列表中的第1个OSD做为主节点（Primary），其它的节点为从节点（Secondary）。&lt;/p>
+&lt;p>主从节点的分配与管理由PG内部进行自治，不需要额外的外部系统进行管理。&lt;/p>
+&lt;h2 id="cephfs">CephFS &lt;a href="#cephfs" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>CephFS是一个POSIX兼容的（共享）文件系统。CephFS利用文件元数据子系统（MDS）来维护目录树结构和文件和目录的元信息（owner, timestamps, inodes, etc.)等。&lt;/p>
+&lt;p>MDS子系统会在内存里面维护一份Cache，对于需要持久化的信息，会使用WAL的方式写入RADOS里一个专用的Pool当中。&lt;/p>
+&lt;h3 id="动态树划分dynamic-tree-partitioningdtp">动态树划分（Dynamic Tree Partitioning，DTP） &lt;a href="#%e5%8a%a8%e6%80%81%e6%a0%91%e5%88%92%e5%88%86dynamic-tree-partitioningdtp" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>CephFS的扩展性的关键之一，在于元信息子系统的扩展性。CephFS实现了动态树划分的算法，将目录树结构根据当前系统的负载，将其划分到不同的MDS节点上去。&lt;/p>
+&lt;p>维护目录树结构的优势在于利用了文件系统的局部性（locality），可以方便的进行预取（prefetch）。动态的树划分，可以保证元信息可以线性增长，以保持高可扩展性。&lt;/p>
+&lt;p>&lt;img src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/20-11-29/2020-11-29_18-53-09.png" alt="">&lt;/p>
+&lt;h2 id="写在最后">写在最后 &lt;a href="#%e5%86%99%e5%9c%a8%e6%9c%80%e5%90%8e" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>本文基于Ceph的三篇论文综合而成（CephFS、RADOS、CRUSH）。其中加入了一些自己的看法，使其逻辑通顺，并不保证与论文的思路完全一致。&lt;/p>
+&lt;p>这三篇论文并没有明确的依赖关系，换句话说，需要综合阅读，才能有比较明确的理解。&lt;/p>
+&lt;p>建议在通读论文后，去学习一下&lt;a href="https://www.youtube.com/watch?v=PmLPbrf-x9g&amp;amp;ab_channel=Ceph">这个视频&lt;/a>，会对理解Ceph有很大的帮助。Youtube上面还有很多Ceph的tech talk，可以一并的了解一下。&lt;/p>
+&lt;p>Ceph相关的书籍以实践居多，只推荐&lt;a href="https://www.oreilly.com/library/view/learning-ceph-/9781787127913/">Learning Ceph&lt;/a>。&lt;/p>
+&lt;h2 id="参考链接">参考链接 &lt;a href="#%e5%8f%82%e8%80%83%e9%93%be%e6%8e%a5" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://crossoverjie.top/2018/01/08/Consistent-Hash/">一致性 Hash 算法分析&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://zhuanlan.zhihu.com/p/60963885">从一致性 hash 到 ceph crush&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://ceph.io/publications/">Ceph Publications&lt;/a>&lt;/li>
+&lt;/ul></description></item><item><title>自定义你的stream buffer - phxrpc阅读笔记(1)</title><link>https://wizmann.top/posts/phxrpc-1/</link><pubDate>Wed, 28 Sep 2016 22:35:55 +0000</pubDate><guid>https://wizmann.top/posts/phxrpc-1/</guid><description>&lt;h2 id="写在前面">写在前面 &lt;a href="#%e5%86%99%e5%9c%a8%e5%89%8d%e9%9d%a2" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>&lt;a href="https://github.com/tencent-wechat/phxrpc">phxrpc&lt;/a>是微信团队开源的一个轻量级RPC框架。&lt;/p>
+&lt;p>我对RPC这些东西了解不多，看到phxrpc的代码相对简单，而且还在初步开发阶段（在本文写作时，版本号是0.8）。所以想读一读，提高一下姿势水平。&lt;/p>
+&lt;p>就是这样。&lt;/p>
+&lt;h2 id="自定义stream-buffer">自定义stream buffer &lt;a href="#%e8%87%aa%e5%ae%9a%e4%b9%89stream-buffer" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>&lt;code>network/socket_stream_base.[h|cpp]&lt;/code>中的&lt;code>class BaseTcpStreamBuf&lt;/code>继承了&lt;code>std::streambuf&lt;/code>，自定义了一个流缓冲区，用于接收/发送TCP数据包。&lt;/p>
+&lt;p>这个用法比较新颖（或者是我见识少），网上的资料也不多。这里翻译一篇&lt;a href="http://www.mr-edd.co.uk/blog/beginners_guide_streambuf">介绍文章&lt;/a>，学习一下新姿势。&lt;/p>
+&lt;h2 id="a-beginners-guide-to-writing-a-custom-stream-buffer">A beginner&amp;rsquo;s guide to writing a custom stream buffer &lt;a href="#a-beginners-guide-to-writing-a-custom-stream-buffer" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>流(streams)是STL中提供的一个重要的抽象概念。著名的“Hello world”程序，便是使用了std::cout将字符串写入标准输出流(stdout)。&lt;/p>
+&lt;p>流当然可以做比cin/cout更有意思的事。这篇文章我们会研究如何扩展C++流，来实现自定义的流缓冲区(stream buffer)。p.s. 建议本文的读者至少要有基础的C++知识。&lt;/p>
+&lt;p>C++标准库为磁盘文件操作提供了基础的接口，如&lt;code>std::fstream&lt;/code>，&lt;code>std::ifstream&lt;/code>和&lt;code>std::ofstream&lt;/code>。我们还有&lt;code>stringstream&lt;/code>，可以像流一样操作字符串。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>std&lt;span style="color:#f92672">::&lt;/span>ostringstream oss;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>oss &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;Hello, world!&lt;/span>&lt;span style="color:#ae81ff">\\&lt;/span>&lt;span style="color:#e6db74">n&amp;#34;&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>oss &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#ae81ff">123&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#960050;background-color:#1e0010">&amp;#39;\\&lt;/span>n&lt;span style="color:#960050;background-color:#1e0010">&amp;#39;&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>std&lt;span style="color:#f92672">::&lt;/span>string s &lt;span style="color:#f92672">=&lt;/span> oss.str();
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>相似的，我们可以从&lt;code>std::istringstream&lt;/code>中使用&lt;code>&amp;gt;&amp;gt;&lt;/code>操作符读取数据。&lt;/p>
+&lt;p>Boost库中的&lt;code>lexical_cast&lt;/code>正是使用了这种机制，让用户可以使用统一的方式将一个对象(object)转换为字符串表示。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> boost&lt;span style="color:#f92672">::&lt;/span>lexical_cast;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>string;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> x &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">5&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>string s &lt;span style="color:#f92672">=&lt;/span> lexical_cast&lt;span style="color:#f92672">&amp;lt;&lt;/span>string&lt;span style="color:#f92672">&amp;gt;&lt;/span>(x);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>assert(s &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#e6db74">&amp;#34;5&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>流缓冲区有着很强的灵活性，可以满足不同的“缓冲并传输字符（串）”需求，比如文件操作、字符串操作、命令行(Console)操作等。我们可以从网络、闪存(Flash memory)等不同设备，使用同样的接口获取流式字符串。“流缓冲区”与“流”是正交的，所以我们可以自由的交换、更改(swap and change)流所使用的缓冲区，或者将其重定向到其它地方。我认为C++中的流，正是“策略模式”(strategy design pattern)的一个良好范例。&lt;/p>
+&lt;p>比如，我们可以重定向标准日志流&lt;code>std::clog&lt;/code>到一个字符串流：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;iostream&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;iomanip&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;string&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;sstream&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span>()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>ostringstream oss;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// Make clog use the buffer from oss
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>streambuf &lt;span style="color:#f92672">*&lt;/span>former_buff &lt;span style="color:#f92672">=&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>clog.rdbuf(oss.rdbuf());
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>clog &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;This will appear in oss!&amp;#34;&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>flush;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> oss.str() &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#960050;background-color:#1e0010">&amp;#39;\\&lt;/span>n&lt;span style="color:#960050;background-color:#1e0010">&amp;#39;&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// Give clog back its previous buffer
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>clog.rdbuf(former_buff);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>不过，自定义一个流缓冲区却是有一点tricky，或者说有一点吓人，尤其是当你第一次尝试的时候。所以本文意在提供一些流缓冲的实现范例。&lt;/p>
+&lt;p>首先我们来看一下流缓冲区的一些基本概念。所有的流缓冲区继承自&lt;code>std::streambuf&lt;/code>，并且需要覆盖一些虚函数来实现自定义功能。&lt;code>std::streambuf&lt;/code>是“顺序读取设备”的一个抽象，即我们可以从中顺序的读取字符序列。在特定的场景下，我们可以重填(re-fill)、冲洗(flush)以及清空(empty)一个缓冲区。&lt;/p>
+&lt;p>当我们向一个&lt;code>ostream&lt;/code>中插入数据时，数据将会被写入缓冲区中的一个数组。当数组上溢(overflow)时，数组中的数据将会被冲洗(flush)到目标接受者，之后这个数组的状态将会重置，以便存储后续的字符。&lt;/p>
+&lt;p>当我们从一个&lt;code>istream&lt;/code>中获取数据时，数据从缓冲区的数组中读出。当数组下溢时(underflow)，没有数据可读，我们会从数据源重新拉取信息来填充缓冲区，之后这个数组的状态也将被重置。&lt;/p>
+&lt;p>我们使用6个指针，来维护缓冲区的内部状态。输入和输出缓冲各使用3个指针。&lt;/p>
+&lt;h3 id="维护输出缓冲区的状态">维护输出缓冲区的状态 &lt;a href="#%e7%bb%b4%e6%8a%a4%e8%be%93%e5%87%ba%e7%bc%93%e5%86%b2%e5%8c%ba%e7%9a%84%e7%8a%b6%e6%80%81" class="anchor">🔗&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>
+&lt;p>put base pointer &lt;br>
+输出基指针，用来指定缓冲区内部数组的第一个元素。可以使用&lt;code>std::streambuf::pbase()&lt;/code>来获取&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>put pointer &lt;br>
+输出指针，用来指向内部数组下一个写入的地址。可以使用&lt;code>std::streambuf::pptr()&lt;/code>来获取&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>end put pointer &lt;br>
+输出哨兵指针，指向内部数组最后一个再后面一个(one-past-the-last-element)的地址（译注：类似&lt;code>std::vector::end()&lt;/code>）。可以使用&lt;code>std::streambuf:epptr()&lt;/code>来获取&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="http://i1.piimg.com/567571/630a89fe635e1635.png" alt="">&lt;/p>
+&lt;p>一般来说，基指针和哨兵指针不会改变，在使用时，以输出指针维护内部状态。&lt;/p>
+&lt;h3 id="维护输入缓冲区的状态">维护输入缓冲区的状态 &lt;a href="#%e7%bb%b4%e6%8a%a4%e8%be%93%e5%85%a5%e7%bc%93%e5%86%b2%e5%8c%ba%e7%9a%84%e7%8a%b6%e6%80%81" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>输入缓冲区和状态维护和输出缓冲区类似，我们有：&lt;/p>
+&lt;ul>
+&lt;li>end back pointer &lt;br>
+输入基指针，指向缓冲区数组内的最后一个字符。可以使用&lt;code>std::streambuf::eback()&lt;/code>来获取&lt;/li>
+&lt;li>get pointer &lt;br>
+输入指针，指向缓冲区下一个读取的字符地址。可以使用&lt;code>std::streambuf::gptr()&lt;/code>来获取&lt;/li>
+&lt;li>end get pointer &lt;br>
+输入哨兵指针，批号向内部数组最后一个再后面一个(one-past-the-last-element)的地址。可以使用&lt;code>std::streambuf::egptr()&lt;/code>来获取&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/16-9-27/33500590.jpg" alt="">&lt;/p>
+&lt;p>同样，基指针和哨兵指针在流缓冲区的生命周期中也不会改变。&lt;/p>
+&lt;p>由于输入缓冲区要支持&lt;code>putback()&lt;/code>操作，即将读出的字符重新放回缓冲区，所以输入缓冲区比输出缓冲区更复杂一点。通常来说，&lt;code>putback()&lt;/code>操作支持放回一个字符即可。&lt;/p>
+&lt;p>一个&lt;code>std::streambuf&lt;/code>可以同时支持输入输出两种操作，所以我们不需要我分别实现&lt;code>std::istreambuf&lt;/code>和&lt;code>std::ostreambuf&lt;/code>。&lt;code>std::fstream&lt;/code>是一个良好的例子。但是，实现一个全功能的缓冲区相对更复杂一些，所以我就不趟浑水啦~ ：）&lt;/p>
+&lt;p>同时，流缓冲区也可以支持宽字符(wide character)。&lt;code>std::streambuf&lt;/code>是&lt;code>std::basic_streambuf&amp;lt;char&amp;gt;&lt;/code>的别名，如果你需要宽字符流缓冲区，可以使用&lt;code>std::basic_streambuf&amp;lt;wchar_t&amp;gt;&lt;/code>。&lt;/p>
+&lt;h3 id="例1文件缓冲区--与c代码集成">例1：文件缓冲区 —— 与C代码集成 &lt;a href="#%e4%be%8b1%e6%96%87%e4%bb%b6%e7%bc%93%e5%86%b2%e5%8c%ba--%e4%b8%8ec%e4%bb%a3%e7%a0%81%e9%9b%86%e6%88%90" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>假设我们需要调用一个历史悠久的库，一个文件操作函数会返回给一个&lt;code>FILE*&lt;/code>指针，但是我们想用C++的流接口来读写数据。我们先从读文件开始，用&lt;code>std::istream&lt;/code>包装&lt;code>FILE*&lt;/code>的读操作。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;streambuf&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;vector&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstdlib&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstdio&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">FILE_buffer&lt;/span> &lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#66d9ef">public&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>streambuf
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">public&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">explicit&lt;/span> FILE_buffer(FILE &lt;span style="color:#f92672">*&lt;/span>fptr, std&lt;span style="color:#f92672">::&lt;/span>size_t buff_sz &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">256&lt;/span>, std&lt;span style="color:#f92672">::&lt;/span>size_t put_back &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">8&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">private&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// overrides base class underflow()
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> int_type underflow();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// copy ctor and assignment not implemented;
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#75715e">// copying not allowed
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> FILE_buffer(&lt;span style="color:#66d9ef">const&lt;/span> FILE_buffer &lt;span style="color:#f92672">&amp;amp;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> FILE_buffer &lt;span style="color:#f92672">&amp;amp;&lt;/span>&lt;span style="color:#66d9ef">operator&lt;/span>&lt;span style="color:#f92672">=&lt;/span> (&lt;span style="color:#66d9ef">const&lt;/span> FILE_buffer &lt;span style="color:#f92672">&amp;amp;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">private&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> FILE &lt;span style="color:#f92672">*&lt;/span>fptr_;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">const&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>size_t put_back_;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>vector&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">char&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span> buffer_;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>由于功能简单，我们只需要实现构造函数以及&lt;code>underflow&lt;/code>接口就可以实现我们的功能。&lt;/p>
+&lt;p>构造函数指定了读取文件的&lt;code>FILE*&lt;/code>指针，以及内部缓冲数组的大小。数组大小由两个参数决定：&lt;/p>
+&lt;ul>
+&lt;li>put-back area size&lt;/li>
+&lt;li>buffer size&lt;/li>
+&lt;/ul>
+&lt;p>我们使用&lt;code>std::vector&amp;lt;char&amp;gt;&lt;/code>做为缓冲区域。&lt;code>put_back_&lt;/code>变量用于存储&amp;quot;put-back&amp;quot;区域的大小。&lt;/p>
+&lt;p>以下是构造函数的实现：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>size_t;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>FILE_buffer&lt;span style="color:#f92672">::&lt;/span>FILE_buffer(FILE &lt;span style="color:#f92672">*&lt;/span>fptr, size_t buff_sz, size_t put_back) &lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> fptr_(fptr),
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> put_back_(std&lt;span style="color:#f92672">::&lt;/span>max(put_back, size_t(&lt;span style="color:#ae81ff">1&lt;/span>))),
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> buffer_(std&lt;span style="color:#f92672">::&lt;/span>max(buff_sz, put_back_) &lt;span style="color:#f92672">+&lt;/span> put_back_)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>end &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#f92672">&amp;amp;&lt;/span>buffer_.front() &lt;span style="color:#f92672">+&lt;/span> buffer_.size();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> setg(end, end, end);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>在初始化列表中，我们将缓冲区的常量进行赋值。之后使用&lt;code>std::streambuf::setg()&lt;/code>来初始化输出缓冲区。&lt;/p>
+&lt;p>&lt;code>setg()&lt;/code>的三个参数分别代表&lt;code>eback()&lt;/code>，&lt;code>gptr()&lt;/code>，&lt;code>egptr()&lt;/code>三个内部指针的值。一开始，我们将它们都指向同一个地址。表明buffer是空的，在下一次读取时，会重新填充缓冲区。&lt;/p>
+&lt;p>&lt;code>underflow()&lt;/code>会返回数据源中当前的字符。一般来说，会返回buffer中的下一个可用字符。然后当buffer为空时，&lt;code>underflow()&lt;/code>应该重新填充缓冲区数组，在本例中，即从&lt;code>FILE*&lt;/code>中读取字符。当缓冲区重填后，我们需要再次调用&lt;code>setg()&lt;/code>更新流缓冲区的状态。&lt;/p>
+&lt;p>当数据源中的数据读完(depleted)后，&lt;code>underflow()&lt;/code>会返回一个&lt;code>traits_type::eof()&lt;/code>。这里要注意，&lt;code>underflow()&lt;/code>的返回值是&lt;code>int_type&lt;/code>，这个值足够装下&lt;code>eof()&lt;/code>，同时也足够装下任何的字符。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>std&lt;span style="color:#f92672">::&lt;/span>streambuf&lt;span style="color:#f92672">::&lt;/span>int_type FILE_buffer&lt;span style="color:#f92672">::&lt;/span>underflow()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (gptr() &lt;span style="color:#f92672">&amp;lt;&lt;/span> egptr()) &lt;span style="color:#75715e">// buffer not exhausted
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#66d9ef">return&lt;/span> traits_type&lt;span style="color:#f92672">::&lt;/span>to_int_type(&lt;span style="color:#f92672">*&lt;/span>gptr());
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>base &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#f92672">&amp;amp;&lt;/span>buffer_.front();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>start &lt;span style="color:#f92672">=&lt;/span> base;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (eback() &lt;span style="color:#f92672">==&lt;/span> base) &lt;span style="color:#75715e">// true when this isn&amp;#39;t the first fill
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// Make arrangements for putback characters
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>memmove(base, egptr() &lt;span style="color:#f92672">-&lt;/span> put_back_, put_back_);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> start &lt;span style="color:#f92672">+=&lt;/span> put_back_;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// start is now the start of the buffer, proper.
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#75715e">// Read from fptr_ in to the provided buffer
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> size_t n &lt;span style="color:#f92672">=&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>fread(start, &lt;span style="color:#ae81ff">1&lt;/span>, buffer_.size() &lt;span style="color:#f92672">-&lt;/span> (start &lt;span style="color:#f92672">-&lt;/span> base), fptr_);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (n &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> traits_type&lt;span style="color:#f92672">::&lt;/span>eof();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// Set buffer pointers
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> setg(base, start, start &lt;span style="color:#f92672">+&lt;/span> n);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> traits_type&lt;span style="color:#f92672">::&lt;/span>to_int_type(&lt;span style="color:#f92672">*&lt;/span>gptr());
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>函数的第一行，首先判断buffer是否耗尽。如果否，则返回当前字符，即&lt;code>*gptr()&lt;/code>。如果是，则进行重填(re-fill)操作。&lt;/p>
+&lt;p>回想一下我们在构造函数中的实现，三个状态指针全都指向缓冲区的末尾。如果我们调用&lt;code>underflow()&lt;/code>时，发现状态指针并非如此，则说明缓冲区已经被填充了至少一次。&lt;/p>
+&lt;p>现在我们考虑重填操作，我们&lt;code>memmove&lt;/code>最后&lt;code>put_back_&lt;/code>个字符到buffer的末尾，用做&amp;quot;put-back area&amp;quot;。（我们不用&lt;code>memcopy&lt;/code>因为我们的buffer比较小，`memmove()的效率会更高一些）&lt;/p>
+&lt;blockquote>
+&lt;p>译注：实际上，&lt;code>memcopy&lt;/code>与&lt;code>memmove&lt;/code>各有所长。&lt;code>memcopy&lt;/code>不需要判断内存overlap的情况，即如果源区间与目标区间有重叠，那么得到的结果会是错的。而&lt;code>memmove&lt;/code>由于是移动语义，所以在移动步长较小时，可以只操作cache。所以二者各有所长，要根据具体情况判断优劣。Stackoverflow上有更详细的&lt;a href="http://stackoverflow.com/questions/28623895/why-is-memmove-faster-than-memcpy">讨论&lt;/a>&lt;/p>&lt;/blockquote>
+&lt;p>我们处理完&amp;quot;put-back area&amp;quot;之后，就可以使用&lt;code>fread()&lt;/code>函数来重填缓冲区了。如果读不到数据，则意味着文件已经读到了结尾（当然这是一种简化情况，但在现实中99.9%的读取失败都是因为文件结束）。&lt;/p>
+&lt;p>在&lt;code>fread()&lt;/code>成功读取数据之后，我们通知streambuf更新内部的三个状态指针。之后返回buffer当前的指针。&lt;/p>
+&lt;p>这就是我们的流缓冲区的基本实现，希望这并不是太难。当然我们还可以添加更多的功能。特别的是我们可以在缓冲区里面进行查找。如果你想实现它的话，可以试试重写&lt;code>std::streambuf::seekoff()&lt;/code>和&lt;code>std::streambuf::seekpos&lt;/code>虚成员函数。&lt;/p>
+&lt;p>我们也可以实现写缓冲区。不过，在你们读完第三个例子之后，你们就可以轻松愉快的实现自己的版本了，不骗你。&lt;/p>
+&lt;h3 id="例2读取内存中的数组">例2：读取内存中的数组 &lt;a href="#%e4%be%8b2%e8%af%bb%e5%8f%96%e5%86%85%e5%ad%98%e4%b8%ad%e7%9a%84%e6%95%b0%e7%bb%84" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>本例中，我们要使用&lt;code>std::istream&lt;/code>包装内存中的一个只读数组，并且格式化的进行读入。这个例子和上一个例子有一点不同的是，我们并不需要一个真正的缓冲数组，从源数组一次性读取就好了。&lt;/p>
+&lt;p>想象中的实现是这个样式儿的：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">char_array_buffer&lt;/span> &lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#66d9ef">public&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>streambuf
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">public&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> char_array_buffer(&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>begin, &lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>end)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> setg(begin, begin, end);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> int_type &lt;span style="color:#a6e22e">underflow&lt;/span>()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> gptr() &lt;span style="color:#f92672">==&lt;/span> egptr() &lt;span style="color:#f92672">?&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> traits_type&lt;span style="color:#f92672">::&lt;/span>eof() &lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> traits_type&lt;span style="color:#f92672">::&lt;/span>to_int_type(&lt;span style="color:#f92672">*&lt;/span>gptr());
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>但是，这并没有什么卵用。因为&lt;code>setg()&lt;/code>函数只接受非常量(non-const)指针参数。这显而易见，如果一个缓冲区不可写，我们就不能提供&amp;quot;put-back&amp;quot;功能。所以我们要动一动手脚，重新实现一下这个类。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;streambuf&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">char_array_buffer&lt;/span> &lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#66d9ef">public&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>streambuf
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">public&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> char_array_buffer(&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>begin, &lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>end);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">explicit&lt;/span> &lt;span style="color:#a6e22e">char_array_buffer&lt;/span>(&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>str);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">private&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> int_type underflow();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> int_type &lt;span style="color:#a6e22e">uflow&lt;/span>();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> int_type &lt;span style="color:#a6e22e">pbackfail&lt;/span>(int_type ch);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>streamsize showmanyc();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// copy ctor and assignment not implemented;
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#75715e">// copying not allowed
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> char_array_buffer(&lt;span style="color:#66d9ef">const&lt;/span> char_array_buffer &lt;span style="color:#f92672">&amp;amp;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> char_array_buffer &lt;span style="color:#f92672">&amp;amp;&lt;/span>&lt;span style="color:#66d9ef">operator&lt;/span>&lt;span style="color:#f92672">=&lt;/span> (&lt;span style="color:#66d9ef">const&lt;/span> char_array_buffer &lt;span style="color:#f92672">&amp;amp;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">private&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span> &lt;span style="color:#66d9ef">const&lt;/span> begin_;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span> &lt;span style="color:#66d9ef">const&lt;/span> end_;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span> current_;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>在这个版本中，我们重写了几个私有函数，这些函数都是从&lt;code>std::streambuf&lt;/code>继承而来。&lt;/p>
+&lt;p>第一个构造函数需要用户指定起止指针，而第二个构造函数只需要指定起始指针，之后我们会调用&lt;code>std::strlen()&lt;/code>来判断字符串的大小。&lt;/p>
+&lt;p>我们使用&lt;code>uflow()&lt;/code>, &lt;code>pbackfail()&lt;/code>和&lt;code>showmanyc()&lt;/code>来维护缓冲区内部的状态，而不是调用&lt;code>setg()&lt;/code>，因为buffer并不可写。&lt;/p>
+&lt;p>在这个版本中，我们要手动维护&lt;code>eback&lt;/code>, &lt;code>gptr&lt;/code>, &lt;code>egptr&lt;/code>三个指针。在构造函数中，我们将对其进行赋值。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;#34;char_array_buffer.hpp&amp;#34;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;functional&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cassert&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstring&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>char_array_buffer&lt;span style="color:#f92672">::&lt;/span>char_array_buffer(&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>begin, &lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>end) &lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> begin_(begin),
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> end_(end),
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> current_(begin_)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> assert(std&lt;span style="color:#f92672">::&lt;/span>less_equal&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&amp;gt;&lt;/span>()(begin_, end_));
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>char_array_buffer&lt;span style="color:#f92672">::&lt;/span>char_array_buffer(&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>str) &lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> begin_(str),
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> end_(begin_ &lt;span style="color:#f92672">+&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>strlen(str)),
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> current_(begin_)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>之前我们使用&lt;code>underflow()&lt;/code>来获取当前字符，但这次我们需要使用&lt;code>uflow()&lt;/code>。因为&lt;code>uflow()&lt;/code>需要同时执行两步操作，一是获取当前字符，二是让&lt;code>gptr()&lt;/code>前进一步。但是又因为缓冲区由我们手动管理，&lt;code>std::streambuf&lt;/code>并不能正确的执行管理操作。所以我们需要重写&lt;code>uflow()&lt;/code>而不是&lt;code>underflow()&lt;/code>。&lt;/p>
+&lt;pre tabindex="0">&lt;code>char_array_buffer::int_type char_array_buffer::uflow()
+{
+if (current_ == end_)
+return traits_type::eof();
+return traits_type::to_int_type(*current_++);
+}
+&lt;/code>&lt;/pre>&lt;p>下一步我们还要实现&lt;code>pbackfail()&lt;/code>。当我们调用&lt;code>std::istream::unget()&lt;/code>或&lt;code>std::istream::putback(ch)&lt;/code>时，我们会把已经读出的数据写回数组中。但是由于数组是只读的，所以我们只能模拟这种操作。&lt;/p>
+&lt;p>在默认的实现中&lt;code>pbackfail()&lt;/code>只会返回&lt;code>traits_type::eof()&lt;/code>，而在我们的版本中，如果写回成功，将会返回写回的字符，不成功返回eof。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>char_array_buffer&lt;span style="color:#f92672">::&lt;/span>int_type char_array_buffer&lt;span style="color:#f92672">::&lt;/span>pbackfail(int_type ch)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (current_ &lt;span style="color:#f92672">==&lt;/span> begin_ &lt;span style="color:#f92672">||&lt;/span> (ch &lt;span style="color:#f92672">!=&lt;/span> traits_type&lt;span style="color:#f92672">::&lt;/span>eof() &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> ch &lt;span style="color:#f92672">!=&lt;/span> current_[&lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>]))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> traits_type&lt;span style="color:#f92672">::&lt;/span>eof();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> traits_type&lt;span style="color:#f92672">::&lt;/span>to_int_type(&lt;span style="color:#f92672">*--&lt;/span>current_);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>在&lt;code>FILE_buffer&lt;/code>中，我们也可以考虑重写&lt;code>pbackfail()&lt;/code>，来提供反向查找以及（用前面的数据）重填buffer的功能。&lt;/p>
+&lt;p>最后一个重写的函数是&lt;code>showmanyc()&lt;/code>，这个函数被&lt;code>std::streambuf::in_avail()&lt;/code>调用，以判断当前有多少个字符可以返回。由于我们接管了状态指针，所以这个函数也要我们自己来实现啊。（译者：为什么要给自己找麻烦。。。）&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>std&lt;span style="color:#f92672">::&lt;/span>streamsize char_array_buffer&lt;span style="color:#f92672">::&lt;/span>showmanyc()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> assert(std&lt;span style="color:#f92672">::&lt;/span>less_equal&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&amp;gt;&lt;/span>()(current_, end_));
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> end_ &lt;span style="color:#f92672">-&lt;/span> current_;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>由此可见，本例中的buffer比前面的要复杂一点点。这是因为我们接管了状态维护的工作。这使得我们更好的理解了&lt;code>std::streambuf&lt;/code>内部是如何工作的。&lt;/p>
+&lt;h3 id="例3句首变大写的缓冲区">例3：句首变大写的缓冲区 &lt;a href="#%e4%be%8b3%e5%8f%a5%e9%a6%96%e5%8f%98%e5%a4%a7%e5%86%99%e7%9a%84%e7%bc%93%e5%86%b2%e5%8c%ba" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>本例中我们将要实现一个将句首字符变大写的buffer。当然我们只考虑最基本的情况，移植到不同的区域和语言，其实是很琐碎的事情。（译者：文字编码坑的亲妈都不认了）&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;streambuf&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;iosfwd&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstdlib&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;vector&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">caps_buffer&lt;/span> &lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#66d9ef">public&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>streambuf
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">public&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">explicit&lt;/span> caps_buffer(std&lt;span style="color:#f92672">::&lt;/span>ostream &lt;span style="color:#f92672">&amp;amp;&lt;/span>sink, std&lt;span style="color:#f92672">::&lt;/span>size_t buff_sz &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">256&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">protected&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">bool&lt;/span> do_caps_and_flush();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">private&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> int_type overflow(int_type ch);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">sync&lt;/span>();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// copy ctor and assignment not implemented;
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#75715e">// copying not allowed
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> caps_buffer(&lt;span style="color:#66d9ef">const&lt;/span> caps_buffer &lt;span style="color:#f92672">&amp;amp;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> caps_buffer &lt;span style="color:#f92672">&amp;amp;&lt;/span>&lt;span style="color:#66d9ef">operator&lt;/span>&lt;span style="color:#f92672">=&lt;/span> (&lt;span style="color:#66d9ef">const&lt;/span> caps_buffer &lt;span style="color:#f92672">&amp;amp;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">private&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">bool&lt;/span> cap_next_;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>ostream &lt;span style="color:#f92672">&amp;amp;&lt;/span>sink_;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>vector&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">char&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span> buffer_;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这里我们需要重写&lt;code>overflow()&lt;/code>和&lt;code>sync()&lt;/code>函数。&lt;code>overflow()&lt;/code>在输入缓冲区满的时候被调用，并且在成功时返回任意非eof的值。&lt;/p>
+&lt;p>&lt;code>sync()&lt;/code>的作用是把当前的buffer写入目标，即使当前buffer并未填满。&lt;code>std::flush()&lt;/code>会调用&lt;code>sync()&lt;/code>函数，当失败时返回-1。&lt;/p>
+&lt;p>我们编写一个辅助函数&lt;code>do_caps_and_flush()&lt;/code>，用来将小写变大写，并写入&lt;code>sink_&lt;/code>输出流。我们再声明一个哨兵变量&lt;code>cap_next_&lt;/code>来标识下一个字符是否需要小写变大写。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;#34;caps_buffer.hpp&amp;#34;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cctype&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;ostream&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;functional&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cassert&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>caps_buffer&lt;span style="color:#f92672">::&lt;/span>caps_buffer(std&lt;span style="color:#f92672">::&lt;/span>ostream &lt;span style="color:#f92672">&amp;amp;&lt;/span>sink, std&lt;span style="color:#f92672">::&lt;/span>size_t buff_sz) &lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> cap_next_(true),
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> sink_(sink),
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> buffer_(buff_sz &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> sink_.clear();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>base &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#f92672">&amp;amp;&lt;/span>buffer_.front();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> setp(base, base &lt;span style="color:#f92672">+&lt;/span> buffer_.size() &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>); &lt;span style="color:#75715e">// -1 to make overflow() easier
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>buffer_&lt;/code>的最小可能大小是1，同时我们也只需要维护两个指针，因为这里不需要像输入缓冲区一样的维护&amp;quot;put-back area&amp;quot;。&lt;/p>
+&lt;p>我们把&lt;code>buffer_&lt;/code>的大小设成&lt;code>buff_sz + 1&lt;/code>，这样是为了&lt;code>overflow()&lt;/code>被调用时，我们有一个额外的空间存储当前的字符。最后将缓冲区数组和最后一个字符一起刷新到&lt;code>ostream&lt;/code>中。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>caps_buffer&lt;span style="color:#f92672">::&lt;/span>int_type caps_buffer&lt;span style="color:#f92672">::&lt;/span>overflow(int_type ch)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (sink_ &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> ch &lt;span style="color:#f92672">!=&lt;/span> traits_type&lt;span style="color:#f92672">::&lt;/span>eof())
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> assert(std&lt;span style="color:#f92672">::&lt;/span>less_equal&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&amp;gt;&lt;/span>()(pptr(), epptr()));
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">*&lt;/span>pptr() &lt;span style="color:#f92672">=&lt;/span> ch;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> pbump(&lt;span style="color:#ae81ff">1&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (do_caps_and_flush())
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> ch;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> traits_type&lt;span style="color:#f92672">::&lt;/span>eof();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>第一步是把ch写入&lt;code>buffer_&lt;/code>，并且使用&lt;code>pbump(1)&lt;/code>将&lt;code>pptr()&lt;/code>向前移一位。之后调用&lt;code>do_caps_and_flush()&lt;/code>做一些脏活，之后返回一个字符声明调用成功。&lt;/p>
+&lt;p>&lt;code>sync()&lt;/code>的实现也非常简单:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> caps_buffer&lt;span style="color:#f92672">::&lt;/span>sync()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#a6e22e">do_caps_and_flush&lt;/span>() &lt;span style="color:#f92672">?&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span> &lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>我们再看一看&lt;code>do_caps_and_flush()&lt;/code>函数&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">bool&lt;/span> caps_buffer&lt;span style="color:#f92672">::&lt;/span>do_caps_and_flush()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>p &lt;span style="color:#f92672">=&lt;/span> pbase(), &lt;span style="color:#f92672">*&lt;/span>e &lt;span style="color:#f92672">=&lt;/span> pptr(); p &lt;span style="color:#f92672">!=&lt;/span> e; &lt;span style="color:#f92672">++&lt;/span>p)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (&lt;span style="color:#f92672">*&lt;/span>p &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#e6db74">&amp;#39;.&amp;#39;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> cap_next_ &lt;span style="color:#f92672">=&lt;/span> true;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">else&lt;/span> &lt;span style="color:#a6e22e">if&lt;/span> (std&lt;span style="color:#f92672">::&lt;/span>isalpha(&lt;span style="color:#f92672">*&lt;/span>p))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (cap_next_)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">*&lt;/span>p &lt;span style="color:#f92672">=&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>toupper(&lt;span style="color:#f92672">*&lt;/span>p);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> cap_next_ &lt;span style="color:#f92672">=&lt;/span> false;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>ptrdiff_t n &lt;span style="color:#f92672">=&lt;/span> pptr() &lt;span style="color:#f92672">-&lt;/span> pbase();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> pbump(&lt;span style="color:#f92672">-&lt;/span>n);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> sink_.write(pbase(), n);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>对于本例来说，内部的缓冲区并非必要，我们可以一个字符一个字符把数据发到&lt;code>sink&lt;/code>中。但是我的观点是一个内部buffer仍有其用处。&lt;/p>
+&lt;h3 id="介绍-boost-iostreams-库">介绍 Boost IOStreams 库 &lt;a href="#%e4%bb%8b%e7%bb%8d-boost-iostreams-%e5%ba%93" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>如果你是流缓冲区的新手，希望你已经对它有一点点了解了。本文中的例子都非常基础，但是你可以用它们做更多有意思的事情。但是当我实现更复杂的流缓冲区时，问题的复杂度却上升的很快。这时我发现了&lt;code>Boost IOStreams&lt;/code>库，它为更复杂的缓冲区和流提供了必要的框架支持。&lt;/p>
+&lt;p>它允许你解耦数据源，数据输出，过滤器以及其它一些概念。在我们的最后一个例子中，我们硬编码数据输出到&lt;code>std::ostream&lt;/code>中。如果我们要输出到一个没有流接口的类呢？&lt;code>Boost IOStreams&lt;/code>库提供了更多的灵活性，将一坨紧耦合的代码分解成独立的抽象概念。&lt;/p>
+&lt;h3 id="扩展阅读">扩展阅读 &lt;a href="#%e6%89%a9%e5%b1%95%e9%98%85%e8%af%bb" class="anchor">🔗&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>The C++ Standard Library by Nicolai M. Josuttis&lt;/li>
+&lt;li>The C++ Standard, BS ISO/IEC 14882:2003 (Second Edition)&lt;/li>
+&lt;li>&lt;a href="http://www.dinkumware.com/manuals/">Dinkum Compleat Reference online&lt;/a>&lt;/li>
+&lt;/ul></description></item><item><title>Using Set Cover to Optimize a Large-Scale Low Latency Distributed Graph</title><link>https://wizmann.top/posts/using-set-cover-algorithm-to-optimize-a-large-scale-low-latency-distributed-graph/</link><pubDate>Sun, 26 Jul 2015 22:48:33 +0000</pubDate><guid>https://wizmann.top/posts/using-set-cover-algorithm-to-optimize-a-large-scale-low-latency-distributed-graph/</guid><description>&lt;h2 id="background">Background &lt;a href="#background" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>Linkedin (or other social networks, such as Facebook and G+) use the &amp;ldquo;social graph information&amp;rdquo; to show the social relationship between you and other members.&lt;/p>
 &lt;p>Such as, &amp;ldquo;You and Mr.Obama share 10 mutual friends&amp;rdquo; or &amp;ldquo;You have 1,000 second-degree connections&amp;rdquo;.&lt;/p>
 &lt;p>This feature is very common for a social network. But where does it come from?&lt;/p>
-&lt;h2 id="basic-api-for-social-graph-information">Basic API for Social Graph Information&lt;/h2>
-&lt;p>The information about a social relationship can be get from three basic APIs.&lt;/p></description></item><item><title>ZeroMQ启示录</title><link>https://wizmann.top/posts/inspiration-from-zeromq/</link><pubDate>Tue, 07 Apr 2015 10:01:34 +0000</pubDate><guid>https://wizmann.top/posts/inspiration-from-zeromq/</guid><description>&lt;h2 id="ømq是一个消息系统">ØMQ是一个消息系统&lt;/h2>
-&lt;p>ZeroMQ是一个消息系统，也被称为“消息中间件”。它被广泛的用于经济、游戏、嵌入式等领域。&lt;/p>
-&lt;h3 id="什么是消息系统">什么是消息系统&lt;/h3>
-&lt;p>打个比方，消息系统就像我们使用的IM软件一样。首先，一方决定将消息发往何处（一对一或一对多）。然后将信息打包，点击发送按钮。之后，IM系统会帮你料理剩余的事务。&lt;/p></description></item><item><title>System Design - 最热门的IP地址</title><link>https://wizmann.top/posts/hottest-ip-address/</link><pubDate>Fri, 08 Aug 2014 01:25:54 +0000</pubDate><guid>https://wizmann.top/posts/hottest-ip-address/</guid><description>&lt;h2 id="写在前面">写在前面&lt;/h2>
-&lt;p>问题是非常流行的，也确实流行了一阵的system-design问题。在&lt;a href="http://www.zhihu.com/question/19805967">知乎&lt;/a>上再次被人提起。然后我非常欣赏&lt;a href="http://zhi.hu/3gJb">陈硕的回答&lt;/a>。所以要写一篇文章，记下自己的感想。&lt;/p>
-&lt;h2 id="问题">问题&lt;/h2>
-&lt;p>海量数据算法:如何从超过10G的记录IP地址的日志中，较快的找出登录次数最多的一个IP？&lt;/p></description></item></channel></rss>
+&lt;h2 id="basic-api-for-social-graph-information">Basic API for Social Graph Information &lt;a href="#basic-api-for-social-graph-information" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>The information about a social relationship can be get from three basic APIs.&lt;/p>
+&lt;ul>
+&lt;li>Get Connections
+&amp;ldquo;Who does member X know?&amp;rdquo;&lt;/li>
+&lt;li>Get Shared Connections
+&amp;ldquo;Who do I know in common with member Y?&amp;rdquo;&lt;/li>
+&lt;li>Get Graph Distance
+&amp;ldquo;What the graph distance between member Z and me?&amp;rdquo;&lt;/li>
+&lt;/ul>
+&lt;h2 id="main-components-for-the-system">Main Components for the System &lt;a href="#main-components-for-the-system" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/15-7-25/59618247.jpg" alt="">&lt;/p>
+&lt;ul>
+&lt;li>Graph Database (Graph DB)&lt;/li>
+&lt;li>Distributed Network Cache (NCS)&lt;/li>
+&lt;li>Graph APIs&lt;/li>
+&lt;/ul>
+&lt;h2 id="basic-algorithm-for-social-graph">Basic Algorithm for Social Graph &lt;a href="#basic-algorithm-for-social-graph" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>Because the problems of social graph share the same essence. Here we just talk about the &amp;ldquo;Graph Distance&amp;rdquo; problem.&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/15-7-25/24130302.jpg" alt="">&lt;/p>
+&lt;p>The &lt;em>Graph DB&lt;/em> stores all the relationship of the members. When we ask for the information of &lt;em>second degree creation&lt;/em>,&lt;/p>
+&lt;ul>
+&lt;li>Firstly, the web server communicate with GraphDB to get all the 1st degree connections&lt;/li>
+&lt;li>Secondly, web server communicate to GraphDB again to get all the 2nd degree connections&lt;/li>
+&lt;li>At last, the web server will merge all the results from the GraphDB to make it sorted and unique.&lt;/li>
+&lt;/ul>
+&lt;p>To make the retrieval more effectively, we add a cache level called &lt;em>NCS&lt;/em> to cache the result we get from the GraphDB.&lt;/p>
+&lt;h2 id="the-disadvantages-of-the-basic-algorithm">The Disadvantages of the Basic Algorithm &lt;a href="#the-disadvantages-of-the-basic-algorithm" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>As we know, for a distributed system, there are shards, replica and load balancer to handle large amount of data and queries.&lt;/p>
+&lt;p>Consider this scenario.&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/15-7-25/4544395.jpg" alt="">&lt;/p>
+&lt;p>Two queries are both ask for the data from shard 1 and shard 2.&lt;/p>
+&lt;p>The first query (the green one) has to communicate with the database twice, and then do the merging to get the final results.&lt;/p>
+&lt;p>And the second query (the red one) only has to talk to database once. And no de-duplicate is needed, because there&amp;rsquo;s definitely no duplicate data in one single node of the database.&lt;/p>
+&lt;p>We can make a conclusion that if we have a &lt;strong>wise&lt;/strong> load balancer, we can optimize our retrieval logic remarkably.&lt;/p>
+&lt;h2 id="set-cover-problem">Set Cover Problem &lt;a href="#set-cover-problem" class="anchor">🔗&lt;/a>&lt;/h2>&lt;blockquote>
+&lt;p>Given a set of elements {1,2,&amp;hellip;,m} (called the universe) and a set S of n sets whose union equals the universe, the set cover problem is to identify the smallest subset of S whose union equals the universe. (Wikipedia)&lt;/p>&lt;/blockquote>
+&lt;p>This problem is similar to ours. The optimal algorithm for a load balancer is to find the minimal subsets of all sets which union equals to the ones that asked by the query input.&lt;/p>
+&lt;p>It seems that we find the key to our problem. But this is NP-complete. There is no effective way to find the optimal solution.&lt;/p>
+&lt;p>However, in practice, a greedy algorithm will actually do the trick. The rule of the greedy algorithm is to find the set which contains largest number uncovered elements.&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/15-7-26/80102455.jpg" alt="">&lt;/p>
+&lt;h2 id="conclusion">Conclusion &lt;a href="#conclusion" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>We finally find out that the social information and the relationship graph is &lt;strong>not that difficult&lt;/strong>. The basic concepts are quite easy. And the main work for the whole system is to use the cache to reduce the amount of calculation on the fly.&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/15-7-26/65691084.jpg" alt="">&lt;/p>
+&lt;h2 id="reference">Reference &lt;a href="#reference" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>This post is mainly based on this &lt;a href="https://www.usenix.org/conference/hotcloud13/workshop-program/presentations/wang">video&lt;/a>.&lt;/p>
+&lt;p>&lt;a href="https://www.usenix.org/sites/default/files/conference/protected-files/wang_hotcloud13_slides.pdf">Slides&lt;/a>&lt;/p>
+&lt;p>Special thanks to Linkedin for the sharing. :)&lt;/p></description></item><item><title>ZeroMQ启示录</title><link>https://wizmann.top/posts/inspiration-from-zeromq/</link><pubDate>Tue, 07 Apr 2015 10:01:34 +0000</pubDate><guid>https://wizmann.top/posts/inspiration-from-zeromq/</guid><description>&lt;h2 id="ømq是一个消息系统">ØMQ是一个消息系统 &lt;a href="#%c3%b8mq%e6%98%af%e4%b8%80%e4%b8%aa%e6%b6%88%e6%81%af%e7%b3%bb%e7%bb%9f" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>ZeroMQ是一个消息系统，也被称为“消息中间件”。它被广泛的用于经济、游戏、嵌入式等领域。&lt;/p>
+&lt;h3 id="什么是消息系统">什么是消息系统 &lt;a href="#%e4%bb%80%e4%b9%88%e6%98%af%e6%b6%88%e6%81%af%e7%b3%bb%e7%bb%9f" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>打个比方，消息系统就像我们使用的IM软件一样。首先，一方决定将消息发往何处（一对一或一对多）。然后将信息打包，点击发送按钮。之后，IM系统会帮你料理剩余的事务。&lt;/p>
+&lt;p>但是，它们也有很大的不同点。IM系统对于消息系统似乎太低效了一点。另外，消息系统是没有用户界面（GUI）的。在错误发生时，消息的另一端也不会有人来智能的介入处理。&lt;/p>
+&lt;p>所以，我们可以这样下定义。消息系统是具有高效性和容错性的消息传递解决方案。&lt;/p>
+&lt;h3 id="zeromq的起源和发展">ZeroMQ的起源和发展 &lt;a href="#zeromq%e7%9a%84%e8%b5%b7%e6%ba%90%e5%92%8c%e5%8f%91%e5%b1%95" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>ZeroMQ最先的设想是实现一个炒鸡快的用于证券交易的消息系统，所以在设计初期的关注点就是在极致的优化上。&lt;/p>
+&lt;p>第一年的工作重点，在于发明性能测试的方法，和设计高效架构。&lt;/p>
+&lt;p>之后，大约在第二年，工作重点转移到实现一个通用的消息系统，以应用于分布式系统，使其可以利用&lt;strong>不同的编程语言&lt;/strong>，使用&lt;strong>不同方式&lt;/strong>，来传递&lt;strong>各种模式&lt;/strong>的信息。&lt;/p>
+&lt;h2 id="启示1独立应用-vs-程序库">启示1：独立应用 vs. 程序库 &lt;a href="#%e5%90%af%e7%a4%ba1%e7%8b%ac%e7%ab%8b%e5%ba%94%e7%94%a8-vs-%e7%a8%8b%e5%ba%8f%e5%ba%93" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>ZeroMQ是一个程序库，不是一个消息服务器。这样设计的主要原因是：性能。&lt;/p>
+&lt;p>使用一个中间消息服务器（Broker），每一条消息都会被在网络上传递两次（Sender-&amp;gt;Broker-&amp;gt;Receiver)。这样的设计会影响时延和吞吐量。更严重的是，如果所有消息都通过中间服务器，那么这个点就会成为整个系统的瓶颈。&lt;/p>
+&lt;p>使用中间消息服务器的另一个弊端，是不利于大规模部署。对于证券交易来说（ZeroMQ最初的应用场景），跨组织的消息传输是不可避免的。这样一来，中央集权式的消息传输就不在有效了。&lt;/p>
+&lt;p>所以，我们缩小消息系统的粒度，使之成为一个程序库。使其更轻量，更易于部署。同样，更轻量的消息系统可以实现更复杂的拓扑结构。&lt;/p>
+&lt;p>获得的启示：对于一个新项目来说，如果可能，尽量把它实现为一个程序库。将一个新库联编到原有程序中，只需要少量的人力，也提供了足够的灵活性。&lt;/p>
+&lt;h2 id="启示2全局状态">启示2：全局状态 &lt;a href="#%e5%90%af%e7%a4%ba2%e5%85%a8%e5%b1%80%e7%8a%b6%e6%80%81" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>对于程序库来说，全局状态往往不能正确的工作。&lt;/p>
+&lt;p>由于一个程序库可能被一个应用程序加载多次，这就不能保证只有独一无二的全局状态。&lt;/p>
+&lt;p>ZeroMQ的解决方法是由库的调用者显式的维护一个“环境”，如图所示。&lt;code>libA&lt;/code>和&lt;code>libB&lt;/code>都有其独有的“环境”信息。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/71080471bf8bbf4d4e186c353d6b512c" alt="Alt text">&lt;/p>
+&lt;p>获得的启示：不要在程序库中使用全局状态。如果你这么做了，当库恰好需要在同一个进程中实例化两次时，它很可能会崩溃。&lt;/p>
+&lt;h2 id="启示3性能">启示3：性能 &lt;a href="#%e5%90%af%e7%a4%ba3%e6%80%a7%e8%83%bd" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/4ae6721a94012d877709075558562f2b" alt="Alt text">&lt;/p>
+&lt;p>ZeroMQ在最初设计时，性能调优就是首要的目标。做为一个消息系统，其性能指标主要有两个：吞吐量和延时。&lt;/p>
+&lt;p>但是我们怎么度量它们呢？&lt;/p>
+&lt;p>如上图所示，A向B发送信息。B在6秒内接收到了5条信息，因此吞吐量为0.83消息/秒，平均时延为1.2秒。&lt;/p>
+&lt;p>如果我们换一种计量方式，A向B发送消息，对于单条信息来说，其平均时延为3秒。A花费2秒，发送了所有的消息；B花费了4秒，接收到了所有的消息。所以A的吞吐量为2.5消息/秒，B的吞吐量为1.25消息/秒。这个数据与我们上面得出的数据相差甚远。&lt;/p>
+&lt;p>由此，我们可以看出，使用不同的计量标准，对于我们估计系统的性能，会带来很大的不同。&lt;/p>
+&lt;p>时延只有在两个节点通信时，才可能发生。所以，并不能有“某节点的时延”这种度量标准的出现。同样，我们可以对多条消息的时延进行平均，但是并不能有“一个消息流的平均时延”。&lt;/p>
+&lt;p>吞吐量，与时延不同，只能在单个节点上进行度量。所以，并不能有“节点间的吞吐量”这种度量方法。&lt;/p>
+&lt;p>获得的启示：深入了解你所要解决的问题。否则，你会在解决问题时会引入（错误的）假定和玄学，写出有缺陷的复杂代码。&lt;/p>
+&lt;h2 id="启示4关键路径">启示4：关键路径 &lt;a href="#%e5%90%af%e7%a4%ba4%e5%85%b3%e9%94%ae%e8%b7%af%e5%be%84" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>代码中经常被调用的代码，被称为&lt;strong>关键路径&lt;/strong>。&lt;/p>
+&lt;p>对于ZeroMQ来说，建立链接与内存申请都不是影响性能的最主要因素。因为ZeroMQ使用长链接进行通信，所以建立链接的开销均摊到每一条信息微乎其微。同样，ZeroMQ使用高效的内存维护机制，尽可能少的向系统直接申请内存空间。&lt;/p>
+&lt;p>获得的启示：只在系统的关键路径上做优化。否则只是浪费时间。&lt;/p>
+&lt;h2 id="启示5内存申请">启示5：内存申请 &lt;a href="#%e5%90%af%e7%a4%ba5%e5%86%85%e5%ad%98%e7%94%b3%e8%af%b7" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>对于一个高效的系统来说，高效的处理内存的方法往往是在内存申请与内存拷贝之间寻求一个平衡。&lt;/p>
+&lt;p>对于小型数据来说，直接拷贝数据，即“深拷贝”，的开销更小。而对于大型数据来说，所谓“浅拷贝”的开销更小。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/48deb1742653d61ba04f6e9591f71902" alt="Alt text">&lt;/p>
+&lt;p>ZeroMQ使用透明的方式来处理两种不同的场景。并且，对于规模较大的数据，使用引用计数的策略，最大限度的复用与节省内存使用。&lt;/p>
+&lt;p>获得的启示：当我们优化性能时，不要假定只有一个全局最优解。在不同的场景下，最优解的定义可能大不相同。&lt;/p>
+&lt;h2 id="启示6批处理">启示6：批处理 &lt;a href="#%e5%90%af%e7%a4%ba6%e6%89%b9%e5%a4%84%e7%90%86" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>对于一个高性能消息系统来说，系统调用的绝对数量就是系统的瓶颈。这其实是一个很普遍的问题，消息在调用栈之间传递，会带来不可忽略的性能损失。所以，在构建一个高性能系统时，应该尽量避免消息在栈间的传递。&lt;/p>
+&lt;p>如下图所示，对于四条消息，我们需要遍历整个网络栈四次。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/b99f65135b0f0e840131c58d2cc57896" alt="Alt text">&lt;/p>
+&lt;p>然而，如果我们将这些消息打包成一条消息。我们只需要遍历网络栈一次。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/cd2ea1ae7a71443b3ff85ebbc7cb1c3b" alt="Alt text">&lt;/p>
+&lt;p>在这里，我们的策略与TCP/IP协议中的Nagle算法类似。Nagle算法是为了充分利用带宽，而ZeroMQ的Batching策略是为了均摊网络栈的时间开销。&lt;/p>
+&lt;p>具体的实现如下:&lt;/p>
+&lt;ul>
+&lt;li>当消息的频率没有超过网络栈的带宽时，ZeroMQ会把所有batching关掉，以CPU利用率来换取低时延。&lt;/li>
+&lt;li>当消息的频率超过网线栈的带宽时，ZeroMQ会启用batching，以时延为代价来优化吞吐量。&lt;/li>
+&lt;li>当消息队列中的消息过多时，ZeroMQ会采用更激进的batching策略。因为消息的堆积造成的时延增长已经不可避免，索性将更多的信息打包，这样可以更快的清空消息的积压。&lt;/li>
+&lt;/ul>
+&lt;p>另外，batching策略只应该被应用于顶层。在顶层采用batching之后，低层的batching就没有意义了。&lt;/p>
+&lt;p>获得的启示：&lt;/p>
+&lt;ul>
+&lt;li>在一个异步系统中，想要获得最佳的响应时间，应该把底层的batching策略转移到顶层。&lt;/li>
+&lt;li>batching只应该在新数据到来的速度超过系统带宽时才采用。&lt;/li>
+&lt;/ul>
+&lt;h2 id="启示7整体架构">启示7：整体架构 &lt;a href="#%e5%90%af%e7%a4%ba7%e6%95%b4%e4%bd%93%e6%9e%b6%e6%9e%84" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/22f7b30fb17c9a128bbb6dd66ad27a13" alt="Alt text">&lt;/p>
+&lt;p>用户利用“socket”与ZeroMQ进行交互，一个socket可以同多个peer进行交互。&lt;/p>
+&lt;p>socket存在于用户线程中。而一些工作线程会处理异步的交互过程，如：从网络读取消息，将消息放入队列，接受新的连接请求等。&lt;/p>
+&lt;p>session负责与ZeroMQ中的socket进行交互，engine负责网络交互。session只有一种，而engine根据使用的协议不同，可以有很多种。&lt;/p>
+&lt;p>session与socket之间使用pipe进行通信，pipe被实现为线程安全的双端队列，用来在线程间传递信息。&lt;/p>
+&lt;p>获得的启示：学习了整体的设计思路（笑&lt;/p>
+&lt;h2 id="启示8并发模型">启示8：并发模型 &lt;a href="#%e5%90%af%e7%a4%ba8%e5%b9%b6%e5%8f%91%e6%a8%a1%e5%9e%8b" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>高效的ZeroMQ必然要利用多核的计算资源，而传统的多线程模型会引入锁、信号量等线程同步机制，会影响系统的整体性能。而使用独立的线程又会引入上下文切换的开销。&lt;/p>
+&lt;p>ZeroMQ使用的并发模型是Actor，其目标是完全避免锁的使用，让所有的组件全速运行。&lt;/p>
+&lt;p>每一个CPU核心只有一个worker线程，所有内部对象都是线程专有的，这样就完全避免了锁的使用。&lt;/p>
+&lt;p>这样一来，许多对象都要分享有限个数的worker。所以，系统应当是全异步的。因为每一个worker的阻塞，都会阻塞其它使用worker的对象。&lt;/p>
+&lt;p>获得的启示：Actor模型是极致解决性能与扩展性问题的方法。但是，如果你不是在使用ZeroMQ或Erlang，你需要手写许多相关的Test Case来测试系统的正确性和稳定性。另外，如果你无法应对模型中的复杂模块（如ZeroMQ的shutdown），请不要轻易尝试使用Actor模型。&lt;/p>
+&lt;h2 id="启示9无锁算法">启示9：无锁算法 &lt;a href="#%e5%90%af%e7%a4%ba9%e6%97%a0%e9%94%81%e7%ae%97%e6%b3%95" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>无锁算法使用简单的方法进行线程间的通信，而不依赖内核级的同步原语。无锁算法的关键是CPU中的原子操作，例如compare-and-swap（CAS）操作。但是，要记住，无锁操作并不是真正的“无锁”，而是把锁操作放到了较为高效的硬件层。&lt;/p>
+&lt;p>ZeroMQ使用一个无锁队列在用户线程与工作线程间进行消息传递。ZeroMQ中的无锁队列有如下特点：&lt;/p>
+&lt;p>第一，每一个队列为“一写一读”。当有一对多的读写需求存在时，ZeroMQ会创建多条队列。这样的设计使得我们不用关心多线程读写带来的同步问题，有利于我们对其性能的优化。&lt;/p>
+&lt;p>第二，即使无锁算法比传统的锁算法要快很多，但是其代价仍然是过高的（尤其是在CPU核心之间的通信）。所以，我们仍然依赖于“batching”算法，将昂贵的同步操作均摊到多条消息上。在从队列真正的读写操作之前，加入一次预处理（pre-write / pre-read），将消息打个包，发申通。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/9d97e2979db40e413e43cf7d642d1570" alt="Alt text">&lt;/p>
+&lt;p>获得的启示：无锁算法是非常精巧的，如果可能的话，尽量使用成熟的设计。如果你需要极致的性能，不要仅仅依赖于无锁算法。尽管无锁算法非常快，你仍然可以通过batching策略优化它。（另外，加钱上船也可以。）&lt;/p>
+&lt;h2 id="启示10api设计">启示10：API设计 &lt;a href="#%e5%90%af%e7%a4%ba10api%e8%ae%be%e8%ae%a1" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>&lt;strong>设计API，就像设计一款产品。&lt;/strong>&lt;/p>
+&lt;p>用户对于一个程序库的第一感觉来自于用户接口。ZeroMQ简化了自己的用户接口，将其由原来的“炒鸡复杂一不小心坑死你的企业级消息框架”变为了“想发消息调用下就OK”的极易上手的入门级产品。&lt;/p>
+&lt;p>另外一个重要的方面，ZeroMQ使用了广为使用的BSD Sockets API。这样做的优点是：&lt;/p>
+&lt;ul>
+&lt;li>这是一个大家都熟知的API，学习曲线相当平缓&lt;/li>
+&lt;li>使ZeroMQ与现有的技术连接起来，有利于复用已用的框架与设计&lt;/li>
+&lt;li>最重要的是，使用一个成熟与久经考验的框架，可以避免踩前人踩过的坑、&lt;/li>
+&lt;/ul>
+&lt;p>获得的启示：除了代码复用之外，我们还可以以一种更一般的方法，复用成熟的技术。当你设计一个新产品时，借鉴一下类似的产品（腾讯！）。不要犯“在这里还没有被发明”（Not Invented Here）综合症。复用一切合适的想法、API、框架抽象。允许用户使用已有的知识，同时也可以让我们规避未知的风险。&lt;/p>
+&lt;h2 id="启示11消息模式">启示11：消息模式 &lt;a href="#%e5%90%af%e7%a4%ba11%e6%b6%88%e6%81%af%e6%a8%a1%e5%bc%8f" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>ZeroMQ的设计思路是&lt;strong>专注于一个领域，把它做到最好&lt;/strong>。因为，大而全的产品只能给领域专家来使用，而小而精的产品的受众则是任何受过训练的程序员。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>s &lt;span style="color:#f92672">=&lt;/span> socket (REQ)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>s.connect (&lt;span style="color:#e6db74">&amp;#34;tcp://192.168.0.111:5555&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>s.send (&lt;span style="color:#e6db74">&amp;#34;Hello World!&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>reply &lt;span style="color:#f92672">=&lt;/span> s.recv ()
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>当我们要给用户提供更一般性的解决方案时，一个技术栈，栈的每一层可以有不同的实现，从而适应不同人群的需要。&lt;/p>
+&lt;p>这和Internet栈的设计思路非常相似：TCP可以解决基于链接的、可靠的数据流传输，UDP可以解决不可靠的数据包传输，SCTP可以解决多用户数据流传输问题等等。&lt;/p>
+&lt;p>这样一来，所有的解决方案都是正交的，我们可以利用其中好的设计，也可以没有额外代价的抛弃不好的设计。&lt;/p>
+&lt;p>获得的启示：当解决一个复杂且多面化的问题时，单个通用型的解决方案可能并不是最好的方式。相反，我们可以把问题的领域想象成一个抽象层，并基于这个层次提供多个实现，每种实现只致力于解决一种定义良好的情况。&lt;/p>
+&lt;p>当我们这么做时，确定问题的粒度非常重要。如果粒度过细，软件的一般性就会受到限制。如果粒度过粗，那么产品就会变得非常复杂，给用户带来模糊和混乱的感觉。&lt;/p>
+&lt;h2 id="后记">后记 &lt;a href="#%e5%90%8e%e8%ae%b0" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>原文链接：http://www.aosabook.org/en/zeromq.html&lt;/li>
+&lt;li>中文翻译：http://www.ituring.com.cn/article/4669&lt;/li>
+&lt;/ul>
+&lt;p>本文中借鉴了中文翻译的部分词句，对此表示感谢。&lt;/p></description></item><item><title>System Design - 最热门的IP地址</title><link>https://wizmann.top/posts/hottest-ip-address/</link><pubDate>Fri, 08 Aug 2014 01:25:54 +0000</pubDate><guid>https://wizmann.top/posts/hottest-ip-address/</guid><description>&lt;h2 id="写在前面">写在前面 &lt;a href="#%e5%86%99%e5%9c%a8%e5%89%8d%e9%9d%a2" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>问题是非常流行的，也确实流行了一阵的system-design问题。在&lt;a href="http://www.zhihu.com/question/19805967">知乎&lt;/a>上再次被人提起。然后我非常欣赏&lt;a href="http://zhi.hu/3gJb">陈硕的回答&lt;/a>。所以要写一篇文章，记下自己的感想。&lt;/p>
+&lt;h2 id="问题">问题 &lt;a href="#%e9%97%ae%e9%a2%98" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>海量数据算法:如何从超过10G的记录IP地址的日志中，较快的找出登录次数最多的一个IP？&lt;/p>
+&lt;h2 id="银弹">银弹？ &lt;a href="#%e9%93%b6%e5%bc%b9" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>面对这种system-design问题，尤其是这种，&lt;strong>非高并发、非实时&lt;/strong>的问题，很多人会采用_map-reduce_ —— 解决system-design问题的银弹。&lt;/p>
+&lt;p>我对map-reduce的理解非常肤浅，但是可以解释一下大概的流程。&lt;/p>
+&lt;ol>
+&lt;li>将日志进行分片。把hash(ip)相同的ip地址分到同一个片中。（注：这里的hash并不是签名函数，只是一个分片标示）&lt;/li>
+&lt;li>分片后的日志的大小会小很多，可以方便的进行排序，记数。&lt;/li>
+&lt;li>然后再从各个片中，统计出最热门的IP地址。（或TopK的IP地址）&lt;/li>
+&lt;/ol>
+&lt;p>如果不满意我的答案的话，推荐&lt;a href="http://book.douban.com/subject/19934150/">Mining of Massive Datasets&lt;/a>一书，其中对map-reduce算法做一番不错的介绍。&lt;/p>
+&lt;h2 id="正确的分析姿势">正确的分析姿势 &lt;a href="#%e6%ad%a3%e7%a1%ae%e7%9a%84%e5%88%86%e6%9e%90%e5%a7%bf%e5%8a%bf" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="业务实体">业务实体 &lt;a href="#%e4%b8%9a%e5%8a%a1%e5%ae%9e%e4%bd%93" class="anchor">🔗&lt;/a>&lt;/h3>&lt;blockquote>
+&lt;p>业务实体拥有四种主要的组件： 信息模型、生命周期模型、访问策略以及通知。&lt;/p>&lt;/blockquote>
+&lt;p>换句话说，业务实体就是题目中提到的“名词”。&lt;/p>
+&lt;p>在本题中，业务实体有：&lt;/p>
+&lt;ul>
+&lt;li>IP地址（默认为ipv4）&lt;/li>
+&lt;li>最热门IP地址&lt;/li>
+&lt;/ul>
+&lt;h3 id="业务应用">业务应用 &lt;a href="#%e4%b8%9a%e5%8a%a1%e5%ba%94%e7%94%a8" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>业务应用指的是当前场景的&lt;strong>特殊&lt;/strong>应用，以及业务实体的关联关系。&lt;/p>
+&lt;p>在本问题中，业务应用指的是：&lt;/p>
+&lt;ul>
+&lt;li>找到&lt;strong>最热门&lt;/strong>的IP地址&lt;/li>
+&lt;li>大数据量，10G的日志文件 —— 不方便在内存中进行操作
+（在动辙上百G的服务器面前，10G的数据量真是弱爆了^_^)&lt;/li>
+&lt;/ul>
+&lt;h3 id="物理">物理 &lt;a href="#%e7%89%a9%e7%90%86" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>物理指的是数据的物理模型，包括数据结构、数据库表等。&lt;/p>
+&lt;p>在本题中，指的是对IP地址存储和记数的数据结构。&lt;/p>
+&lt;h3 id="让我们做一下分析">让我们做一下分析 &lt;a href="#%e8%ae%a9%e6%88%91%e4%bb%ac%e5%81%9a%e4%b8%80%e4%b8%8b%e5%88%86%e6%9e%90" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>本题中，业务实体的特点是：&lt;/p>
+&lt;ul>
+&lt;li>IPv4可以由一个uint32_t来表示&lt;/li>
+&lt;li>ip地址是稀疏的
+&lt;ul>
+&lt;li>大部分ip地址的访问次数非常少（长尾）&lt;/li>
+&lt;li>很多ip地址是保留地址，所以不可能出现在日志中&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>业务应用的特点是：&lt;/p>
+&lt;ul>
+&lt;li>“最热门”表示要求得精确解，而不是满意解&lt;/li>
+&lt;li>内存限制&lt;/li>
+&lt;/ul>
+&lt;p>应用的物理结构的特点是： 支持存储与记数&lt;/p>
+&lt;h2 id="无代码无真相">无代码无真相 &lt;a href="#%e6%97%a0%e4%bb%a3%e7%a0%81%e6%97%a0%e7%9c%9f%e7%9b%b8" class="anchor">🔗&lt;/a>&lt;/h2>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;assert.h&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;stdint.h&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;stdio.h&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;vector&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">static_assert&lt;/span>(&lt;span style="color:#66d9ef">sizeof&lt;/span>(&lt;span style="color:#66d9ef">void&lt;/span>&lt;span style="color:#f92672">*&lt;/span>) &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">8&lt;/span>, &lt;span style="color:#e6db74">&amp;#34;64-bit only.&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>std&lt;span style="color:#f92672">::&lt;/span>vector&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">uint8_t&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span> counts_;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">struct&lt;/span> &lt;span style="color:#a6e22e">IPcount&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">uint32_t&lt;/span> ip;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">uint32_t&lt;/span> count;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">bool&lt;/span> &lt;span style="color:#66d9ef">operator&lt;/span>&lt;span style="color:#f92672">&amp;lt;&lt;/span>(IPcount rhs) &lt;span style="color:#66d9ef">const&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> { &lt;span style="color:#66d9ef">return&lt;/span> ip &lt;span style="color:#f92672">&amp;lt;&lt;/span> rhs.ip; }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>std&lt;span style="color:#f92672">::&lt;/span>vector&lt;span style="color:#f92672">&amp;lt;&lt;/span>IPcount&lt;span style="color:#f92672">&amp;gt;&lt;/span> overflows_;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>IPcount top;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#a6e22e">addOverflow&lt;/span>(&lt;span style="color:#66d9ef">uint32_t&lt;/span> ip)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> IPcount newItem &lt;span style="color:#f92672">=&lt;/span> { ip, &lt;span style="color:#ae81ff">256&lt;/span> };
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">auto&lt;/span> it &lt;span style="color:#f92672">=&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>lower_bound(overflows_.begin(), overflows_.end(), newItem);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (it &lt;span style="color:#f92672">!=&lt;/span> overflows_.end() &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> it&lt;span style="color:#f92672">-&amp;gt;&lt;/span>ip &lt;span style="color:#f92672">==&lt;/span> ip)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> it&lt;span style="color:#f92672">-&amp;gt;&lt;/span>count&lt;span style="color:#f92672">++&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> assert(it&lt;span style="color:#f92672">-&amp;gt;&lt;/span>count &lt;span style="color:#f92672">!=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span> &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;you need larger count variable&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> newItem.count &lt;span style="color:#f92672">=&lt;/span> it&lt;span style="color:#f92672">-&amp;gt;&lt;/span>count;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">else&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> overflows_.insert(it, newItem);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (newItem.count &lt;span style="color:#f92672">&amp;gt;&lt;/span> top.count)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> top &lt;span style="color:#f92672">=&lt;/span> newItem;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#a6e22e">add&lt;/span>(&lt;span style="color:#66d9ef">uint32_t&lt;/span> ip)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (counts_[ip] &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">255&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> addOverflow(ip);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">else&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> counts_[ip]&lt;span style="color:#f92672">++&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (counts_[ip] &lt;span style="color:#f92672">&amp;gt;&lt;/span> top.count)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> top.ip &lt;span style="color:#f92672">=&lt;/span> ip;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> top.count &lt;span style="color:#f92672">=&lt;/span> counts_[ip];
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">uint32_t&lt;/span> &lt;span style="color:#a6e22e">getMostFrequenntIP&lt;/span>()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> top.ip;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span>()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> assert(counts_.max_size() &lt;span style="color:#f92672">&amp;gt;&lt;/span> &lt;span style="color:#ae81ff">0xFFFFFFFFUL&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> counts_.resize(&lt;span style="color:#ae81ff">1L&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#ae81ff">32&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> printf(&lt;span style="color:#e6db74">&amp;#34;%zd&lt;/span>&lt;span style="color:#ae81ff">\n&lt;/span>&lt;span style="color:#e6db74">&amp;#34;&lt;/span>, counts_.size());
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> add(&lt;span style="color:#ae81ff">0x1&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> add(&lt;span style="color:#ae81ff">0x2&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> add(&lt;span style="color:#ae81ff">0x2&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (size_t i &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>; i &lt;span style="color:#f92672">&amp;lt;&lt;/span> (&lt;span style="color:#ae81ff">1L&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#ae81ff">32&lt;/span>)&lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>; &lt;span style="color:#f92672">++&lt;/span>i)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> add(&lt;span style="color:#ae81ff">0x3&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> printf(&lt;span style="color:#e6db74">&amp;#34;%08x %u&lt;/span>&lt;span style="color:#ae81ff">\n&lt;/span>&lt;span style="color:#e6db74">&amp;#34;&lt;/span>, top.ip, top.count);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="从代码说开来">从代码说开来 &lt;a href="#%e4%bb%8e%e4%bb%a3%e7%a0%81%e8%af%b4%e5%bc%80%e6%9d%a5" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>这段代码不算最漂亮，有几个小槽点，但也算是非常优雅的。&lt;/p>
+&lt;p>从思路上说，这段代码注意到了我们刚才分析到的，这个问题的业务特点。&lt;/p>
+&lt;ol>
+&lt;li>ipv4地址可以存在uint32_t中，无需存储字符串&lt;/li>
+&lt;li>ip地址是稀疏的，所以使用一层uint_8进行哈希记数，对于少数的热门ip再进行uint32_t计数
+（同时考虑了ip地址的稀疏性以及内存的限制，并且对内存的优雅使用，可以提高缓存的命中率，提高效率）&lt;/li>
+&lt;li>使用精确计数，获得正确解&lt;/li>
+&lt;/ol>
+&lt;h3 id="代码留给我们的思考题">代码留给我们的思考题 &lt;a href="#%e4%bb%a3%e7%a0%81%e7%95%99%e7%bb%99%e6%88%91%e4%bb%ac%e7%9a%84%e6%80%9d%e8%80%83%e9%a2%98" class="anchor">🔗&lt;/a>&lt;/h3>&lt;blockquote>
+&lt;p>练习：找出 worse case，让运行时间长达几分钟甚至十几分钟，然后提出并实施改进措施&lt;/p>&lt;/blockquote>
+&lt;p>由于我们拿不出real world中的data，所以很多分析都是纸上谈兵，不过一切的实践也都是从纸上谈兵开始。&lt;/p>
+&lt;ul>
+&lt;li>题目中的&lt;code>std::vector&amp;lt;IPcount&amp;gt; overflows_;&lt;/code>使用&lt;code>unordered_map&lt;/code>更好，减少查找的时间（O(logN) =&amp;gt; O(1)），并且减少插入的时间（O(N) =&amp;gt; O(1)）&lt;/li>
+&lt;li>&lt;code>std::vector&amp;lt;uint8_t&amp;gt; counts_;&lt;/code>可以在适当的情况调整为&lt;code>uint16_t&lt;/code>，可以减少哈希节点生成对于内存的频繁申请。&lt;/li>
+&lt;/ul>
+&lt;h2 id="后记">后记 &lt;a href="#%e5%90%8e%e8%ae%b0" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>题目中的分析有很多是“执果索因”的成果，毕竟反推比正推要更容易一点。&lt;/p>
+&lt;p>想要从反推提升为正推，真的需要良好的发散思维以及敏锐的洞察力。因为面试时，没人会把题目帮你写在纸上。&lt;/p>
+&lt;p>话说，我才知道ipv6是128位的。那么当题目中的ip地址为ipv6时，又会有什么好方法呢？&lt;/p>
+&lt;h2 id="参考链接">参考链接 &lt;a href="#%e5%8f%82%e8%80%83%e9%93%be%e6%8e%a5" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="http://www.infoq.com/cn/news/2010/05/BEDL">介绍：业务实体和业务实体定义语言&lt;/a>&lt;/li>
+&lt;/ul></description></item></channel></rss>

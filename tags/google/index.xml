@@ -1,7 +1,6 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Google on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/google/</link><description>Recent content in Google on Maerlyn's Rainbow</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Wed, 27 Dec 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/google/index.xml" rel="self" type="application/rss+xml"/><item><title>[tl;dr] 论文阅读：Borg - Large-scale cluster management at Google</title><link>https://wizmann.top/posts/tl-dr-borg/</link><pubDate>Wed, 27 Dec 2023 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/tl-dr-borg/</guid><description>&lt;ul>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Google on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/google/</link><description>Recent content in Google on Maerlyn's Rainbow</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Wed, 27 Dec 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/google/index.xml" rel="self" type="application/rss+xml"/><item><title>[tl;dr] 论文阅读：Borg - Large-scale cluster management at Google</title><link>https://wizmann.top/posts/tl-dr-borg/</link><pubDate>Wed, 27 Dec 2023 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/tl-dr-borg/</guid><description>&lt;ul>
 &lt;li>
-&lt;h2 id="系统概览">系统概览&lt;/h2>
-&lt;ul>
+&lt;h2 id="系统概览">系统概览 &lt;a href="#%e7%b3%bb%e7%bb%9f%e6%a6%82%e8%a7%88" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
 &lt;li>Borg是谷歌开发的一种高效的集群管理系统，旨在优化资源利用率和提高系统的可靠性及可用性
 &lt;ul>
 &lt;li>隐藏资源管理细节与故障处理，允许用户专注于应用程序的开发&lt;/li>
@@ -12,8 +11,7 @@
 &lt;/ul>
 &lt;/li>
 &lt;li>
-&lt;h2 id="用户视角">用户视角&lt;/h2>
-&lt;ul>
+&lt;h2 id="用户视角">用户视角 &lt;a href="#%e7%94%a8%e6%88%b7%e8%a7%86%e8%a7%92" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
 &lt;li>用户通过定义&lt;em>job&lt;/em>和&lt;em>task&lt;/em>与Borg进行交互
 &lt;ul>
 &lt;li>一个&lt;em>job&lt;/em>由运行相同程序的一个或多个&lt;em>task&lt;/em>组成&lt;/li>
@@ -45,8 +43,7 @@
 &lt;/ul>
 &lt;/li>
 &lt;li>
-&lt;h2 id="borg的架构">Borg的架构&lt;/h2>
-&lt;ul>
+&lt;h2 id="borg的架构">Borg的架构 &lt;a href="#borg%e7%9a%84%e6%9e%b6%e6%9e%84" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
 &lt;li>&lt;em>Borgmaster&lt;/em>
 &lt;ul>
 &lt;li>主管理进程
@@ -125,8 +122,7 @@
 &lt;/ul>
 &lt;/li>
 &lt;li>
-&lt;h2 id="可靠性">可靠性&lt;/h2>
-&lt;ul>
+&lt;h2 id="可靠性">可靠性 &lt;a href="#%e5%8f%af%e9%9d%a0%e6%80%a7" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
 &lt;li>自动重新调度器被驱逐的任务&lt;/li>
 &lt;li>将任务分散到不同的失败域中&lt;/li>
 &lt;li>限制一个作业中同时失败任务的个数和中断率&lt;/li>
@@ -137,8 +133,7 @@
 &lt;/ul>
 &lt;/li>
 &lt;li>
-&lt;h2 id="资源利用和效率">资源利用和效率&lt;/h2>
-&lt;ul>
+&lt;h2 id="资源利用和效率">资源利用和效率 &lt;a href="#%e8%b5%84%e6%ba%90%e5%88%a9%e7%94%a8%e5%92%8c%e6%95%88%e7%8e%87" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
 &lt;li>评估方法
 &lt;ul>
 &lt;li>&lt;em>cell compaction&lt;/em>：通过移除机器来找出给定工作负载能适应的最小的单元大小，然后反复从头开始重新打包工作负载，以确保不会因错误的配置而陷入困境&lt;/li>
@@ -167,8 +162,7 @@
 &lt;/ul>
 &lt;/li>
 &lt;li>
-&lt;h2 id="隔离与安全性">隔离与安全性：&lt;/h2>
-&lt;ul>
+&lt;h2 id="隔离与安全性">隔离与安全性： &lt;a href="#%e9%9a%94%e7%a6%bb%e4%b8%8e%e5%ae%89%e5%85%a8%e6%80%a7" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
 &lt;li>安全隔离
 &lt;ul>
 &lt;li>使用Linux chroot jail在共享同一台机器的任务之间确保安全性&lt;/li>
@@ -194,11 +188,9 @@
 &lt;/ul>
 &lt;/li>
 &lt;li>
-&lt;h2 id="经验教训">经验教训：&lt;/h2>
-&lt;ul>
+&lt;h2 id="经验教训">经验教训： &lt;a href="#%e7%bb%8f%e9%aa%8c%e6%95%99%e8%ae%ad" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
 &lt;li>
-&lt;h3 id="负面经验">负面经验&lt;/h3>
-&lt;ul>
+&lt;h3 id="负面经验">负面经验 &lt;a href="#%e8%b4%9f%e9%9d%a2%e7%bb%8f%e9%aa%8c" class="anchor">🔗&lt;/a>&lt;/h3>&lt;ul>
 &lt;li>&lt;em>Job&lt;/em>作为&lt;em>Task&lt;/em>的唯一分组机制的局限性
 &lt;ul>
 &lt;li>缺乏将整个多&lt;em>Job&lt;/em>服务作为单一实体进行管理，或引用服务相关&lt;em>Job&lt;/em>（如Canary与Prod滚动更新）的方式&lt;/li>
@@ -223,8 +215,7 @@
 &lt;/ul>
 &lt;/li>
 &lt;li>
-&lt;h3 id="积极经验">积极经验&lt;/h3>
-&lt;ul>
+&lt;h3 id="积极经验">积极经验 &lt;a href="#%e7%a7%af%e6%9e%81%e7%bb%8f%e9%aa%8c" class="anchor">🔗&lt;/a>&lt;/h3>&lt;ul>
 &lt;li>Allocs是有用的
 &lt;ul>
 &lt;li>Kubernetes中的Alloc等效物是Pod，它是一个资源包，用于一个或多个容器，总是被调度到同一台机器上并可以共享资源&lt;/li>
@@ -255,12 +246,258 @@
 &lt;/li>
 &lt;li>&lt;a href="https://research.google/pubs/large-scale-cluster-management-at-google-with-borg/">论文&lt;/a>&lt;/li>
 &lt;/ul>
-&lt;div class="alert alert-info" role="alert">本文部分内容由ChatGPT4生成&lt;/div></description></item><item><title>GCJ Qualification Round 2015 题解</title><link>https://wizmann.top/posts/gcj-qualification-round-2015-tutorial/</link><pubDate>Sun, 12 Apr 2015 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/gcj-qualification-round-2015-tutorial/</guid><description>&lt;h2 id="前言">前言&lt;/h2>
-&lt;p>这篇日志用中文写是因为想省点时间打游戏。。。（请鄙视我吧。。。&lt;/p>
-&lt;h2 id="a-standing-ovation">A. Standing Ovation&lt;/h2>
-&lt;h3 id="题意">题意&lt;/h3>
-&lt;p>这是一个骗掌声的故事。&lt;/p>
-&lt;p>当演出结束后，观众们要站起来鼓掌。但是有些观众比较羞涩，只有在k个人站起来鼓掌后才会故障。&lt;/p></description></item><item><title>The Checklist of Steve Yegge</title><link>https://wizmann.top/posts/steve-yegge-interview-checklist/</link><pubDate>Sun, 26 Oct 2014 00:24:44 +0000</pubDate><guid>https://wizmann.top/posts/steve-yegge-interview-checklist/</guid><description>&lt;blockquote>
+&lt;div class="alert alert-info" role="alert">本文部分内容由ChatGPT4生成&lt;/div></description></item><item><title>GCJ Qualification Round 2015 题解</title><link>https://wizmann.top/posts/gcj-qualification-round-2015-tutorial/</link><pubDate>Sun, 12 Apr 2015 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/gcj-qualification-round-2015-tutorial/</guid><description>&lt;h2 id="前言">前言 &lt;a href="#%e5%89%8d%e8%a8%80" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>这篇日志用中文写是因为想省点时间打游戏。。。（请鄙视我吧。。。&lt;/p>
+&lt;h2 id="a-standing-ovation">A. Standing Ovation &lt;a href="#a-standing-ovation" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="题意">题意 &lt;a href="#%e9%a2%98%e6%84%8f" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>这是一个骗掌声的故事。&lt;/p>
+&lt;p>当演出结束后，观众们要站起来鼓掌。但是有些观众比较羞涩，只有在k个人站起来鼓掌后才会故障。&lt;/p>
+&lt;p>你的目标是在观众中安插一些卧底领掌，让所有观众都站起来鼓掌。（臭不要脸）&lt;/p>
+&lt;p>求最少的卧底数。&lt;/p>
+&lt;h3 id="数据规模">数据规模 &lt;a href="#%e6%95%b0%e6%8d%ae%e8%a7%84%e6%a8%a1" class="anchor">🔗&lt;/a>&lt;/h3>&lt;blockquote>
+&lt;p>抛开数据规模谈解题，都是TM耍流氓。 —— Wizmann&lt;/p>&lt;/blockquote>
+&lt;p>100组数据。&lt;/p>
+&lt;p>小数据集，观众羞涩值的范围：0 ≤ Smax ≤ 6.&lt;/p>
+&lt;p>大数据集，观众羞涩值的范围：0 ≤ Smax ≤ 1000.&lt;/p>
+&lt;h3 id="解题">解题 &lt;a href="#%e8%a7%a3%e9%a2%98" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>本题比较简单。有两种方法，一是暴力枚举，因为大数据集中，观众羞涩值最大只为1000,即最大安插卧底数不超过1000。(当然，二分也可以，不过对于1000的数据集，真心没啥必要。)&lt;/p>
+&lt;p>二是O(N)的一个遍历，在观众羞涩的不想鼓掌时，安插相应数量的卧底。&lt;/p>
+&lt;p>本题推荐方法一。因为个人感觉，在编程竞赛中，在时限和空间允许的情况下，尽量让方法简单化。这样不容易出错。但是在要体现逼格的时候，尽量“优化”你的代码，提升思考复杂度来换取尽可能多的优化。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">solve&lt;/span>():
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> (n, aud) &lt;span style="color:#f92672">=&lt;/span> raw_input()&lt;span style="color:#f92672">.&lt;/span>split()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> n &lt;span style="color:#f92672">=&lt;/span> int(n)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> aud &lt;span style="color:#f92672">=&lt;/span> map(int, aud)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> stand &lt;span style="color:#f92672">=&lt;/span> aud[&lt;span style="color:#ae81ff">0&lt;/span>]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> res &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> i &lt;span style="color:#f92672">in&lt;/span> xrange(&lt;span style="color:#ae81ff">1&lt;/span>, n &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> u &lt;span style="color:#f92672">=&lt;/span> aud[i]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> &lt;span style="color:#f92672">not&lt;/span> u:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">continue&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> i &lt;span style="color:#f92672">&amp;gt;&lt;/span> stand:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> res &lt;span style="color:#f92672">+=&lt;/span> i &lt;span style="color:#f92672">-&lt;/span> stand
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> stand &lt;span style="color:#f92672">=&lt;/span> i
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> stand &lt;span style="color:#f92672">+=&lt;/span> u
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> res
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>T &lt;span style="color:#f92672">=&lt;/span> int(raw_input())
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">for&lt;/span> i &lt;span style="color:#f92672">in&lt;/span> xrange(T):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print &lt;span style="color:#e6db74">&amp;#39;Case #&lt;/span>&lt;span style="color:#e6db74">%d&lt;/span>&lt;span style="color:#e6db74">: &lt;/span>&lt;span style="color:#e6db74">%d&lt;/span>&lt;span style="color:#e6db74">&amp;#39;&lt;/span> &lt;span style="color:#f92672">%&lt;/span> (i &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>, solve())
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="b-infinite-house-of-pancakes">B. Infinite House of Pancakes &lt;a href="#b-infinite-house-of-pancakes" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="题意-1">题意 &lt;a href="#%e9%a2%98%e6%84%8f-1" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>在一个宴会厅中（想到了“米阿的宴会厅”)，有无限的客人，但是只有有限的煎饼。你的目标是让所有客人尽可能快的吃完所有的煎饼。&lt;/p>
+&lt;p>每个客人在一个单位时间只能吃一块煎饼。你也可以在一个单位时间内，调整一个客人的煎饼，即把他的煎饼给别人。&lt;/p>
+&lt;p>求所有客人吃完所有煎饼的时间。&lt;/p>
+&lt;blockquote>
+&lt;p>&amp;lsquo;Here comes Mia, daughter of none!&amp;rsquo; &lt;br>
+&amp;ndash; &lt;em>The Dark Tower V: Wolves of the Calla&lt;/em>&lt;/p>&lt;/blockquote>
+&lt;h3 id="数据规模-1">数据规模 &lt;a href="#%e6%95%b0%e6%8d%ae%e8%a7%84%e6%a8%a1-1" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>100组测试数据。&lt;/p>
+&lt;p>D为有煎饼的客人的数目。Pi为客人拥有煎饼的最大值。&lt;/p>
+&lt;p>小数据： &lt;br>
+1 ≤ D ≤ 6.&lt;br>
+1 ≤ Pi ≤ 9.&lt;/p>
+&lt;p>大数据： &lt;br>
+1 ≤ D ≤ 1000.&lt;br>
+1 ≤ Pi ≤ 1000.&lt;/p>
+&lt;h3 id="解题-1">解题 &lt;a href="#%e8%a7%a3%e9%a2%98-1" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>一开始想用二分做。但是这道题并不能满足二分的条件。因为无论是二分时间还是二分最大煎饼数，客人都可以吃完煎饼，这样的二分是没有意义的。&lt;/p>
+&lt;p>换个思路，在吃煎饼前，我们可以对所有客人的煎饼数进行调整。又由于客人的数目是无限多的，所以我们的调整就是&lt;strong>把煎饼送给没有煎饼的客人&lt;/strong>。调整的目标是&lt;strong>让煎饼数尽量平均&lt;/strong>（“尽量”和“尽可能”是不同的，“尽量”的范围更宽范一些）。&lt;/p>
+&lt;p>于是，我们尝试枚举“调整后的最大煎饼数量”。通过枚举这个值，我们可以很容易得到“调整煎饼时间 + 吃煎饼时间”。又由于数据规模比较小，搞起来不是很困难。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstdio&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstdlib&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstring&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;iostream&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;algorithm&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;vector&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;set&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> &lt;span style="color:#66d9ef">namespace&lt;/span> std;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#define print(x) cout &amp;lt;&amp;lt; x &amp;lt;&amp;lt; endl
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#define input(x) cin &amp;gt;&amp;gt; x
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> SIZE &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1024&lt;/span> &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">233&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> n;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>vector&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span> vec;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> T, a, cas &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> input(T);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">while&lt;/span> (T&lt;span style="color:#f92672">--&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> input(n);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> vec.clear();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">int&lt;/span> i &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>; i &lt;span style="color:#f92672">&amp;lt;&lt;/span> n; i&lt;span style="color:#f92672">++&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> input(a);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> vec.push_back(a);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> ans &lt;span style="color:#f92672">=&lt;/span> SIZE &lt;span style="color:#f92672">*&lt;/span> &lt;span style="color:#ae81ff">233&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">int&lt;/span> i &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>; i &lt;span style="color:#f92672">&amp;lt;=&lt;/span> SIZE; i&lt;span style="color:#f92672">++&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> step &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> maxi &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">auto&lt;/span>&lt;span style="color:#f92672">&amp;amp;&lt;/span> num: vec) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (num &lt;span style="color:#f92672">&amp;gt;&lt;/span> i) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> step &lt;span style="color:#f92672">+=&lt;/span> num &lt;span style="color:#f92672">%&lt;/span> i&lt;span style="color:#f92672">?&lt;/span> num &lt;span style="color:#f92672">/&lt;/span> i: num &lt;span style="color:#f92672">/&lt;/span> i &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> maxi &lt;span style="color:#f92672">=&lt;/span> i;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> } &lt;span style="color:#66d9ef">else&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> maxi &lt;span style="color:#f92672">=&lt;/span> max(maxi, num);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ans &lt;span style="color:#f92672">=&lt;/span> min(ans, step &lt;span style="color:#f92672">+&lt;/span> maxi);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> printf(&lt;span style="color:#e6db74">&amp;#34;Case #%d: %d&lt;/span>&lt;span style="color:#ae81ff">\n&lt;/span>&lt;span style="color:#e6db74">&amp;#34;&lt;/span>, cas&lt;span style="color:#f92672">++&lt;/span>, ans);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="c-dijkstra">C. Dijkstra &lt;a href="#c-dijkstra" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="题意-2">题意 &lt;a href="#%e9%a2%98%e6%84%8f-2" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>给你一个代数系统（可以这么说吧），包括“1, i, j, k”。&lt;/p>
+&lt;p>已知它们的运算规律。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/ba89abba98064a7e42e52e9e5b2de57f" alt="Alt text">&lt;/p>
+&lt;p>现在，有一个包含&amp;quot;i, j, k&amp;quot;的连乘式。它是由一段连乘式重复X遍得出的。&lt;/p>
+&lt;p>问，能否把它转化为&lt;code>i * j * k&lt;/code>的形式。&lt;/p>
+&lt;h3 id="数据规模-2">数据规模 &lt;a href="#%e6%95%b0%e6%8d%ae%e8%a7%84%e6%a8%a1-2" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>测试组数： 1 ≤ T ≤ 100. &lt;br>
+给出的连乘式长度： 1 ≤ L ≤ 10000.&lt;/p>
+&lt;p>连乘式的重复次数为X。&lt;/p>
+&lt;p>小数据集： &lt;br>
+1 ≤ X ≤ 10000. &lt;br>
+1 ≤ L * X ≤ 10000.&lt;/p>
+&lt;p>大数据集：&lt;br>
+1 ≤ X ≤ 10^12. &lt;br>
+1 ≤ L * X ≤ 10^16.&lt;/p>
+&lt;h3 id="解题-2">解题 &lt;a href="#%e8%a7%a3%e9%a2%98-2" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>题中给出了乘法的规律。我们不难从中推测出除法的规律。&lt;/p>
+&lt;p>假设我们已经把连乘式转化为&lt;code>i * j&lt;/code>的形式，那么我们只需要把剩下的部分转化为数字&lt;code>k&lt;/code>，即可满足题意。&lt;/p>
+&lt;p>我们可以去思考转化的过程，当然，也可以逆向思考，去思考转化后的结果。&lt;/p>
+&lt;p>我们知道，&lt;code>i * j * k == -1&lt;/code>，当我们把前辍转化为&lt;code>i * j&lt;/code>的形式后，如果判断整个连乘式的结果为&lt;code>-1&lt;/code>，此时，我们可以断定，该连乘式可以转化为&lt;code>i * j * k&lt;/code>的形式。&lt;/p>
+&lt;p>i与j的转化是类似的。&lt;/p>
+&lt;p>所以整个算法的时间复杂度为O(N)。&lt;/p>
+&lt;p>但是，O(N)的算法是无法通过大数据集的。因为，连乘式是循环的，总长度可能会非常长。&lt;/p>
+&lt;p>我们继续使用同样的思路。如果我们有了i和j，当整体连乘式之积为&lt;code>-1&lt;/code>时，即断定满足条件。这里，我们使用快速幂算法，直接计算循环节的乘积。复杂度为&lt;code>O(L) + O(logX)&lt;/code>。&lt;/p>
+&lt;p>对于i和j，我们可以这样考虑。循环节之积只有以下几种可能：&lt;code>±1, ±i, ±j, ±k&lt;/code>。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/252e0e81143f2dd5cb6e01e1e69d0709" alt="the table">&lt;/p>
+&lt;p>我们可以看出，对于&lt;code>1, i, j, k&lt;/code>，乘法都是有一个循环节的。这里不需要定量分析，我们可以直接断定，如果在一定的循环节中，不能把算式转化为&lt;code>i * j&lt;/code>的形式，那么就不可能转化。&lt;/p>
+&lt;p>所以，代码如下：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstdio&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstdlib&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstring&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;iostream&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;algorithm&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;vector&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> &lt;span style="color:#66d9ef">namespace&lt;/span> std;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#define print(x) cout &amp;lt;&amp;lt; x &amp;lt;&amp;lt; endl
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#define input(x) cin &amp;gt;&amp;gt; x
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#define error(x) cerr &amp;lt;&amp;lt; x &amp;lt;&amp;lt; endl
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> SIZE &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">12345&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">enum&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ONE &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> II &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">2&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> JJ &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">3&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> KK &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">4&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> trans[&lt;span style="color:#ae81ff">5&lt;/span>][&lt;span style="color:#ae81ff">5&lt;/span>] &lt;span style="color:#f92672">=&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {&lt;span style="color:#ae81ff">0&lt;/span>, &lt;span style="color:#ae81ff">0&lt;/span>, &lt;span style="color:#ae81ff">0&lt;/span>, &lt;span style="color:#ae81ff">0&lt;/span>, &lt;span style="color:#ae81ff">0&lt;/span>},
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {&lt;span style="color:#ae81ff">0&lt;/span>, ONE, II, JJ, KK},
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {&lt;span style="color:#ae81ff">0&lt;/span>, II, &lt;span style="color:#f92672">-&lt;/span>ONE, KK, &lt;span style="color:#f92672">-&lt;/span>JJ},
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {&lt;span style="color:#ae81ff">0&lt;/span>, JJ, &lt;span style="color:#f92672">-&lt;/span>KK, &lt;span style="color:#f92672">-&lt;/span>ONE, II},
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {&lt;span style="color:#ae81ff">0&lt;/span>, KK, JJ, &lt;span style="color:#f92672">-&lt;/span>II, &lt;span style="color:#f92672">-&lt;/span>ONE}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">conv&lt;/span>(&lt;span style="color:#66d9ef">char&lt;/span> c) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">switch&lt;/span> (c) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">case&lt;/span> &lt;span style="color:#e6db74">&amp;#39;1&amp;#39;&lt;/span>&lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#66d9ef">return&lt;/span> ONE;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">case&lt;/span> &lt;span style="color:#e6db74">&amp;#39;i&amp;#39;&lt;/span>&lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#66d9ef">return&lt;/span> II;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">case&lt;/span> &lt;span style="color:#e6db74">&amp;#39;j&amp;#39;&lt;/span>&lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#66d9ef">return&lt;/span> JJ;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">case&lt;/span> &lt;span style="color:#e6db74">&amp;#39;k&amp;#39;&lt;/span>&lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#66d9ef">return&lt;/span> KK;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">struct&lt;/span> &lt;span style="color:#a6e22e">Number&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> sign;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> value;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Number() {}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Number(&lt;span style="color:#66d9ef">char&lt;/span> c) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> sign &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> value &lt;span style="color:#f92672">=&lt;/span> conv(c);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Number(&lt;span style="color:#66d9ef">int&lt;/span> isign, &lt;span style="color:#66d9ef">int&lt;/span> ivalue)&lt;span style="color:#f92672">:&lt;/span> sign(isign), value(ivalue){}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Number &lt;span style="color:#66d9ef">operator&lt;/span> &lt;span style="color:#f92672">*&lt;/span> (&lt;span style="color:#66d9ef">const&lt;/span> Number&lt;span style="color:#f92672">&amp;amp;&lt;/span> num) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> a &lt;span style="color:#f92672">=&lt;/span> num.sign &lt;span style="color:#f92672">*&lt;/span> sign;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> b &lt;span style="color:#f92672">=&lt;/span> trans[value][num.value];
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (b &lt;span style="color:#f92672">&amp;lt;&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> a &lt;span style="color:#f92672">*=&lt;/span> &lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> b &lt;span style="color:#f92672">=&lt;/span> abs(b);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> Number{a, b};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>string _word;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>string word;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">long&lt;/span> &lt;span style="color:#66d9ef">long&lt;/span> L, X;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">bool&lt;/span> &lt;span style="color:#a6e22e">get_whole&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Number num(&lt;span style="color:#e6db74">&amp;#39;1&amp;#39;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">auto&lt;/span>&lt;span style="color:#f92672">&amp;amp;&lt;/span> c: _word) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> num &lt;span style="color:#f92672">=&lt;/span> num &lt;span style="color:#f92672">*&lt;/span> Number(c);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Number ans(&lt;span style="color:#e6db74">&amp;#39;1&amp;#39;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">long&lt;/span> &lt;span style="color:#66d9ef">long&lt;/span> x &lt;span style="color:#f92672">=&lt;/span> X;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">while&lt;/span> (x) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (x &lt;span style="color:#f92672">&amp;amp;&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ans &lt;span style="color:#f92672">=&lt;/span> ans &lt;span style="color:#f92672">*&lt;/span> num;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> num &lt;span style="color:#f92672">=&lt;/span> num &lt;span style="color:#f92672">*&lt;/span> num;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> x &lt;span style="color:#f92672">&amp;gt;&amp;gt;=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> ans.sign &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span> and ans.value &lt;span style="color:#f92672">==&lt;/span> ONE;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> T, cas &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> input(T);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">while&lt;/span> (T&lt;span style="color:#f92672">--&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> input(L &lt;span style="color:#f92672">&amp;gt;&amp;gt;&lt;/span> X);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> input(_word);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> word &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;&amp;#34;&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">int&lt;/span> i &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>; i &lt;span style="color:#f92672">&amp;lt;&lt;/span> min(X, &lt;span style="color:#ae81ff">19LL&lt;/span>); i&lt;span style="color:#f92672">++&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> word &lt;span style="color:#f92672">+=&lt;/span> _word;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Number num(&lt;span style="color:#e6db74">&amp;#39;1&amp;#39;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">bool&lt;/span> ii &lt;span style="color:#f92672">=&lt;/span> false;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">bool&lt;/span> jj &lt;span style="color:#f92672">=&lt;/span> false;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">bool&lt;/span> kk &lt;span style="color:#f92672">=&lt;/span> get_whole();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> n &lt;span style="color:#f92672">=&lt;/span> word.size();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">int&lt;/span> i &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>; i &lt;span style="color:#f92672">&amp;lt;&lt;/span> n &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>; i&lt;span style="color:#f92672">++&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> num &lt;span style="color:#f92672">=&lt;/span> num &lt;span style="color:#f92672">*&lt;/span> word[i];
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (num.sign &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span> &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> num.value &lt;span style="color:#f92672">==&lt;/span> II) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ii &lt;span style="color:#f92672">=&lt;/span> true;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }&lt;span style="color:#66d9ef">else&lt;/span> &lt;span style="color:#66d9ef">if&lt;/span> (ii &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> num.sign &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span> &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> num.value &lt;span style="color:#f92672">==&lt;/span> KK) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> jj &lt;span style="color:#f92672">=&lt;/span> true;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">break&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> kk &lt;span style="color:#f92672">=&lt;/span> (kk &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> ii &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> jj);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> printf(&lt;span style="color:#e6db74">&amp;#34;Case #%d: &amp;#34;&lt;/span>, cas&lt;span style="color:#f92672">++&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> puts(kk&lt;span style="color:#f92672">?&lt;/span> &lt;span style="color:#e6db74">&amp;#34;YES&amp;#34;&lt;/span>&lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#e6db74">&amp;#34;NO&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>19&lt;/code>是一个magic number。还有，小心&lt;del>Dandelo&lt;/del>数据超int。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/625c5bb804b76545978bcb11310099a6" alt="Alt text">&lt;/p>
+&lt;h2 id="d-ominous-omino">D. Ominous Omino &lt;a href="#d-ominous-omino" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>充满玄学的一题。网上看到的最精彩的题解是人工模拟出了所有可能。&lt;/p>
+&lt;p>我觉得像我这种内存小的人，估计是想不出来的。&lt;/p>
+&lt;p>貌似也有人用模拟。。。我觉得。。。可能会有更优雅的方法。。。&lt;/p>
+&lt;p>题解在&lt;a href="http://www.huangwenchao.com.cn/2015/04/gcj-2015-qual-d.html">这里&lt;/a>，真心是给跪了。&lt;/p></description></item><item><title>The Checklist of Steve Yegge</title><link>https://wizmann.top/posts/steve-yegge-interview-checklist/</link><pubDate>Sun, 26 Oct 2014 00:24:44 +0000</pubDate><guid>https://wizmann.top/posts/steve-yegge-interview-checklist/</guid><description>&lt;blockquote>
 &lt;p>Hey man, I don&amp;rsquo;t know that stuff&lt;/p>&lt;/blockquote>
 &lt;blockquote>
 &lt;p>Stevey&amp;rsquo;s talking aboooooout&lt;/p>&lt;/blockquote>
@@ -270,9 +507,57 @@
 &lt;p>I&amp;rsquo;m gonna get fiiiiiiiiiired&lt;/p>&lt;/blockquote>
 &lt;blockquote>
 &lt;p>Oooh yeah baaaby baaaay-beeeeee&amp;hellip;.&lt;/p>&lt;/blockquote>
-&lt;h2 id="非技术部分">非技术部分&lt;/h2>
-&lt;h3 id="热身">热身&lt;/h3>
-&lt;h4 id="好好读一本讲数据结构和算法的书">好好读一本讲数据结构和算法的书&lt;/h4>
-&lt;p>熟悉一些“术语”，可以强化分辨问题的能力。&lt;/p>
+&lt;h2 id="非技术部分">非技术部分 &lt;a href="#%e9%9d%9e%e6%8a%80%e6%9c%af%e9%83%a8%e5%88%86" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="热身">热身 &lt;a href="#%e7%83%ad%e8%ba%ab" class="anchor">🔗&lt;/a>&lt;/h3>&lt;h4 id="好好读一本讲数据结构和算法的书">好好读一本讲数据结构和算法的书 &lt;a href="#%e5%a5%bd%e5%a5%bd%e8%af%bb%e4%b8%80%e6%9c%ac%e8%ae%b2%e6%95%b0%e6%8d%ae%e7%bb%93%e6%9e%84%e5%92%8c%e7%ae%97%e6%b3%95%e7%9a%84%e4%b9%a6" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>熟悉一些“术语”，可以强化分辨问题的能力。&lt;/p>
 &lt;p>Yegge推荐了 Steven S. Skiena 的&lt;a href="http://book.douban.com/subject/4048566/">《算法设计手册》&lt;/a>，而我推荐的是
-Udi Manber 的&lt;a href="http://book.douban.com/subject/1436134/">《算法引论》&lt;/a>。&lt;/p></description></item></channel></rss>
+Udi Manber 的&lt;a href="http://book.douban.com/subject/1436134/">《算法引论》&lt;/a>。&lt;/p>
+&lt;p>每一本书都有它的长处短处。找一本评价不错的书，认真读完，肯定会有收获。&lt;/p>
+&lt;h4 id="找个朋友来面试你尝试白板编程">找个朋友来面试你，尝试白板编程 &lt;a href="#%e6%89%be%e4%b8%aa%e6%9c%8b%e5%8f%8b%e6%9d%a5%e9%9d%a2%e8%af%95%e4%bd%a0%e5%b0%9d%e8%af%95%e7%99%bd%e6%9d%bf%e7%bc%96%e7%a8%8b" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>在白纸/白板上编程的体验和在计算机上大有不同。没有条件的情况下，试试Leetcode的“Pick one”，然后在白纸上练习吧！&lt;/p>
+&lt;h4 id="在面试前保持警醒充分热身">在面试前保持警醒，充分热身 &lt;a href="#%e5%9c%a8%e9%9d%a2%e8%af%95%e5%89%8d%e4%bf%9d%e6%8c%81%e8%ad%a6%e9%86%92%e5%85%85%e5%88%86%e7%83%ad%e8%ba%ab" class="anchor">🔗&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>读读书记&lt;/li>
+&lt;li>喝点咖啡，这可以让你的思路快一些&lt;/li>
+&lt;/ul>
+&lt;h3 id="心理准备">心理准备 &lt;a href="#%e5%bf%83%e7%90%86%e5%87%86%e5%a4%87" class="anchor">🔗&lt;/a>&lt;/h3>&lt;h4 id="保持谦逊开明专注的态度">保持谦逊、开明、专注的态度 &lt;a href="#%e4%bf%9d%e6%8c%81%e8%b0%a6%e9%80%8a%e5%bc%80%e6%98%8e%e4%b8%93%e6%b3%a8%e7%9a%84%e6%80%81%e5%ba%a6" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>不要质疑面试官的水平，但是也不要害怕问问题。问一个蠢问题总比沉默僵持半小时要好的多。况且，一个好问题也许还是一个加分项。&lt;/p>
+&lt;p>并且，不要尝试去转移话题，把注意力放在问题本身。&lt;/p>
+&lt;h4 id="了解面试官对代码的要求">了解面试官对代码的要求 &lt;a href="#%e4%ba%86%e8%a7%a3%e9%9d%a2%e8%af%95%e5%ae%98%e5%af%b9%e4%bb%a3%e7%a0%81%e7%9a%84%e8%a6%81%e6%b1%82" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>有的面试官不会要求你写代码，但是他们希望你在回答问题时写一点代码。如果你不能确定，不妨直接问一下。&lt;/p>
+&lt;p>不同的面试官对于面试代码风格的要求是不一致的，对于苛刻的面试官，最好提高对代码的要求。并且仔细检查。&lt;/p>
+&lt;h4 id="问问题的艺术">问问题的艺术 &lt;a href="#%e9%97%ae%e9%97%ae%e9%a2%98%e7%9a%84%e8%89%ba%e6%9c%af" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>在面试中的有不清楚的地方是可以问的（并且问问题是被鼓励的），有时候还可以去和面试官确认自己是不是在正确的方向上。&lt;/p>
+&lt;p>什么都不问，直接冲到白板前开始写代码有可能会留下“设计无用”的坏印象。所以，即使你确定自己怎么做，也要先说说自己是怎么样的。但是，也不要说的太多。&lt;/p>
+&lt;h4 id="自带高级装备">自带高级装备 &lt;a href="#%e8%87%aa%e5%b8%a6%e9%ab%98%e7%ba%a7%e8%a3%85%e5%a4%87" class="anchor">🔗&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>细头可擦马克笔&lt;/li>
+&lt;li>铅笔和橡皮&lt;/li>
+&lt;/ul>
+&lt;p>在面试中要使用一切可以使用的资源，例如白板上的空间管理。&lt;/p>
+&lt;h2 id="技术部分">技术部分 &lt;a href="#%e6%8a%80%e6%9c%af%e9%83%a8%e5%88%86" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="算法">算法 &lt;a href="#%e7%ae%97%e6%b3%95" class="anchor">🔗&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>大O&lt;/li>
+&lt;li>排序算法 —— 快速排序和归并排序&lt;/li>
+&lt;li>哈希表&lt;/li>
+&lt;li>树 —— 构造和遍历&lt;/li>
+&lt;li>至少熟悉一种平衡二叉树 —— 必须掌握实现细节&lt;/li>
+&lt;li>图 —— 存储与遍历，Dijkstra和A*&lt;/li>
+&lt;/ul>
+&lt;blockquote>
+&lt;p>每次遇到问题，首先应当考虑的就是图算法。它们是任何关系最基本、最灵活的表示方法，任何有点意思的设计问题可以说有一半的机会涉及图算法。只有在你百分之百确定没办法用图算法来解的时候，才能去考虑其它方案。这条建议一定要牢记在心！&lt;/p>&lt;/blockquote>
+&lt;ul>
+&lt;li>NP问题 —— 应该知道NP完全问题是什么意思&lt;/li>
+&lt;li>好好读数据结构书，&lt;strong>能记多少记多少&lt;/strong>&lt;/li>
+&lt;li>离散数学 —— 计数问题、概率问题&lt;/li>
+&lt;/ul>
+&lt;h3 id="计算机基础知识">计算机基础知识 &lt;a href="#%e8%ae%a1%e7%ae%97%e6%9c%ba%e5%9f%ba%e7%a1%80%e7%9f%a5%e8%af%86" class="anchor">🔗&lt;/a>&lt;/h3>&lt;h4 id="操作系统">操作系统 &lt;a href="#%e6%93%8d%e4%bd%9c%e7%b3%bb%e7%bb%9f" class="anchor">🔗&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>进程、线程、并发&lt;/li>
+&lt;li>锁、互斥锁、信号量，管程机制&lt;/li>
+&lt;li>死锁和活锁&lt;/li>
+&lt;li>进程和线程各需要什么资源、上下文切换、调度&lt;/li>
+&lt;/ul>
+&lt;p>作者推荐了 Doug Lea 的&lt;a href="http://book.douban.com/subject/1244021/">《Java并发编程》&lt;/a>，做为一个Java hater，我决定还是勉为其难的看一下吧。:)&lt;/p>
+&lt;h4 id="语言">语言 &lt;a href="#%e8%af%ad%e8%a8%80" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>至少要熟练掌握一种编程语言，最好是C++或者Java。并且&lt;strong>一定要对那门语言的细节有相当程度的了解&lt;/strong>。&lt;/p>
+&lt;h4 id="其它的基础知识">其它的基础知识 &lt;a href="#%e5%85%b6%e5%ae%83%e7%9a%84%e5%9f%ba%e7%a1%80%e7%9f%a5%e8%af%86" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>在作者的文章中没有提到的，但是也许比较重要的知识。&lt;/p>
+&lt;ul>
+&lt;li>CS专业第二重要的知识 —— 编译原理&lt;/li>
+&lt;li>计算机网络 —— TCP/IP协议也许是个重点&lt;/li>
+&lt;li>数据库的一些知识&lt;/li>
+&lt;li>MapReduce？&lt;/li>
+&lt;/ul>
+&lt;h2 id="其它">其它 &lt;a href="#%e5%85%b6%e5%ae%83" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>剩下的基本就是看脸了。。。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/fa4b0cfd335bae28abf23d34fc6e84ee" alt="puzzles">&lt;/p>
+&lt;h2 id="总结">总结 &lt;a href="#%e6%80%bb%e7%bb%93" class="anchor">🔗&lt;/a>&lt;/h2>&lt;blockquote>
+&lt;p>好好热身。实际工作只会让你反应迟钝！&lt;/p>&lt;/blockquote></description></item></channel></rss>

@@ -1,24 +1,979 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>C++ on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/c++/</link><description>Recent content in C++ on Maerlyn's Rainbow</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Fri, 01 Feb 2019 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/c++/index.xml" rel="self" type="application/rss+xml"/><item><title>C++类型擦除与`std::function`性能探索</title><link>https://wizmann.top/posts/cpp-type-erasure-and-std-function/</link><pubDate>Fri, 01 Feb 2019 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/cpp-type-erasure-and-std-function/</guid><description>&lt;h2 id="什么是类型擦除">什么是类型擦除&lt;/h2>
-&lt;p>对于Python这种动态类型语言来说，是不存在“类型擦除”这个概念的。Python对象的行为并不由接口定义，而是由“当前方法和属性的集合”决定。&lt;/p></description></item><item><title>一种区间交问题的奇怪姿势</title><link>https://wizmann.top/posts/range-problem/</link><pubDate>Tue, 20 Feb 2018 22:59:47 +0000</pubDate><guid>https://wizmann.top/posts/range-problem/</guid><description>&lt;blockquote>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>C++ on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/c++/</link><description>Recent content in C++ on Maerlyn's Rainbow</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Fri, 01 Feb 2019 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/c++/index.xml" rel="self" type="application/rss+xml"/><item><title>C++类型擦除与`std::function`性能探索</title><link>https://wizmann.top/posts/cpp-type-erasure-and-std-function/</link><pubDate>Fri, 01 Feb 2019 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/cpp-type-erasure-and-std-function/</guid><description>&lt;h2 id="什么是类型擦除">什么是类型擦除 &lt;a href="#%e4%bb%80%e4%b9%88%e6%98%af%e7%b1%bb%e5%9e%8b%e6%93%a6%e9%99%a4" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>对于Python这种动态类型语言来说，是不存在“类型擦除”这个概念的。Python对象的行为并不由接口定义，而是由“当前方法和属性的集合”决定。&lt;/p>
+&lt;p>所以，以下的代码是完全合法的：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">Foo&lt;/span>(object):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">print&lt;/span>(self):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print &lt;span style="color:#e6db74">&amp;#39;foo&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">Bar&lt;/span>(object):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">print&lt;/span>(self):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print &lt;span style="color:#e6db74">&amp;#39;bar&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">do_print&lt;/span>(obj):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print obj&lt;span style="color:#f92672">.&lt;/span>print()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>do_print(Foo()) &lt;span style="color:#f92672">//&lt;/span> print &lt;span style="color:#e6db74">&amp;#39;foo&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>do_print(Bar()) &lt;span style="color:#f92672">//&lt;/span> print &lt;span style="color:#e6db74">&amp;#39;bar&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>但是对于C++这种静态类型语言来讲，我们就不能使用这种语法：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">Foo&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">public&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">void&lt;/span> print() { cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;foo&amp;#34;&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> endl; }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">Bar&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">public&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">void&lt;/span> print() { cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;bar&amp;#34;&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> endl; }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#a6e22e">do_print&lt;/span>(&lt;span style="color:#f92672">???&lt;/span> obj) { &lt;span style="color:#75715e">// &amp;lt;--
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> obj.print();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>do_print(Foo());
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>do_print(Bar());
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>熟悉C++的同学们都知道，因为&lt;code>Foo&lt;/code>和&lt;code>Bar&lt;/code>的类型不同，我们不能直接将不同类型的实例传入&lt;code>do_print(obj)&lt;/code>函数。所以我们需要一种方法擦除类型信息，提供一种类型的抽象。使得实现不依赖于具体类型，而是依赖于类型抽象。&lt;/p>
+&lt;h2 id="c中类型擦除的实现">C++中类型擦除的实现 &lt;a href="#c%e4%b8%ad%e7%b1%bb%e5%9e%8b%e6%93%a6%e9%99%a4%e7%9a%84%e5%ae%9e%e7%8e%b0" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="简单粗暴---void">简单粗暴 - &lt;code>void*&lt;/code> &lt;a href="#%e7%ae%80%e5%8d%95%e7%b2%97%e6%9a%b4---void" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>写过C语言同学们一定非常熟悉&lt;code>qsort&lt;/code>函数的写法：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-c" data-lang="c">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">// http://www.cplusplus.com/reference/cstdlib/qsort/
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">compare&lt;/span> (&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#f92672">*&lt;/span> a, &lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#f92672">*&lt;/span> b) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> ( &lt;span style="color:#f92672">*&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span>&lt;span style="color:#f92672">*&lt;/span>)a &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#f92672">*&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span>&lt;span style="color:#f92672">*&lt;/span>)b );
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span> () {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> values[] &lt;span style="color:#f92672">=&lt;/span> {&lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>, &lt;span style="color:#ae81ff">5&lt;/span>, &lt;span style="color:#ae81ff">2&lt;/span>, &lt;span style="color:#ae81ff">4&lt;/span>, &lt;span style="color:#ae81ff">6&lt;/span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">qsort&lt;/span> (values, &lt;span style="color:#ae81ff">6&lt;/span>, &lt;span style="color:#66d9ef">sizeof&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span>), compare);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">int&lt;/span> i&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#ae81ff">0&lt;/span>; i&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#ae81ff">6&lt;/span>; i&lt;span style="color:#f92672">++&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">printf&lt;/span> (&lt;span style="color:#e6db74">&amp;#34;%d &amp;#34;&lt;/span>,values[n]);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这里的&lt;code>compare(const void*, const void*)&lt;/code>函数就是C语言风格的类型擦除，可以支持不同类型的指针类型传入。但是缺陷是在函数中，我们仍然需要将已擦除的类型恢复，以读取其中的数据。&lt;/p>
+&lt;p>这种类型擦除方法，并不会带开额外的开销。但是这样的强制类型隐含着类型不匹配的风险，需要程序员格外注意。&lt;/p>
+&lt;h3 id="面向对象的经典方法---虚函数virtual-function">面向对象的经典方法 - 虚函数（virtual function） &lt;a href="#%e9%9d%a2%e5%90%91%e5%af%b9%e8%b1%a1%e7%9a%84%e7%bb%8f%e5%85%b8%e6%96%b9%e6%b3%95---%e8%99%9a%e5%87%bd%e6%95%b0virtual-function" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>C++做为C语言的进化，引入了面向对象的理念。而多态，做为面向对象编程的一个重要特性，为我们的代码带来了更多的弹性。&lt;/p>
+&lt;p>对于上面的例子，我们可以使用以下的代码来实现：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">IPrintable&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">public&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">virtual&lt;/span> &lt;span style="color:#66d9ef">void&lt;/span> print() &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">Foo&lt;/span> &lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#66d9ef">public&lt;/span> IPrintable {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">public&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">virtual&lt;/span> &lt;span style="color:#66d9ef">void&lt;/span> print() { cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;foo&amp;#34;&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> endl; }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">Bar&lt;/span> &lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#66d9ef">public&lt;/span> IPrintable {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">public&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">virtual&lt;/span> &lt;span style="color:#66d9ef">void&lt;/span> print() { cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;bar&amp;#34;&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> endl; }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#a6e22e">do_print&lt;/span>(IPrintable&lt;span style="color:#f92672">*&lt;/span> obj) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> obj&lt;span style="color:#f92672">-&amp;gt;&lt;/span>print();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> do_print(&lt;span style="color:#66d9ef">new&lt;/span> Foo());
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> do_print(&lt;span style="color:#66d9ef">new&lt;/span> Bar());
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>在这里，我们使用了一个&lt;code>IPrintable&lt;/code>基类，擦除了子类&lt;code>Foo&lt;/code>和&lt;code>Bar&lt;/code>的具体类型信息。也就是说，只要子类实现了基类的接口，就可以做为参数传入&lt;code>do_print(obj)&lt;/code>中。这样的好处是我们只需要为继承同样接口的类型完成一套实现，提供了更好的封装与抽象。&lt;/p>
+&lt;p>但是，这种实现的问题在于虚函数的调用是有额外的开销的。需要进行一次运行时虚表的查找，才可以确定对象需要调用哪一个函数。&lt;/p>
+&lt;h3 id="使用模板template">使用模板（template） &lt;a href="#%e4%bd%bf%e7%94%a8%e6%a8%a1%e6%9d%bftemplate" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>C++提供了模板，支持将类型以模板参数形式传入参数。使得我们可以以一种独立于特定类型的方式编写代码。&lt;/p>
+&lt;p>我们可以改写上文中的&lt;code>do_print(obj)&lt;/code>函数，使其可以支持不同的类型：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span> T&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">void&lt;/span> do_print(T obj) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> obj.print();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这里，传入参数的类型&lt;code>T&lt;/code>无需继承&lt;code>IPrintable&lt;/code>接口，只要其实现了&lt;code>print()&lt;/code>成员函数即可做为对象传入。&lt;/p>
+&lt;p>C++模板的类型擦除作用于编译期，可以尽早的发现风险，同时（一般来说）不影响运行时的性能。&lt;/p>
+&lt;blockquote>
+&lt;p>注意：Java/C#的泛型(generic)语法与C++的模板非常类似，但是Java/C#的泛型是作用于运行时的。这里注意区分二者的区别。&lt;/p>&lt;/blockquote>
+&lt;p>但是模板也有其局限性。模板有隐含的接口语义，但是由于模板所使用的对象并没有共同的基类（接口），所以它不能使用一个统一的容器来储存对象。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">???&lt;/span> objs[] &lt;span style="color:#f92672">=&lt;/span> { &lt;span style="color:#66d9ef">new&lt;/span> &lt;span style="color:#a6e22e">Foo&lt;/span>(), &lt;span style="color:#66d9ef">new&lt;/span> Bar() };
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="c类型擦除实战--stdfunction">C++类型擦除实战 —— &lt;code>std::function&lt;/code> &lt;a href="#c%e7%b1%bb%e5%9e%8b%e6%93%a6%e9%99%a4%e5%ae%9e%e6%88%98--stdfunction" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>在C语言中，我们要表示一个函数对象只能使用函数本身以及函数指针。但是在C++中，我们有了更多的选择：&lt;/p>
+&lt;ul>
+&lt;li>函数&lt;/li>
+&lt;li>inline lambda&lt;/li>
+&lt;li>函数指针（C-style）&lt;/li>
+&lt;li>仿函数（factor class）&lt;/li>
+&lt;li>&lt;code>std::bind&lt;/code>&lt;/li>
+&lt;li>&lt;code>std::function&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;p>上面的这些对象，我们可以统称为可调用（callable）对象。也就是说，我们可以使用类似&lt;code>f(obj)&lt;/code>的语法，以函数形式调用这些对象。&lt;/p>
+&lt;p>思考以下的场景：我们想要实现一个回调函数。这个函数是用户定义的，可以是以上可调用对象的任意一种。那么我们应该用什么类型来表示这个回调函数对象呢？&lt;/p>
+&lt;p>是的，答案就是&lt;code>std::function&lt;/code>。C++中的&lt;code>std::function&lt;/code>为我们提供了对可调用对象的抽象。我们可以使用&lt;code>std::function&lt;/code>封装可调用对象，从而擦除其类型信息，使用统一的方法对其进行调用。&lt;/p>
+&lt;p>请参考以下代码：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">// http://www.cplusplus.com/reference/functional/function/function/
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;iostream&amp;gt;&lt;/span>&lt;span style="color:#75715e"> &lt;/span>&lt;span style="color:#75715e">// std::cout
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;functional&amp;gt;&lt;/span>&lt;span style="color:#75715e"> &lt;/span>&lt;span style="color:#75715e">// std::function, std::negate
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">// a function:
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">half&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> x) {&lt;span style="color:#66d9ef">return&lt;/span> x&lt;span style="color:#f92672">/&lt;/span>&lt;span style="color:#ae81ff">2&lt;/span>;}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">// a function object class:
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#66d9ef">struct&lt;/span> &lt;span style="color:#a6e22e">third_t&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">operator&lt;/span>()(&lt;span style="color:#66d9ef">int&lt;/span> x) {&lt;span style="color:#66d9ef">return&lt;/span> x&lt;span style="color:#f92672">/&lt;/span>&lt;span style="color:#ae81ff">3&lt;/span>;}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">// a class with data members:
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#66d9ef">struct&lt;/span> &lt;span style="color:#a6e22e">MyValue&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> value;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">fifth&lt;/span>() {&lt;span style="color:#66d9ef">return&lt;/span> value&lt;span style="color:#f92672">/&lt;/span>&lt;span style="color:#ae81ff">5&lt;/span>;}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span> () {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>function&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span>)&lt;span style="color:#f92672">&amp;gt;&lt;/span> fn1 &lt;span style="color:#f92672">=&lt;/span> half; &lt;span style="color:#75715e">// function
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>function&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span>)&lt;span style="color:#f92672">&amp;gt;&lt;/span> fn2 &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#f92672">&amp;amp;&lt;/span>half; &lt;span style="color:#75715e">// function pointer
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>function&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span>)&lt;span style="color:#f92672">&amp;gt;&lt;/span> fn3 &lt;span style="color:#f92672">=&lt;/span> third_t(); &lt;span style="color:#75715e">// function object
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>function&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span>)&lt;span style="color:#f92672">&amp;gt;&lt;/span> fn4 &lt;span style="color:#f92672">=&lt;/span> [](&lt;span style="color:#66d9ef">int&lt;/span> x){&lt;span style="color:#66d9ef">return&lt;/span> x&lt;span style="color:#f92672">/&lt;/span>&lt;span style="color:#ae81ff">4&lt;/span>;}; &lt;span style="color:#75715e">// lambda expression
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>function&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span>)&lt;span style="color:#f92672">&amp;gt;&lt;/span> fn5 &lt;span style="color:#f92672">=&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>negate&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span>(); &lt;span style="color:#75715e">// standard function object
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;fn1(60): &amp;#34;&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> fn1(&lt;span style="color:#ae81ff">60&lt;/span>) &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#39;\n&amp;#39;&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;fn2(60): &amp;#34;&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> fn2(&lt;span style="color:#ae81ff">60&lt;/span>) &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#39;\n&amp;#39;&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;fn3(60): &amp;#34;&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> fn3(&lt;span style="color:#ae81ff">60&lt;/span>) &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#39;\n&amp;#39;&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;fn4(60): &amp;#34;&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> fn4(&lt;span style="color:#ae81ff">60&lt;/span>) &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#39;\n&amp;#39;&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;fn5(60): &amp;#34;&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> fn5(&lt;span style="color:#ae81ff">60&lt;/span>) &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#39;\n&amp;#39;&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// stuff with members:
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>function&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>(MyValue&lt;span style="color:#f92672">&amp;amp;&lt;/span>)&lt;span style="color:#f92672">&amp;gt;&lt;/span> value &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#f92672">&amp;amp;&lt;/span>MyValue&lt;span style="color:#f92672">::&lt;/span>value; &lt;span style="color:#75715e">// pointer to data member
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>function&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>(MyValue&lt;span style="color:#f92672">&amp;amp;&lt;/span>)&lt;span style="color:#f92672">&amp;gt;&lt;/span> fifth &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#f92672">&amp;amp;&lt;/span>MyValue&lt;span style="color:#f92672">::&lt;/span>fifth; &lt;span style="color:#75715e">// pointer to member function
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> MyValue sixty {&lt;span style="color:#ae81ff">60&lt;/span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;value(sixty): &amp;#34;&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> value(sixty) &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#39;\n&amp;#39;&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;fifth(sixty): &amp;#34;&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> fifth(sixty) &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#39;\n&amp;#39;&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="stdfunction的缺陷">&lt;code>std::function&lt;/code>的缺陷 &lt;a href="#stdfunction%e7%9a%84%e7%bc%ba%e9%99%b7" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>&lt;code>std::function&lt;/code>的类型擦除功能异常强大，几乎可以封装所有的可调用类型。但是，语法上面的便利却会带来了性能上的损失。&lt;/p>
+&lt;p>从&lt;a href="https://gist.github.com/Wizmann/30073037f31d796efd6f42798dd85aee">benchmark&lt;/a>结果上我们可以看出，在&lt;code>O2&lt;/code>的优化参数下，函数调用（包括函数、函数模板和仿函数）、函数指针和lambda的性能相仿。而虚函数大概需要花费5倍左右的时间，而&lt;code>std::function&lt;/code>则需要花费6倍以上的时间。对于一个会被经常调用到的函数，带来的额外的性能开销是不可以忽略的。&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>method&lt;/th>
+&lt;th style="text-align: right">Linux (Azure VM, E5-2673 v3, -O0)&lt;/th>
+&lt;th style="text-align: right">Linux (Azure VM, E5-2673 v3, -O2)&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>Function&lt;/td>
+&lt;td style="text-align: right">12.4s&lt;/td>
+&lt;td style="text-align: right">1.2s&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Function Ptr&lt;/td>
+&lt;td style="text-align: right">13.5s&lt;/td>
+&lt;td style="text-align: right">1.2s&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Inline Lambda&lt;/td>
+&lt;td style="text-align: right">12.7s&lt;/td>
+&lt;td style="text-align: right">1.2s&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Virtual Function&lt;/td>
+&lt;td style="text-align: right">14.1s&lt;/td>
+&lt;td style="text-align: right">6.3s&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>std::function&lt;/td>
+&lt;td style="text-align: right">77.3s&lt;/td>
+&lt;td style="text-align: right">7.2s&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>究其原因，是由于&lt;code>std::function&lt;/code>的模板参数中只提供了参数类型和返回值类型，所以为了进行类型擦除，其中内置了一个虚函数。所以一次&lt;code>std::function&lt;/code>调用会引发隐式的多次函数调用，其中还包含着一次虚函数的调用。所以性能下降也就不难解释了。&lt;/p>
+&lt;h3 id="解决方案">解决方案 &lt;a href="#%e8%a7%a3%e5%86%b3%e6%96%b9%e6%a1%88" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>可以确定的是，除非必要，不要使用&lt;code>std::function&lt;/code>。&lt;/p>
+&lt;p>例如，在&lt;code>std::sort&lt;/code>中，我们使用模板传入可调用类型，这样就可以避免&lt;code>std::function&lt;/code>的额外开销：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span>&lt;span style="color:#f92672">&amp;lt;&lt;/span> &lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">RandomIt&lt;/span>, &lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">Compare&lt;/span> &lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">void&lt;/span> sort( RandomIt first, RandomIt last, Compare comp );
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>又例如我们可以避免使用不同的可调用类型来规避类型擦除，如统一使用函数指针。在C++14之后，inline lambda也可以表示为函数指针，所以我们也可以通过闭包来封装其它的可调用对象了。&lt;/p>
+&lt;p>当然，也可以自己造个&lt;a href="https://codereview.stackexchange.com/questions/14730/impossibly-fast-delegate-in-c11">轮子&lt;/a>，这就又是另一个故事了。&lt;/p>
+&lt;h2 id="写在最后">写在最后 &lt;a href="#%e5%86%99%e5%9c%a8%e6%9c%80%e5%90%8e" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>新的C++规范给我们带来了很多的语法糖。对于传统C++程序员来说，好处在于我们可以写出更舒服的，更符合直觉的代码，但缺点是我们需要了解更多语言背后的东西。所以对于自己不熟悉的新式语法，无论看起来多么诱人，也需要多加谨慎。&lt;/p>
+&lt;h2 id="参考链接">参考链接 &lt;a href="#%e5%8f%82%e8%80%83%e9%93%be%e6%8e%a5" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://gist.github.com/Wizmann/30073037f31d796efd6f42798dd85aee">Benchmark for &amp;ldquo;function pointer&amp;rdquo;, &amp;ldquo;virtual function&amp;rdquo; and &amp;ldquo;std::function&amp;rdquo;&lt;/a>&lt;/li>
+&lt;li>&lt;a href="http://www.modernescpp.com/index.php/c-core-guidelines-type-erasure">C++ Core Guidelines: Type Erasure&lt;/a>&lt;/li>
+&lt;li>&lt;a href="http://davekilian.com/cpp-type-erasure.html">C++ &amp;lsquo;Type Erasure&amp;rsquo; Explained&lt;/a>&lt;/li>
+&lt;/ul></description></item><item><title>一种区间交问题的奇怪姿势</title><link>https://wizmann.top/posts/range-problem/</link><pubDate>Tue, 20 Feb 2018 22:59:47 +0000</pubDate><guid>https://wizmann.top/posts/range-problem/</guid><description>&lt;blockquote>
 &lt;p>Update[220504]: 原来这种数据结构叫&lt;a href="https://oi-wiki.org/ds/odt/">珂朵莉树&lt;/a>啊，真神奇。。。&lt;/p>&lt;/blockquote>
-&lt;h2 id="我们要解决什么问题">我们要解决什么问题&lt;/h2>
-&lt;p>区间交问题，是我们在做题中经常遇到的问题。&lt;/p>
+&lt;h2 id="我们要解决什么问题">我们要解决什么问题 &lt;a href="#%e6%88%91%e4%bb%ac%e8%a6%81%e8%a7%a3%e5%86%b3%e4%bb%80%e4%b9%88%e9%97%ae%e9%a2%98" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>区间交问题，是我们在做题中经常遇到的问题。&lt;/p>
 &lt;p>例如，&lt;a href="https://leetcode.com/problems/insert-interval/description/">Insert Interval&lt;/a>一题，就是比较直白的区间交问题：&lt;/p>
 &lt;blockquote>
-&lt;p>给定一系列的整数区间，再插入一个新的区间，问合并后的整数区间是什么&lt;/p></description></item><item><title>定时器以及其它 - phxrpc阅读笔记(2)</title><link>https://wizmann.top/posts/phxrpc-2/</link><pubDate>Thu, 29 Sep 2016 01:28:09 +0000</pubDate><guid>https://wizmann.top/posts/phxrpc-2/</guid><description>&lt;h2 id="写在前面">写在前面&lt;/h2>
-&lt;p>phxrpc使用了协程(ucontext)和IO复用技术(epoll)来实现网络通信。定时器在其中起到了非常重要的作用。下面我们就来分析一下phxrpc的&lt;code>timer.[h|cpp]&lt;/code>中的代码。&lt;/p></description></item><item><title>自定义你的stream buffer - phxrpc阅读笔记(1)</title><link>https://wizmann.top/posts/phxrpc-1/</link><pubDate>Wed, 28 Sep 2016 22:35:55 +0000</pubDate><guid>https://wizmann.top/posts/phxrpc-1/</guid><description>&lt;h2 id="写在前面">写在前面&lt;/h2>
-&lt;p>&lt;a href="https://github.com/tencent-wechat/phxrpc">phxrpc&lt;/a>是微信团队开源的一个轻量级RPC框架。&lt;/p>
-&lt;p>我对RPC这些东西了解不多，看到phxrpc的代码相对简单，而且还在初步开发阶段（在本文写作时，版本号是0.8）。所以想读一读，提高一下姿势水平。&lt;/p></description></item><item><title>用C++实现一个通用的sort函数</title><link>https://wizmann.top/posts/a-common-sorting-function-with-cpp/</link><pubDate>Sat, 25 Apr 2015 11:17:01 +0000</pubDate><guid>https://wizmann.top/posts/a-common-sorting-function-with-cpp/</guid><description>&lt;h2 id="问题">问题&lt;/h2>
-&lt;p>用C++实现一个尽可能通用的sort函数&lt;/p>
-&lt;h2 id="分析">分析&lt;/h2>
-&lt;p>一个通用的sort函数应该包含以下要点：&lt;/p>
+&lt;p>给定一系列的整数区间，再插入一个新的区间，问合并后的整数区间是什么&lt;/p>&lt;/blockquote>
+&lt;p>类似的还有&lt;a href="https://leetcode.com/problems/merge-intervals/description/">Merge Intervals&lt;/a>：&lt;/p>
+&lt;blockquote>
+&lt;p>给定一系列可能有重叠的整数区间，求合并后的整数区间&lt;/p>&lt;/blockquote>
+&lt;p>另一种区间交问题的描述是时间区间相关的问题，如&lt;a href="http://lintcode.com/en/problem/time-intersection/">Time Intersection&lt;/a>:&lt;/p>
+&lt;blockquote>
+&lt;p>给定用户A和用户B的在线时间区间，问两人同时在线的时间区间&lt;/p>&lt;/blockquote>
+&lt;p>又如经典的会议室安排问题&lt;a href="https://segmentfault.com/a/1190000003894670">Meeting Rooms&lt;/a>和&lt;a href="http://www.cnblogs.com/grandyang/p/5244720.html">Meeting Rooms II&lt;/a>:&lt;/p>
+&lt;blockquote>
+&lt;p>给定N个会议的时间区间，问一个人能否参加所有的会议&lt;/p>&lt;/blockquote>
+&lt;p>以及&lt;/p>
+&lt;blockquote>
+&lt;p>给定N个会议的时间区间，问最少需要多少个会议室&lt;/p>&lt;/blockquote>
+&lt;p>还有系统设计与API设计包装后的算法题&lt;a href="https://leetcode.com/problems/range-module/description/">Range Module&lt;/a>。归根结底，都是整数区间问题的变形或者包装。&lt;/p>
+&lt;h2 id="传统解法">传统解法 &lt;a href="#%e4%bc%a0%e7%bb%9f%e8%a7%a3%e6%b3%95" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>对于这类区间问题，传统的解法是将区间使用顺序容器（如&lt;code>vector&lt;/code>）保存，在查询和修改时，使用“排序+遍历”或者“排序+二分”。&lt;/p>
+&lt;p>这种解决在一定程度上是区间问题的通解，但是这样做也有它的问题。&lt;/p>
+&lt;p>一来区间问题有很多对区间序列进行随机增加、删除，这样的操作对于顺序容器是非常不友好的。&lt;/p>
+&lt;p>二来对于使用“起点”或“终点”排序的区间，二分查找需要处理很多重复值，在某些情况下会发生复杂度的退化。&lt;/p>
+&lt;p>那么我们如何优化我们的实现来解决以上的问题呢？&lt;/p>
+&lt;h2 id="使用stdsetinterval">使用&lt;code>std::set&amp;lt;Interval&amp;gt;&lt;/code> &lt;a href="#%e4%bd%bf%e7%94%a8stdsetinterval" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>我们以&lt;a href="https://leetcode.com/problems/merge-intervals/description/">Merge Intervals&lt;/a>一题为例。只要两个区间有交集，无论是哪一种形式的相交，那么我们就需要把这两个区间合并。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/18-2-20/85403056.jpg" alt="">&lt;/p>
+&lt;p>所以，我们只需要能高效的判断两个区间&lt;strong>是否相交&lt;/strong>，就可以解决这个问题了。&lt;/p>
+&lt;p>但是在这里，我们反其道而行之，先来讨论一下&lt;strong>不相交&lt;/strong>的情况。对于两个不相交的区间&lt;code>A&lt;/code>和&lt;code>B&lt;/code>，只存在两种情况，一是&lt;code>A&lt;/code>在&lt;code>B&lt;/code>左面，二是&lt;code>A&lt;/code>在&lt;code>B&lt;/code>右面。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/18-2-20/87075632.jpg" alt="">&lt;/p>
+&lt;p>我们可以把区间的左右关系看成不相交区间的顺序关系，即：&lt;/p>
+&lt;ul>
+&lt;li>如果区间&lt;code>A&lt;/code>在区间&lt;code>B&lt;/code>的“左边”，我们说&lt;code>A &amp;lt; B&lt;/code>&lt;/li>
+&lt;li>如果区间&lt;code>A&lt;/code>在区间&lt;code>B&lt;/code>的“右边”，我们说&lt;code>A &amp;gt; B&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;p>所以，根据不相交区间的性质，我们可以很自然的将它们存储在&lt;code>std::set&amp;lt;Interval&amp;gt;&lt;/code>当中。这样我们就可以在&lt;code>O(logN)&lt;/code>时间进行查找、随机插入与随机删除。&lt;/p>
+&lt;p>那么，回到最开始判断区间&lt;strong>是否相交&lt;/strong>的问题。对于相交的区间&lt;code>A&lt;/code>和&lt;code>B&lt;/code>，非常明显，&lt;code>A &amp;lt; B&lt;/code>与&lt;code>A &amp;gt; B&lt;/code>都是不成立的。在&lt;code>std::set&amp;lt;Interval&amp;gt;&lt;/code>中，这种关系被判定为&lt;strong>相等&lt;/strong>。&lt;/p>
+&lt;p>虽然这种&lt;strong>相等&lt;/strong>关系是不符合常规逻辑的，但是却非常实用。如果两个区间有“大小”关系，我们可以知道区间的相对位置。而如果两个区间“相等”，则我们可以知道两个区间一定相交。更重要的是，在这类题目中，两个相交的区间是不能同时存在的。这与&lt;code>std::set&amp;lt;Interval&amp;gt;&lt;/code>中元素的唯一性相呼应。&lt;/p>
+&lt;p>所以，在使用&lt;code>std::set&amp;lt;Interval&amp;gt;&lt;/code>来存储区间时，我们可以使用如下的性质：&lt;/p>
+&lt;ul>
+&lt;li>使用&lt;code>find()&lt;/code>函数来查找相交区间。这里要注意，相交的区间可能有多个&lt;/li>
+&lt;li>使用&lt;code>insert()&lt;/code>来插入区间。这里要注意，先要判断是否有区间与新插入的区间相交&lt;/li>
+&lt;li>使用&lt;code>erase()&lt;/code>来删除区间。&lt;/li>
+&lt;/ul>
+&lt;h2 id="实战---merge-intervals">实战 - Merge Intervals &lt;a href="#%e5%ae%9e%e6%88%98---merge-intervals" class="anchor">🔗&lt;/a>&lt;/h2>&lt;blockquote>
+&lt;p>在Merge Intervals一题中使用std::set&lt;Interval>并不是最优的解法。这里只做举例。&lt;/p>&lt;/blockquote>
+&lt;p>题目链接：&lt;a href="https://leetcode.com/problems/merge-intervals/description/">Merge Intervals&lt;/a>&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">/**
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Definition for an interval.
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * struct Interval {
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * int start;
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * int end;
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Interval() : start(0), end(0) {}
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Interval(int s, int e) : start(s), end(e) {}
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * };
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> */&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">// overload the comparator for std::set
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#66d9ef">bool&lt;/span> &lt;span style="color:#66d9ef">operator&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span> (&lt;span style="color:#66d9ef">const&lt;/span> Interval&lt;span style="color:#f92672">&amp;amp;&lt;/span> i1, &lt;span style="color:#66d9ef">const&lt;/span> Interval&lt;span style="color:#f92672">&amp;amp;&lt;/span> i2) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> i1.end &lt;span style="color:#f92672">&amp;lt;&lt;/span> i2.start;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">Solution&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">public&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> vector&lt;span style="color:#f92672">&amp;lt;&lt;/span>Interval&lt;span style="color:#f92672">&amp;gt;&lt;/span> merge(vector&lt;span style="color:#f92672">&amp;lt;&lt;/span>Interval&lt;span style="color:#f92672">&amp;gt;&amp;amp;&lt;/span> intervals) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> set&lt;span style="color:#f92672">&amp;lt;&lt;/span>Interval&lt;span style="color:#f92672">&amp;gt;&lt;/span> st;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">auto&lt;/span> interval: intervals) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// merge intervals which are overlaped
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#66d9ef">while&lt;/span> (true) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">auto&lt;/span> iter &lt;span style="color:#f92672">=&lt;/span> st.find(interval);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (iter &lt;span style="color:#f92672">==&lt;/span> st.end()) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">break&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> };
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> interval &lt;span style="color:#f92672">=&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> min(interval.start, iter&lt;span style="color:#f92672">-&amp;gt;&lt;/span>start),
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> max(interval.end, iter&lt;span style="color:#f92672">-&amp;gt;&lt;/span>end)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> };
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> st.erase(iter);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// add the new interval to std::set
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> st.insert(interval);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// copy the intervals to a vector
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> vector&lt;span style="color:#f92672">&amp;lt;&lt;/span>Interval&lt;span style="color:#f92672">&amp;gt;&lt;/span> result;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> copy(st.begin(), st.end(), back_inserter(result));
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> result;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>上面的代码中，&lt;code>std::set&amp;lt;Interval&amp;gt;&lt;/code>中存储了已经合并好的区间。当加入新的区间时，我们会先判断新区间是否与已有区间相关，如果相交，则进行合并。&lt;/p>
+&lt;h2 id="实战---range-module">实战 - Range Module &lt;a href="#%e5%ae%9e%e6%88%98---range-module" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>题目链接：&lt;a href="https://leetcode.com/problems/range-module/description/">Range Module&lt;/a>&lt;/p>
+&lt;blockquote>
+&lt;p>题意： &lt;br>
+设计一个类，提供三个接口： &lt;br>&lt;br>
+接口1：&lt;code>void addRange(int left, int right)&lt;/code> &lt;br>
+将区间&lt;code>[left, right - 1]&lt;/code>加入区间集合 &lt;br>&lt;br>
+接口2：&lt;code>bool queryRange(int left, int right)&lt;/code> &lt;br>
+查询是否已有区间与区间&lt;code>[left, right - 1]&lt;/code>相交 &lt;br>&lt;br>
+接口3：&lt;code>void removeRange(int left, int right)&lt;/code>
+移除已有区间内，位于&lt;code>[left, right - 1]&lt;/code>范围内的所有数&lt;/p>&lt;/blockquote>
+&lt;p>这个题目看似可以完全套用我们上面讲到的&lt;code>std::set&amp;lt;Interval&amp;gt;&lt;/code>的实现，但是这里有几个暗坑需要注意。&lt;/p>
+&lt;p>首先我们来看接口3，这里的删除并不是删除区间，而是删除整数，所以我们可以使用&lt;code>find()&lt;/code>函数，但是与之前的合并操作不同，我们在这里要删除区间中的一部分。&lt;/p>
+&lt;p>在删除整数操作进行完之后，会引入一个新问题，这就是一些连续的整数区间，会在&lt;code>std::set&amp;lt;Interval&amp;gt;&lt;/code>中表现为独立的多个区间。例如，区间&lt;code>[1, 5]&lt;/code>，在删除了&lt;code>[2, 3]&lt;/code>之后，会形成两个区间&lt;code>[1, 1]&lt;/code> 和 &lt;code>[4, 5]&lt;/code>。我们再把区间&lt;code>[2, 3]&lt;/code>加回来，如果不进行特殊操作，就会产生三个不相交但连续的区间&lt;code>[1, 1]&lt;/code>、&lt;code>[2, 3]&lt;/code>和&lt;code>[4, 5]&lt;/code>。所以我们在插入区间时，要多做一步区间合并的操作。&lt;/p>
+&lt;p>具体的实现为：&lt;/p>
+&lt;ol>
+&lt;li>在插入区间&lt;code>[l, r]&lt;/code>之前，先查找是不存在区间包含&lt;code>[l - 1, l - 1]&lt;/code>或&lt;code>[r + 1, r + 1]&lt;/code>。如果有，则先将已有的相邻区间合并的新区间里&lt;/li>
+&lt;li>将新的区间进行合并操作，插入&lt;code>std::set&amp;lt;Interval&amp;gt;&lt;/code>&lt;/li>
+&lt;/ol>
+&lt;p>正确性证明：&lt;/p>
+&lt;ul>
+&lt;li>已知1：空区间集合不包含&lt;strong>不相交但连续的区间&lt;/strong>&lt;/li>
+&lt;li>已知2：只有插入操作会产生&lt;strong>不相交但连续的区间&lt;/strong>&lt;/li>
+&lt;li>归纳假设：我们保证在任何插入新区间的操作之前，&lt;code>std::set&amp;lt;Interval&amp;gt;&lt;/code>中均不包含&lt;strong>不相交但连续的区间&lt;/strong>。&lt;/li>
+&lt;li>证明：&lt;br>
+如果区间集合内不包含&lt;strong>不相交但连续的区间&lt;/strong>，那么对于新加区间，我们只需要尝试合并其近邻区间&lt;code>[l - 1, l - 1]&lt;/code>和&lt;code>[r + 1, r + 1]&lt;/code>，就不会产生&lt;strong>不相交但连续的区间&lt;/strong>。&lt;/li>
+&lt;/ul>
+&lt;p>代码实现如下：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">struct&lt;/span> &lt;span style="color:#a6e22e">MyInterval&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> left, right;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">bool&lt;/span> &lt;span style="color:#66d9ef">operator&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span> (&lt;span style="color:#66d9ef">const&lt;/span> MyInterval&lt;span style="color:#f92672">&amp;amp;&lt;/span> other) &lt;span style="color:#66d9ef">const&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#66d9ef">this&lt;/span>&lt;span style="color:#f92672">-&amp;gt;&lt;/span>right &lt;span style="color:#f92672">&amp;lt;&lt;/span> other.left;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">RangeModule&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">public&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> RangeModule() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// pass
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#a6e22e">addRange&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> left, &lt;span style="color:#66d9ef">int&lt;/span> right) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> right &lt;span style="color:#f92672">-=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> MyInterval ll &lt;span style="color:#f92672">=&lt;/span> {left &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>, left &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">auto&lt;/span> liter &lt;span style="color:#f92672">=&lt;/span> st.find(ll);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (liter &lt;span style="color:#f92672">!=&lt;/span> st.end()) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> left &lt;span style="color:#f92672">=&lt;/span> liter&lt;span style="color:#f92672">-&amp;gt;&lt;/span>left;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> MyInterval rr &lt;span style="color:#f92672">=&lt;/span> {right &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>, right &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">auto&lt;/span> riter &lt;span style="color:#f92672">=&lt;/span> st.find(rr);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (riter &lt;span style="color:#f92672">!=&lt;/span> st.end()) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> right &lt;span style="color:#f92672">=&lt;/span> riter&lt;span style="color:#f92672">-&amp;gt;&lt;/span>right;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> doAddRange(left, right);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#a6e22e">doAddRange&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> left, &lt;span style="color:#66d9ef">int&lt;/span> right) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> MyInterval newInterval &lt;span style="color:#f92672">=&lt;/span> {left, right};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">while&lt;/span> (true) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">auto&lt;/span> iter &lt;span style="color:#f92672">=&lt;/span> st.find(newInterval);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (iter &lt;span style="color:#f92672">==&lt;/span> st.end()) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">break&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> newInterval.left &lt;span style="color:#f92672">=&lt;/span> min(newInterval.left, iter&lt;span style="color:#f92672">-&amp;gt;&lt;/span>left);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> newInterval.right &lt;span style="color:#f92672">=&lt;/span> max(newInterval.right, iter&lt;span style="color:#f92672">-&amp;gt;&lt;/span>right);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> st.erase(iter);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> st.insert(newInterval);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">bool&lt;/span> &lt;span style="color:#a6e22e">queryRange&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> left, &lt;span style="color:#66d9ef">int&lt;/span> right) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> right &lt;span style="color:#f92672">-=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> MyInterval interval &lt;span style="color:#f92672">=&lt;/span> {left, right};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">auto&lt;/span> iter &lt;span style="color:#f92672">=&lt;/span> st.find(interval);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (iter &lt;span style="color:#f92672">==&lt;/span> st.end()) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> false;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> iter&lt;span style="color:#f92672">-&amp;gt;&lt;/span>left &lt;span style="color:#f92672">&amp;lt;=&lt;/span> left &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> right &lt;span style="color:#f92672">&amp;lt;=&lt;/span> iter&lt;span style="color:#f92672">-&amp;gt;&lt;/span>right;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#a6e22e">removeRange&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> left, &lt;span style="color:#66d9ef">int&lt;/span> right) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> right &lt;span style="color:#f92672">-=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> MyInterval newInterval &lt;span style="color:#f92672">=&lt;/span> {left, right};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">while&lt;/span> (true) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">auto&lt;/span> iter &lt;span style="color:#f92672">=&lt;/span> st.find(newInterval);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (iter &lt;span style="color:#f92672">==&lt;/span> st.end()) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">break&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">auto&lt;/span> cur &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#f92672">*&lt;/span>iter;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> st.erase(iter);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (cur.left &lt;span style="color:#f92672">&amp;lt;&lt;/span> newInterval.left) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> st.insert({cur.left, newInterval.left &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>});
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (cur.right &lt;span style="color:#f92672">&amp;gt;&lt;/span> newInterval.right) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> st.insert({newInterval.right &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>, cur.right});
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">private&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> set&lt;span style="color:#f92672">&amp;lt;&lt;/span>MyInterval&lt;span style="color:#f92672">&amp;gt;&lt;/span> st;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div></description></item><item><title>定时器以及其它 - phxrpc阅读笔记(2)</title><link>https://wizmann.top/posts/phxrpc-2/</link><pubDate>Thu, 29 Sep 2016 01:28:09 +0000</pubDate><guid>https://wizmann.top/posts/phxrpc-2/</guid><description>&lt;h2 id="写在前面">写在前面 &lt;a href="#%e5%86%99%e5%9c%a8%e5%89%8d%e9%9d%a2" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>phxrpc使用了协程(ucontext)和IO复用技术(epoll)来实现网络通信。定时器在其中起到了非常重要的作用。下面我们就来分析一下phxrpc的&lt;code>timer.[h|cpp]&lt;/code>中的代码。&lt;/p>
+&lt;h2 id="system_clock-vs-steady_clock">system_clock vs steady_clock &lt;a href="#system_clock-vs-steady_clock" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>&lt;code>system_clock&lt;/code>和&lt;code>steadly_clock&lt;/code>都是来自&lt;code>&amp;lt;chrono&amp;gt;&lt;/code>库，都是用来获取当前时间的。&lt;/p>
+&lt;p>&lt;code>system_clock&lt;/code>用来从系统时钟获取时钟时间(wall clock time)，而&lt;code>steadly_clock&lt;/code>获取的是时钟tick，而且保证随着时间的推移，时钟tick数不会变小。&lt;/p>
+&lt;p>然而实际上，在某些系统下，这两个时钟的实现是一致的。详细信息可以参考&lt;a href="http://stackoverflow.com/questions/13263277/difference-between-stdsystem-clock-and-stdsteady-clock">这里&lt;/a>。&lt;/p>
+&lt;blockquote>
+&lt;p>注：在clang++ 4.2.1, g++ 5.4 下实验，这两个时钟是不同的。所以个人认为在这里最好不要做任何无意义的假设。&lt;/p>&lt;/blockquote>
+&lt;h2 id="几毫秒的安睡">几毫秒的安睡 &lt;a href="#%e5%87%a0%e6%af%ab%e7%a7%92%e7%9a%84%e5%ae%89%e7%9d%a1" class="anchor">🔗&lt;/a>&lt;/h2>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">void&lt;/span> Timer &lt;span style="color:#f92672">::&lt;/span> MsSleep(&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> time_ms) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> timespec t;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> t.tv_sec &lt;span style="color:#f92672">=&lt;/span> time_ms &lt;span style="color:#f92672">/&lt;/span> &lt;span style="color:#ae81ff">1000&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> t.tv_nsec &lt;span style="color:#f92672">=&lt;/span> (time_ms &lt;span style="color:#f92672">%&lt;/span> &lt;span style="color:#ae81ff">1000&lt;/span>) &lt;span style="color:#f92672">*&lt;/span> &lt;span style="color:#ae81ff">1000000&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> ret &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">do&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ret &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#f92672">::&lt;/span>nanosleep(&lt;span style="color:#f92672">&amp;amp;&lt;/span>t, &lt;span style="color:#f92672">&amp;amp;&lt;/span>t);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> } &lt;span style="color:#66d9ef">while&lt;/span> (ret &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span> &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> errno &lt;span style="color:#f92672">==&lt;/span> EINTR);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这里phxrpc使用了&lt;code>nanosleep&lt;/code>实现了高精度的sleep。&lt;/p>
+&lt;p>注意这里的用法，由于&lt;code>nanosleep&lt;/code>可能被信号中断，此时errno被设为&lt;code>EINTR&lt;/code>。所以我们需要进行额外的判断。当nanosleep被信号中断时，会把剩余时间写入第二个参数指向的&lt;code>timespec&lt;/code>变量中，之后我们再次调用&lt;code>nanosleep&lt;/code>，就可以把剩余的时间再睡一个回笼觉了。&lt;/p>
+&lt;h2 id="可删除优先队列">可删除优先队列 &lt;a href="#%e5%8f%af%e5%88%a0%e9%99%a4%e4%bc%98%e5%85%88%e9%98%9f%e5%88%97" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>这个设计一颗赛艇啊。&lt;/p>
+&lt;p>对于&lt;code>std::priority_queue&lt;/code>以及大多数手写的优先队列（又称堆，heap）。一般只有&lt;code>top()&lt;/code>, &lt;code>push()&lt;/code>, &lt;code>pop()&lt;/code>这三个操作接口，如果想实现删除操作，大多数情况（为了偷懒）会把&lt;code>std::priority_queue&lt;/code>替换为&lt;code>std::set&lt;/code>。&lt;code>std::set&lt;/code>的内部实现是平衡树（确切的说，红黑树），可以实现获得最大最小值，查找某个值，以及删除某个值的操作。&lt;/p>
+&lt;p>但是&lt;code>std::priority_queue&lt;/code>（或者用数组或vector实现的堆）是顺序容器(sequence containers)，而&lt;code>std::set&lt;/code>是关联容器(associative containers)。相对来说，由于cache的原因，顺序容器的性能比关联容器要好。当然我扯得有点远了。对此感兴趣的同学可以去参考《Effective STL》一书。&lt;/p>
+&lt;p>在这里，我们的需求是这样的：&lt;/p>
+&lt;ul>
+&lt;li>堆是小根堆，按超时时间增序&lt;/li>
+&lt;li>堆中的元素是socket描述符&lt;code>UThreadSocket_t&lt;/code>&lt;/li>
+&lt;li>根据描述符，我们可以删除堆中的任意元素&lt;/li>
+&lt;/ul>
+&lt;p>如果我们有清醒的头脑，就会认为这个需求是不好实现的。删除堆中元素并不复杂，只需要将堆中最后一个元素放到被删除元素的位置上，然后再执行一次&lt;code>heap_down()&lt;/code>操作就可以了。问题在于我们很难确定某一个元素的具体位置。&lt;/p>
+&lt;blockquote>
+&lt;p>想一想，堆中的数据是如何组织的。如果想找到某一个特定的值，除了遍历之外，还有没有其它的方法。&lt;/p>&lt;/blockquote>
+&lt;p>这里phxrpc使用了一种侵入式的手段，将下标写入堆中元素。然后堆外持有指针。然后在维护堆性质的时候，同步更新堆中元素，使其中保存的下标与其在堆中的下标一致。&lt;/p>
+&lt;p>这样我们就可以通过指针拿到相应元素的下标，删除操作也变得简单了起来。&lt;/p>
+&lt;p>那么侵入式堆下标有什么问题吗？一来我们对于元素的查找只能根据容器外持有的指针来进行，并不能像&lt;code>std::set&lt;/code>那样通过比较关系来查找。二来侵入式下标需要额外的内存空间，对于小型对象会造成可观比例的overhead。同时容器内只能持有元素指针，在某种程度上会带来额外的寻址开销。&lt;/p>
+&lt;p>不过，这大概也是让堆支持删除的唯一方法了。&lt;/p>
+&lt;h2 id="小小吐槽">小小吐槽 &lt;a href="#%e5%b0%8f%e5%b0%8f%e5%90%90%e6%a7%bd" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>这段代码写的，貌似耦合的太紧了一点。&lt;code>class Timer&lt;/code>内部提供的功能有&lt;/p>
+&lt;ol>
+&lt;li>得到当前时间&lt;/li>
+&lt;li>nanosleep&lt;/li>
+&lt;li>封装&lt;code>TimerObj&lt;/code>类&lt;/li>
+&lt;li>维护一个定时器堆，提供&lt;code>top()&lt;/code>, &lt;code>push()&lt;/code>, &lt;code>pop()&lt;/code>, &lt;code>erase()&lt;/code>功能，并且大多数操作都是硬编码的&lt;/li>
+&lt;/ol>
+&lt;p>至少在我看来，这并不符合“高内聚，低耦合”代码风格。&lt;/p>
+&lt;p>你问我为啥不给改改？&lt;/p>
+&lt;p>因为他们没写测试啊！&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/16-9-29/12309965.jpg" alt="">&lt;/p>
+&lt;h2 id="补充">补充 &lt;a href="#%e8%a1%a5%e5%85%85" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>其实对于&lt;code>class Timer&lt;/code>，phxrpc是有写测试的(test_timer.cpp)。但是这个代码写的就更迷了。这里再分析一下。&lt;/p>
+&lt;p>一开始，先创建100个timer，sleep时间随机。然后将50个timer放入&lt;code>need_remove&lt;/code>数组中。&lt;/p>
+&lt;p>之后每删一个timer，就配套睡到超时时间pop一个timer。弹出超时timer后，再判断一下时间误差是否超过10ms，如果是，就报错。&lt;/p>
+&lt;p>这。。。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/16-9-29/43591449.jpg" alt="">&lt;/p></description></item><item><title>自定义你的stream buffer - phxrpc阅读笔记(1)</title><link>https://wizmann.top/posts/phxrpc-1/</link><pubDate>Wed, 28 Sep 2016 22:35:55 +0000</pubDate><guid>https://wizmann.top/posts/phxrpc-1/</guid><description>&lt;h2 id="写在前面">写在前面 &lt;a href="#%e5%86%99%e5%9c%a8%e5%89%8d%e9%9d%a2" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>&lt;a href="https://github.com/tencent-wechat/phxrpc">phxrpc&lt;/a>是微信团队开源的一个轻量级RPC框架。&lt;/p>
+&lt;p>我对RPC这些东西了解不多，看到phxrpc的代码相对简单，而且还在初步开发阶段（在本文写作时，版本号是0.8）。所以想读一读，提高一下姿势水平。&lt;/p>
+&lt;p>就是这样。&lt;/p>
+&lt;h2 id="自定义stream-buffer">自定义stream buffer &lt;a href="#%e8%87%aa%e5%ae%9a%e4%b9%89stream-buffer" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>&lt;code>network/socket_stream_base.[h|cpp]&lt;/code>中的&lt;code>class BaseTcpStreamBuf&lt;/code>继承了&lt;code>std::streambuf&lt;/code>，自定义了一个流缓冲区，用于接收/发送TCP数据包。&lt;/p>
+&lt;p>这个用法比较新颖（或者是我见识少），网上的资料也不多。这里翻译一篇&lt;a href="http://www.mr-edd.co.uk/blog/beginners_guide_streambuf">介绍文章&lt;/a>，学习一下新姿势。&lt;/p>
+&lt;h2 id="a-beginners-guide-to-writing-a-custom-stream-buffer">A beginner&amp;rsquo;s guide to writing a custom stream buffer &lt;a href="#a-beginners-guide-to-writing-a-custom-stream-buffer" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>流(streams)是STL中提供的一个重要的抽象概念。著名的“Hello world”程序，便是使用了std::cout将字符串写入标准输出流(stdout)。&lt;/p>
+&lt;p>流当然可以做比cin/cout更有意思的事。这篇文章我们会研究如何扩展C++流，来实现自定义的流缓冲区(stream buffer)。p.s. 建议本文的读者至少要有基础的C++知识。&lt;/p>
+&lt;p>C++标准库为磁盘文件操作提供了基础的接口，如&lt;code>std::fstream&lt;/code>，&lt;code>std::ifstream&lt;/code>和&lt;code>std::ofstream&lt;/code>。我们还有&lt;code>stringstream&lt;/code>，可以像流一样操作字符串。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>std&lt;span style="color:#f92672">::&lt;/span>ostringstream oss;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>oss &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;Hello, world!&lt;/span>&lt;span style="color:#ae81ff">\\&lt;/span>&lt;span style="color:#e6db74">n&amp;#34;&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>oss &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#ae81ff">123&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#960050;background-color:#1e0010">&amp;#39;\\&lt;/span>n&lt;span style="color:#960050;background-color:#1e0010">&amp;#39;&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>std&lt;span style="color:#f92672">::&lt;/span>string s &lt;span style="color:#f92672">=&lt;/span> oss.str();
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>相似的，我们可以从&lt;code>std::istringstream&lt;/code>中使用&lt;code>&amp;gt;&amp;gt;&lt;/code>操作符读取数据。&lt;/p>
+&lt;p>Boost库中的&lt;code>lexical_cast&lt;/code>正是使用了这种机制，让用户可以使用统一的方式将一个对象(object)转换为字符串表示。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> boost&lt;span style="color:#f92672">::&lt;/span>lexical_cast;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>string;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> x &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">5&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>string s &lt;span style="color:#f92672">=&lt;/span> lexical_cast&lt;span style="color:#f92672">&amp;lt;&lt;/span>string&lt;span style="color:#f92672">&amp;gt;&lt;/span>(x);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>assert(s &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#e6db74">&amp;#34;5&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>流缓冲区有着很强的灵活性，可以满足不同的“缓冲并传输字符（串）”需求，比如文件操作、字符串操作、命令行(Console)操作等。我们可以从网络、闪存(Flash memory)等不同设备，使用同样的接口获取流式字符串。“流缓冲区”与“流”是正交的，所以我们可以自由的交换、更改(swap and change)流所使用的缓冲区，或者将其重定向到其它地方。我认为C++中的流，正是“策略模式”(strategy design pattern)的一个良好范例。&lt;/p>
+&lt;p>比如，我们可以重定向标准日志流&lt;code>std::clog&lt;/code>到一个字符串流：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;iostream&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;iomanip&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;string&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;sstream&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span>()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>ostringstream oss;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// Make clog use the buffer from oss
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>streambuf &lt;span style="color:#f92672">*&lt;/span>former_buff &lt;span style="color:#f92672">=&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>clog.rdbuf(oss.rdbuf());
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>clog &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;This will appear in oss!&amp;#34;&lt;/span> &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>flush;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>cout &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> oss.str() &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#960050;background-color:#1e0010">&amp;#39;\\&lt;/span>n&lt;span style="color:#960050;background-color:#1e0010">&amp;#39;&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// Give clog back its previous buffer
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>clog.rdbuf(former_buff);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>不过，自定义一个流缓冲区却是有一点tricky，或者说有一点吓人，尤其是当你第一次尝试的时候。所以本文意在提供一些流缓冲的实现范例。&lt;/p>
+&lt;p>首先我们来看一下流缓冲区的一些基本概念。所有的流缓冲区继承自&lt;code>std::streambuf&lt;/code>，并且需要覆盖一些虚函数来实现自定义功能。&lt;code>std::streambuf&lt;/code>是“顺序读取设备”的一个抽象，即我们可以从中顺序的读取字符序列。在特定的场景下，我们可以重填(re-fill)、冲洗(flush)以及清空(empty)一个缓冲区。&lt;/p>
+&lt;p>当我们向一个&lt;code>ostream&lt;/code>中插入数据时，数据将会被写入缓冲区中的一个数组。当数组上溢(overflow)时，数组中的数据将会被冲洗(flush)到目标接受者，之后这个数组的状态将会重置，以便存储后续的字符。&lt;/p>
+&lt;p>当我们从一个&lt;code>istream&lt;/code>中获取数据时，数据从缓冲区的数组中读出。当数组下溢时(underflow)，没有数据可读，我们会从数据源重新拉取信息来填充缓冲区，之后这个数组的状态也将被重置。&lt;/p>
+&lt;p>我们使用6个指针，来维护缓冲区的内部状态。输入和输出缓冲各使用3个指针。&lt;/p>
+&lt;h3 id="维护输出缓冲区的状态">维护输出缓冲区的状态 &lt;a href="#%e7%bb%b4%e6%8a%a4%e8%be%93%e5%87%ba%e7%bc%93%e5%86%b2%e5%8c%ba%e7%9a%84%e7%8a%b6%e6%80%81" class="anchor">🔗&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>
+&lt;p>put base pointer &lt;br>
+输出基指针，用来指定缓冲区内部数组的第一个元素。可以使用&lt;code>std::streambuf::pbase()&lt;/code>来获取&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>put pointer &lt;br>
+输出指针，用来指向内部数组下一个写入的地址。可以使用&lt;code>std::streambuf::pptr()&lt;/code>来获取&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>end put pointer &lt;br>
+输出哨兵指针，指向内部数组最后一个再后面一个(one-past-the-last-element)的地址（译注：类似&lt;code>std::vector::end()&lt;/code>）。可以使用&lt;code>std::streambuf:epptr()&lt;/code>来获取&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="http://i1.piimg.com/567571/630a89fe635e1635.png" alt="">&lt;/p>
+&lt;p>一般来说，基指针和哨兵指针不会改变，在使用时，以输出指针维护内部状态。&lt;/p>
+&lt;h3 id="维护输入缓冲区的状态">维护输入缓冲区的状态 &lt;a href="#%e7%bb%b4%e6%8a%a4%e8%be%93%e5%85%a5%e7%bc%93%e5%86%b2%e5%8c%ba%e7%9a%84%e7%8a%b6%e6%80%81" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>输入缓冲区和状态维护和输出缓冲区类似，我们有：&lt;/p>
+&lt;ul>
+&lt;li>end back pointer &lt;br>
+输入基指针，指向缓冲区数组内的最后一个字符。可以使用&lt;code>std::streambuf::eback()&lt;/code>来获取&lt;/li>
+&lt;li>get pointer &lt;br>
+输入指针，指向缓冲区下一个读取的字符地址。可以使用&lt;code>std::streambuf::gptr()&lt;/code>来获取&lt;/li>
+&lt;li>end get pointer &lt;br>
+输入哨兵指针，批号向内部数组最后一个再后面一个(one-past-the-last-element)的地址。可以使用&lt;code>std::streambuf::egptr()&lt;/code>来获取&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/16-9-27/33500590.jpg" alt="">&lt;/p>
+&lt;p>同样，基指针和哨兵指针在流缓冲区的生命周期中也不会改变。&lt;/p>
+&lt;p>由于输入缓冲区要支持&lt;code>putback()&lt;/code>操作，即将读出的字符重新放回缓冲区，所以输入缓冲区比输出缓冲区更复杂一点。通常来说，&lt;code>putback()&lt;/code>操作支持放回一个字符即可。&lt;/p>
+&lt;p>一个&lt;code>std::streambuf&lt;/code>可以同时支持输入输出两种操作，所以我们不需要我分别实现&lt;code>std::istreambuf&lt;/code>和&lt;code>std::ostreambuf&lt;/code>。&lt;code>std::fstream&lt;/code>是一个良好的例子。但是，实现一个全功能的缓冲区相对更复杂一些，所以我就不趟浑水啦~ ：）&lt;/p>
+&lt;p>同时，流缓冲区也可以支持宽字符(wide character)。&lt;code>std::streambuf&lt;/code>是&lt;code>std::basic_streambuf&amp;lt;char&amp;gt;&lt;/code>的别名，如果你需要宽字符流缓冲区，可以使用&lt;code>std::basic_streambuf&amp;lt;wchar_t&amp;gt;&lt;/code>。&lt;/p>
+&lt;h3 id="例1文件缓冲区--与c代码集成">例1：文件缓冲区 —— 与C代码集成 &lt;a href="#%e4%be%8b1%e6%96%87%e4%bb%b6%e7%bc%93%e5%86%b2%e5%8c%ba--%e4%b8%8ec%e4%bb%a3%e7%a0%81%e9%9b%86%e6%88%90" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>假设我们需要调用一个历史悠久的库，一个文件操作函数会返回给一个&lt;code>FILE*&lt;/code>指针，但是我们想用C++的流接口来读写数据。我们先从读文件开始，用&lt;code>std::istream&lt;/code>包装&lt;code>FILE*&lt;/code>的读操作。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;streambuf&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;vector&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstdlib&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstdio&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">FILE_buffer&lt;/span> &lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#66d9ef">public&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>streambuf
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">public&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">explicit&lt;/span> FILE_buffer(FILE &lt;span style="color:#f92672">*&lt;/span>fptr, std&lt;span style="color:#f92672">::&lt;/span>size_t buff_sz &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">256&lt;/span>, std&lt;span style="color:#f92672">::&lt;/span>size_t put_back &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">8&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">private&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// overrides base class underflow()
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> int_type underflow();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// copy ctor and assignment not implemented;
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#75715e">// copying not allowed
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> FILE_buffer(&lt;span style="color:#66d9ef">const&lt;/span> FILE_buffer &lt;span style="color:#f92672">&amp;amp;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> FILE_buffer &lt;span style="color:#f92672">&amp;amp;&lt;/span>&lt;span style="color:#66d9ef">operator&lt;/span>&lt;span style="color:#f92672">=&lt;/span> (&lt;span style="color:#66d9ef">const&lt;/span> FILE_buffer &lt;span style="color:#f92672">&amp;amp;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">private&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> FILE &lt;span style="color:#f92672">*&lt;/span>fptr_;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">const&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>size_t put_back_;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>vector&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">char&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span> buffer_;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>由于功能简单，我们只需要实现构造函数以及&lt;code>underflow&lt;/code>接口就可以实现我们的功能。&lt;/p>
+&lt;p>构造函数指定了读取文件的&lt;code>FILE*&lt;/code>指针，以及内部缓冲数组的大小。数组大小由两个参数决定：&lt;/p>
+&lt;ul>
+&lt;li>put-back area size&lt;/li>
+&lt;li>buffer size&lt;/li>
+&lt;/ul>
+&lt;p>我们使用&lt;code>std::vector&amp;lt;char&amp;gt;&lt;/code>做为缓冲区域。&lt;code>put_back_&lt;/code>变量用于存储&amp;quot;put-back&amp;quot;区域的大小。&lt;/p>
+&lt;p>以下是构造函数的实现：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>size_t;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>FILE_buffer&lt;span style="color:#f92672">::&lt;/span>FILE_buffer(FILE &lt;span style="color:#f92672">*&lt;/span>fptr, size_t buff_sz, size_t put_back) &lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> fptr_(fptr),
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> put_back_(std&lt;span style="color:#f92672">::&lt;/span>max(put_back, size_t(&lt;span style="color:#ae81ff">1&lt;/span>))),
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> buffer_(std&lt;span style="color:#f92672">::&lt;/span>max(buff_sz, put_back_) &lt;span style="color:#f92672">+&lt;/span> put_back_)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>end &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#f92672">&amp;amp;&lt;/span>buffer_.front() &lt;span style="color:#f92672">+&lt;/span> buffer_.size();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> setg(end, end, end);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>在初始化列表中，我们将缓冲区的常量进行赋值。之后使用&lt;code>std::streambuf::setg()&lt;/code>来初始化输出缓冲区。&lt;/p>
+&lt;p>&lt;code>setg()&lt;/code>的三个参数分别代表&lt;code>eback()&lt;/code>，&lt;code>gptr()&lt;/code>，&lt;code>egptr()&lt;/code>三个内部指针的值。一开始，我们将它们都指向同一个地址。表明buffer是空的，在下一次读取时，会重新填充缓冲区。&lt;/p>
+&lt;p>&lt;code>underflow()&lt;/code>会返回数据源中当前的字符。一般来说，会返回buffer中的下一个可用字符。然后当buffer为空时，&lt;code>underflow()&lt;/code>应该重新填充缓冲区数组，在本例中，即从&lt;code>FILE*&lt;/code>中读取字符。当缓冲区重填后，我们需要再次调用&lt;code>setg()&lt;/code>更新流缓冲区的状态。&lt;/p>
+&lt;p>当数据源中的数据读完(depleted)后，&lt;code>underflow()&lt;/code>会返回一个&lt;code>traits_type::eof()&lt;/code>。这里要注意，&lt;code>underflow()&lt;/code>的返回值是&lt;code>int_type&lt;/code>，这个值足够装下&lt;code>eof()&lt;/code>，同时也足够装下任何的字符。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>std&lt;span style="color:#f92672">::&lt;/span>streambuf&lt;span style="color:#f92672">::&lt;/span>int_type FILE_buffer&lt;span style="color:#f92672">::&lt;/span>underflow()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (gptr() &lt;span style="color:#f92672">&amp;lt;&lt;/span> egptr()) &lt;span style="color:#75715e">// buffer not exhausted
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#66d9ef">return&lt;/span> traits_type&lt;span style="color:#f92672">::&lt;/span>to_int_type(&lt;span style="color:#f92672">*&lt;/span>gptr());
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>base &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#f92672">&amp;amp;&lt;/span>buffer_.front();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>start &lt;span style="color:#f92672">=&lt;/span> base;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (eback() &lt;span style="color:#f92672">==&lt;/span> base) &lt;span style="color:#75715e">// true when this isn&amp;#39;t the first fill
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// Make arrangements for putback characters
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>memmove(base, egptr() &lt;span style="color:#f92672">-&lt;/span> put_back_, put_back_);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> start &lt;span style="color:#f92672">+=&lt;/span> put_back_;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// start is now the start of the buffer, proper.
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#75715e">// Read from fptr_ in to the provided buffer
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> size_t n &lt;span style="color:#f92672">=&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>fread(start, &lt;span style="color:#ae81ff">1&lt;/span>, buffer_.size() &lt;span style="color:#f92672">-&lt;/span> (start &lt;span style="color:#f92672">-&lt;/span> base), fptr_);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (n &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> traits_type&lt;span style="color:#f92672">::&lt;/span>eof();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// Set buffer pointers
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> setg(base, start, start &lt;span style="color:#f92672">+&lt;/span> n);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> traits_type&lt;span style="color:#f92672">::&lt;/span>to_int_type(&lt;span style="color:#f92672">*&lt;/span>gptr());
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>函数的第一行，首先判断buffer是否耗尽。如果否，则返回当前字符，即&lt;code>*gptr()&lt;/code>。如果是，则进行重填(re-fill)操作。&lt;/p>
+&lt;p>回想一下我们在构造函数中的实现，三个状态指针全都指向缓冲区的末尾。如果我们调用&lt;code>underflow()&lt;/code>时，发现状态指针并非如此，则说明缓冲区已经被填充了至少一次。&lt;/p>
+&lt;p>现在我们考虑重填操作，我们&lt;code>memmove&lt;/code>最后&lt;code>put_back_&lt;/code>个字符到buffer的末尾，用做&amp;quot;put-back area&amp;quot;。（我们不用&lt;code>memcopy&lt;/code>因为我们的buffer比较小，`memmove()的效率会更高一些）&lt;/p>
+&lt;blockquote>
+&lt;p>译注：实际上，&lt;code>memcopy&lt;/code>与&lt;code>memmove&lt;/code>各有所长。&lt;code>memcopy&lt;/code>不需要判断内存overlap的情况，即如果源区间与目标区间有重叠，那么得到的结果会是错的。而&lt;code>memmove&lt;/code>由于是移动语义，所以在移动步长较小时，可以只操作cache。所以二者各有所长，要根据具体情况判断优劣。Stackoverflow上有更详细的&lt;a href="http://stackoverflow.com/questions/28623895/why-is-memmove-faster-than-memcpy">讨论&lt;/a>&lt;/p>&lt;/blockquote>
+&lt;p>我们处理完&amp;quot;put-back area&amp;quot;之后，就可以使用&lt;code>fread()&lt;/code>函数来重填缓冲区了。如果读不到数据，则意味着文件已经读到了结尾（当然这是一种简化情况，但在现实中99.9%的读取失败都是因为文件结束）。&lt;/p>
+&lt;p>在&lt;code>fread()&lt;/code>成功读取数据之后，我们通知streambuf更新内部的三个状态指针。之后返回buffer当前的指针。&lt;/p>
+&lt;p>这就是我们的流缓冲区的基本实现，希望这并不是太难。当然我们还可以添加更多的功能。特别的是我们可以在缓冲区里面进行查找。如果你想实现它的话，可以试试重写&lt;code>std::streambuf::seekoff()&lt;/code>和&lt;code>std::streambuf::seekpos&lt;/code>虚成员函数。&lt;/p>
+&lt;p>我们也可以实现写缓冲区。不过，在你们读完第三个例子之后，你们就可以轻松愉快的实现自己的版本了，不骗你。&lt;/p>
+&lt;h3 id="例2读取内存中的数组">例2：读取内存中的数组 &lt;a href="#%e4%be%8b2%e8%af%bb%e5%8f%96%e5%86%85%e5%ad%98%e4%b8%ad%e7%9a%84%e6%95%b0%e7%bb%84" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>本例中，我们要使用&lt;code>std::istream&lt;/code>包装内存中的一个只读数组，并且格式化的进行读入。这个例子和上一个例子有一点不同的是，我们并不需要一个真正的缓冲数组，从源数组一次性读取就好了。&lt;/p>
+&lt;p>想象中的实现是这个样式儿的：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">char_array_buffer&lt;/span> &lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#66d9ef">public&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>streambuf
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">public&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> char_array_buffer(&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>begin, &lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>end)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> setg(begin, begin, end);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> int_type &lt;span style="color:#a6e22e">underflow&lt;/span>()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> gptr() &lt;span style="color:#f92672">==&lt;/span> egptr() &lt;span style="color:#f92672">?&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> traits_type&lt;span style="color:#f92672">::&lt;/span>eof() &lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> traits_type&lt;span style="color:#f92672">::&lt;/span>to_int_type(&lt;span style="color:#f92672">*&lt;/span>gptr());
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>但是，这并没有什么卵用。因为&lt;code>setg()&lt;/code>函数只接受非常量(non-const)指针参数。这显而易见，如果一个缓冲区不可写，我们就不能提供&amp;quot;put-back&amp;quot;功能。所以我们要动一动手脚，重新实现一下这个类。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;streambuf&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">char_array_buffer&lt;/span> &lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#66d9ef">public&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>streambuf
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">public&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> char_array_buffer(&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>begin, &lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>end);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">explicit&lt;/span> &lt;span style="color:#a6e22e">char_array_buffer&lt;/span>(&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>str);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">private&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> int_type underflow();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> int_type &lt;span style="color:#a6e22e">uflow&lt;/span>();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> int_type &lt;span style="color:#a6e22e">pbackfail&lt;/span>(int_type ch);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>streamsize showmanyc();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// copy ctor and assignment not implemented;
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#75715e">// copying not allowed
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> char_array_buffer(&lt;span style="color:#66d9ef">const&lt;/span> char_array_buffer &lt;span style="color:#f92672">&amp;amp;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> char_array_buffer &lt;span style="color:#f92672">&amp;amp;&lt;/span>&lt;span style="color:#66d9ef">operator&lt;/span>&lt;span style="color:#f92672">=&lt;/span> (&lt;span style="color:#66d9ef">const&lt;/span> char_array_buffer &lt;span style="color:#f92672">&amp;amp;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">private&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span> &lt;span style="color:#66d9ef">const&lt;/span> begin_;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span> &lt;span style="color:#66d9ef">const&lt;/span> end_;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span> current_;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>在这个版本中，我们重写了几个私有函数，这些函数都是从&lt;code>std::streambuf&lt;/code>继承而来。&lt;/p>
+&lt;p>第一个构造函数需要用户指定起止指针，而第二个构造函数只需要指定起始指针，之后我们会调用&lt;code>std::strlen()&lt;/code>来判断字符串的大小。&lt;/p>
+&lt;p>我们使用&lt;code>uflow()&lt;/code>, &lt;code>pbackfail()&lt;/code>和&lt;code>showmanyc()&lt;/code>来维护缓冲区内部的状态，而不是调用&lt;code>setg()&lt;/code>，因为buffer并不可写。&lt;/p>
+&lt;p>在这个版本中，我们要手动维护&lt;code>eback&lt;/code>, &lt;code>gptr&lt;/code>, &lt;code>egptr&lt;/code>三个指针。在构造函数中，我们将对其进行赋值。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;#34;char_array_buffer.hpp&amp;#34;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;functional&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cassert&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstring&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>char_array_buffer&lt;span style="color:#f92672">::&lt;/span>char_array_buffer(&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>begin, &lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>end) &lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> begin_(begin),
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> end_(end),
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> current_(begin_)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> assert(std&lt;span style="color:#f92672">::&lt;/span>less_equal&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&amp;gt;&lt;/span>()(begin_, end_));
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>char_array_buffer&lt;span style="color:#f92672">::&lt;/span>char_array_buffer(&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>str) &lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> begin_(str),
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> end_(begin_ &lt;span style="color:#f92672">+&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>strlen(str)),
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> current_(begin_)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>之前我们使用&lt;code>underflow()&lt;/code>来获取当前字符，但这次我们需要使用&lt;code>uflow()&lt;/code>。因为&lt;code>uflow()&lt;/code>需要同时执行两步操作，一是获取当前字符，二是让&lt;code>gptr()&lt;/code>前进一步。但是又因为缓冲区由我们手动管理，&lt;code>std::streambuf&lt;/code>并不能正确的执行管理操作。所以我们需要重写&lt;code>uflow()&lt;/code>而不是&lt;code>underflow()&lt;/code>。&lt;/p>
+&lt;pre tabindex="0">&lt;code>char_array_buffer::int_type char_array_buffer::uflow()
+{
+if (current_ == end_)
+return traits_type::eof();
+return traits_type::to_int_type(*current_++);
+}
+&lt;/code>&lt;/pre>&lt;p>下一步我们还要实现&lt;code>pbackfail()&lt;/code>。当我们调用&lt;code>std::istream::unget()&lt;/code>或&lt;code>std::istream::putback(ch)&lt;/code>时，我们会把已经读出的数据写回数组中。但是由于数组是只读的，所以我们只能模拟这种操作。&lt;/p>
+&lt;p>在默认的实现中&lt;code>pbackfail()&lt;/code>只会返回&lt;code>traits_type::eof()&lt;/code>，而在我们的版本中，如果写回成功，将会返回写回的字符，不成功返回eof。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>char_array_buffer&lt;span style="color:#f92672">::&lt;/span>int_type char_array_buffer&lt;span style="color:#f92672">::&lt;/span>pbackfail(int_type ch)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (current_ &lt;span style="color:#f92672">==&lt;/span> begin_ &lt;span style="color:#f92672">||&lt;/span> (ch &lt;span style="color:#f92672">!=&lt;/span> traits_type&lt;span style="color:#f92672">::&lt;/span>eof() &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> ch &lt;span style="color:#f92672">!=&lt;/span> current_[&lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>]))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> traits_type&lt;span style="color:#f92672">::&lt;/span>eof();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> traits_type&lt;span style="color:#f92672">::&lt;/span>to_int_type(&lt;span style="color:#f92672">*--&lt;/span>current_);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>在&lt;code>FILE_buffer&lt;/code>中，我们也可以考虑重写&lt;code>pbackfail()&lt;/code>，来提供反向查找以及（用前面的数据）重填buffer的功能。&lt;/p>
+&lt;p>最后一个重写的函数是&lt;code>showmanyc()&lt;/code>，这个函数被&lt;code>std::streambuf::in_avail()&lt;/code>调用，以判断当前有多少个字符可以返回。由于我们接管了状态指针，所以这个函数也要我们自己来实现啊。（译者：为什么要给自己找麻烦。。。）&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>std&lt;span style="color:#f92672">::&lt;/span>streamsize char_array_buffer&lt;span style="color:#f92672">::&lt;/span>showmanyc()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> assert(std&lt;span style="color:#f92672">::&lt;/span>less_equal&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&amp;gt;&lt;/span>()(current_, end_));
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> end_ &lt;span style="color:#f92672">-&lt;/span> current_;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>由此可见，本例中的buffer比前面的要复杂一点点。这是因为我们接管了状态维护的工作。这使得我们更好的理解了&lt;code>std::streambuf&lt;/code>内部是如何工作的。&lt;/p>
+&lt;h3 id="例3句首变大写的缓冲区">例3：句首变大写的缓冲区 &lt;a href="#%e4%be%8b3%e5%8f%a5%e9%a6%96%e5%8f%98%e5%a4%a7%e5%86%99%e7%9a%84%e7%bc%93%e5%86%b2%e5%8c%ba" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>本例中我们将要实现一个将句首字符变大写的buffer。当然我们只考虑最基本的情况，移植到不同的区域和语言，其实是很琐碎的事情。（译者：文字编码坑的亲妈都不认了）&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;streambuf&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;iosfwd&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstdlib&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;vector&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">caps_buffer&lt;/span> &lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#66d9ef">public&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>streambuf
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">public&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">explicit&lt;/span> caps_buffer(std&lt;span style="color:#f92672">::&lt;/span>ostream &lt;span style="color:#f92672">&amp;amp;&lt;/span>sink, std&lt;span style="color:#f92672">::&lt;/span>size_t buff_sz &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">256&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">protected&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">bool&lt;/span> do_caps_and_flush();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">private&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> int_type overflow(int_type ch);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">sync&lt;/span>();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// copy ctor and assignment not implemented;
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#75715e">// copying not allowed
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> caps_buffer(&lt;span style="color:#66d9ef">const&lt;/span> caps_buffer &lt;span style="color:#f92672">&amp;amp;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> caps_buffer &lt;span style="color:#f92672">&amp;amp;&lt;/span>&lt;span style="color:#66d9ef">operator&lt;/span>&lt;span style="color:#f92672">=&lt;/span> (&lt;span style="color:#66d9ef">const&lt;/span> caps_buffer &lt;span style="color:#f92672">&amp;amp;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">private&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">bool&lt;/span> cap_next_;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>ostream &lt;span style="color:#f92672">&amp;amp;&lt;/span>sink_;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>vector&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">char&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span> buffer_;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这里我们需要重写&lt;code>overflow()&lt;/code>和&lt;code>sync()&lt;/code>函数。&lt;code>overflow()&lt;/code>在输入缓冲区满的时候被调用，并且在成功时返回任意非eof的值。&lt;/p>
+&lt;p>&lt;code>sync()&lt;/code>的作用是把当前的buffer写入目标，即使当前buffer并未填满。&lt;code>std::flush()&lt;/code>会调用&lt;code>sync()&lt;/code>函数，当失败时返回-1。&lt;/p>
+&lt;p>我们编写一个辅助函数&lt;code>do_caps_and_flush()&lt;/code>，用来将小写变大写，并写入&lt;code>sink_&lt;/code>输出流。我们再声明一个哨兵变量&lt;code>cap_next_&lt;/code>来标识下一个字符是否需要小写变大写。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;#34;caps_buffer.hpp&amp;#34;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cctype&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;ostream&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;functional&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cassert&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>caps_buffer&lt;span style="color:#f92672">::&lt;/span>caps_buffer(std&lt;span style="color:#f92672">::&lt;/span>ostream &lt;span style="color:#f92672">&amp;amp;&lt;/span>sink, std&lt;span style="color:#f92672">::&lt;/span>size_t buff_sz) &lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> cap_next_(true),
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> sink_(sink),
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> buffer_(buff_sz &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> sink_.clear();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>base &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#f92672">&amp;amp;&lt;/span>buffer_.front();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> setp(base, base &lt;span style="color:#f92672">+&lt;/span> buffer_.size() &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>); &lt;span style="color:#75715e">// -1 to make overflow() easier
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>buffer_&lt;/code>的最小可能大小是1，同时我们也只需要维护两个指针，因为这里不需要像输入缓冲区一样的维护&amp;quot;put-back area&amp;quot;。&lt;/p>
+&lt;p>我们把&lt;code>buffer_&lt;/code>的大小设成&lt;code>buff_sz + 1&lt;/code>，这样是为了&lt;code>overflow()&lt;/code>被调用时，我们有一个额外的空间存储当前的字符。最后将缓冲区数组和最后一个字符一起刷新到&lt;code>ostream&lt;/code>中。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>caps_buffer&lt;span style="color:#f92672">::&lt;/span>int_type caps_buffer&lt;span style="color:#f92672">::&lt;/span>overflow(int_type ch)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (sink_ &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> ch &lt;span style="color:#f92672">!=&lt;/span> traits_type&lt;span style="color:#f92672">::&lt;/span>eof())
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> assert(std&lt;span style="color:#f92672">::&lt;/span>less_equal&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&amp;gt;&lt;/span>()(pptr(), epptr()));
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">*&lt;/span>pptr() &lt;span style="color:#f92672">=&lt;/span> ch;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> pbump(&lt;span style="color:#ae81ff">1&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (do_caps_and_flush())
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> ch;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> traits_type&lt;span style="color:#f92672">::&lt;/span>eof();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>第一步是把ch写入&lt;code>buffer_&lt;/code>，并且使用&lt;code>pbump(1)&lt;/code>将&lt;code>pptr()&lt;/code>向前移一位。之后调用&lt;code>do_caps_and_flush()&lt;/code>做一些脏活，之后返回一个字符声明调用成功。&lt;/p>
+&lt;p>&lt;code>sync()&lt;/code>的实现也非常简单:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> caps_buffer&lt;span style="color:#f92672">::&lt;/span>sync()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#a6e22e">do_caps_and_flush&lt;/span>() &lt;span style="color:#f92672">?&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span> &lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>我们再看一看&lt;code>do_caps_and_flush()&lt;/code>函数&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">bool&lt;/span> caps_buffer&lt;span style="color:#f92672">::&lt;/span>do_caps_and_flush()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>p &lt;span style="color:#f92672">=&lt;/span> pbase(), &lt;span style="color:#f92672">*&lt;/span>e &lt;span style="color:#f92672">=&lt;/span> pptr(); p &lt;span style="color:#f92672">!=&lt;/span> e; &lt;span style="color:#f92672">++&lt;/span>p)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (&lt;span style="color:#f92672">*&lt;/span>p &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#e6db74">&amp;#39;.&amp;#39;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> cap_next_ &lt;span style="color:#f92672">=&lt;/span> true;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">else&lt;/span> &lt;span style="color:#a6e22e">if&lt;/span> (std&lt;span style="color:#f92672">::&lt;/span>isalpha(&lt;span style="color:#f92672">*&lt;/span>p))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (cap_next_)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">*&lt;/span>p &lt;span style="color:#f92672">=&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>toupper(&lt;span style="color:#f92672">*&lt;/span>p);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> cap_next_ &lt;span style="color:#f92672">=&lt;/span> false;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> std&lt;span style="color:#f92672">::&lt;/span>ptrdiff_t n &lt;span style="color:#f92672">=&lt;/span> pptr() &lt;span style="color:#f92672">-&lt;/span> pbase();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> pbump(&lt;span style="color:#f92672">-&lt;/span>n);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> sink_.write(pbase(), n);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>对于本例来说，内部的缓冲区并非必要，我们可以一个字符一个字符把数据发到&lt;code>sink&lt;/code>中。但是我的观点是一个内部buffer仍有其用处。&lt;/p>
+&lt;h3 id="介绍-boost-iostreams-库">介绍 Boost IOStreams 库 &lt;a href="#%e4%bb%8b%e7%bb%8d-boost-iostreams-%e5%ba%93" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>如果你是流缓冲区的新手，希望你已经对它有一点点了解了。本文中的例子都非常基础，但是你可以用它们做更多有意思的事情。但是当我实现更复杂的流缓冲区时，问题的复杂度却上升的很快。这时我发现了&lt;code>Boost IOStreams&lt;/code>库，它为更复杂的缓冲区和流提供了必要的框架支持。&lt;/p>
+&lt;p>它允许你解耦数据源，数据输出，过滤器以及其它一些概念。在我们的最后一个例子中，我们硬编码数据输出到&lt;code>std::ostream&lt;/code>中。如果我们要输出到一个没有流接口的类呢？&lt;code>Boost IOStreams&lt;/code>库提供了更多的灵活性，将一坨紧耦合的代码分解成独立的抽象概念。&lt;/p>
+&lt;h3 id="扩展阅读">扩展阅读 &lt;a href="#%e6%89%a9%e5%b1%95%e9%98%85%e8%af%bb" class="anchor">🔗&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>The C++ Standard Library by Nicolai M. Josuttis&lt;/li>
+&lt;li>The C++ Standard, BS ISO/IEC 14882:2003 (Second Edition)&lt;/li>
+&lt;li>&lt;a href="http://www.dinkumware.com/manuals/">Dinkum Compleat Reference online&lt;/a>&lt;/li>
+&lt;/ul></description></item><item><title>用C++实现一个通用的sort函数</title><link>https://wizmann.top/posts/a-common-sorting-function-with-cpp/</link><pubDate>Sat, 25 Apr 2015 11:17:01 +0000</pubDate><guid>https://wizmann.top/posts/a-common-sorting-function-with-cpp/</guid><description>&lt;h2 id="问题">问题 &lt;a href="#%e9%97%ae%e9%a2%98" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>用C++实现一个尽可能通用的sort函数&lt;/p>
+&lt;h2 id="分析">分析 &lt;a href="#%e5%88%86%e6%9e%90" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>一个通用的sort函数应该包含以下要点：&lt;/p>
 &lt;ul>
 &lt;li>确实可以排序(LOL)&lt;/li>
 &lt;li>可以应对C-style array和C++-style container的排序需求&lt;/li>
 &lt;li>可以应用于任意random access container&lt;/li>
 &lt;li>可以使用用户自定义的排序函数 / 仿函数 / lambda函数&lt;/li>
 &lt;/ul>
-&lt;h2 id="实现">实现&lt;/h2>
-&lt;p>为了与std中的通用函数做区别，这里的命名规则，包括类型与函数，都在前面加了&amp;quot;my&amp;quot;以示区别。可能与标准的命名法有出入，所以仅做示例用。&lt;/p></description></item><item><title>alloca vs placement new</title><link>https://wizmann.top/posts/alloca-vs-placement-new/</link><pubDate>Mon, 07 Apr 2014 21:08:59 +0000</pubDate><guid>https://wizmann.top/posts/alloca-vs-placement-new/</guid><description>&lt;h2 id="what">WHAT?!&lt;/h2>
-&lt;p>For most time, we use &lt;code>malloc&lt;/code> or &lt;code>new&lt;/code> for memory allocation, which will get it on &lt;em>heap&lt;/em>.&lt;/p>
-&lt;p>However, access memory on &lt;em>heap&lt;/em> is not as effective as the memory on &lt;em>stack&lt;/em>, because the heap is &amp;ldquo;free-floating region of memory&amp;rdquo;. To the contrary, memory on &lt;em>stack&lt;/em> is managed by CPU automacitally and tightly. As a result, the further of the &lt;em>stack&lt;/em> compared to &lt;em>heap&lt;/em> is that we can have a faster read/write speed due to the fact that &lt;em>stack&lt;/em> memory is more likely to optimized by &lt;strong>CPU cache&lt;/strong>, in addition, it only uses a single instruction to allocate or deallocate &lt;em>stack&lt;/em> memory. Just like this.&lt;/p></description></item></channel></rss>
+&lt;h2 id="实现">实现 &lt;a href="#%e5%ae%9e%e7%8e%b0" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>为了与std中的通用函数做区别，这里的命名规则，包括类型与函数，都在前面加了&amp;quot;my&amp;quot;以示区别。可能与标准的命名法有出入，所以仅做示例用。&lt;/p>
+&lt;h3 id="思路">思路 &lt;a href="#%e6%80%9d%e8%b7%af" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>** 拷贝代码是愚蠢的行为。**&lt;/p>
+&lt;p>或者说，&lt;/p>
+&lt;p>** 对于同一钟实现，尽量使用同一份代码。 **&lt;/p>
+&lt;p>感谢C++ Templates，对于不同类型与需求的函数，我们可以将生成多份代码的劳动放心的交给编译器。并且，Templates的代码生成是在编译期完成的，即不会造成额外的代码膨胀（如果你姿势正确的话），也一般不会造成额外的运行时开销。&lt;/p>
+&lt;h3 id="函数原型">函数原型 &lt;a href="#%e5%87%bd%e6%95%b0%e5%8e%9f%e5%9e%8b" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>我们模仿std::sort来进行开发。&lt;/p>
+&lt;pre tabindex="0">&lt;code>template&amp;lt; class It, class Compare &amp;gt;
+void sort(It first, It last, Compare comp );
+&lt;/code>&lt;/pre>&lt;h3 id="从迭代器指针获得元素类型">从迭代器/指针获得元素类型 &lt;a href="#%e4%bb%8e%e8%bf%ad%e4%bb%a3%e5%99%a8%e6%8c%87%e9%92%88%e8%8e%b7%e5%be%97%e5%85%83%e7%b4%a0%e7%b1%bb%e5%9e%8b" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>我们要处理C风格的数组与C++网络的容器。首先要从迭代器/指针&lt;code>It&lt;/code>中获得元素类型。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span>&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span> It&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">struct&lt;/span> &lt;span style="color:#a6e22e">myiter_traits&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">typedef&lt;/span> &lt;span style="color:#66d9ef">typename&lt;/span> It&lt;span style="color:#f92672">::&lt;/span>value_type value_type;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span>&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span> T&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">struct&lt;/span> &lt;span style="color:#a6e22e">myiter_traits&lt;/span>&lt;span style="color:#f92672">&amp;lt;&lt;/span>T&lt;span style="color:#f92672">*&amp;gt;&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">typedef&lt;/span> T value_type;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这个实现非常简单，不做赘述。&lt;/p>
+&lt;h3 id="实现mysort函数">实现mysort函数 &lt;a href="#%e5%ae%9e%e7%8e%b0mysort%e5%87%bd%e6%95%b0" class="anchor">🔗&lt;/a>&lt;/h3>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span>&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span> RandomAccessor, &lt;span style="color:#66d9ef">typename&lt;/span> FUNC&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">void&lt;/span> mysort(
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">const&lt;/span> RandomAccessor&lt;span style="color:#f92672">&amp;amp;&lt;/span> head,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">const&lt;/span> RandomAccessor&lt;span style="color:#f92672">&amp;amp;&lt;/span> tail,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> FUNC cmp)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (tail &lt;span style="color:#f92672">-&lt;/span> head &lt;span style="color:#f92672">&amp;lt;=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">const&lt;/span> RandomAccessor pivot &lt;span style="color:#f92672">=&lt;/span> mypartition(head, tail, cmp);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> mysort(head, pivot, cmp);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> mysort(pivot &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>, tail, cmp);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>mysort函数本体并不难理解，这里重点讨论一下模板的思路。&lt;/p>
+&lt;p>由于迭代器不需要移动，所以声明为const reference。又由于我们需要兼容各种不同类型的排序方法（函数、仿函数、lambda、std::function等），所以不对&lt;code>FUNC&lt;/code>类型进行限制，即所有可以被call的类型都可以做为模板参数。&lt;/p>
+&lt;h3 id="实现mypartition函数">实现mypartition函数 &lt;a href="#%e5%ae%9e%e7%8e%b0mypartition%e5%87%bd%e6%95%b0" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>快速排序的灵魂就是快速划分。如果处理得当，quick sort可以视作一个稳定的排序函数；否则，一组构造（不必要精心构造）的数据就可以把quick sort变成&amp;quot;slow sort&amp;quot;。&lt;/p>
+&lt;h4 id="可能会上quick-sort退化的数据">可能会上quick sort退化的数据 &lt;a href="#%e5%8f%af%e8%83%bd%e4%bc%9a%e4%b8%8aquick-sort%e9%80%80%e5%8c%96%e7%9a%84%e6%95%b0%e6%8d%ae" class="anchor">🔗&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>基本一致的数据 &lt;br>
+e.g. &lt;code>1, 1, 1, 1 ... 1, 1&lt;/code> or &lt;code>1, 1, ... 2, 2, ... 3, 3&lt;/code>&lt;/li>
+&lt;li>有序或基本有序的数据 &lt;br>
+e.g. &lt;code>1, 2, ... 5, 6&lt;/code> or &lt;code>6, 5, ... 2, 1&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;h4 id="解决思路">解决思路 &lt;a href="#%e8%a7%a3%e5%86%b3%e6%80%9d%e8%b7%af" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>对于有大量重复的数据，我们在处理时要注意平均分配这些重复数据。即，对于与pivot相等的数据，尽量保证一半放在左面，一半放在右面。&lt;/p>
+&lt;p>对于有序或基本有序的数据，我们在pivot的选择上可以使用随机、三值法等手段，保证数据的平均分配。&lt;/p>
+&lt;p>总的说来，quick sort的高效性，取决于partition函数的平均分配性能上。&lt;/p>
+&lt;h4 id="一个实现">一个实现 &lt;a href="#%e4%b8%80%e4%b8%aa%e5%ae%9e%e7%8e%b0" class="anchor">🔗&lt;/a>&lt;/h4>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span>&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span> RandomAccessor, &lt;span style="color:#66d9ef">typename&lt;/span> FUNC&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>RandomAccessor mypartition(
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">const&lt;/span> RandomAccessor&lt;span style="color:#f92672">&amp;amp;&lt;/span> head,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">const&lt;/span> RandomAccessor&lt;span style="color:#f92672">&amp;amp;&lt;/span> tail,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> FUNC cmp)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">auto&lt;/span> dis &lt;span style="color:#f92672">=&lt;/span> distance(head, tail);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> RandomAccessor pivot &lt;span style="color:#f92672">=&lt;/span> head &lt;span style="color:#f92672">+&lt;/span> rand() &lt;span style="color:#f92672">%&lt;/span> dis;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> iter_swap(pivot, head);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> pivot &lt;span style="color:#f92672">=&lt;/span> head;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> RandomAccessor l &lt;span style="color:#f92672">=&lt;/span> head;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> RandomAccessor r &lt;span style="color:#f92672">=&lt;/span> tail &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> ptr &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">while&lt;/span> (l &lt;span style="color:#f92672">&amp;lt;=&lt;/span> r) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">while&lt;/span> (l &lt;span style="color:#f92672">&amp;lt;=&lt;/span> r) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">bool&lt;/span> lt &lt;span style="color:#f92672">=&lt;/span> cmp(&lt;span style="color:#f92672">*&lt;/span>l, &lt;span style="color:#f92672">*&lt;/span>pivot);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">bool&lt;/span> gt &lt;span style="color:#f92672">=&lt;/span> cmp(&lt;span style="color:#f92672">*&lt;/span>pivot, &lt;span style="color:#f92672">*&lt;/span>l);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">bool&lt;/span> eq &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#f92672">!&lt;/span>lt &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> &lt;span style="color:#f92672">!&lt;/span>gt;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (lt &lt;span style="color:#f92672">||&lt;/span> (eq &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> ptr &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>)) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> l&lt;span style="color:#f92672">++&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ptr &lt;span style="color:#f92672">^=&lt;/span> (eq&lt;span style="color:#f92672">?&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>&lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> } &lt;span style="color:#66d9ef">else&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">break&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">while&lt;/span> (l &lt;span style="color:#f92672">&amp;lt;=&lt;/span> r) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">bool&lt;/span> lt &lt;span style="color:#f92672">=&lt;/span> cmp(&lt;span style="color:#f92672">*&lt;/span>r, &lt;span style="color:#f92672">*&lt;/span>pivot);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">bool&lt;/span> gt &lt;span style="color:#f92672">=&lt;/span> cmp(&lt;span style="color:#f92672">*&lt;/span>pivot, &lt;span style="color:#f92672">*&lt;/span>r);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">bool&lt;/span> eq &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#f92672">!&lt;/span>lt &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> &lt;span style="color:#f92672">!&lt;/span>gt;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (gt &lt;span style="color:#f92672">||&lt;/span> (eq &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> ptr &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>)) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> r&lt;span style="color:#f92672">--&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ptr &lt;span style="color:#f92672">^=&lt;/span> (eq&lt;span style="color:#f92672">?&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>&lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> } &lt;span style="color:#66d9ef">else&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">break&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (l &lt;span style="color:#f92672">&amp;lt;=&lt;/span> r) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> swap(&lt;span style="color:#f92672">*&lt;/span>l, &lt;span style="color:#f92672">*&lt;/span>r);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> l&lt;span style="color:#f92672">++&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> r&lt;span style="color:#f92672">--&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> iter_swap(pivot, r);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> r;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="主函数">主函数 &lt;a href="#%e4%b8%bb%e5%87%bd%e6%95%b0" class="anchor">🔗&lt;/a>&lt;/h3>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> srand(time(NULL));
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> vector&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span> vec({&lt;span style="color:#ae81ff">2&lt;/span>, &lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>, &lt;span style="color:#ae81ff">0&lt;/span>, &lt;span style="color:#ae81ff">4&lt;/span>, &lt;span style="color:#ae81ff">1999&lt;/span>});
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> mysort(vec.begin(), vec.end(), less&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span>());
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">auto&lt;/span>&lt;span style="color:#f92672">&amp;amp;&lt;/span> i: vec) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> printf(&lt;span style="color:#e6db74">&amp;#34;%d &amp;#34;&lt;/span>, i);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> puts(&lt;span style="color:#e6db74">&amp;#34;&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> array[] &lt;span style="color:#f92672">=&lt;/span> {&lt;span style="color:#ae81ff">99&lt;/span>, &lt;span style="color:#ae81ff">19&lt;/span>, &lt;span style="color:#ae81ff">9999&lt;/span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> mysort(array &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>, array &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">3&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> [](&lt;span style="color:#66d9ef">int&lt;/span> a, &lt;span style="color:#66d9ef">int&lt;/span> b)&lt;span style="color:#f92672">-&amp;gt;&lt;/span>&lt;span style="color:#66d9ef">bool&lt;/span> { &lt;span style="color:#66d9ef">return&lt;/span> a &lt;span style="color:#f92672">&amp;gt;&lt;/span> b; });
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">int&lt;/span> i &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>; i &lt;span style="color:#f92672">&amp;lt;&lt;/span> &lt;span style="color:#ae81ff">3&lt;/span>; i&lt;span style="color:#f92672">++&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> printf(&lt;span style="color:#e6db74">&amp;#34;%d &amp;#34;&lt;/span>, array[i]);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> puts(&lt;span style="color:#e6db74">&amp;#34;&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div></description></item><item><title>alloca vs placement new</title><link>https://wizmann.top/posts/alloca-vs-placement-new/</link><pubDate>Mon, 07 Apr 2014 21:08:59 +0000</pubDate><guid>https://wizmann.top/posts/alloca-vs-placement-new/</guid><description>&lt;h2 id="what">WHAT?! &lt;a href="#what" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>For most time, we use &lt;code>malloc&lt;/code> or &lt;code>new&lt;/code> for memory allocation, which will get it on &lt;em>heap&lt;/em>.&lt;/p>
+&lt;p>However, access memory on &lt;em>heap&lt;/em> is not as effective as the memory on &lt;em>stack&lt;/em>, because the heap is &amp;ldquo;free-floating region of memory&amp;rdquo;. To the contrary, memory on &lt;em>stack&lt;/em> is managed by CPU automacitally and tightly. As a result, the further of the &lt;em>stack&lt;/em> compared to &lt;em>heap&lt;/em> is that we can have a faster read/write speed due to the fact that &lt;em>stack&lt;/em> memory is more likely to optimized by &lt;strong>CPU cache&lt;/strong>, in addition, it only uses a single instruction to allocate or deallocate &lt;em>stack&lt;/em> memory. Just like this.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>sub esp, &lt;span style="color:#ae81ff">0x10&lt;/span>; &lt;span style="color:#f92672">=&amp;gt;&lt;/span> allocate
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>add esp, &lt;span style="color:#ae81ff">0x10&lt;/span>; &lt;span style="color:#f92672">=&amp;gt;&lt;/span> deallocate
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="alloca">alloca &lt;a href="#alloca" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>The &lt;code>alloca()&lt;/code> function allocates memory from the &lt;em>stack&lt;/em>.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#f92672">*&lt;/span>p &lt;span style="color:#f92672">=&lt;/span> (&lt;span style="color:#66d9ef">int&lt;/span>&lt;span style="color:#f92672">*&lt;/span>)alloca(&lt;span style="color:#66d9ef">sizeof&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span>) &lt;span style="color:#f92672">*&lt;/span> size);
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>It&amp;rsquo;s quite the same as the &lt;code>malloc&lt;/code> way. But we shouldn&amp;rsquo;t free the memory allocated on the &lt;em>stack&lt;/em>; these memory will be automatically deallocated when you leave the function(&lt;strong>not the code block&lt;/strong>).&lt;/p>
+&lt;h2 id="placement-new">placement new &lt;a href="#placement-new" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>The placement new is one of the overloads of the &lt;code>new&lt;/code> functions; this new syntax can do something as the &lt;code>alloca()&lt;/code> function.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">char&lt;/span> buffer[&lt;span style="color:#ae81ff">1024&lt;/span>];
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#f92672">*&lt;/span>p &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">new&lt;/span>(buffer) &lt;span style="color:#66d9ef">int&lt;/span>[&lt;span style="color:#ae81ff">64&lt;/span>];
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>The placement new can be also used in some other scenarios but won&amp;rsquo;t be mentioned here.&lt;/p>
+&lt;h2 id="variable-length-array">variable-length array &lt;a href="#variable-length-array" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>C90 and C++ both support the variable-length array which will be allocated on &lt;em>stack&lt;/em>, and it will be deallocted whhen you leave the &lt;strong>clode block&lt;/strong>, such as &amp;ldquo;if&amp;rdquo;, &amp;ldquo;while&amp;rdquo;, etc.&lt;/p>
+&lt;p>This is much simplified, but be ware if you use both variable-length array and &lt;code>alloca()&lt;/code> in the same function, the deallocation of the array will also free anything more recenly allocated by alloca.&lt;/p>
+&lt;h2 id="defects">Defects &lt;a href="#defects" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>&lt;em>Stack&lt;/em> has its limitation. If the allocation on &lt;em>stack&lt;/em> causes &lt;strong>stack overflow&lt;/strong> error, then the behavior of the program is undefined.&lt;/p>
+&lt;p>Further, the variable-length array and &lt;code>alloca()&lt;/code> are not included in &lt;em>ANSI-C&lt;/em> standard and therefore could limit portability.&lt;/p>
+&lt;p>The Google C++ style guide encourage developers to use &lt;code>scoped_ptr&lt;/code> or &lt;code>scopted_array&lt;/code> instead of variable-length array and &lt;code>alloca()&lt;/code>.&lt;/p>
+&lt;h2 id="some-experiment">Some experiment &lt;a href="#some-experiment" class="anchor">🔗&lt;/a>&lt;/h2>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">// compile with: g++ -std=c++0x -O2 -Wall -g -o &amp;#34;foo.cc&amp;#34; &amp;#34;foo&amp;#34;
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstdio&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstdlib&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;cstring&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;iostream&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;algorithm&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> &lt;span style="color:#66d9ef">namespace&lt;/span> std;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#define print(x) cout &amp;lt;&amp;lt; x &amp;lt;&amp;lt; endl
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#define input(x) cin &amp;gt;&amp;gt; x
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#if defined(__i386__)
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#66d9ef">static&lt;/span> __inline__ &lt;span style="color:#66d9ef">unsigned&lt;/span> &lt;span style="color:#66d9ef">long&lt;/span> &lt;span style="color:#66d9ef">long&lt;/span> &lt;span style="color:#a6e22e">rdtsc&lt;/span>(&lt;span style="color:#66d9ef">void&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">unsigned&lt;/span> &lt;span style="color:#66d9ef">long&lt;/span> &lt;span style="color:#66d9ef">long&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> x;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> __asm__ &lt;span style="color:#66d9ef">volatile&lt;/span> (&lt;span style="color:#e6db74">&amp;#34;.byte 0x0f, 0x31&amp;#34;&lt;/span> &lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#e6db74">&amp;#34;=A&amp;#34;&lt;/span> (x));
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> x;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#elif defined(__x86_64__)
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#66d9ef">static&lt;/span> __inline__ &lt;span style="color:#66d9ef">unsigned&lt;/span> &lt;span style="color:#66d9ef">long&lt;/span> &lt;span style="color:#66d9ef">long&lt;/span> &lt;span style="color:#a6e22e">rdtsc&lt;/span>(&lt;span style="color:#66d9ef">void&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">unsigned&lt;/span> hi, lo;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> __asm__ __volatile__ (&lt;span style="color:#e6db74">&amp;#34;rdtsc&amp;#34;&lt;/span> &lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#e6db74">&amp;#34;=a&amp;#34;&lt;/span>(lo), &lt;span style="color:#e6db74">&amp;#34;=d&amp;#34;&lt;/span>(hi));
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> ( (&lt;span style="color:#66d9ef">unsigned&lt;/span> &lt;span style="color:#66d9ef">long&lt;/span> &lt;span style="color:#66d9ef">long&lt;/span>)lo)&lt;span style="color:#f92672">|&lt;/span>( ((&lt;span style="color:#66d9ef">unsigned&lt;/span> &lt;span style="color:#66d9ef">long&lt;/span> &lt;span style="color:#66d9ef">long&lt;/span>)hi)&lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span>&lt;span style="color:#ae81ff">32&lt;/span> );
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#endif
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">//#define MEMORY_ON_HEAP
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">//#define MEMORY_ON_STACK
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> SIZE &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">102400&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#f92672">*&lt;/span>array[SIZE] &lt;span style="color:#f92672">=&lt;/span> {NULL};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span>()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">unsigned&lt;/span> &lt;span style="color:#66d9ef">long&lt;/span> &lt;span style="color:#66d9ef">long&lt;/span> start &lt;span style="color:#f92672">=&lt;/span> rdtsc();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">#ifdef MEMORY_ON_HEAP &lt;/span>&lt;span style="color:#75715e">// RDSTC: 20586280
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">int&lt;/span> i &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>; i &lt;span style="color:#f92672">&amp;lt;&lt;/span> SIZE; i&lt;span style="color:#f92672">++&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> array[i] &lt;span style="color:#f92672">=&lt;/span> (&lt;span style="color:#66d9ef">int&lt;/span>&lt;span style="color:#f92672">*&lt;/span>)malloc(&lt;span style="color:#66d9ef">sizeof&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span>));
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">*&lt;/span>array[i] &lt;span style="color:#f92672">=&lt;/span> i;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">#endif
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">#ifdef MEMORY_ON_STACK &lt;/span>&lt;span style="color:#75715e">// RDSTC: 3660502
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">int&lt;/span> i &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>; i &lt;span style="color:#f92672">&amp;lt;&lt;/span> SIZE; i&lt;span style="color:#f92672">++&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> array[i] &lt;span style="color:#f92672">=&lt;/span> (&lt;span style="color:#66d9ef">int&lt;/span>&lt;span style="color:#f92672">*&lt;/span>)alloca(&lt;span style="color:#66d9ef">sizeof&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span>));
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">*&lt;/span>array[i] &lt;span style="color:#f92672">=&lt;/span> i;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">#endif
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">unsigned&lt;/span> &lt;span style="color:#66d9ef">long&lt;/span> &lt;span style="color:#66d9ef">long&lt;/span> end &lt;span style="color:#f92672">=&lt;/span> rdtsc();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print(end &lt;span style="color:#f92672">-&lt;/span> start);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>You can use &lt;code>info register esp&lt;/code> in gdb to inspect the &lt;em>stack&lt;/em> pointer before and after you call the allocation function or declare a variable-length array.&lt;/p></description></item></channel></rss>

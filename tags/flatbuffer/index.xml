@@ -1,8 +1,92 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Flatbuffer on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/flatbuffer/</link><description>Recent content in Flatbuffer on Maerlyn's Rainbow</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Mon, 17 Nov 2014 00:25:42 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/flatbuffer/index.xml" rel="self" type="application/rss+xml"/><item><title>类型-长度-值（TLV）协议</title><link>https://wizmann.top/posts/tlv-protocol/</link><pubDate>Mon, 17 Nov 2014 00:25:42 +0000</pubDate><guid>https://wizmann.top/posts/tlv-protocol/</guid><description>&lt;p>在数据通信协议中，可选的信息或字段通常使用type-length-value（a.k.a TLV）元素来进行编码。&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Flatbuffer on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/flatbuffer/</link><description>Recent content in Flatbuffer on Maerlyn's Rainbow</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Mon, 17 Nov 2014 00:25:42 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/flatbuffer/index.xml" rel="self" type="application/rss+xml"/><item><title>类型-长度-值（TLV）协议</title><link>https://wizmann.top/posts/tlv-protocol/</link><pubDate>Mon, 17 Nov 2014 00:25:42 +0000</pubDate><guid>https://wizmann.top/posts/tlv-protocol/</guid><description>&lt;p>在数据通信协议中，可选的信息或字段通常使用type-length-value（a.k.a TLV）元素来进行编码。&lt;/p>
 &lt;ul>
 &lt;li>Type - 类型&lt;/li>
 &lt;/ul>
-&lt;p>用来标示字段类型的值，通常是一个二进制值或简单的字母&lt;/p></description></item><item><title>FlatBuffer代码阅读 - 1</title><link>https://wizmann.top/posts/read-flatbuffer-1/</link><pubDate>Sun, 21 Sep 2014 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/read-flatbuffer-1/</guid><description>&lt;h2 id="flatbuffer白皮书">FlatBuffer白皮书&lt;/h2>
-&lt;p>Flatbuffer是一个全新的序列化库。&lt;/p>
-&lt;h3 id="动机">动机&lt;/h3>
-&lt;p>在远古时代，程序性能基本取决于你的指令和循环运行的有多快。但是，在如今的计算机上，计算组件的速度已经远远超过存储组件的速度。如果你想让你的程序飞起来，最重要的就是优化你的内存使用。例如，用多少内存，怎样布局内存，如何分配内存，何时拷贝内存等。&lt;/p></description></item></channel></rss>
+&lt;p>用来标示字段类型的值，通常是一个二进制值或简单的字母&lt;/p>
+&lt;ul>
+&lt;li>Length - 长度&lt;/li>
+&lt;/ul>
+&lt;p>字段长度，单位通常为Byte&lt;/p>
+&lt;ul>
+&lt;li>Value - 值&lt;/li>
+&lt;/ul>
+&lt;p>一个变长的比特数组用来存储这个字段的值&lt;/p>
+&lt;h2 id="优势">优势 &lt;a href="#%e4%bc%98%e5%8a%bf" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>TLV序列方便遍历查找&lt;/li>
+&lt;li>新的字段可以无痛的加入现有的协议中。解析的时候，对于未知的字段，可以轻松的跳过。这点与XML类似&lt;/li>
+&lt;li>TLV元素的顺序可以是随意的&lt;/li>
+&lt;li>TLV元素通常使用二进制存储，可以使解析速度加快并且使数据更小&lt;/li>
+&lt;li>TLV可以与XML数据相互转换，易于人类阅读&lt;/li>
+&lt;/ul>
+&lt;h2 id="例子">例子 &lt;a href="#%e4%be%8b%e5%ad%90" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>在这里，我们以protobuf的可选和变长字段为例。&lt;/p>
+&lt;h3 id="field_number--wire_type">field_number ++ wire_type &lt;a href="#field_number--wire_type" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>每一个protobuf的字段在传输时，都会加上&lt;code>field_number&lt;/code>和&lt;code>wire_type&lt;/code>这两个值，这两个值组成这个字段的key。&lt;/p>
+&lt;pre tabindex="0">&lt;code>key = (field_number &amp;lt;&amp;lt; 3) | wire_type
+&lt;/code>&lt;/pre>&lt;p>&lt;code>field_number&lt;/code>标明了字段的编号，方便协议向前向后的兼容。而&lt;code>wire_type&lt;/code>标明字段的类型，方便解析程序使用相应的方法来进行反序列化。&lt;/p>
+&lt;h3 id="varint-变长整型">Varint 变长整型 &lt;a href="#varint-%e5%8f%98%e9%95%bf%e6%95%b4%e5%9e%8b" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>对于一个变长整型字段，protobuf中使用Type(0)来标示，而长度并没有显式的标出。&lt;/p>
+&lt;p>Varint的值使用如下编码方法：&lt;/p>
+&lt;ul>
+&lt;li>Varint使用分段存储方法，每个Byte为一段&lt;/li>
+&lt;li>Varint每段的第一个字节是标示位，如果这一位是1，则下一个Byte也是这个数的一部分，如果这一位是0，则在这个Byte是这个Varint的最后一个Byte&lt;/li>
+&lt;/ul>
+&lt;h3 id="string-变长字符串">String 变长字符串 &lt;a href="#string-%e5%8f%98%e9%95%bf%e5%ad%97%e7%ac%a6%e4%b8%b2" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>字符串被标示为Type(2)，长度使用Varint类型显式标出。&lt;/p>
+&lt;p>一个string在protobuf中被编码为：&lt;/p>
+&lt;pre tabindex="0">&lt;code>encoded_string = key ++ length ++ string
+&lt;/code>&lt;/pre>&lt;h2 id="其它方法">其它方法 &lt;a href="#%e5%85%b6%e5%ae%83%e6%96%b9%e6%b3%95" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>TLV同样也可以表示tag-length value，例如HTTP、FTP、POP3等协议都是使用这种基于可读文本的&amp;quot;Field: Value&amp;quot;协议。这样设计的原因大概是由于在“上古时代”，互联网速度远小于CPU处理的速率（现在更应该是&lt;strong>远远小于&lt;/strong>，CPU已经爆了IO一条街了），设计一些更可读的协议对人类来说确实比较方便。&lt;/p>
+&lt;p>而TCP/IP核心协议都使用的定长不可变的协议，这样可以使编码、解析速率达到最快。&lt;/p>
+&lt;p>对于XML和json这种奇行种，我们就不说了吧 :)&lt;/p>
+&lt;h2 id="参考链接">参考链接 &lt;a href="#%e5%8f%82%e8%80%83%e9%93%be%e6%8e%a5" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="http://en.wikipedia.org/wiki/Type-length-value">Type-length-value&lt;/a>&lt;/li>
+&lt;li>&lt;a href="http://www.cnblogs.com/shitouer/archive/2013/04/12/google-protocol-buffers-encoding.html">Google Protocol Buffers 编码(Encoding)&lt;/a>&lt;/li>
+&lt;/ul></description></item><item><title>FlatBuffer代码阅读 - 1</title><link>https://wizmann.top/posts/read-flatbuffer-1/</link><pubDate>Sun, 21 Sep 2014 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/read-flatbuffer-1/</guid><description>&lt;h2 id="flatbuffer白皮书">FlatBuffer白皮书 &lt;a href="#flatbuffer%e7%99%bd%e7%9a%ae%e4%b9%a6" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>Flatbuffer是一个全新的序列化库。&lt;/p>
+&lt;h3 id="动机">动机 &lt;a href="#%e5%8a%a8%e6%9c%ba" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>在远古时代，程序性能基本取决于你的指令和循环运行的有多快。但是，在如今的计算机上，计算组件的速度已经远远超过存储组件的速度。如果你想让你的程序飞起来，最重要的就是优化你的内存使用。例如，用多少内存，怎样布局内存，如何分配内存，何时拷贝内存等。&lt;/p>
+&lt;p>序列化是在程序中非常常见的一种操作，并且通常是程序性能低下的主要原因。一是由于序列化需要额外的临时空间去解析和表示数据，二是由于不优雅的内存分配模式和局部性。&lt;/p>
+&lt;p>如果一个序列化框架可以不使用额外的对象，没有额外的内存分配，没有内存拷贝，良好的数据局部性，这正是太好不过。不过当下的很多框架通常不能满足以上的条件，因为它们需要向前/向后兼容，需要兼容不同的平台，例如大端/小端和内存对齐都是需要进行兼容性处理的。&lt;/p>
+&lt;p>FlatBuffer可以做到以上的一切。&lt;/p>
+&lt;p>Flatbuffer尤其适合移动设备（内存容量和带宽比桌面设备的要低不少），以及需要高性能的应用：游戏。&lt;/p>
+&lt;h3 id="flatbuffers">FlatBuffers &lt;a href="#flatbuffers" class="anchor">🔗&lt;/a>&lt;/h3>&lt;h4 id="总述">总述 &lt;a href="#%e6%80%bb%e8%bf%b0" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>Flatbuffer是一个二进制的buffer。Flatbuffer可以包含嵌套对象如struct、table、vector等并使用偏移量来进行寻址，这样一来，我们就可以像遍历基于指针的结构一样，对flatbuffer元素进行in-place的遍历。
+Flatbuffer使用严格的字节对齐和字节顺序（通常是小端）以保证可以跨平台使用。&lt;/p>
+&lt;p>另外，像table这样的对象，Flatbuffer提供了向前/向后的兼容性，和通用的可选属性，以支持多变的数据格式。&lt;/p>
+&lt;h4 id="tables">Tables &lt;a href="#tables" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>Tables是FlatBuffer的基石，因为数据格式的变化对于很多应用来说，是非常正常的事。&lt;/p>
+&lt;p>通常情况下，一般的序列化框架都是在parsing的过程中，透明的处理数据格式的变化的。但是FlatBuffer没有parsing的过程。&lt;/p>
+&lt;p>Tables使用vtable来对数据进行非直接的读取。每一个table都有一个vtable（可以在同类型的tables中进行共享，类似C++类的虚表），vtable中包含字段的信息。同时，vtable也许也指明哪一些字段在当前的数据中是不存在的，这些字段会返回一个默认值。&lt;/p>
+&lt;p>Tables只需要很少的空间（因为vtables占用空间很少，并且是共享的），尽管在访问数据时有一些开销，但是提供了极大的可伸缩性，Tables甚至比等价的结构占用内存更小，因为当字段等于默认值时，我们没有必要为其分配空间。&lt;/p>
+&lt;p>FlatBuffers额外提供了“裸”结构，这些字段不能向前/向后兼容，但是这样可以减少它们的内存占用。这种字段对于不经常变化的元素非常有用，比如坐标对和RGBA颜色信息。&lt;/p>
+&lt;h4 id="schema">Schema &lt;a href="#schema" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>Schema减少了一些通用性（在没有schema的情况下，你不能读取其中的数据），但是它也有很多优点：&lt;/p>
+&lt;ul>
+&lt;li>大部分数据格式信息可以被生成为代码，减少在buffer中存储数据格式的时间/空间开销。&lt;/li>
+&lt;li>强类型的数据定义意味着更少的运行时错误检查和处理。&lt;/li>
+&lt;li>Schema使得在读取buffer前不进行解析。&lt;/li>
+&lt;/ul>
+&lt;p>FlatBuffer的schema格式和他大哥ProtoBuf类似，并且通常情况下可以被C风格的编程语言所读取。当然，我们也对其proto格式进行了优化。&lt;/p>
+&lt;ul>
+&lt;li>弃用手动为字段添加ID。这样一来，对于数据格式的变动，一来会出现手动找寻一个空位(slot)的情况；二是会出现对于弃用字段，由于向前/向后兼容的原因不敢真正的删除，如果你幻想可以复用字段，你就给自己挖了一个更大的坑。&lt;/li>
+&lt;li>tables和structs是不同的。tables的字段是可选的，而structs的字段是必须的。&lt;/li>
+&lt;li>原生的vector支持，取代&lt;code>repeated&lt;/code>关键字。这样无需遍历就可以知道vector的长度。这样可以让数据的表示更加紧凑。&lt;/li>
+&lt;li>原生的union类型支持。避免使用一系列的optional字段而造成的冗长的手动检查。&lt;/li>
+&lt;li>允许为标量设初值，无需处理可选字段。&lt;/li>
+&lt;li>Parser可以统一的处理schema和JSON表示的数据定义。&lt;/li>
+&lt;/ul>
+&lt;h2 id="benchmark">Benchmark &lt;a href="#benchmark" class="anchor">🔗&lt;/a>&lt;/h2>&lt;table class="table-bordered table-hover">
+&lt;tbody>
+&lt;tr>
+&lt;th>&lt;/th>&lt;th>FlatBuffers (binary) &lt;/th>&lt;th>Protocol Buffers LITE &lt;/th>&lt;th>Rapid JSON &lt;/th>&lt;th>FlatBuffers (JSON) &lt;/th>&lt;th>pugixml &lt;/th>&lt;/tr>
+&lt;tr>
+&lt;td>Decode + Traverse + Dealloc (1 million times, seconds) &lt;/td>&lt;td>0.08 &lt;/td>&lt;td>302 &lt;/td>&lt;td>583 &lt;/td>&lt;td>105 &lt;/td>&lt;td>196 &lt;/td>&lt;/tr>
+&lt;tr>
+&lt;td>Decode / Traverse / Dealloc (breakdown) &lt;/td>&lt;td>0 / 0.08 / 0 &lt;/td>&lt;td>220 / 0.15 / 81 &lt;/td>&lt;td>294 / 0.9 / 287 &lt;/td>&lt;td>70 / 0.08 / 35 &lt;/td>&lt;td>41 / 3.9 / 150 &lt;/td>&lt;/tr>
+&lt;tr>
+&lt;td>Encode (1 million times, seconds) &lt;/td>&lt;td>3.2 &lt;/td>&lt;td>185 &lt;/td>&lt;td>650 &lt;/td>&lt;td>169 &lt;/td>&lt;td>273 &lt;/td>&lt;/tr>
+&lt;tr>
+&lt;td>Wire format size (normal / zlib, bytes) &lt;/td>&lt;td>344 / 220 &lt;/td>&lt;td>228 / 174 &lt;/td>&lt;td>1475 / 322 &lt;/td>&lt;td>1029 / 298 &lt;/td>&lt;td>1137 / 341 &lt;/td>&lt;/tr>
+&lt;tr>
+&lt;td>Memory needed to store decoded wire (bytes / blocks) &lt;/td>&lt;td>0 / 0 &lt;/td>&lt;td>760 / 20 &lt;/td>&lt;td>65689 / 4 &lt;/td>&lt;td>328 / 1 &lt;/td>&lt;td>34194 / 3 &lt;/td>&lt;/tr>
+&lt;tr>
+&lt;td>Transient memory allocated during decode (KB) &lt;/td>&lt;td>0 &lt;/td>&lt;td>1 &lt;/td>&lt;td>131 &lt;/td>&lt;td>4 &lt;/td>&lt;td>34 &lt;/td>&lt;/tr>
+&lt;tr>
+&lt;td>Generated source code size (KB) &lt;/td>&lt;td>4 &lt;/td>&lt;td>61 &lt;/td>&lt;td>0 &lt;/td>&lt;td>4 &lt;/td>&lt;td>0 &lt;/td>&lt;/tr>
+&lt;tr>
+&lt;td>Field access in handwritten traversal code &lt;/td>&lt;td>typed accessors &lt;/td>&lt;td>typed accessors &lt;/td>&lt;td>manual error checking &lt;/td>&lt;td>typed accessors &lt;/td>&lt;td>manual error checking &lt;/td>&lt;/tr>
+&lt;tr>
+&lt;td>Library source code (KB) &lt;/td>&lt;td>15 &lt;/td>&lt;td>some subset of 3800 &lt;/td>&lt;td>87 &lt;/td>&lt;td>43 &lt;/td>&lt;td>327 &lt;/td>&lt;/tr>
+&lt;/tbody>
+&lt;/table></description></item></channel></rss>

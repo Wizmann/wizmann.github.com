@@ -1,6 +1,22 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>OCaml on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/ocaml/</link><description>Recent content in OCaml on Maerlyn's Rainbow</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Tue, 29 Dec 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/ocaml/index.xml" rel="self" type="application/rss+xml"/><item><title>我到底从UW-CSE341学到了什么</title><link>https://wizmann.top/posts/uw-cse341-au20/</link><pubDate>Tue, 29 Dec 2020 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/uw-cse341-au20/</guid><description>&lt;blockquote>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>OCaml on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/ocaml/</link><description>Recent content in OCaml on Maerlyn's Rainbow</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Tue, 29 Dec 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/ocaml/index.xml" rel="self" type="application/rss+xml"/><item><title>我到底从UW-CSE341学到了什么</title><link>https://wizmann.top/posts/uw-cse341-au20/</link><pubDate>Tue, 29 Dec 2020 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/uw-cse341-au20/</guid><description>&lt;blockquote>
 &lt;p>TL;DR 什么也没学到&lt;/p>&lt;/blockquote>
 &lt;p>&lt;a href="https://sites.google.com/cs.washington.edu/cse341au20/home">课程首页&lt;/a>&lt;/p>
 &lt;p>Coursera-课程-&lt;a href="https://www.coursera.org/learn/programming-languages">A&lt;/a>, &lt;a href="https://www.coursera.org/learn/programming-languages-part-b">B&lt;/a>, &lt;a href="https://www.coursera.org/learn/programming-languages-part-c">C&lt;/a>&lt;/p>
 &lt;p>介绍当中说，本课程主要内容是FP，并且顺道讨论一下程序语言的设计。&lt;/p>
-&lt;p>UW官方上面的课程只有Slides和assignments，video不提供。Coursera有video，但是版本比较老，是2013年的。下面的讨论都是基于au20的新版本。&lt;/p></description></item></channel></rss>
+&lt;p>UW官方上面的课程只有Slides和assignments，video不提供。Coursera有video，但是版本比较老，是2013年的。下面的讨论都是基于au20的新版本。&lt;/p>
+&lt;p>简单来说，前半学期（hw1-hw4)是关于OCaml，一种静态类型的FP。后半学期(hw5-hw7)是Racket，一种动态语言FP。课程里面80%+（的难度）都在于新的FP编程语言，只包含少数PL的内容。例如HW4中，需要实践一个简单粗暴的tokenizer/parser；HW6实现了一个虚假的编程语言MUPL，这个实现并不需要你解析代码，而是手写解析好的语法树，在上面实现求值、闭包、递归等。&lt;/p>
+&lt;blockquote>
+&lt;p>调试与debug也是一个非常蛋疼的问题，尤其是Racket写闭包的时候。。。&lt;/p>&lt;/blockquote>
+&lt;p>学习建议：&lt;/p>
+&lt;ol>
+&lt;li>OCaml的部分比较简单，7天一个小长假就可以搞定。做为平时的娱乐调剂也可以，周期不会超过一个月。&lt;/li>
+&lt;li>如果不想使用OCaml，可以尝试F#。因为都是一个流派的，语法接近。使用VS还可以有实时的提示。&lt;/li>
+&lt;li>Racket的部分难度较大，主要是与平时所使用的语言差别较大。没啥好办法，只能多打log。&lt;/li>
+&lt;li>HW7难度不高，但是提供的代码里面有一个在构造函数里面Call虚函数的迷惑操作。&lt;/li>
+&lt;li>多写测试。&lt;/li>
+&lt;/ol>
+&lt;p>Repo地址：https://github.com/Wizmann/UW-CSE341-au20&lt;/p>
+&lt;p>仅供参考。&lt;/p>
+&lt;blockquote>
+&lt;p>感谢华大（&lt;/p>&lt;/blockquote>
+&lt;p>&lt;img src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/20-12-29/2020-12-29_16-42-28.png" alt="">&lt;/p></description></item></channel></rss>

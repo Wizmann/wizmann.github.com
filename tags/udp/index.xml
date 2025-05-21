@@ -1,14 +1,91 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>UDP on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/udp/</link><description>Recent content in UDP on Maerlyn's Rainbow</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Mon, 08 May 2017 22:15:58 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/udp/index.xml" rel="self" type="application/rss+xml"/><item><title>STUP - the Implementation (3)</title><link>https://wizmann.top/posts/stup-3/</link><pubDate>Mon, 08 May 2017 22:15:58 +0000</pubDate><guid>https://wizmann.top/posts/stup-3/</guid><description>&lt;h2 id="throughput-and-window-size">throughput and window size&lt;/h2>
-&lt;p>The wisdom of STUP protocol is all about the window size. The throughput of a TCP communication is limited by two windows: the congestion window and the receive window. The congestion window can determine how many bytes that can be send a simple piece of time, and the receive window indicates the capacity of the receiver to process data.&lt;/p>
-&lt;p>Both windows influence the throughput of our connection. As the size of receive window is already set after 3-way handshake process, the congestion window is the critical influence. But why?&lt;/p></description></item><item><title>STUP - Packet Structure and State Machine (2)</title><link>https://wizmann.top/posts/stup-2/</link><pubDate>Thu, 04 May 2017 00:53:03 +0000</pubDate><guid>https://wizmann.top/posts/stup-2/</guid><description>&lt;h2 id="stup-packet-structure">STUP Packet Structure&lt;/h2>
-&lt;h3 id="brief-introduction-of-tcp--udp-packet-structure">Brief Introduction of TCP &amp;amp; UDP Packet Structure&lt;/h3>
-&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/17-4-24/73808256-file_1493006773118_a335.png" alt="">&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>UDP on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/udp/</link><description>Recent content in UDP on Maerlyn's Rainbow</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Mon, 08 May 2017 22:15:58 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/udp/index.xml" rel="self" type="application/rss+xml"/><item><title>STUP - the Implementation (3)</title><link>https://wizmann.top/posts/stup-3/</link><pubDate>Mon, 08 May 2017 22:15:58 +0000</pubDate><guid>https://wizmann.top/posts/stup-3/</guid><description>&lt;h2 id="throughput-and-window-size">throughput and window size &lt;a href="#throughput-and-window-size" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>The wisdom of STUP protocol is all about the window size. The throughput of a TCP communication is limited by two windows: the congestion window and the receive window. The congestion window can determine how many bytes that can be send a simple piece of time, and the receive window indicates the capacity of the receiver to process data.&lt;/p>
+&lt;p>Both windows influence the throughput of our connection. As the size of receive window is already set after 3-way handshake process, the congestion window is the critical influence. But why?&lt;/p>
+&lt;p>TCP use congestion control to achieve high performance (really?) and avoid congestion collapse. But here in STUP, we have different situations.&lt;/p>
+&lt;p>Firstly, we need real high performance. We don&amp;rsquo;t want the window size cut into half when there is a lost / timeout packet, which is very normal in our &amp;ldquo;long thin pipe&amp;rdquo;. Secondly, STUP is not a protocol for general usage, by the initial design, it should be used in an exclusive, non-production environment. So we don&amp;rsquo;t need to care about our neighbors, we can just use up a reserved, reasonable bandwidth.&lt;/p>
+&lt;p>However, be aware of the number in &lt;code>Config.py&lt;/code>. Our router was down once because of a wrong configuration. :)&lt;/p>
+&lt;h2 id="other-mechanisms-and-algorithms-in-stup">other mechanisms and algorithms in STUP &lt;a href="#other-mechanisms-and-algorithms-in-stup" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>Keep Alive&lt;/li>
+&lt;li>Nagle algorithm&lt;/li>
+&lt;li>Piggybacking&lt;/li>
+&lt;li>Fast retransmission&lt;/li>
+&lt;/ul>
+&lt;p>These features are copied from TCP protocol and absolutely a cliché to have a discuss here. If you have any problem about these, just look it up in Wikipedia.&lt;/p>
+&lt;h2 id="twisted-twisted-framework">twisted Twisted Framework &lt;a href="#twisted-twisted-framework" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>STUP protocol takes me about a whole year to do the development work (and it&amp;rsquo;s not finished yet). But for more than half of the time, I was struggling with the Twisted framework. For people who want to learn more about Twisted Framework, you can read the &lt;a href="http://twistedmatrix.com/trac/wiki/Documentation">official manual&lt;/a> or look through &lt;a href="https://wizmann.top/twisted-defer-and-deferredqueue.html">this blog&lt;/a> for a quick start.&lt;/p>
+&lt;p>What a pun!&lt;/p>
+&lt;h2 id="future-of-stup">future of STUP &lt;a href="#future-of-stup" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>Since STUP protocol is written in Python, one of the main problem is the performance. As a result, I&amp;rsquo;m planning to rewrite this with C++ (and golang, perhaps) to gain a better performance. I call it: STUPP (STUP in cpp).&lt;/p>
+&lt;p>In STUPP, several features are to be added:&lt;/p>
+&lt;ul>
+&lt;li>Selective ACK&lt;/li>
+&lt;li>Monotonic strictly increasing sequence number to prevent replay attacks&lt;/li>
+&lt;li>Multiple socks5 connections share a single STUP connection&lt;/li>
+&lt;/ul></description></item><item><title>STUP - Packet Structure and State Machine (2)</title><link>https://wizmann.top/posts/stup-2/</link><pubDate>Thu, 04 May 2017 00:53:03 +0000</pubDate><guid>https://wizmann.top/posts/stup-2/</guid><description>&lt;h2 id="stup-packet-structure">STUP Packet Structure &lt;a href="#stup-packet-structure" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="brief-introduction-of-tcp--udp-packet-structure">Brief Introduction of TCP &amp;amp; UDP Packet Structure &lt;a href="#brief-introduction-of-tcp--udp-packet-structure" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/17-4-24/73808256-file_1493006773118_a335.png" alt="">&lt;/p>
 &lt;p>STUP pretend itself as a protocol at the Transmission Layer, but actually it&amp;rsquo;s absolutely an Application Layer protocol. So before we start, I&amp;rsquo;d like to recall some knowledge of two important Transmission Layer protocol: TCP &amp;amp; UDP.&lt;/p>
-&lt;p>It is well known that TCP is a &amp;ldquo;connection-oriented&amp;rdquo;, &amp;ldquo;reliable&amp;rdquo;, &amp;ldquo;ordered&amp;rdquo;. To make an analogy (a little bit inappropriate), TCP is like a phone call (good cell signal strength):&lt;/p></description></item><item><title>STUP - another (stupid) TCP over UDP protocol (1)</title><link>https://wizmann.top/posts/stup-1/</link><pubDate>Thu, 20 Apr 2017 23:17:45 +0000</pubDate><guid>https://wizmann.top/posts/stup-1/</guid><description>&lt;h2 id="what-is-stup">What is STUP?&lt;/h2>
-&lt;p>STUP is the abbreviation of &amp;ldquo;Speeded/Secure Tcp-like Udp Protocol&amp;rdquo;, which means that it&amp;rsquo;s another TCP over UDP protocol.&lt;/p>
+&lt;p>It is well known that TCP is a &amp;ldquo;connection-oriented&amp;rdquo;, &amp;ldquo;reliable&amp;rdquo;, &amp;ldquo;ordered&amp;rdquo;. To make an analogy (a little bit inappropriate), TCP is like a phone call (good cell signal strength):&lt;/p>
+&lt;ol>
+&lt;li>you are keeping a connection&lt;/li>
+&lt;li>your words and sentences are well-received and well-ordered&lt;/li>
+&lt;/ol>
+&lt;p>As a result, each TCP packet has a unique and ordered sequence number, and your partner has to reply an &amp;ldquo;ACK&amp;rdquo; (short of &amp;ldquo;ACKnowledgement&amp;rdquo;) when it receive a packet. And it has to keep a connection and control the flow, a lot of control header is added to the header, so as the &amp;ldquo;window size&amp;rdquo;.&lt;/p>
+&lt;p>In a word, TCP is a heavy-weight protocol which offers high reliability. But the performance is highly depend on the network condition.&lt;/p>
+&lt;p>UDP is on the other way around, it&amp;rsquo;s &amp;ldquo;connectionless&amp;rdquo;, &amp;ldquo;unreliable&amp;rdquo; and &amp;ldquo;unordered&amp;rdquo;. To make another analogy, UDP is like a SMS message:&lt;/p>
+&lt;ol>
+&lt;li>there is no connection&lt;/li>
+&lt;li>there is no guarantee that your partner will receive the message&lt;/li>
+&lt;li>there is no guarantee of the order of messages, espiecially on a bad network&lt;/li>
+&lt;/ol>
+&lt;p>UDP is a lightweight protocol who doesn&amp;rsquo;t care about the connection and reliability, it just does it best to serve. And, of course, the performance is better than TCP.&lt;/p>
+&lt;h3 id="stup-packet-structure--why">STUP Packet Structure &amp;amp; Why? &lt;a href="#stup-packet-structure--why" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>As I mentioned before, the only problem for me in TCP is the flow control. But that part is deep in the kernel, it is unnecessarily complicated to hack the kernel, a user application is good enough here for me.&lt;/p>
+&lt;p>So, I build STUP over UDP to make everything simple. Firstly, UDP is a commonly used and well-known protocol, we can take advantages of existing infrastructure, framwork and libs. Secondly, UDP is lightweighted protocol, the overhead to build a new protocol over it is almost nothing.&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/17-5-2/38201062-file_1493708415970_dc40.png" alt="">&lt;/p>
+&lt;p>The chart above shows STUP packet structure. And the bits in green are plain-text and the others in red are encrypted.&lt;/p>
+&lt;ul>
+&lt;li>Random IV (16bits): plain text, used to assemble the encrypt key&lt;/li>
+&lt;li>Version (3 bits): for compatibility use, currently is &amp;ldquo;000&amp;rdquo;&lt;/li>
+&lt;li>Nonce (6 bits): indicate the length of random trail padding data, used for data confusion&lt;/li>
+&lt;li>URG (1 bit): urgent flag, internal use&lt;/li>
+&lt;li>LIV (1 bit): keep-alive flag&lt;/li>
+&lt;li>ACK (1 bit): acknowledgement flag&lt;/li>
+&lt;li>PSH (1 bit): temporarily prohibit nagle algorithm for this packet&lt;/li>
+&lt;li>RST (1 bit): reset flag&lt;/li>
+&lt;li>SYN (1 bit): sync flag&lt;/li>
+&lt;li>FIN (1 bit): finalize flag&lt;/li>
+&lt;li>Seq number (32 bits): same as TCP&lt;/li>
+&lt;li>Ack number (32 bits): same as TCP&lt;/li>
+&lt;/ul>
+&lt;p>The structure of STUP packet is quite similar to TCP packet, because we are imitating TCP, literally.&lt;/p>
+&lt;h3 id="data-obfuscation-of-stup-packets">Data obfuscation of STUP packets &lt;a href="#data-obfuscation-of-stup-packets" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>One of the most important part of STUP protocol is obfuscation. We try to hide our intend of the network traffic to bypass the G*W. Except obfuscate the data, we also need to hide some patterns, for example, the handshack process, ack mechanism, etc.&lt;/p>
+&lt;p>The first step is encryption, of course. It can help us the hide the feature inside data, for example, the pattern of a HTTP request can be easily detected. We use AES-ECB to encrypt the content of our packet.&lt;/p>
+&lt;p>But why AES-ECB? There are a lot of saying on the internet that AES-ECB sucks, because it leaks plaintext data patterns.&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/17-5-2/19737252-file_1493708926479_15add.png" alt="">&lt;/p>
+&lt;p>It is because we ecrypt the STUP packet &lt;strong>as a whole&lt;/strong>, it means there is no way to get the sequence number to order the packets before we decrypt it. As a solution, we add a &amp;ldquo;random IV&amp;rdquo; as a plain text in the STUP header. So the key to ecrypt is a combination of 48 bits pre-defined key and 16 bits random key. It might lead to a risk of small key space, but actually it&amp;rsquo;s more than enough to keep out traffic safe as we are not VIP who worth a brute force hacking.&lt;/p>
+&lt;p>And still, there is another problem that we can&amp;rsquo;t hide the length information of our packet with a symmetric encryption. The solution is to append random padding bytes at the tail of every packets for data obfuscation, and use the &lt;code>nonce&lt;/code> field to mark the length of the paddings, then enrypt it. When receiver get the packets, firstly decrypt the packet, then drop the useless padding bytes and get the real data.&lt;/p>
+&lt;h2 id="stup-state-machine">STUP State Machine &lt;a href="#stup-state-machine" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/17-4-24/70104484-file_1493025532333_338c.png" alt="">&lt;/p>
+&lt;p>STUP state machine is also a simplify TCP state machine. And, in essence, they behave exactly the same.&lt;/p>
+&lt;h2 id="whats-next">What&amp;rsquo;s next? &lt;a href="#whats-next" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>In next blog (maybe the last one for STUP series), we will talk about some details about the implementation, and future plan for this protocol.&lt;/p></description></item><item><title>STUP - another (stupid) TCP over UDP protocol (1)</title><link>https://wizmann.top/posts/stup-1/</link><pubDate>Thu, 20 Apr 2017 23:17:45 +0000</pubDate><guid>https://wizmann.top/posts/stup-1/</guid><description>&lt;h2 id="what-is-stup">What is STUP? &lt;a href="#what-is-stup" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>STUP is the abbreviation of &amp;ldquo;Speeded/Secure Tcp-like Udp Protocol&amp;rdquo;, which means that it&amp;rsquo;s another TCP over UDP protocol.&lt;/p>
 &lt;p>Why TCP over UDP?&lt;/p>
 &lt;p>TCP is a network protocol for general purpose, and it&amp;rsquo;s one of the most commonly used internet protocol on this planet. It is reliable, ordered and well optimized with decades of efforts.&lt;/p>
 &lt;p>But, there&amp;rsquo;s plenty of reasons to replace that protocol for my scenario.&lt;/p>
 &lt;ul>
 &lt;li>
-&lt;p>&lt;del>Firstly, create my own network protocol is something geeky-nerdy, yep, suits me perfectly.&lt;/del>&lt;/p></description></item></channel></rss>
+&lt;p>&lt;del>Firstly, create my own network protocol is something geeky-nerdy, yep, suits me perfectly.&lt;/del>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Firstly, TCP is not &amp;ldquo;secure&amp;rdquo; (enough to bypass G*W). &lt;br>
+Of course, it&amp;rsquo;s not TCP&amp;rsquo;s fault, because the security job is for the application layer. But &amp;ldquo;大清自有国情在&amp;rdquo;, we are in urgent need for a secure network protocol to obfuscate our network packet to bypass the firewall to get access to the &amp;ldquo;free internet&amp;rdquo;. &lt;br>
+Shado*socks is one of the commonly used &amp;ldquo;secure&amp;rdquo; network protocol which based on socks5 proxy protocol and TCP. But still, it has its own problem.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Secondly, TCP performs badly on harsh transmission condition. &lt;br>
+Because of the flow control and congestion control, the sliding window of TCP will be cut into half when packet is lost or timeout, which is very common on a harsh network connection as the jitter is inevitable. &lt;br>
+It&amp;rsquo;s understandble that TCP has to negotiate the sliding window size with zero knowledge to achieve intra- and inter- protocol fairness, and make a stable network. But for us, we may have enough knowledge for our network, and we may not have too many connections at the same time, so here we don&amp;rsquo;t need control, we need speed. We come up with our own control mechanism - no control is best the control.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="how-it-works">How it works? &lt;a href="#how-it-works" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/17-4-20/98249887-file_1492687602713_f658.png" alt="">&lt;/p>
+&lt;p>Our local application behavess like a socks5 proxy client, and send its data to a local adapter which will translate socks5 packet into STUP packet. The adapter doesn&amp;rsquo;t need to understand the &amp;ldquo;meaning&amp;rdquo; of socks5 packets, it just take it as a byte-flow, then encapsulate the data into the STUP packet.&lt;/p>
+&lt;p>The local STUP client will encrypt the outgoing UDP packet. More precisely, the job of the encryption is to obfuscate the packet to bypass the detector of the G*W. We will talk about this later.&lt;/p>
+&lt;p>Then the remote STUP protocol server received the encrypted packet, then it unpack the data and translate it back into the same byte-flow. After that, the socks5 server will get the message and retrieve what we want from the free internet.&lt;/p>
+&lt;p>In a word, STUP procotol is a secure tunnel between the socks5 client and socks5 server. This design reduces the complexity of the whole system, and make it easy to implement.&lt;/p>
+&lt;h2 id="how-we-implement-it-big-picture">How we implement it? (Big picture) &lt;a href="#how-we-implement-it-big-picture" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>We use Twisted framework to implement our protocol. The good parts of twisted is it hides the details of network programming and turn everything into events. But twisted is aptly named and it is really &amp;ldquo;twisted&amp;rdquo;, especially for the new comers.&lt;/p>
+&lt;p>We implemented our simplfied &amp;ldquo;TCP stack&amp;rdquo; with fixed-size sliding window, nagle algorithm, retry mechanism, encrypting, etc. But with the help of Python, one of my favorite programming language &amp;hellip; it&amp;rsquo;s still a complex task to do. And it takes me a year to make it work.&lt;/p>
+&lt;p>I say thankya.&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/17-4-20/89638264-file_1492701304939_10484.png" alt="">&lt;/p></description></item></channel></rss>

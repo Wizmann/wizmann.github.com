@@ -1,22 +1,300 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Leetcode on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/leetcode/</link><description>Recent content in Leetcode on Maerlyn's Rainbow</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Tue, 20 Feb 2018 22:59:47 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/leetcode/index.xml" rel="self" type="application/rss+xml"/><item><title>一种区间交问题的奇怪姿势</title><link>https://wizmann.top/posts/range-problem/</link><pubDate>Tue, 20 Feb 2018 22:59:47 +0000</pubDate><guid>https://wizmann.top/posts/range-problem/</guid><description>&lt;blockquote>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Leetcode on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/leetcode/</link><description>Recent content in Leetcode on Maerlyn's Rainbow</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Tue, 20 Feb 2018 22:59:47 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/leetcode/index.xml" rel="self" type="application/rss+xml"/><item><title>一种区间交问题的奇怪姿势</title><link>https://wizmann.top/posts/range-problem/</link><pubDate>Tue, 20 Feb 2018 22:59:47 +0000</pubDate><guid>https://wizmann.top/posts/range-problem/</guid><description>&lt;blockquote>
 &lt;p>Update[220504]: 原来这种数据结构叫&lt;a href="https://oi-wiki.org/ds/odt/">珂朵莉树&lt;/a>啊，真神奇。。。&lt;/p>&lt;/blockquote>
-&lt;h2 id="我们要解决什么问题">我们要解决什么问题&lt;/h2>
-&lt;p>区间交问题，是我们在做题中经常遇到的问题。&lt;/p>
+&lt;h2 id="我们要解决什么问题">我们要解决什么问题 &lt;a href="#%e6%88%91%e4%bb%ac%e8%a6%81%e8%a7%a3%e5%86%b3%e4%bb%80%e4%b9%88%e9%97%ae%e9%a2%98" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>区间交问题，是我们在做题中经常遇到的问题。&lt;/p>
 &lt;p>例如，&lt;a href="https://leetcode.com/problems/insert-interval/description/">Insert Interval&lt;/a>一题，就是比较直白的区间交问题：&lt;/p>
 &lt;blockquote>
-&lt;p>给定一系列的整数区间，再插入一个新的区间，问合并后的整数区间是什么&lt;/p></description></item><item><title>Why do I quit Leetcode contest?</title><link>https://wizmann.top/posts/why-do-i-quit-leetcode-contest/</link><pubDate>Wed, 07 Jun 2017 01:53:42 +0000</pubDate><guid>https://wizmann.top/posts/why-do-i-quit-leetcode-contest/</guid><description>&lt;h2 id="foreword">Foreword&lt;/h2>
-&lt;p>The title is quite &amp;ldquo;Yin-ish&amp;rdquo; as it seems, but I&amp;rsquo;m not a &amp;ldquo;Yin-ist&amp;rdquo;. You know what I mean.&lt;/p>
-&lt;h2 id="why-i-quit">Why I quit?&lt;/h2>
-&lt;p>I did a quite a good job in Leetcode Weekly Contest, at least in my point of view. I won a 4th place and a 6th place in my 19 contests, and my highest global ranking is 49th.&lt;/p>
+&lt;p>给定一系列的整数区间，再插入一个新的区间，问合并后的整数区间是什么&lt;/p>&lt;/blockquote>
+&lt;p>类似的还有&lt;a href="https://leetcode.com/problems/merge-intervals/description/">Merge Intervals&lt;/a>：&lt;/p>
+&lt;blockquote>
+&lt;p>给定一系列可能有重叠的整数区间，求合并后的整数区间&lt;/p>&lt;/blockquote>
+&lt;p>另一种区间交问题的描述是时间区间相关的问题，如&lt;a href="http://lintcode.com/en/problem/time-intersection/">Time Intersection&lt;/a>:&lt;/p>
+&lt;blockquote>
+&lt;p>给定用户A和用户B的在线时间区间，问两人同时在线的时间区间&lt;/p>&lt;/blockquote>
+&lt;p>又如经典的会议室安排问题&lt;a href="https://segmentfault.com/a/1190000003894670">Meeting Rooms&lt;/a>和&lt;a href="http://www.cnblogs.com/grandyang/p/5244720.html">Meeting Rooms II&lt;/a>:&lt;/p>
+&lt;blockquote>
+&lt;p>给定N个会议的时间区间，问一个人能否参加所有的会议&lt;/p>&lt;/blockquote>
+&lt;p>以及&lt;/p>
+&lt;blockquote>
+&lt;p>给定N个会议的时间区间，问最少需要多少个会议室&lt;/p>&lt;/blockquote>
+&lt;p>还有系统设计与API设计包装后的算法题&lt;a href="https://leetcode.com/problems/range-module/description/">Range Module&lt;/a>。归根结底，都是整数区间问题的变形或者包装。&lt;/p>
+&lt;h2 id="传统解法">传统解法 &lt;a href="#%e4%bc%a0%e7%bb%9f%e8%a7%a3%e6%b3%95" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>对于这类区间问题，传统的解法是将区间使用顺序容器（如&lt;code>vector&lt;/code>）保存，在查询和修改时，使用“排序+遍历”或者“排序+二分”。&lt;/p>
+&lt;p>这种解决在一定程度上是区间问题的通解，但是这样做也有它的问题。&lt;/p>
+&lt;p>一来区间问题有很多对区间序列进行随机增加、删除，这样的操作对于顺序容器是非常不友好的。&lt;/p>
+&lt;p>二来对于使用“起点”或“终点”排序的区间，二分查找需要处理很多重复值，在某些情况下会发生复杂度的退化。&lt;/p>
+&lt;p>那么我们如何优化我们的实现来解决以上的问题呢？&lt;/p>
+&lt;h2 id="使用stdsetinterval">使用&lt;code>std::set&amp;lt;Interval&amp;gt;&lt;/code> &lt;a href="#%e4%bd%bf%e7%94%a8stdsetinterval" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>我们以&lt;a href="https://leetcode.com/problems/merge-intervals/description/">Merge Intervals&lt;/a>一题为例。只要两个区间有交集，无论是哪一种形式的相交，那么我们就需要把这两个区间合并。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/18-2-20/85403056.jpg" alt="">&lt;/p>
+&lt;p>所以，我们只需要能高效的判断两个区间&lt;strong>是否相交&lt;/strong>，就可以解决这个问题了。&lt;/p>
+&lt;p>但是在这里，我们反其道而行之，先来讨论一下&lt;strong>不相交&lt;/strong>的情况。对于两个不相交的区间&lt;code>A&lt;/code>和&lt;code>B&lt;/code>，只存在两种情况，一是&lt;code>A&lt;/code>在&lt;code>B&lt;/code>左面，二是&lt;code>A&lt;/code>在&lt;code>B&lt;/code>右面。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/18-2-20/87075632.jpg" alt="">&lt;/p>
+&lt;p>我们可以把区间的左右关系看成不相交区间的顺序关系，即：&lt;/p>
+&lt;ul>
+&lt;li>如果区间&lt;code>A&lt;/code>在区间&lt;code>B&lt;/code>的“左边”，我们说&lt;code>A &amp;lt; B&lt;/code>&lt;/li>
+&lt;li>如果区间&lt;code>A&lt;/code>在区间&lt;code>B&lt;/code>的“右边”，我们说&lt;code>A &amp;gt; B&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;p>所以，根据不相交区间的性质，我们可以很自然的将它们存储在&lt;code>std::set&amp;lt;Interval&amp;gt;&lt;/code>当中。这样我们就可以在&lt;code>O(logN)&lt;/code>时间进行查找、随机插入与随机删除。&lt;/p>
+&lt;p>那么，回到最开始判断区间&lt;strong>是否相交&lt;/strong>的问题。对于相交的区间&lt;code>A&lt;/code>和&lt;code>B&lt;/code>，非常明显，&lt;code>A &amp;lt; B&lt;/code>与&lt;code>A &amp;gt; B&lt;/code>都是不成立的。在&lt;code>std::set&amp;lt;Interval&amp;gt;&lt;/code>中，这种关系被判定为&lt;strong>相等&lt;/strong>。&lt;/p>
+&lt;p>虽然这种&lt;strong>相等&lt;/strong>关系是不符合常规逻辑的，但是却非常实用。如果两个区间有“大小”关系，我们可以知道区间的相对位置。而如果两个区间“相等”，则我们可以知道两个区间一定相交。更重要的是，在这类题目中，两个相交的区间是不能同时存在的。这与&lt;code>std::set&amp;lt;Interval&amp;gt;&lt;/code>中元素的唯一性相呼应。&lt;/p>
+&lt;p>所以，在使用&lt;code>std::set&amp;lt;Interval&amp;gt;&lt;/code>来存储区间时，我们可以使用如下的性质：&lt;/p>
+&lt;ul>
+&lt;li>使用&lt;code>find()&lt;/code>函数来查找相交区间。这里要注意，相交的区间可能有多个&lt;/li>
+&lt;li>使用&lt;code>insert()&lt;/code>来插入区间。这里要注意，先要判断是否有区间与新插入的区间相交&lt;/li>
+&lt;li>使用&lt;code>erase()&lt;/code>来删除区间。&lt;/li>
+&lt;/ul>
+&lt;h2 id="实战---merge-intervals">实战 - Merge Intervals &lt;a href="#%e5%ae%9e%e6%88%98---merge-intervals" class="anchor">🔗&lt;/a>&lt;/h2>&lt;blockquote>
+&lt;p>在Merge Intervals一题中使用std::set&lt;Interval>并不是最优的解法。这里只做举例。&lt;/p>&lt;/blockquote>
+&lt;p>题目链接：&lt;a href="https://leetcode.com/problems/merge-intervals/description/">Merge Intervals&lt;/a>&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">/**
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Definition for an interval.
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * struct Interval {
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * int start;
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * int end;
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Interval() : start(0), end(0) {}
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * Interval(int s, int e) : start(s), end(e) {}
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> * };
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"> */&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">// overload the comparator for std::set
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#66d9ef">bool&lt;/span> &lt;span style="color:#66d9ef">operator&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span> (&lt;span style="color:#66d9ef">const&lt;/span> Interval&lt;span style="color:#f92672">&amp;amp;&lt;/span> i1, &lt;span style="color:#66d9ef">const&lt;/span> Interval&lt;span style="color:#f92672">&amp;amp;&lt;/span> i2) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> i1.end &lt;span style="color:#f92672">&amp;lt;&lt;/span> i2.start;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">Solution&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">public&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> vector&lt;span style="color:#f92672">&amp;lt;&lt;/span>Interval&lt;span style="color:#f92672">&amp;gt;&lt;/span> merge(vector&lt;span style="color:#f92672">&amp;lt;&lt;/span>Interval&lt;span style="color:#f92672">&amp;gt;&amp;amp;&lt;/span> intervals) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> set&lt;span style="color:#f92672">&amp;lt;&lt;/span>Interval&lt;span style="color:#f92672">&amp;gt;&lt;/span> st;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">auto&lt;/span> interval: intervals) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// merge intervals which are overlaped
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> &lt;span style="color:#66d9ef">while&lt;/span> (true) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">auto&lt;/span> iter &lt;span style="color:#f92672">=&lt;/span> st.find(interval);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (iter &lt;span style="color:#f92672">==&lt;/span> st.end()) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">break&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> };
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> interval &lt;span style="color:#f92672">=&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> min(interval.start, iter&lt;span style="color:#f92672">-&amp;gt;&lt;/span>start),
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> max(interval.end, iter&lt;span style="color:#f92672">-&amp;gt;&lt;/span>end)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> };
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> st.erase(iter);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// add the new interval to std::set
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> st.insert(interval);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// copy the intervals to a vector
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> vector&lt;span style="color:#f92672">&amp;lt;&lt;/span>Interval&lt;span style="color:#f92672">&amp;gt;&lt;/span> result;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> copy(st.begin(), st.end(), back_inserter(result));
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> result;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>上面的代码中，&lt;code>std::set&amp;lt;Interval&amp;gt;&lt;/code>中存储了已经合并好的区间。当加入新的区间时，我们会先判断新区间是否与已有区间相关，如果相交，则进行合并。&lt;/p>
+&lt;h2 id="实战---range-module">实战 - Range Module &lt;a href="#%e5%ae%9e%e6%88%98---range-module" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>题目链接：&lt;a href="https://leetcode.com/problems/range-module/description/">Range Module&lt;/a>&lt;/p>
+&lt;blockquote>
+&lt;p>题意： &lt;br>
+设计一个类，提供三个接口： &lt;br>&lt;br>
+接口1：&lt;code>void addRange(int left, int right)&lt;/code> &lt;br>
+将区间&lt;code>[left, right - 1]&lt;/code>加入区间集合 &lt;br>&lt;br>
+接口2：&lt;code>bool queryRange(int left, int right)&lt;/code> &lt;br>
+查询是否已有区间与区间&lt;code>[left, right - 1]&lt;/code>相交 &lt;br>&lt;br>
+接口3：&lt;code>void removeRange(int left, int right)&lt;/code>
+移除已有区间内，位于&lt;code>[left, right - 1]&lt;/code>范围内的所有数&lt;/p>&lt;/blockquote>
+&lt;p>这个题目看似可以完全套用我们上面讲到的&lt;code>std::set&amp;lt;Interval&amp;gt;&lt;/code>的实现，但是这里有几个暗坑需要注意。&lt;/p>
+&lt;p>首先我们来看接口3，这里的删除并不是删除区间，而是删除整数，所以我们可以使用&lt;code>find()&lt;/code>函数，但是与之前的合并操作不同，我们在这里要删除区间中的一部分。&lt;/p>
+&lt;p>在删除整数操作进行完之后，会引入一个新问题，这就是一些连续的整数区间，会在&lt;code>std::set&amp;lt;Interval&amp;gt;&lt;/code>中表现为独立的多个区间。例如，区间&lt;code>[1, 5]&lt;/code>，在删除了&lt;code>[2, 3]&lt;/code>之后，会形成两个区间&lt;code>[1, 1]&lt;/code> 和 &lt;code>[4, 5]&lt;/code>。我们再把区间&lt;code>[2, 3]&lt;/code>加回来，如果不进行特殊操作，就会产生三个不相交但连续的区间&lt;code>[1, 1]&lt;/code>、&lt;code>[2, 3]&lt;/code>和&lt;code>[4, 5]&lt;/code>。所以我们在插入区间时，要多做一步区间合并的操作。&lt;/p>
+&lt;p>具体的实现为：&lt;/p>
+&lt;ol>
+&lt;li>在插入区间&lt;code>[l, r]&lt;/code>之前，先查找是不存在区间包含&lt;code>[l - 1, l - 1]&lt;/code>或&lt;code>[r + 1, r + 1]&lt;/code>。如果有，则先将已有的相邻区间合并的新区间里&lt;/li>
+&lt;li>将新的区间进行合并操作，插入&lt;code>std::set&amp;lt;Interval&amp;gt;&lt;/code>&lt;/li>
+&lt;/ol>
+&lt;p>正确性证明：&lt;/p>
+&lt;ul>
+&lt;li>已知1：空区间集合不包含&lt;strong>不相交但连续的区间&lt;/strong>&lt;/li>
+&lt;li>已知2：只有插入操作会产生&lt;strong>不相交但连续的区间&lt;/strong>&lt;/li>
+&lt;li>归纳假设：我们保证在任何插入新区间的操作之前，&lt;code>std::set&amp;lt;Interval&amp;gt;&lt;/code>中均不包含&lt;strong>不相交但连续的区间&lt;/strong>。&lt;/li>
+&lt;li>证明：&lt;br>
+如果区间集合内不包含&lt;strong>不相交但连续的区间&lt;/strong>，那么对于新加区间，我们只需要尝试合并其近邻区间&lt;code>[l - 1, l - 1]&lt;/code>和&lt;code>[r + 1, r + 1]&lt;/code>，就不会产生&lt;strong>不相交但连续的区间&lt;/strong>。&lt;/li>
+&lt;/ul>
+&lt;p>代码实现如下：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">struct&lt;/span> &lt;span style="color:#a6e22e">MyInterval&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> left, right;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">bool&lt;/span> &lt;span style="color:#66d9ef">operator&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span> (&lt;span style="color:#66d9ef">const&lt;/span> MyInterval&lt;span style="color:#f92672">&amp;amp;&lt;/span> other) &lt;span style="color:#66d9ef">const&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#66d9ef">this&lt;/span>&lt;span style="color:#f92672">-&amp;gt;&lt;/span>right &lt;span style="color:#f92672">&amp;lt;&lt;/span> other.left;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">RangeModule&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">public&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> RangeModule() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// pass
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#a6e22e">addRange&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> left, &lt;span style="color:#66d9ef">int&lt;/span> right) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> right &lt;span style="color:#f92672">-=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> MyInterval ll &lt;span style="color:#f92672">=&lt;/span> {left &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>, left &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">auto&lt;/span> liter &lt;span style="color:#f92672">=&lt;/span> st.find(ll);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (liter &lt;span style="color:#f92672">!=&lt;/span> st.end()) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> left &lt;span style="color:#f92672">=&lt;/span> liter&lt;span style="color:#f92672">-&amp;gt;&lt;/span>left;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> MyInterval rr &lt;span style="color:#f92672">=&lt;/span> {right &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>, right &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">auto&lt;/span> riter &lt;span style="color:#f92672">=&lt;/span> st.find(rr);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (riter &lt;span style="color:#f92672">!=&lt;/span> st.end()) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> right &lt;span style="color:#f92672">=&lt;/span> riter&lt;span style="color:#f92672">-&amp;gt;&lt;/span>right;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> doAddRange(left, right);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#a6e22e">doAddRange&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> left, &lt;span style="color:#66d9ef">int&lt;/span> right) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> MyInterval newInterval &lt;span style="color:#f92672">=&lt;/span> {left, right};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">while&lt;/span> (true) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">auto&lt;/span> iter &lt;span style="color:#f92672">=&lt;/span> st.find(newInterval);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (iter &lt;span style="color:#f92672">==&lt;/span> st.end()) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">break&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> newInterval.left &lt;span style="color:#f92672">=&lt;/span> min(newInterval.left, iter&lt;span style="color:#f92672">-&amp;gt;&lt;/span>left);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> newInterval.right &lt;span style="color:#f92672">=&lt;/span> max(newInterval.right, iter&lt;span style="color:#f92672">-&amp;gt;&lt;/span>right);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> st.erase(iter);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> st.insert(newInterval);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">bool&lt;/span> &lt;span style="color:#a6e22e">queryRange&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> left, &lt;span style="color:#66d9ef">int&lt;/span> right) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> right &lt;span style="color:#f92672">-=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> MyInterval interval &lt;span style="color:#f92672">=&lt;/span> {left, right};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">auto&lt;/span> iter &lt;span style="color:#f92672">=&lt;/span> st.find(interval);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (iter &lt;span style="color:#f92672">==&lt;/span> st.end()) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> false;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> iter&lt;span style="color:#f92672">-&amp;gt;&lt;/span>left &lt;span style="color:#f92672">&amp;lt;=&lt;/span> left &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> right &lt;span style="color:#f92672">&amp;lt;=&lt;/span> iter&lt;span style="color:#f92672">-&amp;gt;&lt;/span>right;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#a6e22e">removeRange&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> left, &lt;span style="color:#66d9ef">int&lt;/span> right) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> right &lt;span style="color:#f92672">-=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> MyInterval newInterval &lt;span style="color:#f92672">=&lt;/span> {left, right};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">while&lt;/span> (true) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">auto&lt;/span> iter &lt;span style="color:#f92672">=&lt;/span> st.find(newInterval);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (iter &lt;span style="color:#f92672">==&lt;/span> st.end()) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">break&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">auto&lt;/span> cur &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#f92672">*&lt;/span>iter;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> st.erase(iter);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (cur.left &lt;span style="color:#f92672">&amp;lt;&lt;/span> newInterval.left) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> st.insert({cur.left, newInterval.left &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>});
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (cur.right &lt;span style="color:#f92672">&amp;gt;&lt;/span> newInterval.right) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> st.insert({newInterval.right &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>, cur.right});
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">private&lt;/span>&lt;span style="color:#f92672">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> set&lt;span style="color:#f92672">&amp;lt;&lt;/span>MyInterval&lt;span style="color:#f92672">&amp;gt;&lt;/span> st;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>};
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div></description></item><item><title>Why do I quit Leetcode contest?</title><link>https://wizmann.top/posts/why-do-i-quit-leetcode-contest/</link><pubDate>Wed, 07 Jun 2017 01:53:42 +0000</pubDate><guid>https://wizmann.top/posts/why-do-i-quit-leetcode-contest/</guid><description>&lt;h2 id="foreword">Foreword &lt;a href="#foreword" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>The title is quite &amp;ldquo;Yin-ish&amp;rdquo; as it seems, but I&amp;rsquo;m not a &amp;ldquo;Yin-ist&amp;rdquo;. You know what I mean.&lt;/p>
+&lt;h2 id="why-i-quit">Why I quit? &lt;a href="#why-i-quit" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>I did a quite a good job in Leetcode Weekly Contest, at least in my point of view. I won a 4th place and a 6th place in my 19 contests, and my highest global ranking is 49th.&lt;/p>
 &lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/17-6-7/15859142.jpg" alt="">&lt;/p>
-&lt;p>It&amp;rsquo;s remarkable! According to all my poor results among all the online/offline programming contests, there is no reason for me to give up Leetcode contest which seems perfectly suitable for my capabilities.&lt;/p></description></item><item><title>Single Number Problem</title><link>https://wizmann.top/posts/single-number-in-the-array/</link><pubDate>Tue, 05 Aug 2014 23:07:02 +0000</pubDate><guid>https://wizmann.top/posts/single-number-in-the-array/</guid><description>&lt;h2 id="introduction">Introduction&lt;/h2>
-&lt;p>There are a lot of interview problem based on the 1D-array, which is the one of the easiest &amp;ldquo;data structure&amp;rdquo;.&lt;/p>
+&lt;p>It&amp;rsquo;s remarkable! According to all my poor results among all the online/offline programming contests, there is no reason for me to give up Leetcode contest which seems perfectly suitable for my capabilities.&lt;/p>
+&lt;p>But I do make that decision. The quitting is of course not the kind of &amp;ldquo;throw in the towel&amp;rdquo; quitting, which is something I quite excel at, however. I quit because this contest lost its original meaning for all the contestants.&lt;/p>
+&lt;p>Here I&amp;rsquo;m not criticizing the contest itself, because it&amp;rsquo;s still a fair and interesting contest for us to participate in. But there is always a significant distinction between the &amp;ldquo;programming contest problems&amp;rdquo; and &amp;ldquo;programming interview problems&amp;rdquo;.&lt;/p>
+&lt;p>In programming contest, we are indifferent to the coding style, the extra time/memory space, testability and even the correctness. We come up with a theory, program it and submit it to the judging system, if there comes an &amp;ldquo;Accepted&amp;rdquo;. Boom! This is our happy ending.&lt;/p>
+&lt;p>In real-world practise, it&amp;rsquo;s hard for the judging system to tell the differences between the time complexity &lt;code>O(n)&lt;/code> and &lt;code>O(n * logn)&lt;/code>, and the extra space complexity &lt;code>O(1)&lt;/code> and &lt;code>O(n)&lt;/code>. This is because the judging system can&amp;rsquo;t implement a strict restriction as there are always some kinds of differences between diffrent &amp;ldquo;correct&amp;rdquo; implementations, differnet progamming languages and diffrent compilers. To avoid hurting the &amp;ldquo;innocents&amp;rdquo;, the judging system can do nothing but turn a bind eye on some &amp;ldquo;less-good&amp;rdquo; solutions for the problems.&lt;/p>
+&lt;p>But for the interviews, there are only several &amp;ldquo;correct answers&amp;rdquo; with least time complexity, least space complexity and least lines of codes. The interviewer wants you to implement the solution with the way he/she expected. There is no need to finish 4 problems in 15 minutes or less. What is actually wanted here is how you come up with your best solution, and how to prove the correctness and something else more to show that you are a equipped programmer for the company and for the team. And Leetcode contest leads us to a wrong way.&lt;/p>
+&lt;p>Leetcode is famous because of it&amp;rsquo;s a set of programming interview problems. On average, the problems are too easy for a real programming contest like ACM-ICPC, Codeforces, Google Code Jam, etc. But the problems on Leetcode do have some subtle details which we should pay much attention during a programming interview. We just can&amp;rsquo;t make a juice from these two kinds of problems with a blender. It will only cultivate incapable contestants and incapable interviewees.&lt;/p>
+&lt;p>So that&amp;rsquo;s my understanding of truth and the reason why I quit the series of contests.&lt;/p></description></item><item><title>Single Number Problem</title><link>https://wizmann.top/posts/single-number-in-the-array/</link><pubDate>Tue, 05 Aug 2014 23:07:02 +0000</pubDate><guid>https://wizmann.top/posts/single-number-in-the-array/</guid><description>&lt;h2 id="introduction">Introduction &lt;a href="#introduction" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>There are a lot of interview problem based on the 1D-array, which is the one of the easiest &amp;ldquo;data structure&amp;rdquo;.&lt;/p>
 &lt;p>But the problem about that simple data structure might not be that simple. Here is the summary of the problem about 1D-array.&lt;/p>
 &lt;p>Of course, most of them come from Leetcode.&lt;/p>
-&lt;h2 id="all-twice-excpet-one">All Twice Excpet One&lt;/h2>
+&lt;h2 id="all-twice-excpet-one">All Twice Excpet One &lt;a href="#all-twice-excpet-one" class="anchor">🔗&lt;/a>&lt;/h2>&lt;blockquote>
+&lt;p>Given an array of integers, every element appears twice except for one. Find that single one.&lt;/p>&lt;/blockquote>
+&lt;p>This &lt;a href="https://oj.leetcode.com/problems/single-number/">problem&lt;/a> is the very basic one. So I just paste my code here. If you are confused with the &lt;code>xor&lt;/code> operator， you might have to review the knowledge of &lt;strong>bit manipulation&lt;/strong> carefully.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">Solution&lt;/span>:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># @param A, a list of integer&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># @return an integer&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">singleNumber&lt;/span>(self, A):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> reduce(&lt;span style="color:#66d9ef">lambda&lt;/span> x, y: x &lt;span style="color:#f92672">^&lt;/span> y, A)
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Time complexity: O(n)&lt;/p>
+&lt;h2 id="all-once-except-one">All Once Except One &lt;a href="#all-once-except-one" class="anchor">🔗&lt;/a>&lt;/h2>&lt;blockquote>
+&lt;p>Given an array of N integers, which are in the scope of [1&amp;hellip;N - 1]. Every element in the array appears once except one. Find that number.&lt;/p>&lt;/blockquote>
+&lt;p>This one is simple enough. But it looks a &amp;ldquo;hard&amp;rdquo; problem because we can solve this by using the previously &amp;ldquo;xor&amp;rdquo;.&lt;/p>
+&lt;p>It&amp;rsquo;s easy for us to calcuate the summary of the array [1&amp;hellip;N - 1], and easy enough to calculate the summay of the given array as well. And the answer is the diffrence of the two summary.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">Solution&lt;/span>:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># @param A, a list of integer&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># @return an integer&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">singleInteger&lt;/span>(self, A):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> n &lt;span style="color:#f92672">=&lt;/span> len(A)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> sum(A) &lt;span style="color:#f92672">-&lt;/span> sum(range(n))
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Time complexity: O(n)&lt;/p>
+&lt;p>p.s. &lt;code>xor(A) ^ xor(range(n))&lt;/code> is better if we have a large N that might overflow when we add all the elements.&lt;/p>
 &lt;blockquote>
-&lt;p>Given an array of integers, every element appears twice except for one. Find that single one.&lt;/p></description></item><item><title>How to "Rotate Image"?</title><link>https://wizmann.top/posts/how-to-rotate-image-leetcode/</link><pubDate>Sat, 28 Dec 2013 14:42:00 +0000</pubDate><guid>https://wizmann.top/posts/how-to-rotate-image-leetcode/</guid><description>&lt;h2 id="啥">啥？&lt;/h2>
-&lt;p>原题&lt;a href="http://oj.leetcode.com/problems/rotate-image/">戳我&lt;/a>&lt;/p>
+&lt;p>Given an array of integers, every element appears once except for one which appears twice. Find that special number.&lt;/p>&lt;/blockquote>
+&lt;p>This problem is harder because all numbers in the array is arbitrary. And it seems hard to find any rules and patterns in the array.&lt;/p>
+&lt;p>I don&amp;rsquo;t know there is an algorithm which is O(1) space and O(n) time complexity. Tackle it with a hash set may be the best solution, which takes O(n) space and O(n) time complexity.&lt;/p>
+&lt;h2 id="all-three-times-except-one">All three times except one &lt;a href="#all-three-times-except-one" class="anchor">🔗&lt;/a>&lt;/h2>&lt;blockquote>
+&lt;p>Given an array of integers, every element appears three times except for one. Find that single one.&lt;/p>&lt;/blockquote>
+&lt;p>To slove &lt;a href="https://oj.leetcode.com/problems/single-number-ii/">this problem&lt;/a>, just using an array of size 32 to keep track on the total count of the ith bit.&lt;/p>
+&lt;p>And a tricky solution to reduce the memory usage is use three integers to indicate the remainder of 3 of the total count of the bits.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">singleNumber&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> A[], &lt;span style="color:#66d9ef">int&lt;/span> n) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> ones &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>, twos &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>, threes &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">int&lt;/span> i &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>; i &lt;span style="color:#f92672">&amp;lt;&lt;/span> n; i&lt;span style="color:#f92672">++&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> twos &lt;span style="color:#f92672">|=&lt;/span> ones &lt;span style="color:#f92672">&amp;amp;&lt;/span> A[i];
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ones &lt;span style="color:#f92672">^=&lt;/span> A[i];
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> threes &lt;span style="color:#f92672">=&lt;/span> ones &lt;span style="color:#f92672">&amp;amp;&lt;/span> twos;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ones &lt;span style="color:#f92672">&amp;amp;=&lt;/span> &lt;span style="color:#f92672">~&lt;/span>threes;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> twos &lt;span style="color:#f92672">&amp;amp;=&lt;/span> &lt;span style="color:#f92672">~&lt;/span>threes;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> ones;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="all-twice-except-two">All twice except two &lt;a href="#all-twice-except-two" class="anchor">🔗&lt;/a>&lt;/h2>&lt;blockquote>
+&lt;p>Given an array of integers, every element appears twice except for two. Find that two numbers.&lt;/p>&lt;/blockquote>
+&lt;pre tabindex="0">&lt;code>xor(array) = 0 ^ a ^ b
+&lt;/code>&lt;/pre>&lt;p>&lt;a href="http://www.v2ex.com/t/94742">This problem&lt;/a> is an update of &amp;ldquo;All twice except one&amp;rdquo;. It&amp;rsquo;s easy to prove that if there is an &amp;ldquo;1&amp;rdquo; in the bits of xor(array), it indicates that a and b are diffrent on that bit. We can separate the whole array by that bit, and then we can get two arrays which each contains a single &amp;ldquo;single number&amp;rdquo;.&lt;/p>
+&lt;h3 id="once-twice-three-times-a-lady">Once, twice, three times a lady &lt;a href="#once-twice-three-times-a-lady" class="anchor">🔗&lt;/a>&lt;/h3>&lt;blockquote>
+&lt;p>Given an array of integers, some of the numbers appear once, and some appear twice, and the others appear three times. Please find the number which appear three times.&lt;/p>&lt;/blockquote>
+&lt;p>Of course, hash map is a panacea, with O(n) space and O(n) time.&lt;/p>
+&lt;p>And there is another way to solve &lt;a href="http://www.ituring.com.cn/article/56179">this problem&lt;/a> with O(1) space and O(n) time. But it has its limitation &amp;ndash; integer overflow. If the max number of this array is too large, it can&amp;rsquo;t be done.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">from&lt;/span> random &lt;span style="color:#f92672">import&lt;/span> randint
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">from&lt;/span> collections &lt;span style="color:#f92672">import&lt;/span> Counter
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>N &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">100&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>ns &lt;span style="color:#f92672">=&lt;/span> [randint(&lt;span style="color:#ae81ff">0&lt;/span>, N &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>) &lt;span style="color:#66d9ef">for&lt;/span> i &lt;span style="color:#f92672">in&lt;/span> xrange(N)]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>counter &lt;span style="color:#f92672">=&lt;/span> Counter(ns)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">for&lt;/span> i &lt;span style="color:#f92672">in&lt;/span> xrange(len(ns)):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> num &lt;span style="color:#f92672">=&lt;/span> ns[i] &lt;span style="color:#f92672">%&lt;/span> N
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ns[num] &lt;span style="color:#f92672">+=&lt;/span> N
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>d &lt;span style="color:#f92672">=&lt;/span> {}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">for&lt;/span> i &lt;span style="color:#f92672">in&lt;/span> xrange(len(ns)):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> cnt &lt;span style="color:#f92672">=&lt;/span> ns[i] &lt;span style="color:#f92672">/&lt;/span> N
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> cnt:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> d[i] &lt;span style="color:#f92672">=&lt;/span> cnt
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>print d &lt;span style="color:#f92672">==&lt;/span> dict(counter)
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Considering the number &lt;code>ns[i]&lt;/code> with the index &lt;code>i&lt;/code> and with the value &lt;code>val&lt;/code>. We make &lt;code>ns[i] = count(i) * MAX + val&lt;/code>. By that, we can get the count of number &lt;code>i&lt;/code> by &lt;code>ns[i] / MAX&lt;/code>, and get the value of &lt;code>ns[i]&lt;/code> by &lt;code>ns[i] % MAX&lt;/code>.&lt;/p>
+&lt;p>And it&amp;rsquo;s the same to find the &amp;ldquo;missing number of an array of [1 &amp;hellip; n]`` or something like that.&lt;/p>
+&lt;h2 id="summarize">Summarize &lt;a href="#summarize" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="hash-map-is-panacea">Hash Map is PANACEA &lt;a href="#hash-map-is-panacea" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>Almost every problem on the array which want you to detect a single / two / or more &amp;ldquo;special&amp;rdquo; number can be tackled by the Hash Map. Easy and fast.&lt;/p>
+&lt;p>But for almost every problem, a hash map may no the very &lt;strong>BEST&lt;/strong> solution.&lt;/p>
+&lt;h3 id="bit-map-takes-less-memory">Bit Map takes less memory &lt;a href="#bit-map-takes-less-memory" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>An update for the hash map is the bit map. It takes less memory, but can storage less infomation, 0 or 1. Further, you can treat several bits as one to put more information in it.&lt;/p>
+&lt;p>By its very nature, bit map is the same with hash map.&lt;/p>
+&lt;h3 id="more-powerful-tool-bloomfilter">More powerful tool: Bloomfilter &lt;a href="#more-powerful-tool-bloomfilter" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>Bloomfilter is a powerful algorithm / data structure which is used to slove the &amp;ldquo;in / not in&amp;rdquo; problem, and takes less memory than hash map, and can do better than bit map if the data is sparse and random.&lt;/p>
+&lt;p>But it can&amp;rsquo;t keep way the &lt;strong>randomizing error&lt;/strong> called &lt;strong>false positive&lt;/strong>, and if you can put up with that error and want to reduce your memory usage, try that.&lt;/p>
+&lt;p>I didn&amp;rsquo;t mention this in my passage, but you can find some information on this &lt;a href="http://en.wikipedia.org/wiki/Bloom_filter">wikipedia page&lt;/a>. It&amp;rsquo;s easy.&lt;/p>
+&lt;h3 id="xor-and-bits-manipulation">xor and bits manipulation &lt;a href="#xor-and-bits-manipulation" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>xor is a good way to solve the &amp;ldquo;only one appear once&amp;rdquo; problem. And xor manipulate will never cause overflow which will ruin your whole program.&lt;/p>
+&lt;h3 id="just-calculate-the-sum-of-the-array">just calculate the sum of the array &lt;a href="#just-calculate-the-sum-of-the-array" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>Somethimes we just forget the simplest way to deal with a &amp;ldquo;hard problem&amp;rdquo;.&lt;/p>
+&lt;p>For example, once I was asked &amp;ldquo;give you three integers (a, b, c), and calculate how many (x, y, z) is possible to make ax + by + cz == R&amp;rdquo;.&lt;/p>
+&lt;p>I&amp;rsquo;m glad because it is so much like a &amp;ldquo;3-Sum&amp;rdquo; problem, and I solve it fast. But the interver told me it&amp;rsquo;s not the best solution. (You know how to deal with 3-sum, right?)&lt;/p>
+&lt;p>I thought for a while, and give up at last. And the interver told me that the solution is to enumerate (x, y) and get z by this formula.&lt;/p>
+&lt;pre tabindex="0">&lt;code>z = (R - ax - by) / c
+p.s. must be exact division
+&lt;/code>&lt;/pre>&lt;p>It&amp;rsquo;s a better and much easier solution, right? It was a shame for me not came up with that idea.&lt;/p>
+&lt;p>So, don&amp;rsquo;t forget the simple way, it may be the very best solution.&lt;/p>
+&lt;h3 id="attach-some-information-to-some-numbers">attach some information to some numbers &lt;a href="#attach-some-information-to-some-numbers" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>It useful if the length of the array (L) and the max value of the array (M). If M * L &amp;lt;= MAX_INT, you can storge the counter of number i in the array[i] by &lt;code>array[i] = array[i] + counter * M&lt;/code>.&lt;/p>
+&lt;p>It&amp;rsquo;s a useful way to implement a counter in the array. And it will be a big plus for you in the interview.&lt;/p></description></item><item><title>How to "Rotate Image"?</title><link>https://wizmann.top/posts/how-to-rotate-image-leetcode/</link><pubDate>Sat, 28 Dec 2013 14:42:00 +0000</pubDate><guid>https://wizmann.top/posts/how-to-rotate-image-leetcode/</guid><description>&lt;h2 id="啥">啥？ &lt;a href="#%e5%95%a5" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>原题&lt;a href="http://oj.leetcode.com/problems/rotate-image/">戳我&lt;/a>&lt;/p>
 &lt;blockquote>
 &lt;p>Rotate Image&lt;/p>&lt;/blockquote>
 &lt;blockquote>
@@ -30,5 +308,25 @@
 &lt;p>示意图如下：&lt;/p>
 &lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-tk-pic/blog-rotate-image-leetcode.png" alt="rotate-image">&lt;/p>
 &lt;p>当然，矩阵中的数字&lt;strong>不一定&lt;/strong>是规律的。&lt;/p>
-&lt;h2 id="为什么要提出这个问题">为什么要提出这个问题&lt;/h2>
-&lt;p>自觉是一个&lt;strong>不聪明&lt;/strong>的人（双低。。。&amp;lt;(=＠_＠;=)?&amp;gt;）。&lt;/p></description></item></channel></rss>
+&lt;h2 id="为什么要提出这个问题">为什么要提出这个问题 &lt;a href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e8%a6%81%e6%8f%90%e5%87%ba%e8%bf%99%e4%b8%aa%e9%97%ae%e9%a2%98" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>自觉是一个&lt;strong>不聪明&lt;/strong>的人（双低。。。&amp;lt;(=＠_＠;=)?&amp;gt;）。&lt;/p>
+&lt;p>别人一下子就想明白的事，在我这里要计算好几个来回。&lt;/p>
+&lt;p>所以努力想找到一个思维方法去弥补这个不足。&lt;/p>
+&lt;p>就以这题为例，如何使用简单、直接的方法，迅速正确的找出变化的映射规律。&lt;/p>
+&lt;h2 id="初步思路">初步思路 &lt;a href="#%e5%88%9d%e6%ad%a5%e6%80%9d%e8%b7%af" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>由于不可以使用&lt;strong>额外的空间&lt;/strong>。所以必须找到一个坐标映射&lt;code>f(x, y) =&amp;gt; (next_x, next_y)&lt;/code>。&lt;/p>
+&lt;p>这样，我们就可以通过循环来&lt;code>swap&lt;/code>矩阵中的元素。&lt;/p>
+&lt;h2 id="遇到问题">遇到问题 &lt;a href="#%e9%81%87%e5%88%b0%e9%97%ae%e9%a2%98" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>如何确定映射&lt;code>f(x, y)&lt;/code>？&lt;/p>
+&lt;p>由于我的思维不能支持我在头脑中形成正确的公式。&lt;/p>
+&lt;p>于是我想到，因为我们要求的变换是在二维矩阵中的简单移位。所以我们可以做出如下一个方程。&lt;/p>
+&lt;p>&lt;code>f(x, y) = (ax + by + c, dx + ey + f)&lt;/code>&lt;/p>
+&lt;p>然后找出特殊点，代入方程中，求出&lt;code>a&lt;/code>到&lt;code>f&lt;/code>各自代表的值。&lt;/p>
+&lt;p>于是求出映射&lt;code>f(x, y) =&amp;gt; (y, n - x)&lt;/code>。&lt;/p>
+&lt;p>即可以分解为：&lt;code>reverse_X(Matrix.T)&lt;/code>&lt;/p>
+&lt;h2 id="思考方式">思考方式 &lt;a href="#%e6%80%9d%e8%80%83%e6%96%b9%e5%bc%8f" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>以上的方法是我失败了N次之后才想到的。（弱。。。）&lt;/p>
+&lt;p>于是我又有了进一步的思考。&lt;/p>
+&lt;p>这样的思考方式是不是最佳的。如果大家遇到这样的问题，会用什么巧妙的方法去思考，去优雅的解决问题。&lt;/p>
+&lt;p>不过要记得我们的条件&lt;/p>
+&lt;ul>
+&lt;li>矩阵顺时针旋转90度&lt;/li>
+&lt;li>in-place变换，不得使用额外的空间&lt;/li>
+&lt;/ul>
+&lt;p>欢迎大家提出自己的看法。代码请贴到&lt;a href="https://gist.github.com/">gist&lt;/a>或&lt;a href="http://lpaste.net/">hpaste&lt;/a>等网站上，不要把代码直接写到评论中，我会及时update本文，展示大家的想法。&lt;/p></description></item></channel></rss>

@@ -1,2 +1,192 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>LavaStore on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/lavastore/</link><description>Recent content in LavaStore on Maerlyn's Rainbow</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Mon, 17 Feb 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/lavastore/index.xml" rel="self" type="application/rss+xml"/><item><title>论文阅读：LavaStore - 高性能、本地存储引擎的演进</title><link>https://wizmann.top/posts/lava-store/</link><pubDate>Mon, 17 Feb 2025 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/lava-store/</guid><description>&lt;h2 id="引言">引言&lt;/h2>
-&lt;p>在云服务的快速发展中，持久化键值（KV）存储引擎的性能和成本效率成为了关键挑战。字节跳动（ByteDance）在其大规模云服务中广泛使用 RocksDB 作为本地存储引擎。然而，由于 RocksDB 在高写入密集型负载、成本优化以及尾延迟控制上的局限性，字节跳动团队开发了 &lt;strong>LavaStore&lt;/strong>，一个专门针对云服务优化的高性能、本地存储引擎。&lt;/p></description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>LavaStore on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/lavastore/</link><description>Recent content in LavaStore on Maerlyn's Rainbow</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Mon, 17 Feb 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/lavastore/index.xml" rel="self" type="application/rss+xml"/><item><title>论文阅读：LavaStore - 高性能、本地存储引擎的演进</title><link>https://wizmann.top/posts/lava-store/</link><pubDate>Mon, 17 Feb 2025 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/lava-store/</guid><description>&lt;h2 id="引言">引言 &lt;a href="#%e5%bc%95%e8%a8%80" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>在云服务的快速发展中，持久化键值（KV）存储引擎的性能和成本效率成为了关键挑战。字节跳动（ByteDance）在其大规模云服务中广泛使用 RocksDB 作为本地存储引擎。然而，由于 RocksDB 在高写入密集型负载、成本优化以及尾延迟控制上的局限性，字节跳动团队开发了 &lt;strong>LavaStore&lt;/strong>，一个专门针对云服务优化的高性能、本地存储引擎。&lt;/p>
+&lt;p>本文基于论文 &lt;em>&amp;ldquo;LavaStore: ByteDance’s Purpose-built, High-performance, Cost-effective Local Storage Engine for Cloud Services&amp;rdquo;&lt;/em>，讨论 LavaStore 的核心设计、优化策略以及实际应用表现。&lt;/p>
+&lt;h2 id="lavastore-设计背景与挑战">LavaStore 设计背景与挑战 &lt;a href="#lavastore-%e8%ae%be%e8%ae%a1%e8%83%8c%e6%99%af%e4%b8%8e%e6%8c%91%e6%88%98" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>在字节跳动的生产环境中，存储引擎主要面临以下问题：&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>&lt;strong>写入放大问题&lt;/strong>：&lt;/p>
+&lt;ul>
+&lt;li>由于 LSM-tree 结构的特性，RocksDB 在处理大规模写入时存在较大的写入放大问题。&lt;/li>
+&lt;li>现有的 KV 分离方案（如 BlobDB）在应对大值存储时仍存在一定的 GC 负担。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>高效存储需求&lt;/strong>：&lt;/p>
+&lt;ul>
+&lt;li>云服务对存储成本有严格控制，如何在保证性能的前提下降低存储开销成为关键。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>低尾延迟需求&lt;/strong>：&lt;/p>
+&lt;ul>
+&lt;li>许多应用（如在线事务处理 OLTP 和缓存服务）对 99% 甚至 99.99% 的请求延迟有严格要求。&lt;/li>
+&lt;li>传统存储引擎在高并发查询场景下难以优化尾延迟。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h2 id="lavastore-关键优化点">LavaStore 关键优化点 &lt;a href="#lavastore-%e5%85%b3%e9%94%ae%e4%bc%98%e5%8c%96%e7%82%b9" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="1-lavakv独立的-kv-分离方案">1. &lt;strong>LavaKV：独立的 KV 分离方案&lt;/strong> &lt;a href="#1-lavakv%e7%8b%ac%e7%ab%8b%e7%9a%84-kv-%e5%88%86%e7%a6%bb%e6%96%b9%e6%a1%88" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>LavaStore 采用了 &lt;strong>LavaKV&lt;/strong>，一个针对 RocksDB 进行定制化优化的 KV 存储层，其主要特点包括：&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;strong>GC 与压缩解耦&lt;/strong>：&lt;/p>
+&lt;ul>
+&lt;li>传统 RocksDB BlobDB 的 GC 需要依赖 SSTable 压缩，而 LavaKV 允许独立执行 Blob GC，从而提高写入性能。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>自适应 GC 策略&lt;/strong>：&lt;/p>
+&lt;ul>
+&lt;li>根据磁盘使用率动态调整 GC 频率，以优化写入放大和存储利用率。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>更高效的 Blob 存储管理&lt;/strong>：&lt;/p>
+&lt;ul>
+&lt;li>采用 Crit-bit Tree (CBT) 作为索引结构，比 RocksDB 的 Hash Index 占用更少的空间，提高缓存命中率。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="2-lavalog针对-wal-工作负载的优化">2. &lt;strong>LavaLog：针对 WAL 工作负载的优化&lt;/strong> &lt;a href="#2-lavalog%e9%92%88%e5%af%b9-wal-%e5%b7%a5%e4%bd%9c%e8%b4%9f%e8%bd%bd%e7%9a%84%e4%bc%98%e5%8c%96" class="anchor">🔗&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>许多数据库系统依赖 Write-Ahead Logging (WAL) 来保证数据持久化。&lt;/li>
+&lt;li>LavaLog 专门针对 WAL 设计，提供接近 1 的写放大（相比 RocksDB 的 WAF≈2），并优化日志 GC 机制。&lt;/li>
+&lt;/ul>
+&lt;h3 id="3-lavafs自定义的用户态文件系统">3. &lt;strong>LavaFS：自定义的用户态文件系统&lt;/strong> &lt;a href="#3-lavafs%e8%87%aa%e5%ae%9a%e4%b9%89%e7%9a%84%e7%94%a8%e6%88%b7%e6%80%81%e6%96%87%e4%bb%b6%e7%b3%bb%e7%bb%9f" class="anchor">🔗&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>传统的 Ext4 在 fsync 操作上有较高的开销，影响同步写入性能。&lt;/li>
+&lt;li>LavaFS 采用轻量级日志机制，避免了不必要的元数据写入，使同步写入的 WAF 从 Ext4 的 6.7 下降至 1。&lt;/li>
+&lt;/ul>
+&lt;h2 id="lavastore-在生产环境中的应用表现">LavaStore 在生产环境中的应用表现 &lt;a href="#lavastore-%e5%9c%a8%e7%94%9f%e4%ba%a7%e7%8e%af%e5%a2%83%e4%b8%ad%e7%9a%84%e5%ba%94%e7%94%a8%e8%a1%a8%e7%8e%b0" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>LavaStore 已在字节跳动内部多个业务场景中部署，主要体现在：&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>&lt;strong>数据库（ByteNDB）&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>平均写入延迟减少 61%&lt;/li>
+&lt;li>读取延迟减少 16%&lt;/li>
+&lt;li>总体写入放大（WAF）降低 24%&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>缓存系统（ABase）&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>写入 QPS 提升 87%&lt;/li>
+&lt;li>P99 写入延迟降低 38%&lt;/li>
+&lt;li>P99 读取延迟降低 28%&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>流处理（Flink）&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>CPU 使用率降低 67%&lt;/li>
+&lt;li>平均数据存储占用降低 15%&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h2 id="未来发展方向">未来发展方向 &lt;a href="#%e6%9c%aa%e6%9d%a5%e5%8f%91%e5%b1%95%e6%96%b9%e5%90%91" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>尽管 LavaStore 在当前设计下已经大幅优化了 RocksDB 的性能，但仍有一些可以进一步优化的方向：&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;strong>优化 KV 分离 GC 策略&lt;/strong>：&lt;/p>
+&lt;ul>
+&lt;li>研究更智能的 GC 策略，使其在读写负载不同的情况下动态调整回收方式。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>引入新存储硬件支持&lt;/strong>：&lt;/p>
+&lt;ul>
+&lt;li>探索 &lt;strong>ZNS SSDs&lt;/strong>（Zoned Namespace SSDs）和 &lt;strong>SPDK&lt;/strong>（Storage Performance Development Kit）来优化存储读写路径。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>跨层 GC 优化&lt;/strong>：&lt;/p>
+&lt;ul>
+&lt;li>目前 GC 主要在 KV 层和文件系统层进行，未来可以与 SSD 层的 GC 进行协同优化，降低整体写入放大。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="总结">总结 &lt;a href="#%e6%80%bb%e7%bb%93" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>LavaStore 作为字节跳动自主研发的高性能存储引擎，在写入性能、存储效率和尾延迟控制上均取得了显著优化。通过 KV 分离、日志存储优化以及用户态文件系统的设计，LavaStore 相比传统 RocksDB 方案，在多个核心业务场景下展现了优越的性能和成本优势。&lt;/p>
+&lt;p>对于关注云存储系统优化的研究人员和工程师来说，LavaStore 提供了一种创新的思路，即通过 &lt;strong>合理的模块化优化&lt;/strong> 以及 &lt;strong>针对特定负载的定制化设计&lt;/strong>，可以在兼顾通用性的同时，大幅提升存储引擎的整体表现。&lt;/p>
+&lt;hr>
+&lt;h2 id="引言-1">引言 &lt;a href="#%e5%bc%95%e8%a8%80-1" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>在云服务的快速发展中，持久化键值（KV）存储引擎的性能和成本效率成为了关键挑战。字节跳动（ByteDance）在其大规模云服务中广泛使用 RocksDB 作为本地存储引擎。然而，由于 RocksDB 在高写入密集型负载、成本优化以及尾延迟控制上的局限性，字节跳动团队开发了 &lt;strong>LavaStore&lt;/strong>——一个专门针对云服务优化的高性能、本地存储引擎。&lt;/p>
+&lt;p>本文基于入选 &lt;strong>VLDB 2024&lt;/strong> 的论文 &lt;em>&amp;ldquo;LavaStore: ByteDance’s Purpose-built, High-performance, Cost-effective Local Storage Engine for Cloud Services&amp;rdquo;&lt;/em>，结合工业实践数据，系统分析 LavaStore 的核心设计、优化策略及实际应用表现。截至2025年，LavaStore 已在字节跳动内部部署 &lt;strong>数十万个运行实例&lt;/strong>，存储超过 &lt;strong>100PB 数据&lt;/strong>，每秒处理 &lt;strong>数十亿次请求&lt;/strong>，成为云原生存储领域的重要创新。&lt;/p>
+&lt;hr>
+&lt;h2 id="lavastore-设计背景与挑战-1">LavaStore 设计背景与挑战 &lt;a href="#lavastore-%e8%ae%be%e8%ae%a1%e8%83%8c%e6%99%af%e4%b8%8e%e6%8c%91%e6%88%98-1" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>在字节跳动的生产环境中，存储引擎主要面临以下问题：&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>&lt;strong>写入放大问题&lt;/strong>：&lt;/p>
+&lt;ul>
+&lt;li>由于 LSM-tree 结构的特性，RocksDB 在处理大规模写入时存在较大的写入放大问题（WAF≈2）。&lt;/li>
+&lt;li>现有的 KV 分离方案（如 BlobDB）在应对大值存储时仍存在 &lt;strong>GC 与 SSTable 压缩强耦合&lt;/strong> 的问题，导致额外 I/O 开销。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>高效存储需求&lt;/strong>：&lt;/p>
+&lt;ul>
+&lt;li>云服务对存储成本有严格控制，需在保证性能的前提下降低存储开销。例如，ABase 缓存系统要求 &lt;strong>存储空间开销不超过6%&lt;/strong>。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>低尾延迟需求&lt;/strong>：&lt;/p>
+&lt;ul>
+&lt;li>在线事务处理（OLTP）和缓存服务对 &lt;strong>P99.99延迟&lt;/strong> 有严格限制，传统存储引擎在高并发场景下难以满足。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;hr>
+&lt;h2 id="lavastore-关键优化点-1">LavaStore 关键优化点 &lt;a href="#lavastore-%e5%85%b3%e9%94%ae%e4%bc%98%e5%8c%96%e7%82%b9-1" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="1-lavakv解耦式-kv-分离方案">1. &lt;strong>LavaKV：解耦式 KV 分离方案&lt;/strong> &lt;a href="#1-lavakv%e8%a7%a3%e8%80%a6%e5%bc%8f-kv-%e5%88%86%e7%a6%bb%e6%96%b9%e6%a1%88" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>LavaKV 通过以下创新解决 RocksDB 的写入放大问题：&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>GC 与压缩解耦&lt;/strong>：允许独立执行 Blob GC，避免传统方案中 GC 依赖 SSTable 压缩的瓶颈，使写入性能提升 &lt;strong>30%+&lt;/strong>。&lt;/li>
+&lt;li>&lt;strong>Crit-bit Tree 索引&lt;/strong>：采用空间占用更小的 CBT 替代 Hash Index，索引体积减少 &lt;strong>40%&lt;/strong>，缓存命中率提升 &lt;strong>18%&lt;/strong>。&lt;/li>
+&lt;li>&lt;strong>动态 GC 策略&lt;/strong>：基于磁盘使用率（如阈值超过70%时触发 GC）自适应调整回收频率，平衡 WAF 与存储利用率。&lt;/li>
+&lt;/ul>
+&lt;h3 id="2-lavalogwal-专用引擎">2. &lt;strong>LavaLog：WAL 专用引擎&lt;/strong> &lt;a href="#2-lavalogwal-%e4%b8%93%e7%94%a8%e5%bc%95%e6%93%8e" class="anchor">🔗&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>&lt;strong>写放大优化&lt;/strong>：针对 Write-Ahead Logging 设计轻量日志结构，WAF 从 RocksDB 的 &lt;strong>≈2&lt;/strong> 降至接近 &lt;strong>1&lt;/strong>。&lt;/li>
+&lt;li>&lt;strong>并行 GC 机制&lt;/strong>：通过时间窗口划分实现日志分段回收，GC 延迟降低 &lt;strong>65%&lt;/strong>。&lt;/li>
+&lt;/ul>
+&lt;h3 id="3-lavafs用户态文件系统">3. &lt;strong>LavaFS：用户态文件系统&lt;/strong> &lt;a href="#3-lavafs%e7%94%a8%e6%88%b7%e6%80%81%e6%96%87%e4%bb%b6%e7%b3%bb%e7%bb%9f" class="anchor">🔗&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>&lt;strong>元数据优化&lt;/strong>：采用轻量级日志机制替代 Ext4 的完整元数据写入，同步写入 WAF 从 &lt;strong>6.7&lt;/strong> 降至 &lt;strong>1&lt;/strong>。&lt;/li>
+&lt;li>&lt;strong>I/O 路径缩短&lt;/strong>：绕过内核态文件系统，直接管理裸设备，fsync 延迟减少 &lt;strong>80%&lt;/strong>。&lt;/li>
+&lt;/ul>
+&lt;hr>
+&lt;h2 id="lavastore-生产环境表现">LavaStore 生产环境表现 &lt;a href="#lavastore-%e7%94%9f%e4%ba%a7%e7%8e%af%e5%a2%83%e8%a1%a8%e7%8e%b0" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="1-数据库vedbbytendb">1. &lt;strong>数据库（veDB/ByteNDB）&lt;/strong> &lt;a href="#1-%e6%95%b0%e6%8d%ae%e5%ba%93vedbbytendb" class="anchor">🔗&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>平均写入延迟降低 &lt;strong>61%&lt;/strong>（从 12ms 降至 4.7ms）&lt;/li>
+&lt;li>读取延迟降低 &lt;strong>16%&lt;/strong>（从 3.2ms 降至 2.7ms）&lt;/li>
+&lt;li>总体 WAF 降低 &lt;strong>24%&lt;/strong>&lt;/li>
+&lt;/ul>
+&lt;h3 id="2-缓存系统abase">2. &lt;strong>缓存系统（ABase）&lt;/strong> &lt;a href="#2-%e7%bc%93%e5%ad%98%e7%b3%bb%e7%bb%9fabase" class="anchor">🔗&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>写入 QPS 提升 &lt;strong>87%&lt;/strong>（峰值达 120万 QPS）&lt;/li>
+&lt;li>P99 写入延迟降低 &lt;strong>38%&lt;/strong>（从 45ms 降至 28ms）&lt;/li>
+&lt;li>存储成本减少 &lt;strong>46%&lt;/strong>（通过混部资源优化）&lt;/li>
+&lt;/ul>
+&lt;h3 id="3-流处理flink">3. &lt;strong>流处理（Flink）&lt;/strong> &lt;a href="#3-%e6%b5%81%e5%a4%84%e7%90%86flink" class="anchor">🔗&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>CPU 使用率降低 &lt;strong>67%&lt;/strong>（归因于 LavaFS 的零拷贝优化）&lt;/li>
+&lt;li>数据存储占用减少 &lt;strong>15%&lt;/strong>（基于 CBT 索引压缩）&lt;/li>
+&lt;/ul>
+&lt;hr>
+&lt;h2 id="未来方向与行业启示">未来方向与行业启示 &lt;a href="#%e6%9c%aa%e6%9d%a5%e6%96%b9%e5%90%91%e4%b8%8e%e8%a1%8c%e4%b8%9a%e5%90%af%e7%a4%ba" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ol>
+&lt;li>
+&lt;p>&lt;strong>硬件协同优化&lt;/strong>：&lt;/p>
+&lt;ul>
+&lt;li>探索 &lt;strong>ZNS SSDs&lt;/strong> 的 Zone 特性与 LavaKV GC 策略结合，进一步降低 WAF。&lt;/li>
+&lt;li>集成 &lt;strong>SPDK&lt;/strong> 加速用户态 I/O 栈，目标将 fsync 延迟压缩至 &lt;strong>10μs 级&lt;/strong>。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>跨层 GC 协同&lt;/strong>：&lt;/p>
+&lt;ul>
+&lt;li>联合 SSD 控制器实现 &lt;strong>物理块回收提示&lt;/strong>，减少 SSD 内部 GC 开销。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>学术价值&lt;/strong>：&lt;/p>
+&lt;ul>
+&lt;li>LavaStore 的模块化设计（KV 分离、专用 WAL、用户态 FS）为工业界提供了 &lt;strong>&amp;ldquo;定向优化+通用兼容&amp;rdquo;&lt;/strong> 的范式，相关论文已被 VLDB 2024 收录。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;hr>
+&lt;h2 id="总结-1">总结 &lt;a href="#%e6%80%bb%e7%bb%93-1" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>LavaStore 通过 &lt;strong>垂直解耦&lt;/strong>（GC 与压缩分离）、&lt;strong>水平定制&lt;/strong>（WAL 专用引擎）和 &lt;strong>底层重构&lt;/strong>（用户态 FS）的三层优化，在写入性能、存储效率和尾延迟控制上均取得突破。其设计哲学表明：&lt;strong>在通用存储引擎无法满足极端场景需求时，针对性地改造关键子系统，能以较低成本实现显著收益&lt;/strong>。&lt;/p>
+&lt;dl>
+&lt;dt>对于从业者而言，LavaStore 的实践验证了以下公式的可行性：&lt;/dt>
+&lt;dt>$$ \text{系统优化收益} = \sum (\text{模块定制化增益}) - \text{兼容性代价} $$&lt;/dt>
+&lt;dt>未来，随着存储硬件与软件栈的深度协同，此类定向优化方案或将成为云基础设施的标配。&lt;/dt>
+&lt;dd>
+&lt;p>字节跳动基础架构团队. LavaStore: ByteDance’s Purpose-built, High-performance, Cost-effective Local Storage Engine for Cloud Services. VLDB 2024.&lt;/p>
+&lt;/dd>
+&lt;/dl>
+&lt;p>如果你对 LavaStore 或类似存储引擎的优化有更多见解，欢迎留言交流！&lt;/p></description></item></channel></rss>

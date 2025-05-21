@@ -1,4 +1,259 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Raft on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/raft/</link><description>Recent content in Raft on Maerlyn's Rainbow</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Thu, 02 May 2019 21:33:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/raft/index.xml" rel="self" type="application/rss+xml"/><item><title>6.824 Lab 2: Raft协议实现指南 （无剧透版）</title><link>https://wizmann.top/posts/raft-lab-mit-6.824/</link><pubDate>Thu, 02 May 2019 21:33:00 +0000</pubDate><guid>https://wizmann.top/posts/raft-lab-mit-6.824/</guid><description>&lt;h2 id="背景">背景&lt;/h2>
-&lt;p>MIT6.824是一个用来学习分布式系统的非常好的资源。其中第二个课程作业就是关于&lt;a href="https://pdos.csail.mit.edu/6.824/labs/lab-raft.html">Raft算法&lt;/a>。&lt;/p>
-&lt;p>由于在工作中涉及到分布一致性算法的调研，接触了paxos/raft算法。然后被@neutronest安利了一发，于是开始着手实现这个作业。&lt;/p></description></item><item><title>白话一致性协议 - Paxos、Raft和PacificA[1]</title><link>https://wizmann.top/posts/paxos-raft-pecifaca1/</link><pubDate>Wed, 05 Dec 2018 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/paxos-raft-pecifaca1/</guid><description>&lt;h2 id="书接上文---multi-paxos">书接上文 - Multi Paxos&lt;/h2>
-&lt;p>在上一篇文章中，我们提到了Basic Paxos和Multi Paxos的异同。在&lt;a href="https://lamport.azurewebsites.net/pubs/paxos-simple.pdf">Paxos Made Simple&lt;/a>论文中，作者提到了Multi Paxos的一种实现。这个实现允许我们对一个连续的数据流（也可以称为复制日志，replicated log）达成共识，从而实现节点状态的一致性复制。&lt;/p></description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Raft on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/raft/</link><description>Recent content in Raft on Maerlyn's Rainbow</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Thu, 02 May 2019 21:33:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/raft/index.xml" rel="self" type="application/rss+xml"/><item><title>6.824 Lab 2: Raft协议实现指南 （无剧透版）</title><link>https://wizmann.top/posts/raft-lab-mit-6.824/</link><pubDate>Thu, 02 May 2019 21:33:00 +0000</pubDate><guid>https://wizmann.top/posts/raft-lab-mit-6.824/</guid><description>&lt;h2 id="背景">背景 &lt;a href="#%e8%83%8c%e6%99%af" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>MIT6.824是一个用来学习分布式系统的非常好的资源。其中第二个课程作业就是关于&lt;a href="https://pdos.csail.mit.edu/6.824/labs/lab-raft.html">Raft算法&lt;/a>。&lt;/p>
+&lt;p>由于在工作中涉及到分布一致性算法的调研，接触了paxos/raft算法。然后被@neutronest安利了一发，于是开始着手实现这个作业。&lt;/p>
+&lt;p>本文是我对这个项目的实现总结。希望能在划出重点的同时，不涉及实现细节，避免破坏大家的写代码体验。&lt;/p>
+&lt;p>本文唯一参考资料：&lt;a href="https://raft.github.io/raft.pdf">In Search of an Understandable Consensus Algorithm&lt;/a>&lt;/p>
+&lt;h2 id="任务分解">任务分解 &lt;a href="#%e4%bb%bb%e5%8a%a1%e5%88%86%e8%a7%a3" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>在官方文档里，整个项目被分成了2A、2B、2C三个部分：&lt;/p>
+&lt;ul>
+&lt;li>2A - 投票与选举&lt;/li>
+&lt;li>2B - 一致性&lt;/li>
+&lt;li>2C - 可持久化&lt;/li>
+&lt;/ul>
+&lt;p>实际上，2C的工作量非常少，我们可以把2B和2C合成一个。然后单独提出几个比较重要的测试用例，划分成子项目。任务分解如下：&lt;/p>
+&lt;ul>
+&lt;li>2A - 投票与选举&lt;/li>
+&lt;li>2B/2C - 一致性和可持久化&lt;/li>
+&lt;li>三个难度比较高的Case
+&lt;ul>
+&lt;li>Test (2B): leader backs up quickly over incorrect follower logs &lt;br>
+验证协议实现的正确性&lt;/li>
+&lt;li>Test (2B): RPC counts aren&amp;rsquo;t too high &lt;br>
+测试协议是否产生了过多的RPC请求。验证协议的性能。&lt;/li>
+&lt;li>Test (2C): Figure 8 (unreliable) &lt;br>
+测试在极端混乱的情况下，Raft协议是否能及时恢复正常工作。验证协议实现的正确性和性能。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>所以推荐大家按顺序以上顺序进行实现。并且充分利用版本控制对代码进行开发和重构。&lt;/p>
+&lt;h2 id="需要关注的知识点">需要关注的知识点 &lt;a href="#%e9%9c%80%e8%a6%81%e5%85%b3%e6%b3%a8%e7%9a%84%e7%9f%a5%e8%af%86%e7%82%b9" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>以下会介绍每一个部分需要重点关注的知识点，内容包括golang基础和论文中的知识点，无剧透，请放心食用。&lt;/p>
+&lt;h3 id="准备工作">准备工作 &lt;a href="#%e5%87%86%e5%a4%87%e5%b7%a5%e4%bd%9c" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>golang是一门傲慢的语言，其标准库的缺乏实在是让人感到TMD蛋疼。但是对于一个课程作业来说，我们也没有必要引入一系列第三方库。所以我们先要扩充&lt;code>util.go&lt;/code>文件，使其为我们的开发提供更多的便利。&lt;/p>
+&lt;h4 id="log模块">Log模块 &lt;a href="#log%e6%a8%a1%e5%9d%97" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>项目给出的&lt;code>DPrintf&lt;/code>函数非常简单，只提供了一个&lt;code>fmt.Printf&lt;/code>的封装。并不能打印行号和文件名。这里提供一个扩展版本。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-golang" data-lang="golang">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">func&lt;/span> &lt;span style="color:#a6e22e">DPrintf&lt;/span>(&lt;span style="color:#a6e22e">format&lt;/span> &lt;span style="color:#66d9ef">string&lt;/span>, &lt;span style="color:#a6e22e">a&lt;/span> &lt;span style="color:#f92672">...&lt;/span>&lt;span style="color:#66d9ef">interface&lt;/span>{}) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> &lt;span style="color:#a6e22e">Debug&lt;/span> &amp;gt; &lt;span style="color:#ae81ff">0&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">_&lt;/span>, &lt;span style="color:#a6e22e">path&lt;/span>, &lt;span style="color:#a6e22e">lineno&lt;/span>, &lt;span style="color:#a6e22e">ok&lt;/span> &lt;span style="color:#f92672">:=&lt;/span> &lt;span style="color:#a6e22e">runtime&lt;/span>.&lt;span style="color:#a6e22e">Caller&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">_&lt;/span>, &lt;span style="color:#a6e22e">file&lt;/span> &lt;span style="color:#f92672">:=&lt;/span> &lt;span style="color:#a6e22e">filepath&lt;/span>.&lt;span style="color:#a6e22e">Split&lt;/span>(&lt;span style="color:#a6e22e">path&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (&lt;span style="color:#a6e22e">ok&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">t&lt;/span> &lt;span style="color:#f92672">:=&lt;/span> &lt;span style="color:#a6e22e">time&lt;/span>.&lt;span style="color:#a6e22e">Now&lt;/span>();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">a&lt;/span> = append([]&lt;span style="color:#66d9ef">interface&lt;/span>{} { &lt;span style="color:#a6e22e">t&lt;/span>.&lt;span style="color:#a6e22e">Format&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;2006-01-02 15:04:05.00&amp;#34;&lt;/span>), &lt;span style="color:#a6e22e">file&lt;/span>, &lt;span style="color:#a6e22e">lineno&lt;/span> }, &lt;span style="color:#a6e22e">a&lt;/span>&lt;span style="color:#f92672">...&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">fmt&lt;/span>.&lt;span style="color:#a6e22e">Printf&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;%s [%s:%d] &amp;#34;&lt;/span> &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#a6e22e">format&lt;/span> &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#e6db74">&amp;#34;\n&amp;#34;&lt;/span>, &lt;span style="color:#a6e22e">a&lt;/span>&lt;span style="color:#f92672">...&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>其输出示例如下：&lt;/p>
+&lt;pre tabindex="0">&lt;code>2019-05-02 09:28:35.04 [raft.go:652] Node[1] is processing, state: [LEADER], term 1, commitIndex: 12, logCount: 12, leader 1
+&lt;/code>&lt;/pre>&lt;h4 id="max和min函数">Max和Min函数 &lt;a href="#max%e5%92%8cmin%e5%87%bd%e6%95%b0" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>golang是没有对于int值的&lt;code>max&lt;/code>和&lt;code>min&lt;/code>函数的，这里省略脏话100句。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-golang" data-lang="golang">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">func&lt;/span> &lt;span style="color:#a6e22e">Min&lt;/span>(&lt;span style="color:#a6e22e">a&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span>, &lt;span style="color:#a6e22e">b&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span>) (&lt;span style="color:#66d9ef">int&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> &lt;span style="color:#a6e22e">a&lt;/span> &amp;lt; &lt;span style="color:#a6e22e">b&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#a6e22e">a&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> } &lt;span style="color:#66d9ef">else&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#a6e22e">b&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">func&lt;/span> &lt;span style="color:#a6e22e">Max&lt;/span>(&lt;span style="color:#a6e22e">a&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span>, &lt;span style="color:#a6e22e">b&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span>) (&lt;span style="color:#66d9ef">int&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> &lt;span style="color:#a6e22e">a&lt;/span> &amp;gt; &lt;span style="color:#a6e22e">b&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#a6e22e">a&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> } &lt;span style="color:#66d9ef">else&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#a6e22e">b&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h4 id="assert函数">Assert函数 &lt;a href="#assert%e5%87%bd%e6%95%b0" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>是的，你没有看错，golang也没有提供&lt;code>assert&lt;/code>函数。如果你嫌到处写&lt;code>if&lt;/code>和&lt;code>panic&lt;/code>太丑的话，可以使用这个&lt;code>assert&lt;/code>函数。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-golang" data-lang="golang">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">func&lt;/span> &lt;span style="color:#a6e22e">Assert&lt;/span>(&lt;span style="color:#a6e22e">flag&lt;/span> &lt;span style="color:#66d9ef">bool&lt;/span>, &lt;span style="color:#a6e22e">format&lt;/span> &lt;span style="color:#66d9ef">string&lt;/span>, &lt;span style="color:#a6e22e">a&lt;/span> &lt;span style="color:#f92672">...&lt;/span>&lt;span style="color:#66d9ef">interface&lt;/span>{}) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (!&lt;span style="color:#a6e22e">flag&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">_&lt;/span>, &lt;span style="color:#a6e22e">path&lt;/span>, &lt;span style="color:#a6e22e">lineno&lt;/span>, &lt;span style="color:#a6e22e">ok&lt;/span> &lt;span style="color:#f92672">:=&lt;/span> &lt;span style="color:#a6e22e">runtime&lt;/span>.&lt;span style="color:#a6e22e">Caller&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">_&lt;/span>, &lt;span style="color:#a6e22e">file&lt;/span> &lt;span style="color:#f92672">:=&lt;/span> &lt;span style="color:#a6e22e">filepath&lt;/span>.&lt;span style="color:#a6e22e">Split&lt;/span>(&lt;span style="color:#a6e22e">path&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (&lt;span style="color:#a6e22e">ok&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">t&lt;/span> &lt;span style="color:#f92672">:=&lt;/span> &lt;span style="color:#a6e22e">time&lt;/span>.&lt;span style="color:#a6e22e">Now&lt;/span>();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">a&lt;/span> = append([]&lt;span style="color:#66d9ef">interface&lt;/span>{} { &lt;span style="color:#a6e22e">t&lt;/span>.&lt;span style="color:#a6e22e">Format&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;2006-01-02 15:04:05.00&amp;#34;&lt;/span>), &lt;span style="color:#a6e22e">file&lt;/span>, &lt;span style="color:#a6e22e">lineno&lt;/span> }, &lt;span style="color:#a6e22e">a&lt;/span>&lt;span style="color:#f92672">...&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">reason&lt;/span> &lt;span style="color:#f92672">:=&lt;/span> &lt;span style="color:#a6e22e">fmt&lt;/span>.&lt;span style="color:#a6e22e">Sprintf&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;%s [%s:%d] &amp;#34;&lt;/span> &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#a6e22e">format&lt;/span> &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#e6db74">&amp;#34;\n&amp;#34;&lt;/span>, &lt;span style="color:#a6e22e">a&lt;/span>&lt;span style="color:#f92672">...&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> panic(&lt;span style="color:#a6e22e">reason&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> } &lt;span style="color:#66d9ef">else&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> panic(&lt;span style="color:#e6db74">&amp;#34;&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h4 id="log-id">Log Id &lt;a href="#log-id" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>为了验证日志的一致性，我们在日志中额外加入一个UUID来进行标识。&lt;/p>
+&lt;pre tabindex="0">&lt;code>import &amp;#34;math/rand&amp;#34;
+func CreateLogId() (uuid string) {
+b := make([]byte, 16)
+_, err := rand.Read(b)
+if err != nil {
+fmt.Println(&amp;#34;Error: &amp;#34;, err)
+return
+}
+uuid = fmt.Sprintf(&amp;#34;%X-%X-%X-%X-%X&amp;#34;, b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
+return uuid
+}
+&lt;/code>&lt;/pre>&lt;p>以上代码可以生成一个（伪）UUID对日志进行标识。推荐使用&lt;code>math/rand&lt;/code>，因为这里我们使用伪随机数就够了。&lt;/p>
+&lt;blockquote>
+&lt;p>注：这里的UUID只是看起来像一个UUID，实际上UUID有其特殊的规范与格式。但是由于golang内部没有提供可用的UUID库，所以只好随手模拟了一个。&lt;/p>&lt;/blockquote>
+&lt;h4 id="文件组织">文件组织 &lt;a href="#%e6%96%87%e4%bb%b6%e7%bb%84%e7%bb%87" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>默认的实现是把所有的东西都写到了&lt;code>raft.go&lt;/code>文件里。一个非常大的文件可能会给我们的开发带来负担，所以我的做法是把所有的类声明放到&lt;code>models.go&lt;/code>文件里。以避免文件的膨胀。&lt;/p>
+&lt;h4 id="锁与defer">锁与defer &lt;a href="#%e9%94%81%e4%b8%8edefer" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>在raft实现中，锁可以用来保证在多线程环境下数据的正确性。所以只要在涉及到raft内部状态的变化时，都需要加锁。一个常见的加锁pattern是：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-golang" data-lang="golang">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">rf&lt;/span>.&lt;span style="color:#a6e22e">mu&lt;/span>.&lt;span style="color:#a6e22e">Lock&lt;/span>() &lt;span style="color:#75715e">// 加锁&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">defer&lt;/span> &lt;span style="color:#a6e22e">rf&lt;/span>.&lt;span style="color:#a6e22e">mu&lt;/span>.&lt;span style="color:#a6e22e">Lock&lt;/span>() &lt;span style="color:#75715e">// 在函数执行完成后解锁&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这里推荐使用defer，因为手动控制锁实现是过于容易出错。但是defer也是有坑的！&lt;/p>
+&lt;p>不同于C++的大括号作用域，defer的触发时间是在函数执行完成之后，而并不是退出当前大括号时。这点非常需要注意，否则极易出现死锁。&lt;/p>
+&lt;p>如果我们想实现C++中&lt;code>do { ... } while (0);&lt;/code>类似的lock guard pattern，可以使用以下实现：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-golang" data-lang="golang">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">func&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">rf&lt;/span>.&lt;span style="color:#a6e22e">mu&lt;/span>.&lt;span style="color:#a6e22e">Lock&lt;/span>()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">defer&lt;/span> &lt;span style="color:#a6e22e">rf&lt;/span>.&lt;span style="color:#a6e22e">mu&lt;/span>.&lt;span style="color:#a6e22e">Unlock&lt;/span>()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// do something here&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}()
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这样一来，在执行完当前lambda之后，就会自动解锁。&lt;/p>
+&lt;h4 id="刷新定时器">刷新定时器 &lt;a href="#%e5%88%b7%e6%96%b0%e5%ae%9a%e6%97%b6%e5%99%a8" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>由于raft算法里面使用了定时器，这里提供一个刷新定时器的golang代码。这样实现是为了每次在刷新的时候，清空定时器中原有的超时时间，以避免混乱。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-golang" data-lang="golang">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">func&lt;/span> (&lt;span style="color:#a6e22e">rf&lt;/span> &lt;span style="color:#f92672">*&lt;/span>&lt;span style="color:#a6e22e">Raft&lt;/span>) &lt;span style="color:#a6e22e">renewTimer&lt;/span>(&lt;span style="color:#a6e22e">timeout&lt;/span> &lt;span style="color:#a6e22e">time&lt;/span>.&lt;span style="color:#a6e22e">Duration&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (&lt;span style="color:#a6e22e">rf&lt;/span>.&lt;span style="color:#a6e22e">timer&lt;/span> &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#66d9ef">nil&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">rf&lt;/span>.&lt;span style="color:#a6e22e">timer&lt;/span> = &lt;span style="color:#a6e22e">time&lt;/span>.&lt;span style="color:#a6e22e">NewTimer&lt;/span>(&lt;span style="color:#a6e22e">timeout&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> } &lt;span style="color:#66d9ef">else&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (!&lt;span style="color:#a6e22e">rf&lt;/span>.&lt;span style="color:#a6e22e">timer&lt;/span>.&lt;span style="color:#a6e22e">Stop&lt;/span>()) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">select&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">case&lt;/span> &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">rf&lt;/span>.&lt;span style="color:#a6e22e">timer&lt;/span>.&lt;span style="color:#a6e22e">C&lt;/span>:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// pass&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">default&lt;/span>:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// pass&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">rf&lt;/span>.&lt;span style="color:#a6e22e">timer&lt;/span>.&lt;span style="color:#a6e22e">Reset&lt;/span>(&lt;span style="color:#a6e22e">timeout&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>以及，在定时器超时之后，不要忘了更新定时器。&lt;/p>
+&lt;h3 id="2a---投票与选举">2A - 投票与选举 &lt;a href="#2a---%e6%8a%95%e7%a5%a8%e4%b8%8e%e9%80%89%e4%b8%be" class="anchor">🔗&lt;/a>&lt;/h3>&lt;h4 id="所需要类的声明">所需要类的声明 &lt;a href="#%e6%89%80%e9%9c%80%e8%a6%81%e7%b1%bb%e7%9a%84%e5%a3%b0%e6%98%8e" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>论文中的&lt;code>Figure2&lt;/code>包含了算法中所有的类以及基本算法。在2A中，所有的类都会被用到。由于2A中只包括投票与选举，所以和日志相关的字段可以先忽略掉。&lt;/p>
+&lt;h4 id="checklist-for-2a">Checklist for 2A &lt;a href="#checklist-for-2a" class="anchor">🔗&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>实现raft状态机的三个状态：leader，follower和candidate&lt;/li>
+&lt;li>实现RPC函数：&lt;code>sendRequestVote&lt;/code>（发送端）和&lt;code>RequestVote&lt;/code>（接收端的回调函数）&lt;/li>
+&lt;li>实现RPC函数：&lt;code>sendAppendEntries&lt;/code>（发送端）和&lt;code>AppendEntries&lt;/code>（接收端的回调函数）&lt;/li>
+&lt;li>保证raft状态机的任期号（&lt;code>currentTerm&lt;/code>）是单调递增的&lt;/li>
+&lt;li>一个Follower对于某一个Term只能投出一票&lt;/li>
+&lt;li>实现Leader心跳，维护当前任期（Term）。&lt;/li>
+&lt;li>实现Follower选举超时（election timeout）&lt;/li>
+&lt;li>实现Candidate选举的三种场景
+&lt;ul>
+&lt;li>获得多数选票，赢得选举。状态切换为Leader&lt;/li>
+&lt;li>其它的节点已经被选为Leader。状态切换为Follower&lt;/li>
+&lt;li>在选举中并未获得多数选票，状态切换为Follower&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>实现Candidate随机选举超时（randomized election timeout）&lt;/li>
+&lt;/ul>
+&lt;h3 id="2b2c---日志复制与持久化">2B/2C - 日志复制与持久化 &lt;a href="#2b2c---%e6%97%a5%e5%bf%97%e5%a4%8d%e5%88%b6%e4%b8%8e%e6%8c%81%e4%b9%85%e5%8c%96" class="anchor">🔗&lt;/a>&lt;/h3>&lt;h4 id="基本工作流">基本工作流 &lt;a href="#%e5%9f%ba%e6%9c%ac%e5%b7%a5%e4%bd%9c%e6%b5%81" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>日志复制的基本工作流如下：&lt;/p>
+&lt;p>Leader接受用户请求，将状态变化写入本机的日志流中，并且把日志复制到Followers。如果本条日志合法，Followers会将这条日志标记为“提交”（committed），然后再将这条日志“应用”（apply）到Raft协议之外的状态机。Follower在提交日志之后，就可以向Leader回报这条日志已经被提交。在本条日志被多数节点提交之后，Leader再将这条日志标记为提交。此时，用户的请求就可以被确认（ACK）了。&lt;/p>
+&lt;p>Raft的论文中，Leader需要维护&lt;code>commitIndex&lt;/code>和&lt;code>lastApplied&lt;/code>这两个状态。为了简单起见，我们可以忽略“应用”（apply）这个过程。这两个状态我们只需要维护&lt;code>commitIndex&lt;/code>即可。&lt;/p>
+&lt;blockquote>
+&lt;p>Raft协议不是2PC，千万不要搞混了哦～&lt;/p>&lt;/blockquote>
+&lt;h4 id="回滚与滚回来">回滚与滚回来 &lt;a href="#%e5%9b%9e%e6%bb%9a%e4%b8%8e%e6%bb%9a%e5%9b%9e%e6%9d%a5" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>&lt;img src="https://raw.githubusercontent.com/Wizmann/assets/3f1056d6f142755204092fb89a474dc964608bab/wizmann-pic/2019-05-02_14-40-52.png" alt="rollback">&lt;/p>
+&lt;p>从上面的工作流我们可以看到，对于已经committed的日志，仍然有可能是不可靠的。&lt;/p>
+&lt;p>例如，在Term1时，节点1作业Leader提交到了日志(1, 2)，而Follower节点Node2和Node3分别提交到了日志(1, 2)和(1, 3)。此时Leader短暂断线，出发选举超时，就会进行下一轮的选举。如果节点Node2被选为Leader，那么节点Node3就会被Leader多出一条日志，这是不被允许的。如果节点Node3被选为Leader，那么Node2就比Leader在Term1少一条日志，需要补齐。&lt;/p>
+&lt;blockquote>
+&lt;p>这里有人可能会怀疑，节点2比节点3少一条日志，那么按照论文里的说法，因为节点3的日志比较节点2要多，所以只有节点3才能赢得下一轮选举。这其实是不对的，如果节点3断线，节点1和节点2仍然可以组成一个quorum，选举出Leader。&lt;/p>&lt;/blockquote>
+&lt;p>所以我们需要考虑将已committed的日志回滚（向左滚），以及缺失的日志补齐（向右滚）。这里其实有一些优化的点，我们后文再说。&lt;/p>
+&lt;p>再次注意，保证日志的一致性是Raft协议正确性的必须保证，在这一点上一定要注意。&lt;/p>
+&lt;h4 id="乱序请求">乱序请求 &lt;a href="#%e4%b9%b1%e5%ba%8f%e8%af%b7%e6%b1%82" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>本项目中，模拟的RPC协议并不能保证可靠性（会丢包）、有序性（会乱序），也没有SLA（没有超时时间的上限），更不用想拥塞控制。我们可以理解为它在底层使用了UDP协议，而不是TCP。所以我们不能做出任何假设。&lt;/p>
+&lt;p>例如，两个请求先后来到Leader端，A请求编号(1,100)，B请求编号(1,110)。然后我们依次将Log复制到Follower端（A先B后），但是在Follower端有可能收到的顺序是B先A后。甚至只收到B，没收到A。这种情况日常工程中的TCP协议下几乎不能发生，但是在测试环境中要十分小心。&lt;/p>
+&lt;h4 id="checklist-for-2b2c">Checklist for 2B/2C &lt;a href="#checklist-for-2b2c" class="anchor">🔗&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>日志的状态会影响Leader选举 &lt;br>
+如果两份日志流的最后一条日志的Term不一样，那么我们认为Term号大的日志“比较新”。如果Term号一样，那么Index大的日志“比较新”&lt;/li>
+&lt;li>如果Leader和Follower的日志不一致，那么Follower需要拷贝Leader的日志（向左滚或向右滚的正确性） &lt;br>
+这里推荐使用Assert加断言进行保证，如果出错可以获得实时的现场&lt;/li>
+&lt;li>对于小于当前Term的日志，Leader不需要等多数Follower确认就可以直接commit&lt;/li>
+&lt;li>一个重要特性：如果两个日志的(Term, Index)一致，那么其内容也是一致的。并且在此日志之前的所有日志都必须是一致的&lt;/li>
+&lt;li>另一个重要特性：RPC请求是幂等的，也就是多次重复发送一个请求并不会破坏Raft协议的状态&lt;/li>
+&lt;/ul>
+&lt;h3 id="最后的3个case">最后的3个Case &lt;a href="#%e6%9c%80%e5%90%8e%e7%9a%843%e4%b8%aacase" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>最后的三个Case有一个共同点，就是对协议的效率和正确性有比较高的要求。即使前面的代码里你的实现是正确的，也有可能因为各种其它的原因造成Case挂掉。&lt;/p>
+&lt;p>建议首先解决正确性问题，再提升效率。&lt;/p>
+&lt;h4 id="向左滚的优化重要">向左滚的优化（重要！） &lt;a href="#%e5%90%91%e5%b7%a6%e6%bb%9a%e7%9a%84%e4%bc%98%e5%8c%96%e9%87%8d%e8%a6%81" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>在论文的5.3节，介绍了一种回滚的优化。如果Leader和Follower在某个Index上的日志不一致，Leader的版本记为(Term1, Index)，Follower的版本记为(Term2, Index)。那么Follower需要回滚所有日志，直到Term小于&lt;code>Min(Term1, Term2)&lt;/code>。&lt;/p>
+&lt;p>这样的好处是可以加快回滚的效率。虽然论文上表示这种优化并非必要，但是在模拟出来的极端网络环境下，这样的优化可以帮助我们通过一些比较变态的Case。&lt;/p>
+&lt;h4 id="其它的非官方优化">其它的非官方优化 &lt;a href="#%e5%85%b6%e5%ae%83%e7%9a%84%e9%9d%9e%e5%ae%98%e6%96%b9%e4%bc%98%e5%8c%96" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>这里还有一些论文里没的提到的优化方案，不保证一定是正确的。&lt;/p>
+&lt;p>为了不剧透，放到单独的链接里了：&lt;a href="https://github.com/Wizmann/assets/blob/master/wizmann-pic/19-05-02/raft-hints.md">剧透警告！&lt;/a>&lt;/p>
+&lt;blockquote>
+&lt;p>还有一个Bonus挑战，谁比较闲可以试一下。&lt;/p>&lt;/blockquote>
+&lt;h2 id="测试结果">测试结果 &lt;a href="#%e6%b5%8b%e8%af%95%e7%bb%93%e6%9e%9c" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>&lt;img src="https://raw.githubusercontent.com/Wizmann/assets/e35dd59aa533ddd19065f070dcb85a3734cc035d/wizmann-pic/19-05-02/2019-05-02_21-37-14.png" alt="tests">&lt;/p>
+&lt;p>在Travis CI上面运行的测试。自我感觉实现的比较一般，所以你们的程序应该跑的比我快一点才正常。&lt;/p>
+&lt;h2 id="总结">总结 &lt;a href="#%e6%80%bb%e7%bb%93" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>想要完整正确的实现这个项目，首先一定要把论文读懂。并且划出实现上应该注意的重点。&lt;/p>
+&lt;p>当遇到正确性问题时，一定要回归论文，大部分的问题都可以获得解答。当遇到性能问题时，可以参考作业上面的Hints，里面也有非常有用的信息。&lt;/p>
+&lt;p>MIT的这个课程还有基于raft实现kv storage的项目，后续如果有时间应该还会做吧。&lt;/p></description></item><item><title>白话一致性协议 - Paxos、Raft和PacificA[1]</title><link>https://wizmann.top/posts/paxos-raft-pecifaca1/</link><pubDate>Wed, 05 Dec 2018 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/paxos-raft-pecifaca1/</guid><description>&lt;h2 id="书接上文---multi-paxos">书接上文 - Multi Paxos &lt;a href="#%e4%b9%a6%e6%8e%a5%e4%b8%8a%e6%96%87---multi-paxos" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>在上一篇文章中，我们提到了Basic Paxos和Multi Paxos的异同。在&lt;a href="https://lamport.azurewebsites.net/pubs/paxos-simple.pdf">Paxos Made Simple&lt;/a>论文中，作者提到了Multi Paxos的一种实现。这个实现允许我们对一个连续的数据流（也可以称为复制日志，replicated log）达成共识，从而实现节点状态的一致性复制。&lt;/p>
+&lt;h3 id="确定性状态机">确定性状态机 &lt;a href="#%e7%a1%ae%e5%ae%9a%e6%80%a7%e7%8a%b6%e6%80%81%e6%9c%ba" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>我们可以将系统中的每一个节点抽象为一个有着确定性状态机，即给定多个状态一致的状态机，在执行同一个命令之后，其状态仍保持一致。（可以想一想编译原理里面的DFA）&lt;/p>
+&lt;h3 id="leader---系统中唯一的proposer">Leader - 系统中唯一的proposer &lt;a href="#leader---%e7%b3%bb%e7%bb%9f%e4%b8%ad%e5%94%af%e4%b8%80%e7%9a%84proposer" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>如果系统中存在有多个proposer，那么就很可能会出现多个提案相互干扰的情况。虽然根据证明，最终这些提案都会收敛到一致，但是性能会非常低下。所以我们可以在系统中通过选举，选出一个leader做为主proposer（distinguishied proposer），所有的提案都由leader提出。&lt;/p>
+&lt;p>这样一来，在绝大多数情况下都不会出现提案相互干扰的情况。只有在leader切换的瞬间，可能会出现相同编号的不同提案，但是我们的算法可以很好的处理这种情况。&lt;/p>
+&lt;h3 id="分布式系统中的tcp">分布式系统中的“TCP” &lt;a href="#%e5%88%86%e5%b8%83%e5%bc%8f%e7%b3%bb%e7%bb%9f%e4%b8%ad%e7%9a%84tcp" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>类似于TCP协议中序列号，Multi Paxos中的每一个命令都有一个递增的编号。即我们前一个执行的命令是100号，那么下一个执行的命令一定是101号。每一个命令都是一个Paxos实例，Leader向所有节点发布这个提案，在提案达成一致之后（多数节点返回ACK），就可以认为这个命令已经达成了一致。&lt;/p>
+&lt;p>和TCP一样，如果我们顺序的发布并表决提案，效率会非常低下（TCP停等模型）。所以，Multi Paxos采用类似滑动窗口的方案，每次对N个提案进行表决，以增加表决的带宽。&lt;/p>
+&lt;p>和TCP不同的是，如果某些序号的TCP包在传输中丢失，最坏的情况是我们会RST这条链接，其它的工作都交给应用层逻辑来解决。&lt;/p>
+&lt;p>但是对于Multi Paxos来说，如果某些提案没有被表决，那么就会在日志中留下空洞（gap）。这会直接影响系统的一致性。如果恰巧这个时候发生了Leader失效，那么新选举出来的Leader节点就要处理日志中的空洞。&lt;/p>
+&lt;p>解决空洞的原理也很简单，就是Leader向所有成员询问，对于这个提案，是否已经有达成共识的值。如果有的话，就使用这个值。如果没有，就用一个no-op（无操作）命令来填补这个空位。但是，对于实际工程中来说，我们还需要解决未达成共识时值的冲突等情况。&lt;/p>
+&lt;h2 id="为什么我们还需要raft">为什么我们还需要Raft？ &lt;a href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e6%88%91%e4%bb%ac%e8%bf%98%e9%9c%80%e8%a6%81raft" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>Multi-Paxos在现实的工程当中更多的是一种符号。因为理论与实践上的隔阂是如此之大，如果想在工程意义上实现一个可用的Multi-Paxos算法，必然会在原算法的基础上进行一系列的魔改，这些魔改虽然均声称自己实现了Multi-Paxos算法，但是这些算法大多不能被证明是正确的。&lt;/p>
+&lt;p>Raft的目标是，即让算法满足工程化需要，又能保证其正确性。&lt;/p>
+&lt;blockquote>
+&lt;p>Raft论文当中说Paxos算法难以理解，我并不这么觉得。因为Paxos论文里面把困难的部分都一笔带过了。只剩下简单的那部分了。&lt;/p>&lt;/blockquote>
+&lt;h2 id="raft-vs-paxos">Raft vs. Paxos &lt;a href="#raft-vs-paxos" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="leader选举">Leader选举 &lt;a href="#leader%e9%80%89%e4%b8%be" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>在Paxos论文中，Leader选举被视作一种特殊的“提案选举”。只需要Proposer和Acceptor进行一轮或多轮（取决于运气）投票，就可以确定Leader。&lt;/p>
+&lt;p>但在实际工程中，我们需要考虑以下的问题：&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>如何判断Leader是否存活&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>是否每一个节点都有资格担当Leader&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;h4 id="leader的任期">Leader的任期 &lt;a href="#leader%e7%9a%84%e4%bb%bb%e6%9c%9f" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>Leader在被选举出来之后，都会被赋予一个任期编号（term）。在任期里，Leader会向所有成员发送心跳包以延续自己的任期。&lt;/p>
+&lt;p>如果Leader失效无法发送心跳包的话，成员就会产生一个“选举超时”，此时就会重新触发一轮选举。&lt;/p>
+&lt;p>选举的流程和Basic-Paxos算法类似，proposer向所有成员发送“我要当老大”的提案，成员们会酌情回复。如果得到了多数成员的肯定，这个proposer就是下一个任期的Leader了。&lt;/p>
+&lt;p>从本质上说，每一个任期的Leader选举，都是一个独立的Basic-Paxos实例。任期号相当于Paxos里面的提案编号。&lt;/p>
+&lt;h4 id="leader资格的认定">Leader资格的认定 &lt;a href="#leader%e8%b5%84%e6%a0%bc%e7%9a%84%e8%ae%a4%e5%ae%9a" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>Raft采用强一致性的模型，对于已经ACK的用户请求，要尽力保证其状态不丢失。&lt;/p>
+&lt;blockquote>
+&lt;p>如果你问我，现在来一核弹把机房炸了，数据都丢了，那你怎么能保证强一致性。 &lt;br>
+其实这个问题非常简单。很明显，我们保证了丢数据的强一致性。&lt;/p>&lt;/blockquote>
+&lt;p>所以我们要选出一个Leader，使其能够包含所有已经ACK的提案。当一个proposer向其它节点发送提案时，就会收到其它节点的响应。因为一个已经ACK的提案必然被多数节点所认可，所以如果一个proposer没有包含所有被ACK的提案时，它的提案就会被其它包含更多状态的节点驳回。最后被选出来的Leader，一定是包含所有被ACK的状态的节点。&lt;/p>
+&lt;h3 id="日志复制">日志复制 &lt;a href="#%e6%97%a5%e5%bf%97%e5%a4%8d%e5%88%b6" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>当Leader被选出后，Leader就会开始处理用户的请求。用户的请求可以看做一系列的命令，在接收到提案后，提案首先被分发到所有节点，节点的状态机顺序执行这些命令。在多数节点返回ACK后，这个命令就被视为“已提交”（commited）。&lt;/p>
+&lt;p>上文中已经提到了一致性算法中的日志非常类似于网络协议中的TCP。即如果两个命令的ID一样，那么其内容必定也一样；如果两个节点都有认可了编号为p的命令，那么所有编号小于p的命令也必定保持一致。（被称为Log Matching Property）&lt;/p>
+&lt;p>Raft为了简化算法的工程实现，把节点的状态抽象为严格append only的日志。即我们可以将日志指针向后或向前移动，来“回滚”或“更新”状态。但是绝对不允许在日志中间添加或删除日志条目。所以，在Leader发生变化时，如果leader和其他follower之间的日志不同，那么follower需要回滚日志以保持和leader日志的一致性。&lt;/p>
+&lt;h3 id="安全性">安全性 &lt;a href="#%e5%ae%89%e5%85%a8%e6%80%a7" class="anchor">🔗&lt;/a>&lt;/h3>&lt;h4 id="不归我管的事我不拿主意">不归我管的事我不拿主意 &lt;a href="#%e4%b8%8d%e5%bd%92%e6%88%91%e7%ae%a1%e7%9a%84%e4%ba%8b%e6%88%91%e4%b8%8d%e6%8b%bf%e4%b8%bb%e6%84%8f" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>前文我们说到，一个节点要成为Leader，一定要拥有所有已经被ACK的状态，否则就会被其它节点驳回。&lt;/p>
+&lt;p>但是现实都会出现一些小小的意外。在系统的运行过程中，如果有一些提案只被少数节点认可，与此同时发起提案的Leader意外退出。那么在不同节点上的日志会产生“分叉”，那么我们如何解决日志当中的冲突呢？&lt;/p>
+&lt;p>很明显，因为这些以少数节点认可的提案并没有被确认。所以我们无论是接受提案还是驳回提案，都不影响我们强一致性的要求。所以关键是处理冲突，使其不产生影响系统一致性的后效。&lt;/p>
+&lt;p>&lt;img src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/18-12-02/Snipaste_2018-12-02_17-34-59.png" alt="">&lt;/p>
+&lt;p>假设在Term1，最后一个提案是&amp;quot;Value:3&amp;quot;，这个提案并没有得到多数节点的认可，Leader就挂掉了。选出来了一个新Leader，Term数加1。在Term2，被提出的第一个提案是&amp;quot;Value:1&amp;quot;，这个提案也没有得到多数节点的认可，Leader也挂掉了。&lt;/p>
+&lt;p>因为这两个分叉的提案都没有得到多数节点的认可，所以下一个Leader可能已经确认这两个提案，或者两个中的一个，也可能一个都没有确认。新的Leader在被选出后，需要面对的第一个问题是如何处理属于旧Term的提案。&lt;/p>
+&lt;p>解决方案有两种：&lt;/p>
+&lt;ol>
+&lt;li>新Leader将日志中仍没有被多数节点认可的提案重新提出，直到被多数节点认可为止&lt;/li>
+&lt;li>新Leader忽略属于旧的Term的提案，只提交属于本Term的提案；对于日志冲突，使用复制日志的方法解决，但不会显式认可旧Term的提案。&lt;/li>
+&lt;/ol>
+&lt;p>&lt;img src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/18-12-02/Snipaste_2018-12-02_22-02-45.png" alt="">&lt;/p>
+&lt;p>对于方案1，有一个隐含的问题。如上图所示，在时间点1，S2为Leader，标红的两个提案并没有被确认。此时如果Leader在时间点2重新提出&amp;quot;Term1/Value3&amp;quot;，并且得到了S1和S2的认可，那么这条提案已经被多数节点认可。但是在时间点3，S3被选举为了Leader。S1和S2需要回滚日志以保持与S3日志的一致。此时就出现了一种情况，那就是已经被确认的日志被回滚掉了，强一致性就不能满足了。&lt;/p>
+&lt;p>&lt;img src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/18-12-02/Snipaste_2018-12-02_22-12-50.png" alt="">&lt;/p>
+&lt;p>如果我们采用方案2，那么被选出的新Leader提出的第一个提案的Term一定为3。确认新提案的节点接下来会复制Leader的日志，回滚掉没有被认可的提案&amp;quot;Term2/Value1&amp;quot;。对于标绿的&amp;quot;Term1/Value3&amp;quot;，虽然被复制到了其它的节点上，但是这个值并不会被确认。这样一来，我们既保证了已经被确认的提案不会被回滚，又保证了日志的一致性。&lt;/p>
+&lt;p>在具体实现中，“T3/V1”往往是一个空命令(no-op)。这样一来，即使没有写请求，Leader就可以更快的确认新的任期并同步Log了。&lt;/p>
+&lt;h4 id="如何证明">如何证明 &lt;a href="#%e5%a6%82%e4%bd%95%e8%af%81%e6%98%8e" class="anchor">🔗&lt;/a>&lt;/h4>&lt;p>那么怎么保证上面的作法它是正确的呢？&lt;/p>
+&lt;p>假设当前任期为T1，此时由于系统故障，我们选出了新的Leader - S2，并记Term为T2。因为我们严格遵守了Log Matching Property。&lt;/p>
+&lt;p>那么，对于以下两种情况：&lt;/p>
+&lt;ol>
+&lt;li>T2的Leader和Voter的Log中最后一个提案的编号是一致的，那么可以知道他们日志中的提案都是完全一致的&lt;/li>
+&lt;li>T2中Leader的Log比Voter更新，那么Leader一定包含比Voter更多的提案；否则Voter就不会给Leader投票&lt;/li>
+&lt;/ol>
+&lt;p>我们都可以证明，对于前一个Term已经被确认的提案，一定会被包含在后一个Term的日志中。也就是说，一个被确认的提案不会中途丢失。&lt;/p>
+&lt;h2 id="成员变化">成员变化 &lt;a href="#%e6%88%90%e5%91%98%e5%8f%98%e5%8c%96" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>以上我们的讨论都基于系统的节点不会发生变更，但是在现实工程中，我们很难对此进行任何保证。所以一个实用的系统，一定能解决成员变化的问题。&lt;/p>
+&lt;p>成员变化问题的本质是系统中不能同时出现两个Leader。&lt;/p>
+&lt;p>在Raft中，我们将过渡期的配置称为“共同一致”（joint consensus），一但它被确认，说明系统已经过渡到了新的成员配置。&lt;/p>
+&lt;p>具体的策略如下：&lt;/p>
+&lt;ol>
+&lt;li>系统中只有旧的配置C_old，新加入的成员不可能成为Leader&lt;/li>
+&lt;li>当前系统的Leader接受到新的配置C_new。然后Leader向所有节点发起修改配置为C_old+new的提案。&lt;/li>
+&lt;li>即使这个时间点Leader挂掉了，新的Leader也只会拥有旧配置C_old或者过渡期配置C_old+new。这取决于Leader选举的时机（和运气）。&lt;/li>
+&lt;li>当过渡期配置C_old+new被多数节点确认后，Leader向所有节点发起修改配置为C_new的提案。&lt;/li>
+&lt;li>如果这个时间点Leader挂掉了，新Leader会从拥有C_old+new和C_new的节点中选出。新的Leader仍然可以进行配置的变更，而不影响整个系统的安全性。&lt;/li>
+&lt;li>直到C_new被确认，配置更换宣告完成。&lt;/li>
+&lt;/ol>
+&lt;p>“共同一致”允许节点无需考虑安全性的情况下，在任意时间进行配置的更换。配置的更换也不会影响客户端的请求。&lt;/p>
+&lt;p>以上我们解决的是安全性问题，但是在实际工程中我们还需要兼顾效率问题。&lt;/p>
+&lt;p>例如新加入的节点可以视作“non-voting members”，只同步数据，不能对提案进行投票。直到数据同步基本完成，才进行配置变更。这样避免了新的节点由于缺少Log不能及时的处理提案。&lt;/p>
+&lt;p>又如新的成员列表中，不包含原先的Leader节点。在旧Leader认可了新的配置提案之后，就可以退位让贤，让其它节点选举出新的Leader。&lt;/p>
+&lt;p>以及被清除出成员列表的节点，不会收到后续的心跳，它们会认为Leader已经失效，所以自己跳出来竞选Leader。这样一来，就会触发新的（无意义 的）Leader选举，影响系统的可用性。解决方案是，如果一个节点在一个时间段内收到了Leader的心跳，那么就会忽略Leader的竞选请求。这样既不会影响正常的选举，又可以屏蔽无效的选举请求。&lt;/p>
+&lt;h2 id="快照">快照 &lt;a href="#%e5%bf%ab%e7%85%a7" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>我们的提案越来越多，日志也越来越长。随之而来的是漫长的恢复时间以及磁盘空间的浪费。快照技术可以帮我们清除旧的无用日志，只保留有用的状态信息。&lt;/p>
+&lt;p>在Raft算法中，每个节点都能自主的生成快照。好处是避免Leader分发快照造成的效率降低，也简化了Leader的功能和职责。又由于日志的“TCP特性”，所以不同节点上，只要保证提案编号一致，那么其内容就可以保证一致。&lt;/p>
+&lt;h2 id="客户端交互">客户端交互 &lt;a href="#%e5%ae%a2%e6%88%b7%e7%ab%af%e4%ba%a4%e4%ba%92" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>由于客户端不了解系统内部的选举情况，所以在开始通信时，会随机选一台节点发送请求。如果这个节点不是Leader，就会拒绝这个请求，会告知客户端哪个节点是当前任期的Leader。如果Leader失效，客户端请求超时，就会重新随机选择节点，获取新任Leader信息。&lt;/p>
+&lt;p>对于客户端发送的写请求，Leader需要记录其唯一的请求ID，以避免客户端发送的重复请求。&lt;/p>
+&lt;p>对于客户端发送的读请求，Leader需要再次确认它是仍是当前任期的Leader，避免向客户端发送过期数据。如果对数据正确性和时效性的敏感性不高，就可以向系统中的任意节点发送请求，&lt;/p>
+&lt;h2 id="写在后面">写在后面 &lt;a href="#%e5%86%99%e5%9c%a8%e5%90%8e%e9%9d%a2" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>Paxos的亮点在于把复杂的东西说简单了。而Raft的亮点是把简单的东西具体化，使之成为能落地的工程项目。&lt;/p>
+&lt;p>但是Paxos做为一种Quorum协议（俗称P2P），其工程复杂性是难以避免的。Raft在Paxos协议上面加入了很多限制以简化实现，但是想要完整的实现其功能仍不是一件容易的事。（有兴趣的同学可以&lt;a href="https://pdos.csail.mit.edu/6.824/labs/lab-raft.html">挑战一下自己&lt;/a>）&lt;/p>
+&lt;p>下面一篇文章我们会换一种新思路，学习PecificA算法，看一看如何使用Paxos实现一个主从复制协议。&lt;/p>
+&lt;h2 id="写在更后面">写在更后面 &lt;a href="#%e5%86%99%e5%9c%a8%e6%9b%b4%e5%90%8e%e9%9d%a2" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>个人觉得，Raft论文的一个更大亮点是充分的思考了Paxos/Multi-Paxos在工程实践上的缺陷。思考并提出有价值的质疑，而不是被他人的观点带着走，真的是最重要的能力之一了。&lt;/p>
+&lt;p>大胆猜测是因为有足够的理解能力，有额外的带宽去发问？这是一个有意思的问题。&lt;/p></description></item></channel></rss>

@@ -1,4 +1,38 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>GeoHash on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/geohash/</link><description>Recent content in GeoHash on Maerlyn's Rainbow</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Tue, 04 Feb 2014 00:10:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/geohash/index.xml" rel="self" type="application/rss+xml"/><item><title>GeoHash算法</title><link>https://wizmann.top/posts/geo-hash-algorithm/</link><pubDate>Tue, 04 Feb 2014 00:10:00 +0000</pubDate><guid>https://wizmann.top/posts/geo-hash-algorithm/</guid><description>&lt;h2 id="geohash">GeoHash&lt;/h2>
-&lt;blockquote>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>GeoHash on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/geohash/</link><description>Recent content in GeoHash on Maerlyn's Rainbow</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Tue, 04 Feb 2014 00:10:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/geohash/index.xml" rel="self" type="application/rss+xml"/><item><title>GeoHash算法</title><link>https://wizmann.top/posts/geo-hash-algorithm/</link><pubDate>Tue, 04 Feb 2014 00:10:00 +0000</pubDate><guid>https://wizmann.top/posts/geo-hash-algorithm/</guid><description>&lt;h2 id="geohash">GeoHash &lt;a href="#geohash" class="anchor">🔗&lt;/a>&lt;/h2>&lt;blockquote>
 &lt;p>Geohash is a latitude/longitude geocode system invented by Gustavo Niemeyer when writing the web service at geohash.org, and put into the public domain. It is a hierarchical spatial data structure which subdivides space into buckets of grid shape.&lt;/p>&lt;/blockquote>
-&lt;p>简单说，GeoHash是一个将经纬度信息编码成一个string的算法。从而便于储存、查找。&lt;/p></description></item></channel></rss>
+&lt;p>简单说，GeoHash是一个将经纬度信息编码成一个string的算法。从而便于储存、查找。&lt;/p>
+&lt;h2 id="geohash算法的步骤">GeoHash算法的步骤 &lt;a href="#geohash%e7%ae%97%e6%b3%95%e7%9a%84%e6%ad%a5%e9%aa%a4" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>GeoHash对经度纬度分别编码，原理是迭代做二分，进而逼近真实值。&lt;/p>
+&lt;p>我们以纬度举例。&lt;/p>
+&lt;p>由于地球纬度区间是[-90,90]，所以取区间中点&lt;code>pivot&lt;/code>。如果某地点P的纬度大于&lt;code>pivot&lt;/code>的值，则编码的第1位为&lt;code>1&lt;/code>，反之为&lt;code>0&lt;/code>。&lt;/p>
+&lt;p>然后缩小范围，迭代N次。得到最后的结果。&lt;/p>
+&lt;p>经度的范围是[-180, 180]。我们重复上面的过程，也可以得到经度编码。&lt;/p>
+&lt;p>最后我们把经度和纬度的编码进行交错组合，偶数位放经度，奇数位放纬度。得到最后的GeoHash编码。&lt;/p>
+&lt;p>例如，经纬度&lt;code>(57.64911,10.40744)&lt;/code>可以使用base32编码为 &lt;code>u4pruydqqvj&lt;/code>。&lt;/p>
+&lt;h2 id="geohash算法的用途">GeoHash算法的用途 &lt;a href="#geohash%e7%ae%97%e6%b3%95%e7%9a%84%e7%94%a8%e9%80%94" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>由于GeoHash使用经纬度交错编码，所以我们使用某一个&lt;b>前辍&lt;/b>，就可以划定一个经纬度范围。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-tk-pic/blog-geohash-grid.jpg" alt="GeoHash-grid">&lt;/p>
+&lt;p>如果我们对GeoHash编码这一列进行索引加速，则可以在较快的时间内查找到某一个范围内的所有grid，进而获得POI等信息。&lt;/p>
+&lt;h2 id="geohash的压缩思想">GeoHash的压缩思想 &lt;a href="#geohash%e7%9a%84%e5%8e%8b%e7%bc%a9%e6%80%9d%e6%83%b3" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>GeoHash的交错编码为区间查找提供了遍历。而对经纬度的逼近编码则提供了非常好的压缩特性。&lt;/p>
+&lt;p>易得，一个点位于&lt;code>pivot&lt;/code>的左右/上下的机率是相同的。所以编码的每一位的信息量都是&lt;code>-logPr[s]&lt;/code>=&amp;gt;&lt;code>1bit&lt;/code>，达到了数据压缩的下限。&lt;/p>
+&lt;p>又由于二分逼近的良好性能，使得压缩/解压缩的速度可以达到极限。&lt;/p>
+&lt;p>不过在实际应用中，POI不可能完全平均分布，所以GeoHash的压缩只是一种接近最优解的方案。但是由于二分逼近法带来的可索引性，GeoHash绝对可以称的上是一个精妙完美的设计了。&lt;/p>
+&lt;h2 id="应用---拉取目标周围的poi">应用 - 拉取目标周围的POI &lt;a href="#%e5%ba%94%e7%94%a8---%e6%8b%89%e5%8f%96%e7%9b%ae%e6%a0%87%e5%91%a8%e5%9b%b4%e7%9a%84poi" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>我们在一些LBS应用中，经常需要拉取某一点周围的POI。&lt;/p>
+&lt;p>假设我们将POI存储为一个&lt;code>pvlist&lt;/code>映射。并且获得了某点的GeoHash值。那么我们怎么取得周围的POI呢？&lt;/p>
+&lt;p>理想状态下，“附近的POI”都是在一个以某点为圆心的圆进行查找。但是由于GeoHash划分的范围是一个矩形，所以我们使用一个&lt;code>3×3&lt;/code>的大矩形来替代圆形范围。&lt;/p>
+&lt;p>其中&lt;code>3×3&lt;/code>矩形中最中间的矩形是我们确定的那个点。&lt;/p>
+&lt;p>然后，我们根据给出的半径&lt;code>r&lt;/code>确定GeoHash的精确度。使得我们的&lt;code>3×3&lt;/code>大矩形可以包含理想的圆形范围。&lt;/p>
+&lt;p>于是下一步的目标就是找到某点GeoHash的&lt;strong>8个&lt;/strong>临近的GeoHash。&lt;/p>
+&lt;p>由上文我们可以得出，GeoHash的经纬度是分别编码的。以一个&lt;code>4×4&lt;/code>的地图为例。&lt;/p>
+&lt;p>这是在纬度上的划分。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-tk-pic/blog-geohash-latitude-grid.png" alt="纬度">&lt;/p>
+&lt;p>可以看出，连续的&lt;code>GeoHash Grid&lt;/code>的纬度编码也是连续的。&lt;/p>
+&lt;p>经度同理。&lt;/p>
+&lt;p>所以我们只需要&lt;code>decode&lt;/code>我们的GeoHash编码，将&lt;code>longitude&lt;/code>和&lt;code>latitude&lt;/code>编码分别进行&lt;code>-1/+1&lt;/code>的操作就可以获得&lt;strong>附近的POI&lt;/strong>的GeoHash码/前辍了。&lt;/p>
+&lt;h2 id="总结">总结 &lt;a href="#%e6%80%bb%e7%bb%93" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>GeoHash的三个特性，&lt;b>可索引&lt;/b>，&lt;b>压缩&lt;/b>，&lt;b>便于存储&lt;/b>。&lt;/p>
+&lt;p>还有，好久不写文了。&lt;/p>
+&lt;h2 id="参考资料">参考资料 &lt;a href="#%e5%8f%82%e8%80%83%e8%b5%84%e6%96%99" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="http://book.douban.com/subject/11554138/">HBase in Action&lt;/a>, Chpt. 8&lt;/li>
+&lt;li>&lt;a href="http://book.douban.com/subject/3729518/">深入搜索引擎&lt;/a>, Chpt. 2&lt;/li>
+&lt;li>&lt;a href="http://en.wikipedia.org/wiki/Geohash">GeoHash - Wikipedia&lt;/a>&lt;/li>
+&lt;li>&lt;a href="http://www.cnblogs.com/LBSer/p/3310455.html">GeoHash核心原理解析&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://code.google.com/p/python-geohash/">python-geohash&lt;/a>&lt;/li>
+&lt;/ul></description></item></channel></rss>

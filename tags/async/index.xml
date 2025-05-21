@@ -1,6 +1,336 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Async on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/async/</link><description>Recent content in Async on Maerlyn's Rainbow</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Sun, 22 Jan 2017 22:52:28 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/async/index.xml" rel="self" type="application/rss+xml"/><item><title>Parallel patterns in C#</title><link>https://wizmann.top/posts/parallel-in-csharp/</link><pubDate>Sun, 22 Jan 2017 22:52:28 +0000</pubDate><guid>https://wizmann.top/posts/parallel-in-csharp/</guid><description>&lt;h2 id="写在前面">写在前面&lt;/h2>
-&lt;p>与C/C++所使用的，传统的基于线程的并行模式不同，C#实现了丰富的并发编程模型，其中以异步模型最为流行。&lt;/p>
-&lt;p>本文中我们重点讨论C#在发展过程中出现的几种异步编程模型：&lt;/p></description></item><item><title>Twisted Defer and DeferredQueue</title><link>https://wizmann.top/posts/twisted-defer-and-deferredqueue/</link><pubDate>Sat, 10 Dec 2016 11:34:38 +0000</pubDate><guid>https://wizmann.top/posts/twisted-defer-and-deferredqueue/</guid><description>&lt;h2 id="写在最前面">写在最前面&lt;/h2>
-&lt;p>这篇文章本来是想用英文写的，但是最近英文水平下降的和狗一样。还是怂一波吧。&lt;/p>
-&lt;h2 id="写在前面">写在前面&lt;/h2>
-&lt;p>最近在用Twisted库写一个诡异的项目，具体内容暂且不在这里讨论。在写的过程中，被Twisted里面的一个重要概念 —— defer，折腾的不行。最终通过阅读twisted的部分源码，以及与代码做斗争的丰富经验，最终算是解决了问题。&lt;/p></description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Async on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/async/</link><description>Recent content in Async on Maerlyn's Rainbow</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Sun, 22 Jan 2017 22:52:28 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/async/index.xml" rel="self" type="application/rss+xml"/><item><title>Parallel patterns in C#</title><link>https://wizmann.top/posts/parallel-in-csharp/</link><pubDate>Sun, 22 Jan 2017 22:52:28 +0000</pubDate><guid>https://wizmann.top/posts/parallel-in-csharp/</guid><description>&lt;h2 id="写在前面">写在前面 &lt;a href="#%e5%86%99%e5%9c%a8%e5%89%8d%e9%9d%a2" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>与C/C++所使用的，传统的基于线程的并行模式不同，C#实现了丰富的并发编程模型，其中以异步模型最为流行。&lt;/p>
+&lt;p>本文中我们重点讨论C#在发展过程中出现的几种异步编程模型：&lt;/p>
+&lt;ul>
+&lt;li>Async Programming Model（APM）&lt;/li>
+&lt;li>Event-based Async Pattern (EAP)&lt;/li>
+&lt;li>Task-based Async Pattern（TAP）&lt;/li>
+&lt;li>async/await语法糖&lt;/li>
+&lt;/ul>
+&lt;h2 id="异步编程入门">异步编程入门 &lt;a href="#%e5%bc%82%e6%ad%a5%e7%bc%96%e7%a8%8b%e5%85%a5%e9%97%a8" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>同步模式是最常见，也是最被人熟知的编程模型，每一个任务按顺序执行，前一个任务执行完之后才会执行下一个任务。&lt;/p>
+&lt;p>异步编程和同步编程不同，程序的执行流程是由“事件”所驱动的。异步编程有两种实现方式，回调与future模式。&lt;/p>
+&lt;p>回调函数在Javascript中被大量使用，相信大家也都不会陌生。但是大量的回调函数会让代码失去可读性，陷入“Callback hell”。&lt;/p>
+&lt;p>Promise模式是回调函数的一种“包装”。我们使用一个占位符来表示“未来”将会产生的一个异步处理结果。&lt;/p>
+&lt;p>这个占位符在不同的语言/框架里面有不同的名字，其定义也不尽相同：&lt;/p>
+&lt;ul>
+&lt;li>Task - C#&lt;/li>
+&lt;li>Deferred - Python Twisted&lt;/li>
+&lt;li>Promise - Javascript&lt;/li>
+&lt;/ul>
+&lt;p>在任务结束后，会触发绑定在这个占位符上定义的回调函数，继续预定义好的逻辑。&lt;/p>
+&lt;p>举个例子，同步模型就是你：&lt;/p>
+&lt;p>宅家想吃饭 -&amp;gt; 下楼买饭 -&amp;gt; 上楼 -&amp;gt; 吃饭 -&amp;gt; 打游戏看漂亮小姐姐。&lt;/p>
+&lt;p>而异步模型呢，就是：&lt;/p>
+&lt;p>宅家想吃饭 -&amp;gt; 手机叫外卖 -&amp;gt; 拿到了外卖定单（拿到占位符 或 注册回调）-&amp;gt; 打游戏看漂亮小姐姐 -&amp;gt; 外卖小哥把饭送上门（启动回调） -&amp;gt; 吃饭 -&amp;gt; 继续打游戏看漂亮小姐姐。&lt;/p>
+&lt;p>虽然从上面看，异步模型比同步模型要复杂一些。但是它却节省了耗时的“上下楼买饭”的时间，让你可以分配更多的时间用来看漂亮小姐姐。这和我们写程序时的思路是一致的，节省动辄十几几十毫秒耗时的IO时间，将更多的时间用在CPU上。&lt;/p>
+&lt;h2 id="thread-based-parallel">Thread Based Parallel &lt;a href="#thread-based-parallel" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>基于线程的并发模型是比较传统的并发模型了，基本上所有的现代编程语言都会支持。C#中Thread的用法与Java类似，这里就不做展开。&lt;/p>
+&lt;p>与此同时，C#还支持Thread pool，用来运行&amp;quot;long-running processor-bound tasks&amp;quot;。&lt;/p>
+&lt;p>直接操作线程也许是中年程序员的必修课，但是手动管理线程会给程序带来额外的负担。所以各种模型与框架应运而生，试图降低并发编程的复杂度。&lt;/p>
+&lt;h2 id="async-programming-model-apm">Async Programming Model (APM) &lt;a href="#async-programming-model-apm" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>在我们熟悉的async/await语法糖出现之前，C#中使用APM来表示异步操作。虽然这是一种上古时期的回调模式语法，但是现在有很多库仍旧支持这种风格。如Azure Storage SDK中的&lt;code>CloudTable.BeginExecute&lt;/code>等一系列函数。&lt;/p>
+&lt;p>下面是一个简单的使用APM模式的代码范例：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cs" data-lang="cs">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> System;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> System.Collections.Generic;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> System.Linq;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> System.Runtime.Remoting.Messaging;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> System.Runtime.Remoting.Proxies;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> System.Text;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> System.Threading;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> System.Threading.Tasks;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">namespace&lt;/span> ConsoleApplication6
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">Program&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">public&lt;/span> &lt;span style="color:#66d9ef">delegate&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> AsyncInvoke();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">static&lt;/span> &lt;span style="color:#66d9ef">void&lt;/span> Main(&lt;span style="color:#66d9ef">string&lt;/span>[] args)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">var&lt;/span> SI = &lt;span style="color:#66d9ef">new&lt;/span> AsyncInvoke(MyCall);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">var&lt;/span> ar = SI.BeginInvoke(MyCallback, &lt;span style="color:#66d9ef">null&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Console.WriteLine(&lt;span style="color:#e6db74">&amp;#34;Main()&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">while&lt;/span> (!ar.AsyncWaitHandle.WaitOne(&lt;span style="color:#ae81ff">1000&lt;/span>))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Console.WriteLine(&lt;span style="color:#e6db74">&amp;#34;Main() waiting...&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Console.WriteLine(&lt;span style="color:#e6db74">&amp;#34;Main() done&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Console.ReadLine();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">static&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> MyCall()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (&lt;span style="color:#66d9ef">int&lt;/span> i = &lt;span style="color:#ae81ff">0&lt;/span>; i &amp;lt; &lt;span style="color:#ae81ff">5&lt;/span>; i++)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Console.WriteLine(&lt;span style="color:#e6db74">&amp;#34;running...&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Thread.Sleep(&lt;span style="color:#ae81ff">500&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Console.WriteLine(&lt;span style="color:#e6db74">&amp;#34;done&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">42&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">static&lt;/span> &lt;span style="color:#66d9ef">void&lt;/span> MyCallback(IAsyncResult iResult)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">var&lt;/span> result = iResult &lt;span style="color:#66d9ef">as&lt;/span> AsyncResult;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">var&lt;/span> si = (AsyncInvoke) result.AsyncDelegate;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">int&lt;/span> ret = si.EndInvoke(result);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Console.WriteLine(ret);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>运行结果如下：&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/17-1-19/26234044-file_1484828912411_150f3.gif" alt="">&lt;/p>
+&lt;p>我们可以看到：&lt;/p>
+&lt;ol>
+&lt;li>我们将&lt;code>MyCall()&lt;/code>“包装”在一个&lt;code>delegate&lt;/code>中，然后调用&lt;code>BeginInvoke&lt;/code>函数实现异步执行。这个delegate的执行不会阻塞main thread。&lt;/li>
+&lt;li>一个异步执行的&lt;code>delegate&lt;/code>可以有一个回调，这个回调在delegate执行完后被触发。&lt;/li>
+&lt;li>我们可以&amp;quot;long-polling&amp;quot;等待一个异步调用执行完。这里的“执行完”不包括条目2提到的回调（小心race condition！）。&lt;/li>
+&lt;li>异步执行的结果可以通过&lt;code>delegate.EndInvoke(IAsyncResult)&lt;/code>函数获取到异步调用的结果。&lt;/li>
+&lt;li>由条目3我们可以知道，在callback函数中获取异步调用的结果是最合适的。&lt;/li>
+&lt;/ol>
+&lt;p>所以APM风格的代码写起来非常像javascript中的回调写法，如果逻辑复杂的话，维护起来会是一个大坑。&lt;/p>
+&lt;h2 id="event-asynchronous-pattern-eap">Event Asynchronous Pattern (EAP) &lt;a href="#event-asynchronous-pattern-eap" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>EAP是回调函数的另一种封装。&lt;/p>
+&lt;p>我们来看下面的代码：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cs" data-lang="cs">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> System;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> System.Collections.Generic;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> System.ComponentModel;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> System.Linq;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> System.Text;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> System.Threading;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> System.Threading.Tasks;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">namespace&lt;/span> ConsoleApplication2
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">StringEventArgs&lt;/span> : EventArgs
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">public&lt;/span> &lt;span style="color:#66d9ef">string&lt;/span> Content { &lt;span style="color:#66d9ef">get&lt;/span>; &lt;span style="color:#66d9ef">set&lt;/span>; }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">Solution&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">private&lt;/span> &lt;span style="color:#66d9ef">event&lt;/span> EventHandler&amp;lt;StringEventArgs&amp;gt; _eventHandler;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">public&lt;/span> Solution()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> _eventHandler += Handle1;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> _eventHandler += Handle2;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">public&lt;/span> &lt;span style="color:#66d9ef">void&lt;/span> Run()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> _eventHandler?.Invoke(&lt;span style="color:#66d9ef">this&lt;/span>, &lt;span style="color:#66d9ef">new&lt;/span> StringEventArgs()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Content = &lt;span style="color:#e6db74">&amp;#34;123&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> });
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">void&lt;/span> Handle1(&lt;span style="color:#66d9ef">object&lt;/span> sender, StringEventArgs args)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Console.WriteLine(&lt;span style="color:#e6db74">&amp;#34;Handle1 &amp;#34;&lt;/span> + args.Content);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Thread.Sleep(&lt;span style="color:#ae81ff">1000&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">void&lt;/span> Handle2(&lt;span style="color:#66d9ef">object&lt;/span> sender, StringEventArgs args)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Console.WriteLine(&lt;span style="color:#e6db74">&amp;#34;Handle2 &amp;#34;&lt;/span> + args.Content);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Thread.Sleep(&lt;span style="color:#ae81ff">1000&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">Program&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">static&lt;/span> &lt;span style="color:#66d9ef">void&lt;/span> Main(&lt;span style="color:#66d9ef">string&lt;/span>[] args)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Solution sol = &lt;span style="color:#66d9ef">new&lt;/span> Solution();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> sol.Run();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Console.WriteLine(&lt;span style="color:#e6db74">&amp;#34;Done&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Console.ReadLine();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>运行结果如下：&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/17-1-20/46892581-file_1484911655343_68ae.gif" alt="">&lt;/p>
+&lt;p>我们可以看出，所有的函数都执行在同一个线程上。并且&lt;code>Handle1&lt;/code>和&lt;code>Handle2&lt;/code>顺序执行。&lt;/p>
+&lt;p>在实际工程中，我们fire event的代码可以在不同的线程，之后&lt;code>EventHandler&lt;/code>，也就是callback函数会被调用。&lt;/p>
+&lt;p>Event同时支持&lt;code>BeginInvoke&lt;/code>和&lt;code>EndInvoke&lt;/code>函数，也就意味着我们可以异步的fire相应的回调。但是注意此时我们只能注册唯一的回调，因为&lt;code>BeginInvoke&lt;/code>只能有一个目标回调（原理：在同一时间同一线程只能有一个函数调用）。&lt;/p>
+&lt;h2 id="task-asynchronous-pattern-tap">Task Asynchronous Pattern (TAP) &lt;a href="#task-asynchronous-pattern-tap" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>在.NET 4.0（现在已经到6.0了哦），C#引入了TPL，Task Parallel Library。Task的目标是统一C#中的不同异步编程风格。&lt;/p>
+&lt;p>TPL中的Task非常像JS中的promise和twisted中的deferred，是“未来会完成的操作的结果”的占位符。&lt;/p>
+&lt;p>我们来看一段简单代码：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cs" data-lang="cs">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> System;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> System.Collections.Generic;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> System.Linq;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> System.Text;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> System.Threading;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> System.Threading.Tasks;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">namespace&lt;/span> ConsoleApplication3
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">Program&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">static&lt;/span> &lt;span style="color:#66d9ef">void&lt;/span> Main(&lt;span style="color:#66d9ef">string&lt;/span>[] args)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Task t = Task.Run(() =&amp;gt;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Console.WriteLine(&lt;span style="color:#e6db74">&amp;#34;Task start&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Thread.Sleep(&lt;span style="color:#ae81ff">2000&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Console.WriteLine(&lt;span style="color:#e6db74">&amp;#34;Task end&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> });
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">while&lt;/span> (!t.IsCompleted)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Console.WriteLine(&lt;span style="color:#e6db74">&amp;#34;Main(): Task is running...&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Thread.Sleep(&lt;span style="color:#ae81ff">1000&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Console.WriteLine(&lt;span style="color:#e6db74">&amp;#34;Done&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Console.ReadLine();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这段代码我们前面提到的APM和EAP风格的代码有明显的不同，TAP更易读，并且保持了控制流的完整性。不像APM需要在&lt;code>EndInvoke&lt;/code>函数中获取返回值以及进行后续操作，也不像EAP一样需要根据不同的event声明不同的回调。&lt;/p>
+&lt;p>Task也可能“串起来”，实现多级回调的机制。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cs" data-lang="cs">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> System;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> System.Collections.Generic;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> System.Linq;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> System.Text;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> System.Threading.Tasks;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">namespace&lt;/span> ConsoleApplication4
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">Program&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">static&lt;/span> &lt;span style="color:#66d9ef">void&lt;/span> Main(&lt;span style="color:#66d9ef">string&lt;/span>[] args)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">var&lt;/span> t0 = Task.Run(() =&amp;gt; &lt;span style="color:#ae81ff">0&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">var&lt;/span> t1 = t0.ContinueWith((antecedent) =&amp;gt;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Console.WriteLine(antecedent.Result);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> antecedent.Result + &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> });
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">var&lt;/span> t2 = t1.ContinueWith((antecedent) =&amp;gt;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Console.WriteLine(antecedent.Result);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> antecedent.Result + &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> });
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">var&lt;/span> t3 = t2.ContinueWith((antecedent) =&amp;gt;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Console.WriteLine(antecedent.Result);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> antecedent.Result + &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> });
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Console.ReadLine();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>当然我们还可以把回调写成一棵树状结构，然后一层一层的执行，不过生命是如此宝贵，我们并没有充分的理由要这么做。&lt;/p>
+&lt;h2 id="asyncawait语法糖">async/await语法糖 &lt;a href="#asyncawait%e8%af%ad%e6%b3%95%e7%b3%96" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>async/await语法糖在C# 5.0中被引入，其目的是为了避免回调带来的代码复杂度。就像Twisted中的&lt;code>@inlineCallbacks&lt;/code>一样，省去了defer复杂的回调链。&lt;/p>
+&lt;p>&lt;code>await&lt;/code>中有一个&amp;quot;wait&amp;quot;，说明这是一个“等待”操作。它等待的是相应的Task执行完成。&lt;/p>
+&lt;p>我们来看一段代码：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cs" data-lang="cs">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">private&lt;/span> &lt;span style="color:#66d9ef">async&lt;/span> &lt;span style="color:#66d9ef">void&lt;/span> DumpWebPageAsync(&lt;span style="color:#66d9ef">string&lt;/span> uri)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> WebClient webClient = &lt;span style="color:#66d9ef">new&lt;/span> WebClient();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">string&lt;/span> page = &lt;span style="color:#66d9ef">await&lt;/span> webClient.DownloadStringTaskAsync(uri);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Console.WriteLine(page);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>当代码执行到&lt;code>await&lt;/code>一行时，当前函数会主动放弃当前的控制流。当使用&lt;code>await&lt;/code>修饰的Task完成后，当前函数会从之前中断的地方继续执行。&lt;/p>
+&lt;p>这样做的好处是我们可以写出和同步版本非常相似的异步代码，只需要在必须的地方加上&lt;code>await&lt;/code>关键字，提醒编译器这里是一个异步函数，需要额外的处理逻辑，但这一切都是对开发者透明的。&lt;/p>
+&lt;h3 id="asyncawait干了什么">async/await干了什么 &lt;a href="#asyncawait%e5%b9%b2%e4%ba%86%e4%bb%80%e4%b9%88" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>想弄清楚async/await到底干了什么，首先我们要想明白线程到底是什么、干了什么。&lt;/p>
+&lt;p>线程是进程内一条执行流的状态，其中包括了硬件状态（IP、Registers等）以及堆栈（栈上的局部变量和堆上的进程级内存）。那么如果我们想实现挂起/启动（Hibernating and Resuming），那么我们就要有一个机制来保存当前线程的运行状态。&lt;/p>
+&lt;p>所以当你写下了async/await关键字后，编译器在后面帮助你生成了状态保存和恢复运行上下文的代码。&lt;/p>
+&lt;h3 id="asyncawait到底干了什么">async/await到底干了什么 &lt;a href="#asyncawait%e5%88%b0%e5%ba%95%e5%b9%b2%e4%ba%86%e4%bb%80%e4%b9%88" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>想像我们有一个复杂的async函数，里面有很多个await调用，那就意味着这个函数中会有多次挂起/继续操作。同时我们还要维护这个函数的状态。如果我们是这个语法糖的设计者，我们会选择怎么样的手段来处理这个问题呢？&lt;/p>
+&lt;p>是的，状态机。async/await避免了代码的碎片化，它的解决方案并不是消灭了回调函数和Continuation Tasks，而是使用工具（编译器）来帮助人类进行重复劳动。当async函数从挂起中恢复时，会调用&lt;code>MoveNext&lt;/code>函数（相信看过async函数那一长串的traceback的同学肯定对这个函数非常眼熟），&lt;code>MoveNext&lt;/code>函数会在async函数第一次被调用以及从挂起中恢复时被调用。状态机保存了当前函数的执行状态，当&lt;code>MoveNext&lt;/code>函数被调用时，会根据当前状态来判断接下来执行什么代码。&lt;/p>
+&lt;h3 id="asycnawait到底tmd干了什么">asycn/await到底TMD干了什么 &lt;a href="#asycnawait%e5%88%b0%e5%ba%95tmd%e5%b9%b2%e4%ba%86%e4%bb%80%e4%b9%88" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>由于async/awaic语法糖是在编译期才被翻译成相应的程序代码，所以我们只能使用IL反编译器来窥探编译器到底做了怎样的处理与优化。不过反编译器你懂得，生成的代码基本没法看，讲解起来也会非常晦涩。&lt;/p>
+&lt;p>幸好在99%的情况下，我们并不需要知道async/await是怎样被展开的。如果你确实对这个问题感兴趣，可以参考这篇文章：&lt;a href="https://www.codeproject.com/Articles/535635/Async-Await-and-the-Generated-StateMachine">Async Await and the Generated StateMachine&lt;/a>。&lt;/p>
+&lt;h2 id="几个常见的坑">几个常见的坑 &lt;a href="#%e5%87%a0%e4%b8%aa%e5%b8%b8%e8%a7%81%e7%9a%84%e5%9d%91" class="anchor">🔗&lt;/a>&lt;/h2>&lt;h3 id="await-与-锁">await 与 锁 &lt;a href="#await-%e4%b8%8e-%e9%94%81" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>由于await会中断当前函数在当前线程的执行流，并且可能在恢复时，被指派到另外的线程。所以对await加锁明显是多此一举的。并且如果操作不当，还会造成死锁。&lt;/p>
+&lt;p>所以我们应该把await放到加锁的区域外。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cs" data-lang="cs">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">lock&lt;/span> (sync)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// Prepare for async operation&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> myNum = &lt;span style="color:#66d9ef">await&lt;/span> AlexsMethodAsync();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">lock&lt;/span> (sync)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// Use result of async operation&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="there-is-an--unfired-task-between-us">&amp;ldquo;There is an &amp;hellip; unfired Task between us&amp;rdquo; &lt;a href="#there-is-an--unfired-task-between-us" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>一个async函数如果返回的是Task，那么它返回的一定是一个hot task，即已经被启动了的Task。&lt;/p>
+&lt;p>并且await只可能等待一个启动了的Task，否则await操作将会hang住，破坏程序既定的执行流。&lt;/p>
+&lt;h3 id="使用tpl-task-parallel-library">使用TPL (Task parallel library) &lt;a href="#%e4%bd%bf%e7%94%a8tpl-task-parallel-library" class="anchor">🔗&lt;/a>&lt;/h3>&lt;blockquote>
+&lt;p>Async methods are synchronous util needed.&lt;/p>&lt;/blockquote>
+&lt;p>如果我们想同时执行几个异步操作，使用for来遍历执行可不是一个好主意。因为这样函数执行流仍然是顺序执行相应的函数。&lt;/p>
+&lt;p>TPL提供了&lt;code>WhenAll&lt;/code>、&lt;code>WhenAny&lt;/code>等函数，让我们可以有弹性的并发执行Task。&lt;/p>
+&lt;p>当然我们还可以使用PLINQ，不过这就是另外一个话题了。&lt;/p>
+&lt;h2 id="参考链接">参考链接 &lt;a href="#%e5%8f%82%e8%80%83%e9%93%be%e6%8e%a5" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://www.codeproject.com/Articles/535635/Async-Await-and-the-Generated-StateMachine">Async Await and the Generated StateMachine&lt;/a>&lt;/li>
+&lt;li>&lt;a href="http://blog.stephencleary.com/2012/07/async-interop-with-iasyncresult.html">Async Interop with IAsyncResult&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://msdn.microsoft.com/en-us/library/wewwczdw(v=vs.110).aspx">Event-based Asynchronous Pattern Overview&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://www.safaribooksonline.com/library/view/async-in-c/9781449337155/">Async in C# 5.0&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://www.safaribooksonline.com/library/view/essential-c-60/9780134176147/">Essential C# 6.0&lt;/a> Cpt18&lt;/li>
+&lt;/ul></description></item><item><title>Twisted Defer and DeferredQueue</title><link>https://wizmann.top/posts/twisted-defer-and-deferredqueue/</link><pubDate>Sat, 10 Dec 2016 11:34:38 +0000</pubDate><guid>https://wizmann.top/posts/twisted-defer-and-deferredqueue/</guid><description>&lt;h2 id="写在最前面">写在最前面 &lt;a href="#%e5%86%99%e5%9c%a8%e6%9c%80%e5%89%8d%e9%9d%a2" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>这篇文章本来是想用英文写的，但是最近英文水平下降的和狗一样。还是怂一波吧。&lt;/p>
+&lt;h2 id="写在前面">写在前面 &lt;a href="#%e5%86%99%e5%9c%a8%e5%89%8d%e9%9d%a2" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>最近在用Twisted库写一个诡异的项目，具体内容暂且不在这里讨论。在写的过程中，被Twisted里面的一个重要概念 —— defer，折腾的不行。最终通过阅读twisted的部分源码，以及与代码做斗争的丰富经验，最终算是解决了问题。&lt;/p>
+&lt;p>本文算是使用twisted开发踩坑的一个小小总结，如果一切顺利，后面会有大菜。：）&lt;/p>
+&lt;h2 id="twisted介绍">Twisted介绍 &lt;a href="#twisted%e4%bb%8b%e7%bb%8d" class="anchor">🔗&lt;/a>&lt;/h2>&lt;blockquote>
+&lt;p>Twisted is an event-driven networking engine written in Python.&lt;/p>&lt;/blockquote>
+&lt;p>Twisted是一个基于事件驱动的网络框架。那么什么是“事件驱动”呢？&lt;/p>
+&lt;p>事件驱动指的是将事件与事件回调绑定起来，在程序运行时根据实时的事件触发相应的响应的一种机制。&lt;/p>
+&lt;p>例如select/poll/epoll这些IO复用函数，在文件描述符（fd）可读/可写/出错时，会立即返回，由相应的处理函数来对新事件进行处理。事实上，twisted的事件驱动功能，正是由这些IO复用函数提供的。&lt;/p>
+&lt;p>但与IO复用函数不同的是，twisted中的事件可以是“更高层次的事件”，即对网络的读/写/错等基础事件进行更进一步的封装。&lt;/p>
+&lt;p>这里我们以&lt;code>LineReceiver&lt;/code>为例（&lt;a href="http://twistedmatrix.com/documents/current/api/twisted.protocols.basic.LineReceiver.html">API文档&lt;/a>）。&lt;code>LineReceiver&lt;/code>是对传输层协议的二次封装，当我们读完一整行之后，就触发&lt;code>lineReceived&lt;/code>事件，对获取的数据进行处理。&lt;/p>
+&lt;p>这种封装，将开发者与底层的网络交互隔离开来。利用这些“高级事件”，开发者可以将更多的精力放到程序本身逻辑的开发之中。&lt;/p>
+&lt;p>还有一点，正如Python语言本身的一大优点一样，Twisted现成的协议实现的非常丰富，同时在工业界也较为广泛的使用。虽然赶不上golang这种“明星语言”，但是也还是可以“自成一派”，搞点事情。&lt;/p>
+&lt;h2 id="defer与回调">Defer与回调 &lt;a href="#defer%e4%b8%8e%e5%9b%9e%e8%b0%83" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>Twisted使用Defer来管理callback链，如果你写过js，就可能对被回调链（callback chains）所支配的恐惧记忆深刻。当然，Twisted的defer也并没有好到哪里去。（蛤！）&lt;/p>
+&lt;p>Seriously，defer允许我们使用一般的顺序型编程模型来编写回调代码。我们只需要把函数按照顺序注册到defer当中，就可以完整的实现一个回调链了。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/public/16-12-9/90670835.jpg" alt="">&lt;/p>
+&lt;p>本文不会对defer进行过多讲解，如果想要了解更多的话，可以参考twisted的&lt;a href="https://twistedmatrix.com/documents/current/core/howto/defer.html">官方文档&lt;/a>。&lt;/p>
+&lt;p>defer做为一个回调链的抽象，有一个非常重要的性质，就是你不fire它，它是不会调用它的callbacks的。正像俗话说的一样：&lt;/p>
+&lt;blockquote>
+&lt;p>事不说不知，木不钻不透，砂锅不打一辈子不漏&lt;/p>&lt;/blockquote>
+&lt;p>又有人说过（异步发卡）：&lt;/p>
+&lt;blockquote>
+&lt;p>A: There&amp;rsquo;s something between us. &lt;br>
+B: What is it? &lt;br>
+A: An unfired defer.&lt;/p>&lt;/blockquote>
+&lt;p>如果你想激活defer中的callbacks，就需要手动的fire它。那么什么时候来fire它呢？当然是在需要的时候啦。&lt;/p>
+&lt;h3 id="一个典型的defer使用场景---txmongo">一个典型的defer使用场景 - txmongo &lt;a href="#%e4%b8%80%e4%b8%aa%e5%85%b8%e5%9e%8b%e7%9a%84defer%e4%bd%bf%e7%94%a8%e5%9c%ba%e6%99%af---txmongo" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>txmongo是一个异步的mongodb python sdk。而我们常用的pymongo库则是同步的，所有的请求都要同步等待数据库返回结果。&lt;/p>
+&lt;p>由于是异步的sdk，所以在同一时间，txmongo会同时持有多个mongodb连接（连接池）。并且由于我们不能预测mongodb的响应时间，所以需要在收到mongodb响应后，启动相应的回调函数，以触发更高级别的消息事件。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># txmongo/protocol.py#L368&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">handle_REPLY&lt;/span>(self, request):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> request&lt;span style="color:#f92672">.&lt;/span>response_to &lt;span style="color:#f92672">in&lt;/span> self&lt;span style="color:#f92672">.&lt;/span>__deferreds:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> df &lt;span style="color:#f92672">=&lt;/span> self&lt;span style="color:#f92672">.&lt;/span>__deferreds&lt;span style="color:#f92672">.&lt;/span>pop(request&lt;span style="color:#f92672">.&lt;/span>response_to)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> request&lt;span style="color:#f92672">.&lt;/span>response_flags &lt;span style="color:#f92672">&amp;amp;&lt;/span> REPLY_QUERY_FAILURE:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># some error handling code&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">else&lt;/span>:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> df&lt;span style="color:#f92672">.&lt;/span>callback(request)
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>我们从这段代码中看出，当txmongo收到响应后，会先从&lt;code>self.__deferreds&lt;/code>字典中取出相应的defer，之后使用&lt;code>request&lt;/code>做为参数，启动defer中的callbacks，将查到的数据返回给调用者。&lt;/p>
+&lt;h3 id="新手会遇到的defer坑--测试">新手会遇到的defer坑 —— 测试 &lt;a href="#%e6%96%b0%e6%89%8b%e4%bc%9a%e9%81%87%e5%88%b0%e7%9a%84defer%e5%9d%91--%e6%b5%8b%e8%af%95" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>做为一个马上就要步入中年的程序员，我最大的一个优点就是不相信自己（汗）。所以在开发时会及时写单元测试来尽可能保证代码的正确性。于是在开发的很早就踩到了defer的坑，包括：&lt;/p>
+&lt;ol>
+&lt;li>测试hang住&lt;/li>
+&lt;li>测试通过，但是报错&amp;quot;reactor was unclean&amp;quot;&lt;/li>
+&lt;li>由于回调没有执行，测试挂掉&lt;/li>
+&lt;/ol>
+&lt;p>坑1比较好解决，defer没有callback，hang住了只能怪自己。不过查哪里hang住了会比较麻烦，最直接的方法是多打log，从log里很容易就知道哪里有问题。&lt;/p>
+&lt;p>坑2和坑3都属于我们使用defer的姿势不对。defer是“延时”的，我们不能像调用函数一样的直接调用，测试代码需要defer执行完最后一个callback函数后再继续执行。那么我们需要把测试代码也写成callbacks，然后附在需要测试的defer后面吗？&lt;/p>
+&lt;p>答案是否定的，twisted为我们提供了一个神奇的工具&lt;code>@defer.inlineCallbacks&lt;/code>。这个装饰器可以用于开发环境与测试环境。我们可以使用yield等待defer执行完成，并且可以获得defer的返回值。这类似于C#的async/await语法，使用起来非常方便。&lt;/p>
+&lt;p>所以在我们的测试当中如果使用了defer，就需要将测试case使用&lt;code>inlineCallbacks&lt;/code>装饰起来，在等待defer时，需要使用yield语法，等待异步代码的执行。在case的最后，将不需要的defer cancel掉即可。&lt;/p>
+&lt;h2 id="deferredqueue与循环">DeferredQueue与循环 &lt;a href="#deferredqueue%e4%b8%8e%e5%be%aa%e7%8e%af" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>Queue的一个重要用法就是循环。包括线程/进程通信的Queue，BFS中使用的Queue，都是需要循环读取数据。&lt;/p>
+&lt;p>DeferredQueue是Twisted中通信的一个重要数据结构，其使用方法和一般的Queue从逻辑上是一样的，接口也只有两个：&lt;code>put&lt;/code>和&lt;code>get&lt;/code>。&lt;/p>
+&lt;p>DeferredQueue之所以有一个Deferred前辍，是因为它的get函数返回的是一个defer。我们可以在这个defer上绑定callbacks，即有数据可读时，触发相应的回调函数。&lt;/p>
+&lt;p>所以我们很容易就把代码写成了这样：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>q &lt;span style="color:#f92672">=&lt;/span> defer&lt;span style="color:#f92672">.&lt;/span>DeferredQueue()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">get_and_print&lt;/span>(item):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print item
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> q&lt;span style="color:#f92672">.&lt;/span>get()&lt;span style="color:#f92672">.&lt;/span>addCallback(get_and_print)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>q&lt;span style="color:#f92672">.&lt;/span>get()&lt;span style="color:#f92672">.&lt;/span>addCallback(get_and_print)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">for&lt;/span> i &lt;span style="color:#f92672">in&lt;/span> xrange(&lt;span style="color:#ae81ff">100&lt;/span>):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> q&lt;span style="color:#f92672">.&lt;/span>put(i)
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>一眼看上去，这个代码没有什么问题，我们会循环的从队列中获取数据并打印。但实际上，这段代码有一个神奇的坑。&lt;/p>
+&lt;p>说一下这个坑是怎么发现的吧，我把代码写的差不多之后，就想跑benchmark来测性能。然后发现CPython的性能一般，就想试试pypy。然后却怎么也得不到正确的结果，最后发现是因为DeferredQueue引发了递归过深的异常。但是为什么CPython没有这个问题呢。原因在于CPython的递归栈是按深度算的，而pypy的递归栈是按大小算的，但是这两个参数的标量是一样的，所以pypy的递归栈就远小于CPython的。这才暴露了这个问题。不过单纯的扩栈也是不合理的，因为我们很难估计极端情况，并且Python的递归性能非常差。&lt;/p>
+&lt;p>感兴趣的同学可以去参考&lt;a href="https://github.com/twisted/twisted/blob/twisted-16.5.0/src/twisted/internet/defer.py#L1600">源码&lt;/a>，这里就直接说结论了。当队列中有元素时，&lt;code>q.get().addCallback(get_and_print)&lt;/code>会直接调用&lt;code>get_and_print&lt;/code>函数本身，如果队列中的元素非常多，那么我们就有递归过深的危险了。&lt;/p>
+&lt;p>解决方案也很简单，与其让Twisted把我们的循环写成递归，还不如我们自己实现Queue的循环。至于方法，看看DeferredQueue的内部实现就清楚了，然后我们就发现了另外一个坑。&lt;/p>
+&lt;h2 id="deferredqueue与性能">DeferredQueue与性能 &lt;a href="#deferredqueue%e4%b8%8e%e6%80%a7%e8%83%bd" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>我啥都不说，就贴一行&lt;a href="https://github.com/twisted/twisted/blob/twisted-16.5.0/src/twisted/internet/defer.py#L1665">代码&lt;/a>：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">return&lt;/span> succeed(self&lt;span style="color:#f92672">.&lt;/span>pending&lt;span style="color:#f92672">.&lt;/span>pop(&lt;span style="color:#ae81ff">0&lt;/span>))
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>您这就是在逗我。&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/public/16-12-9/36902015.jpg" alt="">&lt;/p>
+&lt;p>再贴个性能对比，使用&lt;code>list.pop(0)&lt;/code>弹出10^5个数据需要2.23s，而使用&lt;code>deque.popleft()&lt;/code>只需要0.12s。&lt;/p>
+&lt;p>不要功能实现了就不管性能了嘛同学。&lt;/p></description></item></channel></rss>

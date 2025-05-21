@@ -1,5 +1,146 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>.NET on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/.net/</link><description>Recent content in .NET on Maerlyn's Rainbow</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Wed, 26 Jul 2017 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/.net/index.xml" rel="self" type="application/rss+xml"/><item><title>Metaprogramming in .NET 读书笔记 - 1</title><link>https://wizmann.top/posts/metaprogramming-in-dotnet-1/</link><pubDate>Wed, 26 Jul 2017 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/metaprogramming-in-dotnet-1/</guid><description>&lt;h2 id="什么是-metaprogramming-元编程">什么是 Metaprogramming (元编程)&lt;/h2>
-&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/17-2-15/1418894-file_1487139497158_1868c.jpg" alt="">&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>.NET on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/.net/</link><description>Recent content in .NET on Maerlyn's Rainbow</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Wed, 26 Jul 2017 00:00:00 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/.net/index.xml" rel="self" type="application/rss+xml"/><item><title>Metaprogramming in .NET 读书笔记 - 1</title><link>https://wizmann.top/posts/metaprogramming-in-dotnet-1/</link><pubDate>Wed, 26 Jul 2017 00:00:00 +0000</pubDate><guid>https://wizmann.top/posts/metaprogramming-in-dotnet-1/</guid><description>&lt;h2 id="什么是-metaprogramming-元编程">什么是 Metaprogramming (元编程) &lt;a href="#%e4%bb%80%e4%b9%88%e6%98%af-metaprogramming-%e5%85%83%e7%bc%96%e7%a8%8b" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/17-2-15/1418894-file_1487139497158_1868c.jpg" alt="">&lt;/p>
 &lt;p>元编程从字面上理解就是“能处理程序的程序”。&lt;/p>
 &lt;p>这里的“处理”，有两个意思。&lt;/p>
-&lt;p>一是“编写”、“生成”，最经典例子就是编译器，它将我们的所编写的高级语言翻译成机器代码。编译器就像建筑工人，将“蓝图”（高级语言）转化成“高楼大厦”（机器语言）。还有一个我们经常用到的就是“宏”(Macro)。我们可以在代码中使用预先编写好的宏，在编译期，宏会被自动展开成相应的代码。这样的好处是用机器带替人类劳动。&lt;/p></description></item></channel></rss>
+&lt;p>一是“编写”、“生成”，最经典例子就是编译器，它将我们的所编写的高级语言翻译成机器代码。编译器就像建筑工人，将“蓝图”（高级语言）转化成“高楼大厦”（机器语言）。还有一个我们经常用到的就是“宏”(Macro)。我们可以在代码中使用预先编写好的宏，在编译期，宏会被自动展开成相应的代码。这样的好处是用机器带替人类劳动。&lt;/p>
+&lt;p>“处理”的另外一个意思就是“处理自己”，元编程让程序在运行时了解自己的状态，并动态的扩展并执行的相应逻辑。&lt;/p>
+&lt;p>当然，最高级的“处理”就是能完全代替人脑的人工智能。如果那一天到来，我们就距离生活在Matrix里不远了。&lt;/p>
+&lt;h2 id="元编程的实现">元编程的实现 &lt;a href="#%e5%85%83%e7%bc%96%e7%a8%8b%e7%9a%84%e5%ae%9e%e7%8e%b0" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>元编程主要实现在编译期前后以及运行时。&lt;/p>
+&lt;p>元编程主要依赖于以下技术：&lt;/p>
+&lt;ul>
+&lt;li>代码生成(code generation)&lt;/li>
+&lt;li>反射(reflection)&lt;/li>
+&lt;li>汇编重写(assembly rewriting)&lt;/li>
+&lt;li>表达式(expression)&lt;/li>
+&lt;li>代码分析(code analysis)&lt;/li>
+&lt;/ul>
+&lt;h2 id="代码生成code-generation">代码生成(code generation) &lt;a href="#%e4%bb%a3%e7%a0%81%e7%94%9f%e6%88%90code-generation" class="anchor">🔗&lt;/a>&lt;/h2>&lt;blockquote>
+&lt;p>“拳有定势，而用时则无定势。然当其用也，变无定势，而实不失势”&lt;/p>&lt;/blockquote>
+&lt;p>虽然写代码是一项创造性工作，但是这不意味着对于每一个项目，我们都要从零开始。在软件工程的发展过程中，前人已经为我们总结了一些常用的“最佳实践”(best practise)。在我们的开发工程中，灵活恰当的应用这些“定势”，会大大简化我们的工作，降低人力成本。&lt;/p>
+&lt;p>“定势”意味着“重复”。而重复工作往往是复杂而易出错的，所以有人提出了DRY原则：Don&amp;rsquo;t Repeat Yourself。代码生成工具则是这个问题的一种解决方案。&lt;/p>
+&lt;p>对于灵活多变而又遵从定势的代码，使用代码生成可以提高开发速度，降低学习成本和维护成本，使代码维护同一种抽象方法，遵从预先确定的模式，也更方便管理。&lt;/p>
+&lt;h3 id="举一个例子">举一个例子 &lt;a href="#%e4%b8%be%e4%b8%80%e4%b8%aa%e4%be%8b%e5%ad%90" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>在C++里，我们可以这样实现一个&lt;code>max(a, b)&lt;/code>函数：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#define max(a, b) ((a) &amp;gt; (b)? (a): (b))
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>当然，有经验的老司机都知道这样写的问题。那么我们换一种方法：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span>&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span> T&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">const&lt;/span> T&lt;span style="color:#f92672">&amp;amp;&lt;/span> max(&lt;span style="color:#66d9ef">const&lt;/span> T&lt;span style="color:#f92672">&amp;amp;&lt;/span> a, &lt;span style="color:#66d9ef">const&lt;/span> T&lt;span style="color:#f92672">&amp;amp;&lt;/span> b) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> a &lt;span style="color:#f92672">&amp;gt;&lt;/span> b&lt;span style="color:#f92672">?&lt;/span> a: b;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这看起来不错，但是在C#里，我们并不能这么做。&lt;/p>
+&lt;p>比如，我们强行套用C++的语法：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cs" data-lang="cs">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">public&lt;/span> T MyMax&amp;lt;T&amp;gt;(T a, T b)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> a &amp;gt; b ? a : b;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这样的代码会报编译错误，因为不是所有的类型都支持&lt;code>&amp;gt;&lt;/code>比较操作。进一步说，C++的template展开是编译时进行的，根据不同的模板参数生成不同版本的代码，运行时的逻辑是确定的。而C#的泛型在运行时仍是“泛型”的，所以在编译时，C#编译器需要知道更多的信息来保证运行时的类型安全(type-safe)。&lt;/p>
+&lt;p>所以我们要给&lt;code>&amp;lt;T&amp;gt;&lt;/code>加一个限制。一般来说，C#中可以继承&lt;code>IComparable&amp;lt;T&amp;gt;&lt;/code>接口来实现&amp;quot;比较&amp;quot;(compare)操作。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cs" data-lang="cs">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">public&lt;/span> T MyMax&amp;lt;T&amp;gt;(T a, T b) &lt;span style="color:#66d9ef">where&lt;/span> T: IComparable&amp;lt;T&amp;gt;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> a.CompareTo(b) &amp;gt; &lt;span style="color:#ae81ff">0&lt;/span> ? a : b;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这样似乎解决了问题，对于实现了&lt;code>IComparable&amp;lt;T&amp;gt;&lt;/code>接口的类，我们可以使用&lt;code>MyMax&amp;lt;T&amp;gt;&lt;/code>来取两个元素的最大值。但是，对于只实现了&lt;code>IComparable&lt;/code>的类，我们仍不能使用&lt;code>MyMax&amp;lt;T&amp;gt;&lt;/code>函数。&lt;/p>
+&lt;p>我们可以实现两个不同版本的&lt;code>MyMax&amp;lt;T&amp;gt;&lt;/code>函数，来匹配&lt;code>IComparable&lt;/code>和&lt;code>IComparable&amp;lt;T&amp;gt;&lt;/code>两个不同的接口。但是，我们无法预知一切，假如上游团队使用了一个私有的比较接口，或者直接硬编码了&lt;code>CompareTo(other)&lt;/code>函数。那么我们该怎么办呢？&lt;/p>
+&lt;h3 id="代码生成的优点">代码生成的优点 &lt;a href="#%e4%bb%a3%e7%a0%81%e7%94%9f%e6%88%90%e7%9a%84%e4%bc%98%e7%82%b9" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>利用代码生成，我们就可以突破编程语言对我们的限制。在上面的例子中，我们可以穷举可能被比较的类型，生成相应的函数重载，实现相应的功能。&lt;/p>
+&lt;p>当然，我们可以使用语言的一些动态特性来绕过限制，但是动态特性带来的性能损失是不可忽略的。&lt;/p>
+&lt;p>同时，代码生成可以轻松的生成大段的重复性逻辑代码，比如数据表查询，业务流程等。这是代码生成的不可替代的特长。&lt;/p>
+&lt;h3 id="t4模板引擎">T4模板引擎 &lt;a href="#t4%e6%a8%a1%e6%9d%bf%e5%bc%95%e6%93%8e" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>T4的全称是“Text Template Transformation Toolkit”。是微软出品的基于模板的文本生成框架，最早在VS2008中被引入。&lt;/p>
+&lt;p>T4可以使用不同的语言来进行编码，包括C#, VB, F#等，目标格式没有限制。&lt;/p>
+&lt;p>对于模板引擎，这里就不做过多展开。另外，我最喜欢的引擎是Jinja2。（&lt;/p>
+&lt;h3 id="codedom">CodeDOM &lt;a href="#codedom" class="anchor">🔗&lt;/a>&lt;/h3>&lt;p>通常意义上的DOM是用来描述浏览器中展示的元素。CodeDOM和DOM定义类似，是用来描述代码中的结构的。&lt;/p>
+&lt;p>CodeDOM比一般的模板引擎要更严谨，同时是语言无关的，即支持将一份CodeDOM生成为不同的语言。同时，还支持在运行时动态的生成代码。&lt;/p>
+&lt;p>CodeDOM的应用很广泛，例如.NET中的表达式树(expression tree，后会中会提到)，以及前文中提到的T4。&lt;/p>
+&lt;p>下面是一个例子：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cs" data-lang="cs">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> System;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> System.CodeDom;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> System.CodeDom.Compiler;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> System.Collections.Generic;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> System.IO;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> System.Linq;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> System.Text;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> System.Threading.Tasks;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> Microsoft.CSharp;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> Microsoft.VisualBasic;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">namespace&lt;/span> ConsoleApplication5
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">Program&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">static&lt;/span> &lt;span style="color:#66d9ef">void&lt;/span> Main(&lt;span style="color:#66d9ef">string&lt;/span>[] args)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> CodeCompileUnit lUnit = &lt;span style="color:#66d9ef">new&lt;/span> CodeCompileUnit();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> CodeNamespace lNamespace = &lt;span style="color:#66d9ef">new&lt;/span> CodeNamespace(&lt;span style="color:#e6db74">&amp;#34;MyNamespace&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> lNamespace.Imports.Add(&lt;span style="color:#66d9ef">new&lt;/span> CodeNamespaceImport(&lt;span style="color:#e6db74">&amp;#34;System&amp;#34;&lt;/span>));
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> lNamespace.Imports.Add(&lt;span style="color:#66d9ef">new&lt;/span> CodeNamespaceImport(&lt;span style="color:#e6db74">&amp;#34;System.IO&amp;#34;&lt;/span>));
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> lUnit.Namespaces.Add(lNamespace);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> CodeTypeDeclaration lClass = &lt;span style="color:#66d9ef">new&lt;/span> CodeTypeDeclaration(&lt;span style="color:#e6db74">&amp;#34;MyClass&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> CodeMethodInvokeExpression lExpression = &lt;span style="color:#66d9ef">new&lt;/span> CodeMethodInvokeExpression(
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">new&lt;/span> CodeTypeReferenceExpression(&lt;span style="color:#e6db74">&amp;#34;Console&amp;#34;&lt;/span>), &lt;span style="color:#e6db74">&amp;#34;WriteLine&amp;#34;&lt;/span>, &lt;span style="color:#66d9ef">new&lt;/span> CodePrimitiveExpression(&lt;span style="color:#e6db74">&amp;#34;hello world !&amp;#34;&lt;/span>));
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> lNamespace.Types.Add(lClass);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> CodeEntryPointMethod lMain = &lt;span style="color:#66d9ef">new&lt;/span> CodeEntryPointMethod();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> lMain.Statements.Add(lExpression);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> lClass.Members.Add(lMain);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">string&lt;/span> lDesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory) + &lt;span style="color:#e6db74">@&amp;#34;\&amp;#34;&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> CodeGeneratorOptions lOptions = &lt;span style="color:#66d9ef">new&lt;/span> CodeGeneratorOptions();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> lOptions.IndentString = &lt;span style="color:#e6db74">&amp;#34; &amp;#34;&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> lOptions.BlankLinesBetweenMembers = &lt;span style="color:#66d9ef">true&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// generate a C# source code file&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> CSharpCodeProvider lCSharpCodeProvider = &lt;span style="color:#66d9ef">new&lt;/span> CSharpCodeProvider();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">using&lt;/span> (StreamWriter lStreamWriter = &lt;span style="color:#66d9ef">new&lt;/span> StreamWriter(lDesktopPath + &lt;span style="color:#e6db74">&amp;#34;HelloWorld.cs&amp;#34;&lt;/span>, &lt;span style="color:#66d9ef">false&lt;/span>))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> lCSharpCodeProvider.GenerateCodeFromCompileUnit(lUnit, lStreamWriter, lOptions);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// generate a VB source code file&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> VBCodeProvider lVBCodeProvider = &lt;span style="color:#66d9ef">new&lt;/span> VBCodeProvider();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">using&lt;/span> (StreamWriter lStreamWriter = &lt;span style="color:#66d9ef">new&lt;/span> StreamWriter(lDesktopPath + &lt;span style="color:#e6db74">&amp;#34;HelloWorld.vb&amp;#34;&lt;/span>, &lt;span style="color:#66d9ef">false&lt;/span>))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> lVBCodeProvider.GenerateCodeFromCompileUnit(lUnit, lStreamWriter, lOptions);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>生成的C#代码如下：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cs" data-lang="cs">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">namespace&lt;/span> MyNamespace {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">using&lt;/span> System;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">using&lt;/span> System.IO;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">public&lt;/span> &lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">MyClass&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">public&lt;/span> &lt;span style="color:#66d9ef">static&lt;/span> &lt;span style="color:#66d9ef">void&lt;/span> Main() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Console.WriteLine(&lt;span style="color:#e6db74">&amp;#34;hello world !&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>生成的VB代码如下：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-vb" data-lang="vb">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">Option Strict Off&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">Option Explicit On&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">Imports&lt;/span> System
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">Imports&lt;/span> System.IO
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">Namespace&lt;/span> MyNamespace
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">Public&lt;/span> &lt;span style="color:#66d9ef">Class&lt;/span> &lt;span style="color:#960050;background-color:#1e0010">[&lt;/span>&lt;span style="color:#a6e22e">MyClass&lt;/span>&lt;span style="color:#f92672">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">Public&lt;/span> &lt;span style="color:#66d9ef">Shared&lt;/span> &lt;span style="color:#66d9ef">Sub&lt;/span> &lt;span style="color:#a6e22e">Main&lt;/span>()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Console.WriteLine(&lt;span style="color:#e6db74">&amp;#34;hello world !&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">End&lt;/span> &lt;span style="color:#66d9ef">Sub&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">End&lt;/span> &lt;span style="color:#66d9ef">Class&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">End&lt;/span> &lt;span style="color:#66d9ef">Namespace&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>我们可以看出，与模板引擎相比，CodeDOM更复杂，也更不直观。但是由于它的语言无关性，非常适合用来生成一些工具代码，比如SDK等。&lt;/p>
+&lt;h2 id="whats-next">What&amp;rsquo;s next? &lt;a href="#whats-next" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>由于.NET元编程是一个比较大的话题，所以读书笔记写会做成一个小系列一篇一篇发出。&lt;/p>
+&lt;p>下一篇我们会更进步，讨论IL级别的代码生成。&lt;/p>
+&lt;h2 id="一些测试代码">一些测试代码 &lt;a href="#%e4%b8%80%e4%ba%9b%e6%b5%8b%e8%af%95%e4%bb%a3%e7%a0%81" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="http://code.wizmann.tk/Home/Code?guid=81cb583a-2498-4f2a-8eff-b17a1af9b5e5">&lt;code>max(a, b)&lt;/code> function with template in C++&lt;/a>&lt;/li>
+&lt;li>&lt;a href="http://code.wizmann.tk/Home/Code?guid=1a30e464-c08c-45bd-b9ca-da2675de19df">Generate code with CodeDOM&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2 id="参考链接">参考链接 &lt;a href="#%e5%8f%82%e8%80%83%e9%93%be%e6%8e%a5" class="anchor">🔗&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://blogs.msdn.microsoft.com/csharpfaq/2004/03/12/how-do-c-generics-compare-to-c-templates/">How do C# generics compare to C++ templates?&lt;/a>&lt;/li>
+&lt;li>&lt;a href="http://www.pl-enthusiast.net/2014/08/05/type-safety/">What is type safety?&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://csharphardcoreprogramming.wordpress.com/tag/codedom/">Reflection (part 5, professional), CodeDOM (&amp;amp; lambda expression tree)&lt;/a>&lt;/li>
+&lt;/ul></description></item></channel></rss>

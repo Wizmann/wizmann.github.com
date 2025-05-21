@@ -1,6 +1,45 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Linkedin on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/linkedin/</link><description>Recent content in Linkedin on Maerlyn's Rainbow</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Sun, 26 Jul 2015 22:48:33 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/linkedin/index.xml" rel="self" type="application/rss+xml"/><item><title>Using Set Cover to Optimize a Large-Scale Low Latency Distributed Graph</title><link>https://wizmann.top/posts/using-set-cover-algorithm-to-optimize-a-large-scale-low-latency-distributed-graph/</link><pubDate>Sun, 26 Jul 2015 22:48:33 +0000</pubDate><guid>https://wizmann.top/posts/using-set-cover-algorithm-to-optimize-a-large-scale-low-latency-distributed-graph/</guid><description>&lt;h2 id="background">Background&lt;/h2>
-&lt;p>Linkedin (or other social networks, such as Facebook and G+) use the &amp;ldquo;social graph information&amp;rdquo; to show the social relationship between you and other members.&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Linkedin on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/linkedin/</link><description>Recent content in Linkedin on Maerlyn's Rainbow</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Sun, 26 Jul 2015 22:48:33 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/linkedin/index.xml" rel="self" type="application/rss+xml"/><item><title>Using Set Cover to Optimize a Large-Scale Low Latency Distributed Graph</title><link>https://wizmann.top/posts/using-set-cover-algorithm-to-optimize-a-large-scale-low-latency-distributed-graph/</link><pubDate>Sun, 26 Jul 2015 22:48:33 +0000</pubDate><guid>https://wizmann.top/posts/using-set-cover-algorithm-to-optimize-a-large-scale-low-latency-distributed-graph/</guid><description>&lt;h2 id="background">Background &lt;a href="#background" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>Linkedin (or other social networks, such as Facebook and G+) use the &amp;ldquo;social graph information&amp;rdquo; to show the social relationship between you and other members.&lt;/p>
 &lt;p>Such as, &amp;ldquo;You and Mr.Obama share 10 mutual friends&amp;rdquo; or &amp;ldquo;You have 1,000 second-degree connections&amp;rdquo;.&lt;/p>
 &lt;p>This feature is very common for a social network. But where does it come from?&lt;/p>
-&lt;h2 id="basic-api-for-social-graph-information">Basic API for Social Graph Information&lt;/h2>
-&lt;p>The information about a social relationship can be get from three basic APIs.&lt;/p></description></item></channel></rss>
+&lt;h2 id="basic-api-for-social-graph-information">Basic API for Social Graph Information &lt;a href="#basic-api-for-social-graph-information" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>The information about a social relationship can be get from three basic APIs.&lt;/p>
+&lt;ul>
+&lt;li>Get Connections
+&amp;ldquo;Who does member X know?&amp;rdquo;&lt;/li>
+&lt;li>Get Shared Connections
+&amp;ldquo;Who do I know in common with member Y?&amp;rdquo;&lt;/li>
+&lt;li>Get Graph Distance
+&amp;ldquo;What the graph distance between member Z and me?&amp;rdquo;&lt;/li>
+&lt;/ul>
+&lt;h2 id="main-components-for-the-system">Main Components for the System &lt;a href="#main-components-for-the-system" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/15-7-25/59618247.jpg" alt="">&lt;/p>
+&lt;ul>
+&lt;li>Graph Database (Graph DB)&lt;/li>
+&lt;li>Distributed Network Cache (NCS)&lt;/li>
+&lt;li>Graph APIs&lt;/li>
+&lt;/ul>
+&lt;h2 id="basic-algorithm-for-social-graph">Basic Algorithm for Social Graph &lt;a href="#basic-algorithm-for-social-graph" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>Because the problems of social graph share the same essence. Here we just talk about the &amp;ldquo;Graph Distance&amp;rdquo; problem.&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/15-7-25/24130302.jpg" alt="">&lt;/p>
+&lt;p>The &lt;em>Graph DB&lt;/em> stores all the relationship of the members. When we ask for the information of &lt;em>second degree creation&lt;/em>,&lt;/p>
+&lt;ul>
+&lt;li>Firstly, the web server communicate with GraphDB to get all the 1st degree connections&lt;/li>
+&lt;li>Secondly, web server communicate to GraphDB again to get all the 2nd degree connections&lt;/li>
+&lt;li>At last, the web server will merge all the results from the GraphDB to make it sorted and unique.&lt;/li>
+&lt;/ul>
+&lt;p>To make the retrieval more effectively, we add a cache level called &lt;em>NCS&lt;/em> to cache the result we get from the GraphDB.&lt;/p>
+&lt;h2 id="the-disadvantages-of-the-basic-algorithm">The Disadvantages of the Basic Algorithm &lt;a href="#the-disadvantages-of-the-basic-algorithm" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>As we know, for a distributed system, there are shards, replica and load balancer to handle large amount of data and queries.&lt;/p>
+&lt;p>Consider this scenario.&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/15-7-25/4544395.jpg" alt="">&lt;/p>
+&lt;p>Two queries are both ask for the data from shard 1 and shard 2.&lt;/p>
+&lt;p>The first query (the green one) has to communicate with the database twice, and then do the merging to get the final results.&lt;/p>
+&lt;p>And the second query (the red one) only has to talk to database once. And no de-duplicate is needed, because there&amp;rsquo;s definitely no duplicate data in one single node of the database.&lt;/p>
+&lt;p>We can make a conclusion that if we have a &lt;strong>wise&lt;/strong> load balancer, we can optimize our retrieval logic remarkably.&lt;/p>
+&lt;h2 id="set-cover-problem">Set Cover Problem &lt;a href="#set-cover-problem" class="anchor">🔗&lt;/a>&lt;/h2>&lt;blockquote>
+&lt;p>Given a set of elements {1,2,&amp;hellip;,m} (called the universe) and a set S of n sets whose union equals the universe, the set cover problem is to identify the smallest subset of S whose union equals the universe. (Wikipedia)&lt;/p>&lt;/blockquote>
+&lt;p>This problem is similar to ours. The optimal algorithm for a load balancer is to find the minimal subsets of all sets which union equals to the ones that asked by the query input.&lt;/p>
+&lt;p>It seems that we find the key to our problem. But this is NP-complete. There is no effective way to find the optimal solution.&lt;/p>
+&lt;p>However, in practice, a greedy algorithm will actually do the trick. The rule of the greedy algorithm is to find the set which contains largest number uncovered elements.&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/15-7-26/80102455.jpg" alt="">&lt;/p>
+&lt;h2 id="conclusion">Conclusion &lt;a href="#conclusion" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>We finally find out that the social information and the relationship graph is &lt;strong>not that difficult&lt;/strong>. The basic concepts are quite easy. And the main work for the whole system is to use the cache to reduce the amount of calculation on the fly.&lt;/p>
+&lt;p>&lt;img src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/15-7-26/65691084.jpg" alt="">&lt;/p>
+&lt;h2 id="reference">Reference &lt;a href="#reference" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>This post is mainly based on this &lt;a href="https://www.usenix.org/conference/hotcloud13/workshop-program/presentations/wang">video&lt;/a>.&lt;/p>
+&lt;p>&lt;a href="https://www.usenix.org/sites/default/files/conference/protected-files/wang_hotcloud13_slides.pdf">Slides&lt;/a>&lt;/p>
+&lt;p>Special thanks to Linkedin for the sharing. :)&lt;/p></description></item></channel></rss>
