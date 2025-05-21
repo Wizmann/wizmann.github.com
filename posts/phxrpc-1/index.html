@@ -157,12 +157,14 @@
 </span></span><span style=display:flex><span>    current_(begin_)
 </span></span><span style=display:flex><span>{
 </span></span><span style=display:flex><span>}
-</span></span></code></pre></div><p>之前我们使用<code>underflow()</code>来获取当前字符，但这次我们需要使用<code>uflow()</code>。因为<code>uflow()</code>需要同时执行两步操作，一是获取当前字符，二是让<code>gptr()</code>前进一步。但是又因为缓冲区由我们手动管理，<code>std::streambuf</code>并不能正确的执行管理操作。所以我们需要重写<code>uflow()</code>而不是<code>underflow()</code>。</p><div class=mermaid>char_array_buffer::int_type char_array_buffer::uflow()
+</span></span></code></pre></div><p>之前我们使用<code>underflow()</code>来获取当前字符，但这次我们需要使用<code>uflow()</code>。因为<code>uflow()</code>需要同时执行两步操作，一是获取当前字符，二是让<code>gptr()</code>前进一步。但是又因为缓冲区由我们手动管理，<code>std::streambuf</code>并不能正确的执行管理操作。所以我们需要重写<code>uflow()</code>而不是<code>underflow()</code>。</p><pre tabindex=0><code>char_array_buffer::int_type char_array_buffer::uflow()
 {
-if (current_ == end_)
-return traits_type::eof();
-return traits_type::to_int_type(*current_++);
-}</div><p>下一步我们还要实现<code>pbackfail()</code>。当我们调用<code>std::istream::unget()</code>或<code>std::istream::putback(ch)</code>时，我们会把已经读出的数据写回数组中。但是由于数组是只读的，所以我们只能模拟这种操作。</p><p>在默认的实现中<code>pbackfail()</code>只会返回<code>traits_type::eof()</code>，而在我们的版本中，如果写回成功，将会返回写回的字符，不成功返回eof。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cpp data-lang=cpp><span style=display:flex><span>char_array_buffer<span style=color:#f92672>::</span>int_type char_array_buffer<span style=color:#f92672>::</span>pbackfail(int_type ch)
+    if (current_ == end_)
+        return traits_type::eof();
+
+    return traits_type::to_int_type(*current_++);
+}
+</code></pre><p>下一步我们还要实现<code>pbackfail()</code>。当我们调用<code>std::istream::unget()</code>或<code>std::istream::putback(ch)</code>时，我们会把已经读出的数据写回数组中。但是由于数组是只读的，所以我们只能模拟这种操作。</p><p>在默认的实现中<code>pbackfail()</code>只会返回<code>traits_type::eof()</code>，而在我们的版本中，如果写回成功，将会返回写回的字符，不成功返回eof。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cpp data-lang=cpp><span style=display:flex><span>char_array_buffer<span style=color:#f92672>::</span>int_type char_array_buffer<span style=color:#f92672>::</span>pbackfail(int_type ch)
 </span></span><span style=display:flex><span>{
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> (current_ <span style=color:#f92672>==</span> begin_ <span style=color:#f92672>||</span> (ch <span style=color:#f92672>!=</span> traits_type<span style=color:#f92672>::</span>eof() <span style=color:#f92672>&amp;&amp;</span> ch <span style=color:#f92672>!=</span> current_[<span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>]))
 </span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> traits_type<span style=color:#f92672>::</span>eof();

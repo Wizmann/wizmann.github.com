@@ -1,6 +1,6 @@
 <!doctype html><html><head><script>window.MathJax={tex:{inlineMath:[["$","$"],["\\(","\\)"]],displayMath:[["$$","$$"],["\\[","\\]"]]},svg:{fontCache:"global"}}</script><script defer src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js></script></head><body><header class=header-wrapper><div class=header><a class=site-title href=https://wizmann.top/>Maerlyn's Rainbow</a><nav class=menu></nav></div></header><main class=main-wrapper><div class=main><section class=single><h1 class=title>Linux内核中的少锁链表</h1><div class=tip><time datetime="2013-11-28 00:00:00 +0000 UTC">2013/11/28</time>
 <span class=split>·</span>
-<span>2898 words </span><span class=split>·</span>
+<span>2905 words </span><span class=split>·</span>
 <span>6 minutes to read</span></div><div class=taxonomies><div>Tags:
 <a href=/tags/linux>linux</a>
 <a href=/tags/lock-less>lock-less</a>
@@ -82,12 +82,13 @@
 </span></span></span><span style=display:flex><span><span style=color:#75715e>             &amp;(pos)-&gt;member != NULL;                                        \
 </span></span></span><span style=display:flex><span><span style=color:#75715e>             (pos) = llist_entry((pos)-&gt;member.next, typeof(*(pos)), member))
 </span></span></span></code></pre></div><p>遍历链表的类。
-用伪代码来表述一下就是。</p><div class=mermaid>for ((pos) = 链表节点;
-&(pos)->next指针 != NULL;
-(pos) = 链表下一个节点) {
-// 遍历操作
-pos.foo = bar;
-}</div><h5 id=llist_for_each_entry_safe>llist_for_each_entry_safe <a href=#llist_for_each_entry_safe class=anchor>🔗</a></h5><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span><span style=color:#75715e>/**
+用伪代码来表述一下就是。</p><pre tabindex=0><code>for ((pos) = 链表节点;
+        &amp;(pos)-&gt;next指针 != NULL; 
+        (pos) = 链表下一个节点) {
+    // 遍历操作
+    pos.foo = bar;
+}
+</code></pre><h5 id=llist_for_each_entry_safe>llist_for_each_entry_safe <a href=#llist_for_each_entry_safe class=anchor>🔗</a></h5><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span><span style=color:#75715e>/**
 </span></span></span><span style=display:flex><span><span style=color:#75715e> * llist_for_each_entry_safe - iterate over some deleted entries of lock-less list of given type
 </span></span></span><span style=display:flex><span><span style=color:#75715e> *                               safe against removal of list entry
 </span></span></span><span style=display:flex><span><span style=color:#75715e> * @pos:        the type * to use as a loop cursor.
@@ -224,12 +225,13 @@ pos.foo = bar;
 </span></span><span style=display:flex><span>} <span style=color:#66d9ef>while</span> (<span style=color:#a6e22e>cmpxchg</span>(<span style=color:#f92672>&amp;</span>head<span style=color:#f92672>-&gt;</span>first, first, new_first) <span style=color:#f92672>!=</span> first);
 </span></span></code></pre></div><p>其中<code>cmpxchg</code>的性质类似于锁。保证赋值是成功的且是是原子的。</p><h3 id=del_first中的原子操作>del_first中的原子操作 <a href=#del_first%e4%b8%ad%e7%9a%84%e5%8e%9f%e5%ad%90%e6%93%8d%e4%bd%9c class=anchor>🔗</a></h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span>entry <span style=color:#f92672>=</span> <span style=color:#a6e22e>cmpxchg</span>(<span style=color:#f92672>&amp;</span>head<span style=color:#f92672>-&gt;</span>first, old_entry, next);
 </span></span></code></pre></div><h3 id=del_all中的原子操作>del_all中的原子操作 <a href=#del_all%e4%b8%ad%e7%9a%84%e5%8e%9f%e5%ad%90%e6%93%8d%e4%bd%9c class=anchor>🔗</a></h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span><span style=color:#66d9ef>return</span> <span style=color:#a6e22e>xchg</span>(<span style=color:#f92672>&amp;</span>head<span style=color:#f92672>-&gt;</span>first, NULL);
-</span></span></code></pre></div><h3 id=少锁链表如何处理并发>少锁链表如何处理并发 <a href=#%e5%b0%91%e9%94%81%e9%93%be%e8%a1%a8%e5%a6%82%e4%bd%95%e5%a4%84%e7%90%86%e5%b9%b6%e5%8f%91 class=anchor>🔗</a></h3><p>在llist.h中有如下的注释表明如果两种操作并发执行，是否需要加额外的锁。</p><div class=mermaid>/*
-* | add | del_first | del_all
-* add | - | - | -
-* del_first | | L | L
-* del_all | | | -
-*/</div><p><code>add</code>操作和头指针没有关系，所以它可以和其它操作并行。
+</span></span></code></pre></div><h3 id=少锁链表如何处理并发>少锁链表如何处理并发 <a href=#%e5%b0%91%e9%94%81%e9%93%be%e8%a1%a8%e5%a6%82%e4%bd%95%e5%a4%84%e7%90%86%e5%b9%b6%e5%8f%91 class=anchor>🔗</a></h3><p>在llist.h中有如下的注释表明如果两种操作并发执行，是否需要加额外的锁。</p><pre tabindex=0><code> /*
+ *           |   add    | del_first |  del_all
+ * add       |    -     |     -     |     -
+ * del_first |          |     L     |     L
+ * del_all   |          |           |     -
+ */
+</code></pre><p><code>add</code>操作和头指针没有关系，所以它可以和其它操作并行。
 <code>del_first</code>依赖于<code>list->first->next</code>在操作时不变化。
 而<code>del_all</code>只对<code>list->first</code>的指针进行操作。所以是可以并行的。</p><h3 id=少锁链表如何处理遍历>少锁链表如何处理遍历 <a href=#%e5%b0%91%e9%94%81%e9%93%be%e8%a1%a8%e5%a6%82%e4%bd%95%e5%a4%84%e7%90%86%e9%81%8d%e5%8e%86 class=anchor>🔗</a></h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span><span style=color:#75715e>/*
 </span></span></span><span style=display:flex><span><span style=color:#75715e> * The list entries deleted via llist_del_all can be traversed with

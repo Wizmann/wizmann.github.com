@@ -10,7 +10,7 @@
 </span></span><span style=display:flex><span>    __metaclass__ <span style=color:#f92672>=</span> abc<span style=color:#f92672>.</span>ABCMeta
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span>    <span style=color:#a6e22e>@abc.abstractmethod</span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> __init__(self):
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>__init__</span>(self):
 </span></span><span style=display:flex><span>        <span style=color:#66d9ef>pass</span>
 </span></span><span style=display:flex><span>    
 </span></span><span style=display:flex><span>    <span style=color:#a6e22e>@abc.abstractmethod</span>
@@ -28,7 +28,7 @@
 And we use <code>put_nowait</code> and <code>get_nowait</code> to speed up because there&rsquo;s no need to get the guarantee of <strong>thread safe</strong>.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>import</span> Queue
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>QueueAdapter</span>(QueueTpl):
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> __init__(self):
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>__init__</span>(self):
 </span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>clear()
 </span></span><span style=display:flex><span>        
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>clear</span>(self):
@@ -72,7 +72,7 @@ And we use <code>put_nowait</code> and <code>get_nowait</code> to speed up becau
 </span></span><span style=display:flex><span>                rs <span style=color:#f92672>=</span> map(<span style=color:#66d9ef>lambda</span> q: q<span style=color:#f92672>.</span>pop(), qs)
 </span></span><span style=display:flex><span>                self<span style=color:#f92672>.</span>assertTrue(all(x <span style=color:#f92672>==</span> rs[<span style=color:#ae81ff>0</span>] <span style=color:#66d9ef>for</span> x <span style=color:#f92672>in</span> rs))
 </span></span></code></pre></div><h2 id=implement-a-queue-with-one-stack>Implement a queue with ONE stack <a href=#implement-a-queue-with-one-stack class=anchor>🔗</a></h2><p>It&rsquo;s said that it&rsquo;s an interview problem of Microsoft.(gossip, perhaps)</p><p>The problem asks us to implement a queue with ONLY ONE stack. It seems hard, but it is actually an easy problem.</p><p>The <code>push</code> function is easy, just push the value into the stack. And the <code>pop</code> function is a little bit hard, but we can do it with recursion to get the first element of the &ldquo;queue&rdquo;, and put every items else in their origin order in the stack.</p><p>The code is short, too.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>StQueue1</span>(QueueTpl):
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> __init__(self):
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>__init__</span>(self):
 </span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>clear()
 </span></span><span style=display:flex><span>    
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>clear</span>(self):
@@ -93,7 +93,7 @@ And we use <code>put_nowait</code> and <code>get_nowait</code> to speed up becau
 </span></span><span style=display:flex><span>            self<span style=color:#f92672>.</span>a<span style=color:#f92672>.</span>append(v)
 </span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> res
 </span></span></code></pre></div><p>The time complexity of a <code>push</code> is O(1) with no extra memory space; a <code>pop</code> is takes O(n) of time, and O(n) extra memory space in the <strong>stack area</strong>(not the stack).</p><h2 id=implement-a-queue-with-two-stacks>Implement a queue with TWO stacks <a href=#implement-a-queue-with-two-stacks class=anchor>🔗</a></h2><p>This problem is so classic and so popular, so I just paste my solution here as everyone knows the answer.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>StQueue2</span>(QueueTpl):
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> __init__(self):
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>__init__</span>(self):
 </span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>clear()
 </span></span><span style=display:flex><span>    
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>clear</span>(self):
@@ -110,23 +110,24 @@ And we use <code>put_nowait</code> and <code>get_nowait</code> to speed up becau
 </span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> <span style=color:#f92672>not</span> self<span style=color:#f92672>.</span>a:
 </span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>None</span>
 </span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> self<span style=color:#f92672>.</span>a<span style=color:#f92672>.</span>pop()
-</span></span></code></pre></div><h2 id=implement-a-queue-with-three-stacks>Implement a queue with THREE stacks <a href=#implement-a-queue-with-three-stacks class=anchor>🔗</a></h2><p>As it is said in the book, it&rsquo;s a hard problem. And here is a <a href=http://stackoverflow.com/questions/5538192/how-to-implement-a-queue-with-three-stacks>discuss</a> in the Stackoverflow where I find this <a href=http://stackoverflow.com/a/5568094/2927439>solution</a>.</p><div class=mermaid>| | | |3| | | |
+</span></span></code></pre></div><h2 id=implement-a-queue-with-three-stacks>Implement a queue with THREE stacks <a href=#implement-a-queue-with-three-stacks class=anchor>🔗</a></h2><p>As it is said in the book, it&rsquo;s a hard problem. And here is a <a href=http://stackoverflow.com/questions/5538192/how-to-implement-a-queue-with-three-stacks>discuss</a> in the Stackoverflow where I find this <a href=http://stackoverflow.com/a/5568094/2927439>solution</a>.</p><pre tabindex=0><code>| | | |3| | | |
 | | | |_| | | |
 | | |_____| | |
-| | | |
-| | |2| | |
-| | |_| | |
+| |         | |
+| |   |2|   | |
+| |   |_|   | |
 | |_________| |
-| |
-| |1| |
-| |_| |
-|_____________|</div><p>This solution uses nested stacks to perform as a <strong>linked-list</strong>, and use the <strong>linked-list</strong> to perform as a queue.</p><p>A queue of &ldquo;1, 2, 3&rdquo; looks like this:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span>[<span style=color:#ae81ff>1</span>, 
+|             |
+|     |1|     |
+|     |_|     |
+|_____________|
+</code></pre><p>This solution uses nested stacks to perform as a <strong>linked-list</strong>, and use the <strong>linked-list</strong> to perform as a queue.</p><p>A queue of &ldquo;1, 2, 3&rdquo; looks like this:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span>[<span style=color:#ae81ff>1</span>, 
 </span></span><span style=display:flex><span>    [<span style=color:#ae81ff>2</span>,
 </span></span><span style=display:flex><span>        [<span style=color:#ae81ff>3</span>]
 </span></span><span style=display:flex><span>    ]
 </span></span><span style=display:flex><span>],
 </span></span></code></pre></div><p>We use three stack pointers <code>stack_a</code> <code>stack_b</code> and <code>stack_c</code>, <code>stack_a</code> points to the stack which stores the nested stacks, and <code>stack_b</code> is a pointer to the last stack the nested stack, <code>stack_c</code> as a temporary stack pointer.</p><p>So, <code>push</code> function is just push the new value in the last stack in the stack which is pointed by pointer <code>stack_b</code>, and then push a new stack in <code>stack_b</code> and make <code>stack_b</code> to point to the new stack. (complicated, &lt;(=<em>/ω＼</em>=)>)</p><p>The <code>pop</code> function is to get the first element of the nested stack, just get the first element, and make <code>stack_a</code> point to the rest of the data.</p><p>This code is easy but may hard to understand.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>StQueue3</span>(QueueTpl):
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> __init__(self):
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>__init__</span>(self):
 </span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>clear()
 </span></span><span style=display:flex><span>        
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>clear</span>(self):

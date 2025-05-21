@@ -9255,10 +9255,10 @@ NotImplementedError: Can&amp;#39;t change the current date.
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>以上实现的是最简单的PickleField，用户在使用这个类型的字段时，需要手动对数据进行pickle/unpickle。&lt;/p>
 &lt;p>我们使用property，实现一个PickleDescriptor描述符：&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">PickleDescriptor&lt;/span>(property):
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> __init__(self, field):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">__init__&lt;/span>(self, field):
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> self&lt;span style="color:#f92672">.&lt;/span>field &lt;span style="color:#f92672">=&lt;/span> field
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> 
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> __get__(self, instance, owner):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">__get__&lt;/span>(self, instance, owner):
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> instance &lt;span style="color:#f92672">is&lt;/span> &lt;span style="color:#66d9ef">None&lt;/span>:
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> self
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> 
@@ -9269,7 +9269,7 @@ NotImplementedError: Can&amp;#39;t change the current date.
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> 
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> instance&lt;span style="color:#f92672">.&lt;/span>__dict__[self&lt;span style="color:#f92672">.&lt;/span>field&lt;span style="color:#f92672">.&lt;/span>name]
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> 
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> __set__(self, instance, value):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">__set__&lt;/span>(self, instance, value):
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> instance&lt;span style="color:#f92672">.&lt;/span>__dict__[self&lt;span style="color:#f92672">.&lt;/span>field&lt;span style="color:#f92672">.&lt;/span>name] &lt;span style="color:#f92672">=&lt;/span> value
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> setattr(instance, self&lt;span style="color:#f92672">.&lt;/span>field&lt;span style="color:#f92672">.&lt;/span>attname, self&lt;span style="color:#f92672">.&lt;/span>field&lt;span style="color:#f92672">.&lt;/span>pickle(value))
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这个描述符的作用是封装PickleField的get/set操作。对于get，当字段未被反序列化时，调用unpickled，其它时候直接读取字段。对于set，则是同时更新字段以及pickled字段。实现了一个类似cache的机制。&lt;/p>
@@ -9457,7 +9457,7 @@ NotImplementedError: Can&amp;#39;t change the current date.
 &lt;p>并且实现&lt;code>run()&lt;/code>方法，运行测试用例。&lt;/p>
 &lt;p>使用&lt;code>assert&lt;/code>方法保证用例的正确性。&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">Case&lt;/span>(object):
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> __init__(self, name, attrs):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">__init__&lt;/span>(self, name, attrs):
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> self&lt;span style="color:#f92672">.&lt;/span>name &lt;span style="color:#f92672">=&lt;/span> name
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> self&lt;span style="color:#f92672">.&lt;/span>in_data &lt;span style="color:#f92672">=&lt;/span> attrs&lt;span style="color:#f92672">.&lt;/span>get(&lt;span style="color:#e6db74">&amp;#39;INPUT&amp;#39;&lt;/span>, &lt;span style="color:#66d9ef">None&lt;/span>)
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> self&lt;span style="color:#f92672">.&lt;/span>out_data &lt;span style="color:#f92672">=&lt;/span> attrs&lt;span style="color:#f92672">.&lt;/span>get(&lt;span style="color:#e6db74">&amp;#39;OUTPUT&amp;#39;&lt;/span>, &lt;span style="color:#66d9ef">None&lt;/span>)
@@ -9496,7 +9496,7 @@ NotImplementedError: Can&amp;#39;t change the current date.
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="超类与基类">超类与基类 &lt;a href="#%e8%b6%85%e7%b1%bb%e4%b8%8e%e5%9f%ba%e7%b1%bb" class="anchor">🔗&lt;/a>&lt;/h3>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">from&lt;/span> CaseContainer &lt;span style="color:#f92672">import&lt;/span> Case, CaseContainer
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">MetaCase&lt;/span>(type):
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> __init__(cls, name, bases, attrs):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">__init__&lt;/span>(cls, name, bases, attrs):
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> name &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#e6db74">&amp;#39;BaseCase&amp;#39;&lt;/span>:
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
@@ -10067,7 +10067,7 @@ end do
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> __metaclass__ &lt;span style="color:#f92672">=&lt;/span> abc&lt;span style="color:#f92672">.&lt;/span>ABCMeta
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">@abc.abstractmethod&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> __init__(self):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">__init__&lt;/span>(self):
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">pass&lt;/span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">@abc.abstractmethod&lt;/span>
@@ -10086,7 +10086,7 @@ And we use &lt;code>put_nowait&lt;/code> and &lt;code>get_nowait&lt;/code> to sp
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">import&lt;/span> Queue
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">QueueAdapter&lt;/span>(QueueTpl):
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> __init__(self):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">__init__&lt;/span>(self):
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> self&lt;span style="color:#f92672">.&lt;/span>clear()
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">clear&lt;/span>(self):
@@ -10135,7 +10135,7 @@ And we use &lt;code>put_nowait&lt;/code> and &lt;code>get_nowait&lt;/code> to sp
 &lt;p>The &lt;code>push&lt;/code> function is easy, just push the value into the stack. And the &lt;code>pop&lt;/code> function is a little bit hard, but we can do it with recursion to get the first element of the &amp;ldquo;queue&amp;rdquo;, and put every items else in their origin order in the stack.&lt;/p>
 &lt;p>The code is short, too.&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">StQueue1&lt;/span>(QueueTpl):
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> __init__(self):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">__init__&lt;/span>(self):
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> self&lt;span style="color:#f92672">.&lt;/span>clear()
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">clear&lt;/span>(self):
@@ -10158,7 +10158,7 @@ And we use &lt;code>put_nowait&lt;/code> and &lt;code>get_nowait&lt;/code> to sp
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>The time complexity of a &lt;code>push&lt;/code> is O(1) with no extra memory space; a &lt;code>pop&lt;/code> is takes O(n) of time, and O(n) extra memory space in the &lt;strong>stack area&lt;/strong>(not the stack).&lt;/p>
 &lt;h2 id="implement-a-queue-with-two-stacks">Implement a queue with TWO stacks &lt;a href="#implement-a-queue-with-two-stacks" class="anchor">🔗&lt;/a>&lt;/h2>&lt;p>This problem is so classic and so popular, so I just paste my solution here as everyone knows the answer.&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">StQueue2&lt;/span>(QueueTpl):
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> __init__(self):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">__init__&lt;/span>(self):
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> self&lt;span style="color:#f92672">.&lt;/span>clear()
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">clear&lt;/span>(self):
@@ -10199,7 +10199,7 @@ And we use &lt;code>put_nowait&lt;/code> and &lt;code>get_nowait&lt;/code> to sp
 &lt;p>The &lt;code>pop&lt;/code> function is to get the first element of the nested stack, just get the first element, and make &lt;code>stack_a&lt;/code> point to the rest of the data.&lt;/p>
 &lt;p>This code is easy but may hard to understand.&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">StQueue3&lt;/span>(QueueTpl):
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> __init__(self):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">__init__&lt;/span>(self):
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> self&lt;span style="color:#f92672">.&lt;/span>clear()
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">clear&lt;/span>(self):
@@ -10580,7 +10580,7 @@ cmp的结果正是放在CF（大于表示为溢出），ZF（相等表示为0）
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">import&lt;/span> math
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">Point&lt;/span>:
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> __init__(self, x, y, v):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">__init__&lt;/span>(self, x, y, v):
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> self&lt;span style="color:#f92672">.&lt;/span>x &lt;span style="color:#f92672">=&lt;/span> x
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> self&lt;span style="color:#f92672">.&lt;/span>y &lt;span style="color:#f92672">=&lt;/span> y
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> self&lt;span style="color:#f92672">.&lt;/span>v &lt;span style="color:#f92672">=&lt;/span> v
@@ -11519,7 +11519,7 @@ SW1A2AA.find.me.uk. 21600 IN LOC 51 30 12.748 N 0 7 39.611 W 0.00m 0.00m 0.00m 0
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">#使用一个FakeClass来骗过对象元素的检查&lt;/span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">#同时我们只是删除Metadata，并不使用它，所以这样的修改是可以接受的&lt;/span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">FakeClass&lt;/span>(object):
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> __init__(self):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">__init__&lt;/span>(self):
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> self&lt;span style="color:#f92672">.&lt;/span>Meta &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">None&lt;/span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">#调用Markdown的插件来处理Metadata&lt;/span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">import&lt;/span> markdown

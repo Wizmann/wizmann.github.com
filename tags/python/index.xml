@@ -52,10 +52,10 @@ NotImplementedError: Can&amp;#39;t change the current date.
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>以上实现的是最简单的PickleField，用户在使用这个类型的字段时，需要手动对数据进行pickle/unpickle。&lt;/p>
 &lt;p>我们使用property，实现一个PickleDescriptor描述符：&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">PickleDescriptor&lt;/span>(property):
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> __init__(self, field):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">__init__&lt;/span>(self, field):
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> self&lt;span style="color:#f92672">.&lt;/span>field &lt;span style="color:#f92672">=&lt;/span> field
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> 
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> __get__(self, instance, owner):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">__get__&lt;/span>(self, instance, owner):
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> instance &lt;span style="color:#f92672">is&lt;/span> &lt;span style="color:#66d9ef">None&lt;/span>:
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> self
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> 
@@ -66,7 +66,7 @@ NotImplementedError: Can&amp;#39;t change the current date.
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> 
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> instance&lt;span style="color:#f92672">.&lt;/span>__dict__[self&lt;span style="color:#f92672">.&lt;/span>field&lt;span style="color:#f92672">.&lt;/span>name]
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> 
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> __set__(self, instance, value):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">__set__&lt;/span>(self, instance, value):
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> instance&lt;span style="color:#f92672">.&lt;/span>__dict__[self&lt;span style="color:#f92672">.&lt;/span>field&lt;span style="color:#f92672">.&lt;/span>name] &lt;span style="color:#f92672">=&lt;/span> value
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> setattr(instance, self&lt;span style="color:#f92672">.&lt;/span>field&lt;span style="color:#f92672">.&lt;/span>attname, self&lt;span style="color:#f92672">.&lt;/span>field&lt;span style="color:#f92672">.&lt;/span>pickle(value))
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这个描述符的作用是封装PickleField的get/set操作。对于get，当字段未被反序列化时，调用unpickled，其它时候直接读取字段。对于set，则是同时更新字段以及pickled字段。实现了一个类似cache的机制。&lt;/p>
@@ -254,7 +254,7 @@ NotImplementedError: Can&amp;#39;t change the current date.
 &lt;p>并且实现&lt;code>run()&lt;/code>方法，运行测试用例。&lt;/p>
 &lt;p>使用&lt;code>assert&lt;/code>方法保证用例的正确性。&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">Case&lt;/span>(object):
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> __init__(self, name, attrs):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">__init__&lt;/span>(self, name, attrs):
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> self&lt;span style="color:#f92672">.&lt;/span>name &lt;span style="color:#f92672">=&lt;/span> name
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> self&lt;span style="color:#f92672">.&lt;/span>in_data &lt;span style="color:#f92672">=&lt;/span> attrs&lt;span style="color:#f92672">.&lt;/span>get(&lt;span style="color:#e6db74">&amp;#39;INPUT&amp;#39;&lt;/span>, &lt;span style="color:#66d9ef">None&lt;/span>)
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> self&lt;span style="color:#f92672">.&lt;/span>out_data &lt;span style="color:#f92672">=&lt;/span> attrs&lt;span style="color:#f92672">.&lt;/span>get(&lt;span style="color:#e6db74">&amp;#39;OUTPUT&amp;#39;&lt;/span>, &lt;span style="color:#66d9ef">None&lt;/span>)
@@ -293,7 +293,7 @@ NotImplementedError: Can&amp;#39;t change the current date.
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="超类与基类">超类与基类 &lt;a href="#%e8%b6%85%e7%b1%bb%e4%b8%8e%e5%9f%ba%e7%b1%bb" class="anchor">🔗&lt;/a>&lt;/h3>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">from&lt;/span> CaseContainer &lt;span style="color:#f92672">import&lt;/span> Case, CaseContainer
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">MetaCase&lt;/span>(type):
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> __init__(cls, name, bases, attrs):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">__init__&lt;/span>(cls, name, bases, attrs):
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> name &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#e6db74">&amp;#39;BaseCase&amp;#39;&lt;/span>:
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>

@@ -15,7 +15,8 @@
 </span></span><span style=display:flex><span>        }
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>}
-</span></span></code></pre></div><p>其输出示例如下：</p><div class=mermaid>2019-05-02 09:28:35.04 [raft.go:652] Node[1] is processing, state: [LEADER], term 1, commitIndex: 12, logCount: 12, leader 1</div><h4 id=max和min函数>Max和Min函数 <a href=#max%e5%92%8cmin%e5%87%bd%e6%95%b0 class=anchor>🔗</a></h4><p>golang是没有对于int值的<code>max</code>和<code>min</code>函数的，这里省略脏话100句。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-golang data-lang=golang><span style=display:flex><span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>Min</span>(<span style=color:#a6e22e>a</span> <span style=color:#66d9ef>int</span>, <span style=color:#a6e22e>b</span> <span style=color:#66d9ef>int</span>) (<span style=color:#66d9ef>int</span>) {
+</span></span></code></pre></div><p>其输出示例如下：</p><pre tabindex=0><code>2019-05-02 09:28:35.04 [raft.go:652] Node[1] is processing, state: [LEADER], term 1, commitIndex: 12, logCount: 12, leader 1
+</code></pre><h4 id=max和min函数>Max和Min函数 <a href=#max%e5%92%8cmin%e5%87%bd%e6%95%b0 class=anchor>🔗</a></h4><p>golang是没有对于int值的<code>max</code>和<code>min</code>函数的，这里省略脏话100句。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-golang data-lang=golang><span style=display:flex><span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>Min</span>(<span style=color:#a6e22e>a</span> <span style=color:#66d9ef>int</span>, <span style=color:#a6e22e>b</span> <span style=color:#66d9ef>int</span>) (<span style=color:#66d9ef>int</span>) {
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> <span style=color:#a6e22e>a</span> &lt; <span style=color:#a6e22e>b</span> {
 </span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> <span style=color:#a6e22e>a</span>;
 </span></span><span style=display:flex><span>    } <span style=color:#66d9ef>else</span> {
@@ -45,17 +46,21 @@
 </span></span><span style=display:flex><span>        }
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>}
-</span></span></code></pre></div><h4 id=log-id>Log Id <a href=#log-id class=anchor>🔗</a></h4><p>为了验证日志的一致性，我们在日志中额外加入一个UUID来进行标识。</p><div class=mermaid>import "math/rand"
+</span></span></code></pre></div><h4 id=log-id>Log Id <a href=#log-id class=anchor>🔗</a></h4><p>为了验证日志的一致性，我们在日志中额外加入一个UUID来进行标识。</p><pre tabindex=0><code>import &#34;math/rand&#34;
+
 func CreateLogId() (uuid string) {
-b := make([]byte, 16)
-_, err := rand.Read(b)
-if err != nil {
-fmt.Println("Error: ", err)
-return
+    b := make([]byte, 16)
+    _, err := rand.Read(b)
+    if err != nil {
+        fmt.Println(&#34;Error: &#34;, err)
+        return
+    }
+
+    uuid = fmt.Sprintf(&#34;%X-%X-%X-%X-%X&#34;, b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
+
+    return uuid
 }
-uuid = fmt.Sprintf("%X-%X-%X-%X-%X", b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
-return uuid
-}</div><p>以上代码可以生成一个（伪）UUID对日志进行标识。推荐使用<code>math/rand</code>，因为这里我们使用伪随机数就够了。</p><blockquote><p>注：这里的UUID只是看起来像一个UUID，实际上UUID有其特殊的规范与格式。但是由于golang内部没有提供可用的UUID库，所以只好随手模拟了一个。</p></blockquote><h4 id=文件组织>文件组织 <a href=#%e6%96%87%e4%bb%b6%e7%bb%84%e7%bb%87 class=anchor>🔗</a></h4><p>默认的实现是把所有的东西都写到了<code>raft.go</code>文件里。一个非常大的文件可能会给我们的开发带来负担，所以我的做法是把所有的类声明放到<code>models.go</code>文件里。以避免文件的膨胀。</p><h4 id=锁与defer>锁与defer <a href=#%e9%94%81%e4%b8%8edefer class=anchor>🔗</a></h4><p>在raft实现中，锁可以用来保证在多线程环境下数据的正确性。所以只要在涉及到raft内部状态的变化时，都需要加锁。一个常见的加锁pattern是：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-golang data-lang=golang><span style=display:flex><span><span style=color:#a6e22e>rf</span>.<span style=color:#a6e22e>mu</span>.<span style=color:#a6e22e>Lock</span>() <span style=color:#75715e>// 加锁</span>
+</code></pre><p>以上代码可以生成一个（伪）UUID对日志进行标识。推荐使用<code>math/rand</code>，因为这里我们使用伪随机数就够了。</p><blockquote><p>注：这里的UUID只是看起来像一个UUID，实际上UUID有其特殊的规范与格式。但是由于golang内部没有提供可用的UUID库，所以只好随手模拟了一个。</p></blockquote><h4 id=文件组织>文件组织 <a href=#%e6%96%87%e4%bb%b6%e7%bb%84%e7%bb%87 class=anchor>🔗</a></h4><p>默认的实现是把所有的东西都写到了<code>raft.go</code>文件里。一个非常大的文件可能会给我们的开发带来负担，所以我的做法是把所有的类声明放到<code>models.go</code>文件里。以避免文件的膨胀。</p><h4 id=锁与defer>锁与defer <a href=#%e9%94%81%e4%b8%8edefer class=anchor>🔗</a></h4><p>在raft实现中，锁可以用来保证在多线程环境下数据的正确性。所以只要在涉及到raft内部状态的变化时，都需要加锁。一个常见的加锁pattern是：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-golang data-lang=golang><span style=display:flex><span><span style=color:#a6e22e>rf</span>.<span style=color:#a6e22e>mu</span>.<span style=color:#a6e22e>Lock</span>() <span style=color:#75715e>// 加锁</span>
 </span></span><span style=display:flex><span><span style=color:#66d9ef>defer</span> <span style=color:#a6e22e>rf</span>.<span style=color:#a6e22e>mu</span>.<span style=color:#a6e22e>Lock</span>() <span style=color:#75715e>// 在函数执行完成后解锁</span>
 </span></span></code></pre></div><p>这里推荐使用defer，因为手动控制锁实现是过于容易出错。但是defer也是有坑的！</p><p>不同于C++的大括号作用域，defer的触发时间是在函数执行完成之后，而并不是退出当前大括号时。这点非常需要注意，否则极易出现死锁。</p><p>如果我们想实现C++中<code>do { ... } while (0);</code>类似的lock guard pattern，可以使用以下实现：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-golang data-lang=golang><span style=display:flex><span><span style=color:#66d9ef>func</span>() {
 </span></span><span style=display:flex><span>    <span style=color:#a6e22e>rf</span>.<span style=color:#a6e22e>mu</span>.<span style=color:#a6e22e>Lock</span>()

@@ -35,7 +35,7 @@
 </span></span><span style=display:flex><span>        <span style=color:#75715e>#使用一个FakeClass来骗过对象元素的检查</span>
 </span></span><span style=display:flex><span>        <span style=color:#75715e>#同时我们只是删除Metadata，并不使用它，所以这样的修改是可以接受的</span>
 </span></span><span style=display:flex><span>        <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>FakeClass</span>(object):
-</span></span><span style=display:flex><span>            <span style=color:#66d9ef>def</span> __init__(self):
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>__init__</span>(self):
 </span></span><span style=display:flex><span>                self<span style=color:#f92672>.</span>Meta <span style=color:#f92672>=</span> <span style=color:#66d9ef>None</span>
 </span></span><span style=display:flex><span>        <span style=color:#75715e>#调用Markdown的插件来处理Metadata</span>
 </span></span><span style=display:flex><span>        <span style=color:#f92672>import</span> markdown

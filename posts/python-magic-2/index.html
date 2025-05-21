@@ -50,10 +50,10 @@ NotImplementedError: Can&#39;t change the current date.
 </span></span></span><span style=display:flex><span><span style=color:#e6db74>        &#39;&#39;&#39;</span>
 </span></span><span style=display:flex><span>        <span style=color:#66d9ef>raise</span> <span style=color:#a6e22e>ValueError</span>(<span style=color:#e6db74>&#34;Con&#39;t make comparisons against pickled data.&#34;</span>)
 </span></span></code></pre></div><p>以上实现的是最简单的PickleField，用户在使用这个类型的字段时，需要手动对数据进行pickle/unpickle。</p><p>我们使用property，实现一个PickleDescriptor描述符：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>PickleDescriptor</span>(property):
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> __init__(self, field):
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>__init__</span>(self, field):
 </span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>field <span style=color:#f92672>=</span> field
 </span></span><span style=display:flex><span> 
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> __get__(self, instance, owner):
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>__get__</span>(self, instance, owner):
 </span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> instance <span style=color:#f92672>is</span> <span style=color:#66d9ef>None</span>:
 </span></span><span style=display:flex><span>           <span style=color:#66d9ef>return</span> self
 </span></span><span style=display:flex><span> 
@@ -64,7 +64,7 @@ NotImplementedError: Can&#39;t change the current date.
 </span></span><span style=display:flex><span> 
 </span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> instance<span style=color:#f92672>.</span>__dict__[self<span style=color:#f92672>.</span>field<span style=color:#f92672>.</span>name]
 </span></span><span style=display:flex><span> 
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> __set__(self, instance, value):
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>__set__</span>(self, instance, value):
 </span></span><span style=display:flex><span>        instance<span style=color:#f92672>.</span>__dict__[self<span style=color:#f92672>.</span>field<span style=color:#f92672>.</span>name] <span style=color:#f92672>=</span> value
 </span></span><span style=display:flex><span>        setattr(instance, self<span style=color:#f92672>.</span>field<span style=color:#f92672>.</span>attname, self<span style=color:#f92672>.</span>field<span style=color:#f92672>.</span>pickle(value))
 </span></span></code></pre></div><p>这个描述符的作用是封装PickleField的get/set操作。对于get，当字段未被反序列化时，调用unpickled，其它时候直接读取字段。对于set，则是同时更新字段以及pickled字段。实现了一个类似cache的机制。</p><p>最后，我们再为<code>PickleField</code>加上一个<code>contribute_to_class</code>回调。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>contribute_to_class</span>(self, cls, name):
