@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Leetcode on Maerlyn's Rainbow</title><link>https://wizmann.top/tags/leetcode/</link><description>Recent content in Leetcode on Maerlyn's Rainbow</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Tue, 20 Feb 2018 22:59:47 +0000</lastBuildDate><atom:link href="https://wizmann.top/tags/leetcode/index.xml" rel="self" type="application/rss+xml"/><item><title>一种区间交问题的奇怪姿势</title><link>https://wizmann.top/posts/range-problem/</link><pubDate>Tue, 20 Feb 2018 22:59:47 +0000</pubDate><guid>https://wizmann.top/posts/range-problem/</guid><description>&lt;blockquote>
-&lt;p>Update[220504]: 原来这种数据结构叫&lt;a href="https://oi-wiki.org/ds/odt/" target="_blank" rel="noopener">珂朵莉树&lt;/a>啊，真神奇。。。&lt;/p>&lt;/blockquote>
+&lt;p>Update[220504]: 原来这种数据结构叫&lt;a href="https://oi-wiki.org/ds/odt/">珂朵莉树&lt;/a>啊，真神奇。。。&lt;/p>&lt;/blockquote>
 &lt;h2 id="我们要解决什么问题">我们要解决什么问题&lt;/h2>
 &lt;p>区间交问题，是我们在做题中经常遇到的问题。&lt;/p>
-&lt;p>例如，&lt;a href="https://leetcode.com/problems/insert-interval/description/" target="_blank" rel="noopener">Insert Interval&lt;/a>一题，就是比较直白的区间交问题：&lt;/p>
+&lt;p>例如，&lt;a href="https://leetcode.com/problems/insert-interval/description/">Insert Interval&lt;/a>一题，就是比较直白的区间交问题：&lt;/p>
 &lt;blockquote>
 &lt;p>给定一系列的整数区间，再插入一个新的区间，问合并后的整数区间是什么&lt;/p></description></item><item><title>Why do I quit Leetcode contest?</title><link>https://wizmann.top/posts/why-do-i-quit-leetcode-contest/</link><pubDate>Wed, 07 Jun 2017 01:53:42 +0000</pubDate><guid>https://wizmann.top/posts/why-do-i-quit-leetcode-contest/</guid><description>&lt;h2 id="foreword">Foreword&lt;/h2>
 &lt;p>The title is quite &amp;ldquo;Yin-ish&amp;rdquo; as it seems, but I&amp;rsquo;m not a &amp;ldquo;Yin-ist&amp;rdquo;. You know what I mean.&lt;/p>
@@ -16,7 +16,7 @@
 &lt;h2 id="all-twice-excpet-one">All Twice Excpet One&lt;/h2>
 &lt;blockquote>
 &lt;p>Given an array of integers, every element appears twice except for one. Find that single one.&lt;/p></description></item><item><title>How to "Rotate Image"?</title><link>https://wizmann.top/posts/how-to-rotate-image-leetcode/</link><pubDate>Sat, 28 Dec 2013 14:42:00 +0000</pubDate><guid>https://wizmann.top/posts/how-to-rotate-image-leetcode/</guid><description>&lt;h2 id="啥">啥？&lt;/h2>
-&lt;p>原题&lt;a href="http://oj.leetcode.com/problems/rotate-image/" target="_blank" rel="noopener">戳我&lt;/a>&lt;/p>
+&lt;p>原题&lt;a href="http://oj.leetcode.com/problems/rotate-image/">戳我&lt;/a>&lt;/p>
 &lt;blockquote>
 &lt;p>Rotate Image&lt;/p>&lt;/blockquote>
 &lt;blockquote>

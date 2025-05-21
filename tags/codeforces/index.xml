@@ -122,7 +122,7 @@
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="b-anton-and-currency-you-all-know">B. Anton and currency you all know&lt;/h2>
 &lt;p>At first, you have to understand the questions accurately.&lt;/p></description></item><item><title>思维训练 - Thinkin' in induction</title><link>https://wizmann.top/posts/thinking-in-induction/</link><pubDate>Fri, 26 Sep 2014 00:10:45 +0000</pubDate><guid>https://wizmann.top/posts/thinking-in-induction/</guid><description>&lt;h2 id="热身题---24game">热身题 - 24Game&lt;/h2>
-&lt;p>&lt;a href="http://codeforces.com/contest/469/problem/C" target="_blank" rel="noopener">原题请戳我&lt;/a>&lt;/p>
+&lt;p>&lt;a href="http://codeforces.com/contest/469/problem/C">原题请戳我&lt;/a>&lt;/p>
 &lt;h3 id="题意">题意&lt;/h3>
 &lt;p>给你一个包含整数1&amp;hellip;n的集合S。接下来进行n-1次操作，每次操作从集合S中选取两个数，在加、减、乘三种运算中选取一种，将结果放回再集合S。在n-1次操作完成后，集合S中只剩下一个数。求问一种取数和运算策略，使最后的结果为24。&lt;/p></description></item><item><title>Codeforces 447D DZY Loves Modification</title><link>https://wizmann.top/posts/cf-447d/</link><pubDate>Thu, 24 Jul 2014 23:44:44 +0000</pubDate><guid>https://wizmann.top/posts/cf-447d/</guid><description>&lt;h2 id="题意">题意&lt;/h2>
 &lt;p>给你一个n * m的矩阵，让你做K次操作，使得最后得到的值最大。&lt;/p>
@@ -215,7 +215,7 @@
 &lt;p>事情一直很多，所以题解落后了好久才发。&lt;/p>
 &lt;h2 id="a-sereja-and-dima">A. Sereja and Dima&lt;/h2>
 &lt;p>纯模拟，Python随便搞&lt;/p></description></item><item><title>Codeforces 3C - Tic-tac-toe</title><link>https://wizmann.top/posts/cf-3c-tic-tac-toe/</link><pubDate>Sun, 29 Dec 2013 20:23:00 +0000</pubDate><guid>https://wizmann.top/posts/cf-3c-tic-tac-toe/</guid><description>&lt;h2 id="啥">啥？&lt;/h2>
-&lt;p>&lt;a href="http://codeforces.com/problemset/problem/3/C" target="_blank" rel="noopener">Tic-tac-toe&lt;/a>是我很久之前在CF上做的一道题。非常考细心的模拟题。&lt;/p>
+&lt;p>&lt;a href="http://codeforces.com/problemset/problem/3/C">Tic-tac-toe&lt;/a>是我很久之前在CF上做的一道题。非常考细心的模拟题。&lt;/p>
 &lt;p>最近有同学和我讨论过类似的问题。于是拿出来重新做一遍。练练手。&lt;/p>
 &lt;h2 id="原题做法">原题做法&lt;/h2>
 &lt;p>没有任何“算法”成分。纯模拟。&lt;/p>
