@@ -51,7 +51,14 @@ PLUGIN_PATH = ["pelican-plugins"]
 PLUGINS = ["sitemap", "summary", 'tag_cloud', 'i18n_subsites', "render_math"]
 
 MARKDOWN = {
-    'extensions': ['codehilite', 'extra', 'toc'],
+    'extension_configs': {
+        'markdown.extensions.codehilite': {'css_class': 'highlight'},
+        'markdown.extensions.extra': {},
+        'markdown.extensions.toc': {'permalink': True},
+        'markdown.extensions.nl2br': {},          # GFM-like: newlines become <br>
+        'markdown.extensions.sane_lists': {},     # GFM-like: list parsing
+        'markdown.extensions.smarty': {},         # Typographic substitutions
+    },
     'output_format': 'html5',
 }
 
