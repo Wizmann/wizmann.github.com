@@ -1,5 +1,4 @@
-pelican
+pelican[markdown]
 pelican-render-math
-bs4
 ghp-import
-markdown
+beautifulsoup4
