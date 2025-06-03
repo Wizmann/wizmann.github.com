@@ -1,6 +1,6 @@
 Date: 2023-12-15
 Title: 在SPIN/Promela中模拟CAS（Compare-and-Swap）
-Tags: SPIN, Promela, SPIN/Promela, CAS, Compare-ans-Swap, 多线程
+Tags: SPIN, Promela, SPIN/Promela, CAS, Compare-and-Swap, 多线程
 Slug: simple-cas-model-in-spin-promela
  
 
