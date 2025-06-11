@@ -9,6 +9,10 @@ SITEURL = 'https://wizmann.top/'
 PATH = 'content' 
 STATIC_PATHS = ['statistics']
 
+EXTRA_PATH_METADATA = {
+    'images/favicon.png': {'path': 'favicon.png'},
+}
+
 TIMEZONE = 'Asia/Shanghai'
 
 DEFAULT_LANG = u'zhs'
