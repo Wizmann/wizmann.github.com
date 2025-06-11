@@ -9,9 +9,7 @@ SITEURL = 'https://wizmann.top/'
 PATH = 'content' 
 STATIC_PATHS = ['statistics']
 
-EXTRA_PATH_METADATA = {
-    'images/favicon.png': {'path': 'favicon.png'},
-}
+FAVICON='/statistics/favicon.png'
 
 TIMEZONE = 'Asia/Shanghai'
 
