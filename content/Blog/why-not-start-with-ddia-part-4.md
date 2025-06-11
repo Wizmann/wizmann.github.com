@@ -1,4 +1,4 @@
-Date: 2025-06-011
+Date: 2025-06-11
 Title: 为什么我不建议你阅读《数据密集型应用系统设计》（之四）
 Tags: 数据库, 数据系统, 分布式系统, 一致性协议, 分布式共识
 Slug: why-not-start-with-ddia-part-4
