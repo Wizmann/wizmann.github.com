@@ -211,8 +211,8 @@ $$
 \text{Recall@}k=\frac{\#\text{ relevant in top-}k}{|\text{Relevant}|}
 $$
 
-* Precision\@k：前 k 个结果中有多少比例是相关文档；
-* Recall\@k：前 k 个结果覆盖了多少比例的相关文档。
+* Precision@k：前 k 个结果中有多少比例是相关文档；
+* Recall@k：前 k 个结果覆盖了多少比例的相关文档。
 
 通常，召回率上升往往会带来精度下降，因此需要根据场景设定合适的 k 值。
 
