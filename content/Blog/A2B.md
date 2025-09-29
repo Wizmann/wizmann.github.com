@@ -175,10 +175,10 @@ xc=(return)true
 * Split every character "b" to "xy", then sort the string to "aaa...xx...yy..cc".
 * Remove all the occurrences of "ax" and "yc".
 * If:
-  * there're remaining "a"s means `count(a) > count(b)`
-  * there're remaining "x"s means `count(b) > count(a)`
-  * there're remaining "y"s means `count(b) > count(c)`
-  * there're remaining "c"s means `count(b) > count(b)`
+    * there're remaining "a"s means `count(a) > count(b)`
+    * there're remaining "x"s means `count(b) > count(a)`
+    * there're remaining "y"s means `count(b) > count(c)`
+    * there're remaining "c"s means `count(b) > count(b)`
 * Only if there're any "xc"s in the remaining string, we'll return `true`.
 * Otherwise, return `false`.
 
@@ -200,9 +200,9 @@ xc=(return)true
 * Move every "x" to the front of "c"s.
 * Eliminate every "a" with adjacent "x".
 * If:
-  * there're remaining "a"s means `count(a) > count(b)`
-  * there're remaining "x"s means `count(b) > count(a)`
-  * there's no remaining "c"s means `count(b) > count(a)`
+    * there're remaining "a"s means `count(a) > count(b)`
+    * there're remaining "x"s means `count(b) > count(a)`
+    * there's no remaining "c"s means `count(b) > count(a)`
 * We match the pattern "xc" as a signal for returning "true".
 * Otherwise, return "false".
 
@@ -227,10 +227,10 @@ c=(return)c
 * It's easy to know that `count(x) == count(y) == count(b)`.
 * Eliminate all occurances of "ax"s and "yc"s.
 * It means:
-  * `count(remaining a) = count(a) - count(b)` if there're remaining "a"s 
-  * `count(remaining x) = count(b) - count(a)` if there're remaining "x"s 
-  * `count(remaining y) = count(b) - count(c)` if there're remaining "y"s
-  * `count(remaining c) = count(c) - count(b)` if there're remaining "c"s
+    * `count(remaining a) = count(a) - count(b)` if there're remaining "a"s 
+    * `count(remaining x) = count(b) - count(a)` if there're remaining "x"s 
+    * `count(remaining y) = count(b) - count(c)` if there're remaining "y"s
+    * `count(remaining c) = count(c) - count(b)` if there're remaining "c"s
 * If there're only "x"s and "y"s remain, it means "b" has the largests count
 * If there're only "a"s or "ay"s remain, it means `count(a) > count(b) >= count(c)`
 * If there're only "c"s or "xc"s remain, it means `count(c) > count(b) >= count(a)`
