@@ -787,6 +787,8 @@ x = 1
 
 ### 5-4. A - B
 
+#### Solution 1 (18 lines)
+
 > Not a good solution, too
 
 ```
@@ -808,6 +810,35 @@ G1=
 |z=
 |=
 (start)0=
+```
+
+#### Solution 2 (8 lines)
+
+```
+-1 = |x-
+-0 = |-
+x| = |xx
+| = 
+1x = 0
+0x = x1
+- = 
+(start)0 = 
+```
+
+#### Solution 3 (11 lines, no keyword)
+
+```
+-1 = |x-
+-0 = |-
+x| = |xx
+| = 
+1x = 0
+0x = x1
+- = yyyyyyy
+0y = y0
+1y = y1
+y0 = 
+y =
 ```
 
 ### 5-5. A * B
