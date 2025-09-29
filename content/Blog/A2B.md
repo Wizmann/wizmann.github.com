@@ -751,6 +751,8 @@ X=1
 
 ### 5-3. A + B
 
+#### Solution 1 (14 lines)
+
 > Not a good solution
 
 ```
@@ -768,6 +770,19 @@ x+=(start)y|
 |111|z=1|z1
 |z=
 (start)0=
+```
+
+#### Solution 2 (8 lines)
+
+```
++1 = |x+
++0 = |+
+x| = |xx
+| = 
+1x = x0
+0x = 1
+x = 1
++ =
 ```
 
 ### 5-4. A - B
