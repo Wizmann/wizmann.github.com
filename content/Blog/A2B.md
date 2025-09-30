@@ -878,7 +878,49 @@ a=helloworld
 
 ### 6-2. Palinedrome 2
 
-> No solution yet
+#### Solution1 (37 Lines)
+
+> Not a good solution
+
+```
+c=^C$
+b=^B$
+aa=^A$^A$
+$a=$^A$
+$b=$^B$
+$c=$^C$
+a^=^A$^
+b^=^B$^
+c^=^C$^
+$^=
+XA=AX
+XB=BX
+XC=CX
+YA=AY
+YB=BY
+YC=CY
+ZA=AZ
+ZB=BZ
+ZC=CZ
+AX$=$
+BY$=$
+CZ$=$
+^A=^X
+^B=^Y
+^C=^Z
+^$=true
+^X$=true
+^Y$=true
+^Z$=true
+X$=@$
+Y$=@$
+Z$=@$
+X@=@
+Y@=@
+Z@=@
+@@=@
+^@$=false
+```
 
 ### 6-3. To B or not to B 2
 
