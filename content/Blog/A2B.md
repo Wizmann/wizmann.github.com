@@ -878,7 +878,7 @@ a=helloworld
 
 ### 6-2. Palinedrome 2
 
-#### Solution1 (37 Lines)
+#### Solution1 (32 Lines)
 
 > Not a good solution
 
@@ -887,11 +887,7 @@ c=^C$
 b=^B$
 aa=^A$^A$
 $a=$^A$
-$b=$^B$
-$c=$^C$
 a^=^A$^
-b^=^B$^
-c^=^C$^
 $^=
 XA=AX
 XB=BX
@@ -912,14 +908,13 @@ CZ$=$
 ^X$=true
 ^Y$=true
 ^Z$=true
-X$=@$
-Y$=@$
-Z$=@$
-X@=@
-Y@=@
-Z@=@
-@@=@
-^@$=false
+X$=false
+Y$=false
+Z$=false
+X=
+Y=
+Z=
+^=
 ```
 
 ### 6-3. To B or not to B 2
