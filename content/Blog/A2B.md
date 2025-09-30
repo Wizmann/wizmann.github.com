@@ -740,6 +740,22 @@ Xa=aaX
 X=
 ```
 
+#### Solution5 (11 Lines, no keyword)
+
+```
+0=$X$
+1=$Y$
+$$=
+YXXXXX$=XXXXXX$aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+YXXXX$=XXXXX$aaaaaaaaaaaaaaaa
+YXXX$=XXXX$aaaaaaaa
+YXX$=XXX$aaaa
+YX$=XX$aa
+Y$=X$a
+$X=$
+$=
+```
+
 ### 5-2. A + 1
 
 ```
