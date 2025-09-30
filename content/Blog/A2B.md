@@ -917,6 +917,32 @@ Z=
 ^=
 ```
 
+#### Solution2 (21 Lines)
+
+```
+c=^C$
+b=^B$
+aa=^AA$
+$a=$^A$
+a^=^A$^
+$^=
+XA=AX
+XB=BX
+XC=CX
+AXXX$=$
+BXXXXX$=$
+CXXXXXXX$=$
+^A$=true
+^B$=true
+^C$=true
+^A=^XXX
+^B=^XXXXX
+^C=^XXXXXXX
+^$=true
+^XX=^X
+^X$=false
+```
+
 ### 6-3. To B or not to B 2
 
 > No solution yet
