@@ -1,4 +1,4 @@
-Title: C++ 的 `volatile`：它到底管啥、不管啥（CppCon 2024 全面笔记）
+Title: C++ 的 `volatile`：它到底管啥、不管啥 @ （Ben Saks @ CppCon 2024）
 Date: 2025-10-01 09:00
 Tags: C++, volatile, 编译器优化, 并发, 内存模型, CppCon2024
 Slug: volatile-in-cpp-cppcon-2024-notes
