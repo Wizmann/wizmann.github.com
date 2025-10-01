@@ -19,8 +19,8 @@ Slug: volatile-in-cpp-cppcon-2024-notes
 
 1. 为什么需要 `volatile`；
 2. 声明里 `volatile` 的正确放置方法；
-3) 它能/不能提供的保护；
-4) 编译器把 `volatile` 搞砸时的几种work around
+3. 它能/不能提供的保护；
+4. 编译器把 `volatile` 搞砸时的几种work around
 
 ---
 
@@ -29,14 +29,6 @@ Slug: volatile-in-cpp-cppcon-2024-notes
 ### 1.1 设备寄存器与内存映射
 
 * 设备驱动通过**设备寄存器**与硬件通信；寄存器可能用于：控制（control）、状态（status）、发送（transmit）、接收（receive）、波特率等（以 ARM E7T UART 为例）。
-* E7T 的两个 UART 具有相同寄存器布局（偏移与功能）：
-
-  ```
-  0x00 ULCON（线控） / 0x04 UCON（控制） / 0x08 USTAT（状态）
-  0x0C UTXBUF（发送缓冲） / 0x10 URXBUF（接收缓冲） / 0x14 UBRDIV（波特率除数）
-  ```
-
-  UART0 基址：`0x3FFD000` → `USTAT0=0x3FFD008`, `UTXBUF0=0x3FFD00C`。
 * 内存映射寄存器**看起来**像普通内存地址，但**读/写都可能有副作用**：写控制寄存器启动一次操作；读接收寄存器可能设置/清除状态位。优化器若改变访问次数，就可能改变副作用，导致驱动失效。
 
 ### 1.2 UART 发送路径与 TBE 语义
@@ -65,12 +57,12 @@ UTXBUF0 = '\n';
 2. 第二个 `if`（或第二个 `while`）与第一个条件等价，且“无副作用相关性”，因此**删除第二个条件检查**。
 3. 两次对 `UTXBUF0` 的写入相邻，第二次覆盖第一次，第一条**可删除**。最终只剩：
 
-   ```cpp
-   if ((USTAT0 & TBE) == 0) { for(;;){} }
-   UTXBUF0 = '\n';
-   ```
+```cpp
+if ((USTAT0 & TBE) == 0) { for(;;){} }
+UTXBUF0 = '\n';
+```
 
-   ——更高效地**做错事**。
+——更高效地**做错事**。
 
 > 关闭整个区域的优化是一个粗暴但“可行”的办法，不过会错失许多有益优化；`volatile` 提供更**精确**的解决方案。
 
@@ -155,14 +147,14 @@ void buffer_init() {
 * **`volatile` 只防“错误优化”，不提供原子性或同步。**
   对 `volatile` 对象的 `++`、`--`、`+=` 等操作在机器层面通常会被拆成“读 → 改 → 写”多步序列，因此**不是不可分割的**。在类型本身**不天然原子**的平台上（例如某些平台的 `double`），并发线程可能观察到**撕裂（torn）**的中间值。
 
-  ```cpp
-  double volatile v = 0.0;  // 某些平台上 double 非原子
-  // 线程 A
-  v = 8.67;
-  v = 53.09;   // B 可能在此两步之间读到“半写入”的值
-  // 线程 B
-  auto x = v;  // 可能既不是 8.67 也不是 53.09
-  ```
+```cpp
+double volatile v = 0.0;  // 某些平台上 double 非原子
+// 线程 A
+v = 8.67;
+v = 53.09;   // B 可能在此两步之间读到“半写入”的值
+// 线程 B
+auto x = v;  // 可能既不是 8.67 也不是 53.09
+```
 
 * **标准演进提醒的是“误用”而非赋予能力。**
   由于这些用法（对 `volatile` 的自增/自减/复合赋值）**极易被误解**，它们在 **C++20 被标记为弃用**；考虑到大量存量代码与现实反馈，**C++23 又（部分）撤销了弃用**。但无论“是否弃用”，这些操作的**本质并未改变**——它们**仍不具备原子性**。
@@ -177,9 +169,9 @@ void buffer_init() {
 
 * 实务中很常见：**只读状态寄存器**可以声明为 `const volatile`，以防止误写、又保持“硬件会变”的可见性：
 
-  ```cpp
-  std::uint32_t const volatile &USTAT0 = *reinterpret_cast<std::uint32_t*>(0x03FFD008);
-  ```
+```cpp
+std::uint32_t const volatile &USTAT0 = *reinterpret_cast<std::uint32_t*>(0x03FFD008);
+```
 
 ### 5.4 其它不合适的用途
 
@@ -298,73 +290,70 @@ vol_id_u32(UTXBUF0) = '\r';
 * **错误示例（无 `volatile`）→ 被优化坏**：忙等、两次写入被合并，仅发送 `'\n'`（详见 §2）。
 * **正确示例（有 `volatile`）**：
 
-  ```cpp
-  std::uint32_t volatile &USTAT0 = *reinterpret_cast<std::uint32_t*>(0x03FFD008);
-  std::uint32_t volatile &UTXBUF0 = *reinterpret_cast<std::uint32_t*>(0x03FFD00C);
-  while ((USTAT0 & TBE) == 0) { }
-  UTXBUF0 = c;
-  ```
-
+```cpp
+std::uint32_t volatile &USTAT0 = *reinterpret_cast<std::uint32_t*>(0x03FFD008);
+std::uint32_t volatile &UTXBUF0 = *reinterpret_cast<std::uint32_t*>(0x03FFD00C);
+while ((USTAT0 & TBE) == 0) { }
+UTXBUF0 = c;
+```
 
 * **`const volatile` 状态寄存器**：
 
-  ```cpp
-  std::uint32_t const volatile &USTAT0 = *reinterpret_cast<std::uint32_t*>(0x03FFD008);
-  ```
+```cpp
+std::uint32_t const volatile &USTAT0 = *reinterpret_cast<std::uint32_t*>(0x03FFD008);
+```
 
 * **East volatile 模板**：
 
-  ```cpp
-  uint32_t volatile *const x[N]; // “N 个 const 指针，指向 volatile uint32_t”
-  ```
-
+```cpp
+uint32_t volatile *const x[N]; // “N 个 const 指针，指向 volatile uint32_t”
+```
 
 * **非内联包裹读/写**：
 
-  ```cpp
-  int vol_read_int(int volatile &vp) { return vp; }
-  int volatile &vol_id_int(int volatile &v) { return v; }
-  ```
-
-  （模板版要 `[[gnu::noinline]]` 或对应编译器的 noinline）
+```cpp
+//（模板版要 `[[gnu::noinline]]` 或对应编译器的 noinline）
+int vol_read_int(int volatile &vp) { return vp; }
+int volatile &vol_id_int(int volatile &v) { return v; }
+```
 
 * **GCC 局部关优化**：
 
-  ```cpp
-  void [[gnu::optimize("O0")]] f() { /* ... */ }
+```cpp
+void [[gnu::optimize("O0")]] f() { /* ... */ }
 
-  #pragma GCC push_options
-  #pragma GCC optimize("O0")
-  void g() { /* ... */ }
-  #pragma GCC pop_options
-  ```
+#pragma GCC push_options
+#pragma GCC optimize("O0")
+void g() { /* ... */ }
+#pragma GCC pop_options
+```
 
 * **缓存预取**：
 
-  ```cpp
-  #include <atomic>
-  #include <new>
+```cpp
+#include <atomic>
+#include <new>
 
-  // 把两个热点计数器拆到不同的 cache line，避免伪共享
-  struct alignas(std::hardware_destructive_interference_size) Counter {
-      std::atomic<long> value{0};
-  };
+// 把两个热点计数器拆到不同的 cache line，避免伪共享
+struct alignas(std::hardware_destructive_interference_size) Counter {
+    std::atomic<long> value{0};
+};
 
-  struct HotPair {
-      // 把经常一起读的字段放在“构造性干涉尺寸”内，利于同线命中
-      alignas(std::hardware_constructive_interference_size) int a;
-      int b;
-  };
+struct HotPair {
+    // 把经常一起读的字段放在“构造性干涉尺寸”内，利于同线命中
+    alignas(std::hardware_constructive_interference_size) int a;
+    int b;
+};
 
-  void touch(Counter& c1, Counter& c2, const HotPair* hp) {
-      // 平台预取（示例：x86 SSE/AVX），编译器/平台不同可用 __builtin_prefetch
-      // _mm_prefetch(reinterpret_cast<const char*>(hp), _MM_HINT_T0);
-
-      c1.value.fetch_add(1, std::memory_order_relaxed);
-      c2.value.fetch_add(1, std::memory_order_relaxed);
-      int t = hp->a + hp->b; (void)t;
-  }
-  ```
+void touch(Counter& c1, Counter& c2, const HotPair* hp) {
+    // 平台预取（示例：x86 SSE/AVX），编译器/平台不同可用 __builtin_prefetch
+    // _mm_prefetch(reinterpret_cast<const char*>(hp), _MM_HINT_T0);
+  
+    c1.value.fetch_add(1, std::memory_order_relaxed);
+    c2.value.fetch_add(1, std::memory_order_relaxed);
+    int t = hp->a + hp->b; (void)t;
+}
+```
 
 ---
 
