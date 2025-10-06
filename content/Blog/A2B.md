@@ -945,7 +945,29 @@ CXXXXXXX$=$
 
 ### 6-3. To B or not to B 2
 
-> No solution yet
+#### Solution 1 (17 Lines)
+
+> Not a good solution
+
+```
+a=^A|
+c^=^c
+b^=XbY
+|^=^
+|c=c|
+|b=XbY
+AX=Xb
+bX=Xb
+cX=Xc
+YA=bY
+Yb=bY
+Yc=cY
+^=
+X=
+Y=
+A=c
+|=
+```
 
 ## Appendix
 
