@@ -945,28 +945,25 @@ CXXXXXXX$=$
 
 ### 6-3. To B or not to B 2
 
-#### Solution 1 (17 Lines)
+#### Solution 1 (14 Lines)
 
 > Not a good solution
 
 ```
-a=^A|
+a=^A$
 c^=^c
-b^=XbY
-|^=^
-|c=c|
-|b=XbY
+$c=c$
+b^=XXXXXXXbYYYYYYY
+$b=XXXXXXXbYYYYYYY
 AX=Xb
-bX=Xb
 cX=Xc
 YA=bY
-Yb=bY
 Yc=cY
 ^=
+$=
 X=
 Y=
 A=c
-|=
 ```
 
 ## Appendix
