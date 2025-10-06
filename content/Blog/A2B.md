@@ -966,6 +966,25 @@ Y=
 A=c
 ```
 
+#### Solution 2 (13 Lines)
+
+```
+a=^AAAAAAAc$
+c^=^c
+$c=c$
+b^=^XbX
+$b=XbX$
+
+XAAAAAAAc=bX
+AAAAAAAcX=Xb
+^=
+$=
+Xc=cAX
+cX=XAcA
+X=
+A=
+```
+
 ## Appendix
 
 ### Proof of Turing Completeness Explained
