@@ -1,4 +1,4 @@
-Title: KAIST CS492C - 并发编程速读（Part1. 介绍）
+Title: KAIST CS492C - 并发编程 · 课程速读（Part1. 介绍）
 Date: 2025-10-06 10:00
 Tags: 并行计算, 并发, Rust, 系统编程
 Slug: kaist-cs492c-1
