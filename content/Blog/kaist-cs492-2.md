@@ -1,7 +1,7 @@
-Title: KAIST CS492C - 并发编程 · 课程速读（Part2. 基于锁的并发编程）
+Title: KAIST CS492 - 并发编程 · 课程速读（Part2. 基于锁的并发编程）
 Date: 2025-10-06 10:00
 Tags: 并行计算, 并发, Rust, 系统编程
-Slug: kaist-cs492c-2
+Slug: kaist-cs492-2
 
 <div class="alert alert-warning" role="alert">
   ⚠️ 本文根据视频字幕和 slides 由 AI 生成
