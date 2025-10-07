@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="zhs" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Linux内核中的少锁链表 - Maerlyn's Rainbow</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <link href="https://wizmann.top/statistics/favicon.png" rel="icon">
+
+<link rel="canonical" href="https://wizmann.top/linux-lockless-llist.html">
+
+        <meta name="author" content="Wizmann" />
+        <meta name="keywords" content="linux,lock-less,链表,并发编程" />
+        <meta name="description" content="前言 最近在stackexchange上看到一个问答，讨论我们常用的数据结构与算法在实际工程中的应用。(戳我) 我打算借助这个问答中的内容，以我比较熟悉 …" />
+
+        <meta property="og:site_name" content="Maerlyn's Rainbow" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Linux内核中的少锁链表"/>
+        <meta property="og:url" content="https://wizmann.top/linux-lockless-llist.html"/>
+        <meta property="og:description" content="前言 最近在stackexchange上看到一个问答，讨论我们常用的数据结构与算法在实际工程中的应用。(戳我) 我打算借助这个问答中的内容，以我比较熟悉 …"/>
+        <meta property="article:published_time" content="2013-11-28" />
+            <meta property="article:section" content="Blog" />
+            <meta property="article:tag" content="linux" />
+            <meta property="article:tag" content="lock-less" />
+            <meta property="article:tag" content="链表" />
+            <meta property="article:tag" content="并发编程" />
+            <meta property="article:author" content="Wizmann" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://wizmann.top/theme/css/bootstrap.flatly.min.css" type="text/css"/>
+    <link href="https://wizmann.top/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://wizmann.top/theme/css/pygments/solarizedlight.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://wizmann.top/theme/css/style.css" type="text/css"/>
+
+        <link href="https://wizmann.top/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow ATOM Feed"/>
+
+        <link href="https://wizmann.top/feeds/blog.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow Blog ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://wizmann.top/" class="navbar-brand">
+Maerlyn's Rainbow            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="/category/blog.html">Blog</a></li>
+                    <li><a href="https://vijos.org/d/wizmann/p">Online Judge</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://wizmann.top/linux-lockless-llist.html"
+                       rel="bookmark"
+                       title="Permalink to Linux内核中的少锁链表">
+                        Linux内核中的少锁链表
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2013-11-28T00:00:00+08:00"> 2013-11-28</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://wizmann.top/tag/linux.html">linux</a>
+        /
+	<a href="https://wizmann.top/tag/lock-less.html">lock-less</a>
+        /
+	<a href="https://wizmann.top/tag/lian-biao.html">链表</a>
+        /
+	<a href="https://wizmann.top/tag/bing-fa-bian-cheng.html">并发编程</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h1 id="_1">前言</h1>
+<p>最近在stackexchange上看到一个问答，讨论我们常用的数据结构与算法在实际工程中的应用。(<a href="http://cstheory.stackexchange.com/questions/19759/core-algorithms-deployed/19773#19773">戳我</a>)</p>
+<p>我打算借助这个问答中的内容，以我比较熟悉的数据结构与算法为索引来阅读开源代码。</p>
+<h1 id="_2">正文</h1>
+<h2 id="talk-is-cheap">Talk is cheap</h2>
+<blockquote>
+<p>Lock-less NULL terminated single linked list</p>
+</blockquote>
+<p><a href="https://github.com/mirrors/linux-2.6/blob/master/include/linux/llist.h">linux-2.6/include/linux/llist.h</a></p>
+<p><a href="https://github.com/mirrors/linux-2.6/blob/master/lib/llist.c">linux-2.6/lib/llist.c</a></p>
+<h2 id="_3">知识准备</h2>
+<h3 id="volatile">volatile</h3>
+<blockquote>
+<p>volatile关键字声明的变量或对象通常拥有和优化和（或）多线程相关的特殊属性。</p>
+<p>通常，volatile关键字用来阻止（伪）编译器对那些它认为变量的值不能“被代码本身”改变的代码上执行任何优化。 </p>
+<p>如果不使用volatile关键字，编译器将假设当前程序是系统中唯一能改变这个值部分。 为了阻止编译器像上面那样优化代码，需要使用volatile关键字。</p>
+<p>From: http://zh.wikipedia.org/wiki/Volatile%E5%8F%98%E9%87%8F</p>
+</blockquote>
+<h3 id="typeof">typeof</h3>
+<blockquote>
+<p>Another way to refer to the type of an expression is with typeof. The syntax of using of this keyword looks like sizeof, but the construct acts semantically like a type name defined with typedef. </p>
+<p>From: http://gcc.gnu.org/onlinedocs/gcc/Typeof.html</p>
+</blockquote>
+<p><code>typeof</code>和<code>sizeof</code>类似，sizeof求的是变量/类型的大小，而typeof是求变量/类型的<strong>数据类型</strong>。</p>
+<p>typeof在#define中的应用很多，例如：</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#define max(a,b) \</span>
+<span class="cp">   ({ typeof (a) _a = (a); \</span>
+<span class="cp">       typeof (b) _b = (b); \</span>
+<span class="cp">     _a &gt; _b ? _a : _b; })</span>
+</code></pre></div>
+
+<p><code>typeof(a)</code>获得了<code>a</code>的类型，声明了一个同类型的<code>_a</code>变量。</p>
+<p>p.s. 上面是一个安全的用<code>#define</code>实现的<code>max</code>函数。</p>
+<h3 id="access_once">ACCESS_ONCE</h3>
+<div class="highlight"><pre><span></span><code><span class="cp">#define ACCESS_ONCE(x) (*(volatile typeof(x) *)&amp;(x))；</span>
+</code></pre></div>
+
+<p><code>ACCESS_ONCE</code>使用了一个类型转换，使用<code>volatile</code>修饰 <code>x</code>。避免编译器优化带来的潜在岐义。</p>
+<h3 id="cmpxchg">cmpxchg</h3>
+<blockquote>
+<p>compare-and-swap (CAS) is an atomic instruction used in multithreading to achieve synchronization. </p>
+<p>It compares the contents of a memory location to a given value and, only if they are the same, modifies the contents of that memory location to a given new value. </p>
+<p>This is done as a single atomic operation. The atomicity guarantees that the new value is calculated based on up-to-date information; if the value had been updated by another thread in the meantime, the write would fail. </p>
+<p>The result of the operation must indicate whether it performed the substitution; this can be done either with a simple Boolean response (this variant is often called compare-and-set), or by returning the value read from the memory location (not the value written to it).</p>
+<p>&hellip;</p>
+<p>In the x86 (since 80486) and Itanium architectures this is implemented as the compare and exchange (CMPXCHG) instruction, though here the LOCK prefix should be there to make it really atomic.</p>
+<p>From: http://en.wikipedia.org/wiki/Compare-and-swap</p>
+</blockquote>
+<p><code>cmpxchg</code>是在Intel平台上<code>atomic compare-and-swap</code>操作的实现。</p>
+<p><code>cmpxchg</code>还被用来实现<code>spinlock</code>，<a href="http://stackoverflow.com/questions/6935442/x86-spinlock-using-cmpxchg">戳我</a>。</p>
+<h2 id="show-me-the-code">Show me the code</h2>
+<h3 id="_4">数据类型</h3>
+<div class="highlight"><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">llist_head</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="nc">llist_node</span><span class="w"> </span><span class="o">*</span><span class="n">first</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">struct</span><span class="w"> </span><span class="nc">llist_node</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="nc">llist_node</span><span class="w"> </span><span class="o">*</span><span class="n">next</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<p>一个简单的类型包裹。</p>
+<p><code>llist_head</code>是链表头，而<code>llist_node</code>是链表中<strong>链</strong>的部分。</p>
+<h3 id="_5">初始化</h3>
+<div class="highlight"><pre><span></span><code><span class="cp">#define LLIST_HEAD_INIT(name)        { NULL }</span>
+<span class="cp">#define LLIST_HEAD(name)        struct llist_head name = LLIST_HEAD_INIT(name)</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * init_llist_head - initialize lock-less list head</span>
+<span class="cm"> * @head:        the head for your lock-less list</span>
+<span class="cm"> */</span>
+<span class="k">static</span><span class="w"> </span><span class="kr">inline</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">init_llist_head</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">llist_head</span><span class="w"> </span><span class="o">*</span><span class="n">list</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">        </span><span class="n">list</span><span class="o">-&gt;</span><span class="n">first</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="_6">链表的遍历</h3>
+<h4 id="llist_entry">llist_entry</h4>
+<div class="highlight"><pre><span></span><code><span class="cm">/**</span>
+<span class="cm"> * llist_entry - get the struct of this entry</span>
+<span class="cm"> * @ptr:        the &amp;struct llist_node pointer.</span>
+<span class="cm"> * @type:        the type of the struct this is embedded in.</span>
+<span class="cm"> * @member:        the name of the llist_node within the struct.</span>
+<span class="cm"> */</span>
+<span class="cp">#define llist_entry(ptr, type, member)                \</span>
+<span class="cp">        container_of(ptr, type, member)</span>
+</code></pre></div>
+
+<p>声明一个链表时，我们需要把<code>llist_node</code>包含在链表节点中，<code>llist_head</code>是链表头。</p>
+<p><code>llist_entry</code>是从链表节点中的<code>llist_node</code>成员变量获得链表节点的地址。</p>
+<p><code>llist_entry</code>宏是从<code>container_of</code>宏继承而来的。</p>
+<div class="highlight"><pre><span></span><code><span class="cm">/**</span>
+<span class="cm"> * container_of - cast a member of a structure out to the containing structure</span>
+<span class="cm"> * @ptr:        the pointer to the member.</span>
+<span class="cm"> * @type:        the type of the container struct this is embedded in.</span>
+<span class="cm"> * @member:        the name of the member within the struct.</span>
+<span class="cm"> *</span>
+<span class="cm"> */</span>
+<span class="cp">#define container_of(ptr, type, member) ({                        \</span>
+<span class="cp">        const typeof( ((type *)0)-&gt;member ) *__mptr = (ptr);        \</span>
+<span class="cp">        (type *)( (char *)__mptr - offsetof(type,member) );})</span>
+</code></pre></div>
+
+<p>具体原理可以小小参考一下<a href="http://hi.baidu.com/holinux/item/af2e32c9dcbd3953ac00ef49">这里</a>。</p>
+<h4 id="for_each">for_each</h4>
+<h5 id="llist_for_each">llist_for_each</h5>
+<div class="highlight"><pre><span></span><code><span class="cm">/**</span>
+<span class="cm"> * llist_for_each - iterate over some deleted entries of a lock-less list</span>
+<span class="cm"> * @pos:        the &amp;struct llist_node to use as a loop cursor</span>
+<span class="cm"> * @node:        the first entry of deleted list entries</span>
+<span class="cm"> *</span>
+<span class="cm"> * In general, some entries of the lock-less list can be traversed</span>
+<span class="cm"> * safely only after being deleted from list, so start with an entry</span>
+<span class="cm"> * instead of list head.</span>
+<span class="cm"> *</span>
+<span class="cm"> * If being used on entries deleted from lock-less list directly, the</span>
+<span class="cm"> * traverse order is from the newest to the oldest added entry.  If</span>
+<span class="cm"> * you want to traverse from the oldest to the newest, you must</span>
+<span class="cm"> * reverse the order by yourself before traversing.</span>
+<span class="cm"> */</span>
+<span class="cp">#define llist_for_each(pos, node)                        \</span>
+<span class="cp">        for ((pos) = (node); pos; (pos) = (pos)-&gt;next)</span>
+</code></pre></div>
+
+<p>一个<code>for循环</code>。简单的宏。</p>
+<h5 id="llist_for_each_entry">llist_for_each_entry</h5>
+<div class="highlight"><pre><span></span><code><span class="cm">/**</span>
+<span class="cm"> * llist_for_each_entry - iterate over some deleted entries of lock-less list of given type</span>
+<span class="cm"> * @pos:        the type * to use as a loop cursor.</span>
+<span class="cm"> * @node:        the fist entry of deleted list entries.</span>
+<span class="cm"> * @member:        the name of the llist_node with the struct.</span>
+<span class="cm"> *</span>
+<span class="cm"> * In general, some entries of the lock-less list can be traversed</span>
+<span class="cm"> * safely only after being removed from list, so start with an entry</span>
+<span class="cm"> * instead of list head.</span>
+<span class="cm"> *</span>
+<span class="cm"> * If being used on entries deleted from lock-less list directly, the</span>
+<span class="cm"> * traverse order is from the newest to the oldest added entry.  If</span>
+<span class="cm"> * you want to traverse from the oldest to the newest, you must</span>
+<span class="cm"> * reverse the order by yourself before traversing.</span>
+<span class="cm"> */</span>
+<span class="cp">#define llist_for_each_entry(pos, node, member)                                \</span>
+<span class="cp">        for ((pos) = llist_entry((node), typeof(*(pos)), member);        \</span>
+<span class="cp">             &amp;(pos)-&gt;member != NULL;                                        \</span>
+<span class="cp">             (pos) = llist_entry((pos)-&gt;member.next, typeof(*(pos)), member))</span>
+</code></pre></div>
+
+<p>遍历链表的类。<br>
+用伪代码来表述一下就是。</p>
+<div class="highlight"><pre><span></span><code><span class="n">for</span><span class="w"> </span><span class="p">((</span><span class="n">pos</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">链表节点</span><span class="p">;</span>
+<span class="w">        </span><span class="o">&amp;</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">next指针</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">NULL</span><span class="p">;</span><span class="w"> </span>
+<span class="w">        </span><span class="p">(</span><span class="n">pos</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">链表下一个节点</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// 遍历操作</span>
+<span class="w">    </span><span class="n">pos</span><span class="p">.</span><span class="n">foo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bar</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h5 id="llist_for_each_entry_safe">llist_for_each_entry_safe</h5>
+<div class="highlight"><pre><span></span><code><span class="cm">/**</span>
+<span class="cm"> * llist_for_each_entry_safe - iterate over some deleted entries of lock-less list of given type</span>
+<span class="cm"> *                               safe against removal of list entry</span>
+<span class="cm"> * @pos:        the type * to use as a loop cursor.</span>
+<span class="cm"> * @n:                another type * to use as temporary storage</span>
+<span class="cm"> * @node:        the first entry of deleted list entries.</span>
+<span class="cm"> * @member:        the name of the llist_node with the struct.</span>
+<span class="cm"> *</span>
+<span class="cm"> * In general, some entries of the lock-less list can be traversed</span>
+<span class="cm"> * safely only after being removed from list, so start with an entry</span>
+<span class="cm"> * instead of list head.</span>
+<span class="cm"> *</span>
+<span class="cm"> * If being used on entries deleted from lock-less list directly, the</span>
+<span class="cm"> * traverse order is from the newest to the oldest added entry.  If</span>
+<span class="cm"> * you want to traverse from the oldest to the newest, you must</span>
+<span class="cm"> * reverse the order by yourself before traversing.</span>
+<span class="cm"> */</span>
+<span class="cp">#define llist_for_each_entry_safe(pos, n, node, member)                               \</span>
+<span class="cp">        for (pos = llist_entry((node), typeof(*pos), member);                       \</span>
+<span class="cp">             &amp;pos-&gt;member != NULL &amp;&amp;                                               \</span>
+<span class="cp">                (n = llist_entry(pos-&gt;member.next, typeof(*n), member), true); \</span>
+<span class="cp">             pos = n)</span>
+</code></pre></div>
+
+<p><code>safe</code>表示单链表中的节点有可能被增加/删除。</p>
+<p>使用<code>(n = llist_entry(pos-&gt;member.next, typeof(*n), member), true)</code>可以保持遍历的安全性。</p>
+<h6 id="llist_next">llist_next</h6>
+<div class="highlight"><pre><span></span><code><span class="k">static</span><span class="w"> </span><span class="kr">inline</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">llist_node</span><span class="w"> </span><span class="o">*</span><span class="n">llist_next</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">llist_node</span><span class="w"> </span><span class="o">*</span><span class="n">node</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">node</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="_7">链表元素的操作</h3>
+<h5 id="llist_add_batch">llist_add_batch</h5>
+<div class="highlight"><pre><span></span><code><span class="cm">/**</span>
+<span class="cm"> * llist_add_batch - add several linked entries in batch</span>
+<span class="cm"> * @new_first:        first entry in batch to be added</span>
+<span class="cm"> * @new_last:        last entry in batch to be added</span>
+<span class="cm"> * @head:        the head for your lock-less list</span>
+<span class="cm"> *</span>
+<span class="cm"> * Return whether list is empty before adding.</span>
+<span class="cm"> */</span>
+<span class="kt">bool</span><span class="w"> </span><span class="nf">llist_add_batch</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">llist_node</span><span class="w"> </span><span class="o">*</span><span class="n">new_first</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">llist_node</span><span class="w"> </span><span class="o">*</span><span class="n">new_last</span><span class="p">,</span>
+<span class="w">                     </span><span class="k">struct</span><span class="w"> </span><span class="nc">llist_head</span><span class="w"> </span><span class="o">*</span><span class="n">head</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="nc">llist_node</span><span class="w"> </span><span class="o">*</span><span class="n">first</span><span class="p">;</span>
+
+<span class="w">        </span><span class="k">do</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">new_last</span><span class="o">-&gt;</span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">first</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ACCESS_ONCE</span><span class="p">(</span><span class="n">head</span><span class="o">-&gt;</span><span class="n">first</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">cmpxchg</span><span class="p">(</span><span class="o">&amp;</span><span class="n">head</span><span class="o">-&gt;</span><span class="n">first</span><span class="p">,</span><span class="w"> </span><span class="n">first</span><span class="p">,</span><span class="w"> </span><span class="n">new_first</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">first</span><span class="p">);</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="o">!</span><span class="n">first</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>批量增加命令，使用<code>cmpxchg</code>保持线程安全。</p>
+<h5 id="llist_add">llist_add</h5>
+<div class="highlight"><pre><span></span><code><span class="cm">/**</span>
+<span class="cm"> * llist_add - add a new entry</span>
+<span class="cm"> * @new:        new entry to be added</span>
+<span class="cm"> * @head:        the head for your lock-less list</span>
+<span class="cm"> *</span>
+<span class="cm"> * Returns true if the list was empty prior to adding this entry.</span>
+<span class="cm"> */</span>
+<span class="k">static</span><span class="w"> </span><span class="kr">inline</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">llist_add</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">llist_node</span><span class="w"> </span><span class="o">*</span><span class="n">new</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">llist_head</span><span class="w"> </span><span class="o">*</span><span class="n">head</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">llist_add_batch</span><span class="p">(</span><span class="n">new</span><span class="p">,</span><span class="w"> </span><span class="n">new</span><span class="p">,</span><span class="w"> </span><span class="n">head</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h5 id="llist_empty">llist_empty</h5>
+<div class="highlight"><pre><span></span><code><span class="cm">/**</span>
+<span class="cm"> * llist_empty - tests whether a lock-less list is empty</span>
+<span class="cm"> * @head:        the list to test</span>
+<span class="cm"> *</span>
+<span class="cm"> * Not guaranteed to be accurate or up to date.  Just a quick way to</span>
+<span class="cm"> * test whether the list is empty without deleting something from the</span>
+<span class="cm"> * list.</span>
+<span class="cm"> */</span>
+<span class="k">static</span><span class="w"> </span><span class="kr">inline</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">llist_empty</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">llist_head</span><span class="w"> </span><span class="o">*</span><span class="n">head</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">ACCESS_ONCE</span><span class="p">(</span><span class="n">head</span><span class="o">-&gt;</span><span class="n">first</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>使用<code>ACCESS_ONCE</code>避免编译器优化，保持线程安全性。</p>
+<h5 id="llist_del_all">llist_del_all</h5>
+<div class="highlight"><pre><span></span><code><span class="cm">/**</span>
+<span class="cm"> * llist_del_all - delete all entries from lock-less list</span>
+<span class="cm"> * @head:        the head of lock-less list to delete all entries</span>
+<span class="cm"> *</span>
+<span class="cm"> * If list is empty, return NULL, otherwise, delete all entries and</span>
+<span class="cm"> * return the pointer to the first entry.  The order of entries</span>
+<span class="cm"> * deleted is from the newest to the oldest added one.</span>
+<span class="cm"> */</span>
+<span class="k">static</span><span class="w"> </span><span class="kr">inline</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">llist_node</span><span class="w"> </span><span class="o">*</span><span class="n">llist_del_all</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">llist_head</span><span class="w"> </span><span class="o">*</span><span class="n">head</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">xchg</span><span class="p">(</span><span class="o">&amp;</span><span class="n">head</span><span class="o">-&gt;</span><span class="n">first</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h5 id="llist_del_first">llist_del_first</h5>
+<div class="highlight"><pre><span></span><code><span class="cm">/**</span>
+<span class="cm"> * llist_del_first - delete the first entry of lock-less list</span>
+<span class="cm"> * @head:        the head for your lock-less list</span>
+<span class="cm"> *</span>
+<span class="cm"> * If list is empty, return NULL, otherwise, return the first entry</span>
+<span class="cm"> * deleted, this is the newest added one.</span>
+<span class="cm"> *</span>
+<span class="cm"> * Only one llist_del_first user can be used simultaneously with</span>
+<span class="cm"> * multiple llist_add users without lock.  Because otherwise</span>
+<span class="cm"> * llist_del_first, llist_add, llist_add (or llist_del_all, llist_add,</span>
+<span class="cm"> * llist_add) sequence in another user may change @head-&gt;first-&gt;next,</span>
+<span class="cm"> * but keep @head-&gt;first.  If multiple consumers are needed, please</span>
+<span class="cm"> * use llist_del_all or use lock between consumers.</span>
+<span class="cm"> */</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">llist_node</span><span class="w"> </span><span class="o">*</span><span class="n">llist_del_first</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">llist_head</span><span class="w"> </span><span class="o">*</span><span class="n">head</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="nc">llist_node</span><span class="w"> </span><span class="o">*</span><span class="n">entry</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">old_entry</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">next</span><span class="p">;</span>
+
+<span class="w">        </span><span class="n">entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">head</span><span class="o">-&gt;</span><span class="n">first</span><span class="p">;</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">entry</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span>
+<span class="w">                        </span><span class="k">return</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+<span class="w">                </span><span class="n">old_entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">entry</span><span class="p">;</span>
+<span class="w">                </span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">entry</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+<span class="w">                </span><span class="n">entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cmpxchg</span><span class="p">(</span><span class="o">&amp;</span><span class="n">head</span><span class="o">-&gt;</span><span class="n">first</span><span class="p">,</span><span class="w"> </span><span class="n">old_entry</span><span class="p">,</span><span class="w"> </span><span class="n">next</span><span class="p">);</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">entry</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">old_entry</span><span class="p">)</span>
+<span class="w">                        </span><span class="k">break</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">entry</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>删除第一个值。同样的无锁操作。</p>
+<h5 id="llist_reverse_order">llist_reverse_order</h5>
+<div class="highlight"><pre><span></span><code><span class="cm">/**</span>
+<span class="cm"> * llist_reverse_order - reverse order of a llist chain</span>
+<span class="cm"> * @head:        first item of the list to be reversed</span>
+<span class="cm"> *</span>
+<span class="cm"> * Reverse the order of a chain of llist entries and return the</span>
+<span class="cm"> * new first entry.</span>
+<span class="cm"> */</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">llist_node</span><span class="w"> </span><span class="o">*</span><span class="n">llist_reverse_order</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">llist_node</span><span class="w"> </span><span class="o">*</span><span class="n">head</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="nc">llist_node</span><span class="w"> </span><span class="o">*</span><span class="n">new_head</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+
+<span class="w">        </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">head</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="k">struct</span><span class="w"> </span><span class="nc">llist_node</span><span class="w"> </span><span class="o">*</span><span class="n">tmp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">head</span><span class="p">;</span>
+<span class="w">                </span><span class="n">head</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">head</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+<span class="w">                </span><span class="n">tmp</span><span class="o">-&gt;</span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">new_head</span><span class="p">;</span>
+<span class="w">                </span><span class="n">new_head</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tmp</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">new_head</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="n">EXPORT_SYMBOL_GPL</span><span class="p">(</span><span class="n">llist_reverse_order</span><span class="p">);</span>
+</code></pre></div>
+
+<p>如何反转一个单链表</p>
+<h2 id="_8">少锁链表是如何实现的</h2>
+<h3 id="add">add函数中的原子操作</h3>
+<div class="highlight"><pre><span></span><code><span class="k">do</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">new_last</span><span class="o">-&gt;</span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">first</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ACCESS_ONCE</span><span class="p">(</span><span class="n">head</span><span class="o">-&gt;</span><span class="n">first</span><span class="p">);</span>
+<span class="p">}</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">cmpxchg</span><span class="p">(</span><span class="o">&amp;</span><span class="n">head</span><span class="o">-&gt;</span><span class="n">first</span><span class="p">,</span><span class="w"> </span><span class="n">first</span><span class="p">,</span><span class="w"> </span><span class="n">new_first</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">first</span><span class="p">);</span>
+</code></pre></div>
+
+<p>其中<code>cmpxchg</code>的性质类似于锁。保证赋值是成功的且是是原子的。</p>
+<h3 id="del_first">del_first中的原子操作</h3>
+<div class="highlight"><pre><span></span><code><span class="n">entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cmpxchg</span><span class="p">(</span><span class="o">&amp;</span><span class="n">head</span><span class="o">-&gt;</span><span class="n">first</span><span class="p">,</span><span class="w"> </span><span class="n">old_entry</span><span class="p">,</span><span class="w"> </span><span class="n">next</span><span class="p">);</span>
+</code></pre></div>
+
+<h3 id="del_all">del_all中的原子操作</h3>
+<div class="highlight"><pre><span></span><code><span class="k">return</span><span class="w"> </span><span class="n">xchg</span><span class="p">(</span><span class="o">&amp;</span><span class="n">head</span><span class="o">-&gt;</span><span class="n">first</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+</code></pre></div>
+
+<h3 id="_9">少锁链表如何处理并发</h3>
+<p>在llist.h中有如下的注释表明如果两种操作并发执行，是否需要加额外的锁。</p>
+<div class="highlight"><pre><span></span><code><span class="w"> </span><span class="o">/*</span>
+<span class="w"> </span><span class="o">*</span><span class="w">           </span><span class="o">|</span><span class="w">   </span><span class="n">add</span><span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">del_first</span><span class="w"> </span><span class="o">|</span><span class="w">  </span><span class="n">del_all</span>
+<span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">add</span><span class="w">       </span><span class="o">|</span><span class="w">    </span><span class="o">-</span><span class="w">     </span><span class="o">|</span><span class="w">     </span><span class="o">-</span><span class="w">     </span><span class="o">|</span><span class="w">     </span><span class="o">-</span>
+<span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">del_first</span><span class="w"> </span><span class="o">|</span><span class="w">          </span><span class="o">|</span><span class="w">     </span><span class="n">L</span><span class="w">     </span><span class="o">|</span><span class="w">     </span><span class="n">L</span>
+<span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">del_all</span><span class="w">   </span><span class="o">|</span><span class="w">          </span><span class="o">|</span><span class="w">           </span><span class="o">|</span><span class="w">     </span><span class="o">-</span>
+<span class="w"> </span><span class="o">*/</span>
+</code></pre></div>
+
+<p><code>add</code>操作和头指针没有关系，所以它可以和其它操作并行。<br>
+<code>del_first</code>依赖于<code>list-&gt;first-&gt;next</code>在操作时不变化。<br>
+而<code>del_all</code>只对<code>list-&gt;first</code>的指针进行操作。所以是可以并行的。</p>
+<h3 id="_10">少锁链表如何处理遍历</h3>
+<div class="highlight"><pre><span></span><code><span class="cm">/*</span>
+<span class="cm"> * The list entries deleted via llist_del_all can be traversed with</span>
+<span class="cm"> * traversing function such as llist_for_each etc.  But the list</span>
+<span class="cm"> * entries can not be traversed safely before deleted from the list.</span>
+<span class="cm"> * The order of deleted entries is from the newest to the oldest added</span>
+<span class="cm"> * one.  If you want to traverse from the oldest to the newest, you</span>
+<span class="cm"> * must reverse the order by yourself before traversing.</span>
+<span class="cm"> */</span>
+</code></pre></div>
+
+<p>大概意思是说只有从列表上删除下来的元素才可以安全的遍历。（这点理解的不深入）</p>
+<h2 id="_11">后记</h2>
+<p>本来是想把这llist的代码看明白的。但是，大概只看懂了60%。。。</p>
+<p>以后如果有新的想法，看到了新的东西，也许会有不少有用的update吧。。</p>
+            </div>
+            <!-- /.entry-content -->
+    <hr/>
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+            var disqus_config = function () {
+                this.language = "zhs";
+
+                        this.page.identifier = '2013-11-28-linux-lockless-llist';
+                        this.page.url = 'https://wizmann.top/linux-lockless-llist.html';
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="https://github.com/wizmann"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="https://wizmann.top//feeds/all.atom.xml"><i class="fa fa-rss-square fa-lg"></i> rss</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://wizmann.top/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/cpp.html">cpp</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/algorithm.html">algorithm</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/suan-fa.html">算法</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/codeforces.html">codeforces</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/c.html">C++</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/fen-bu-shi-xi-tong.html">分布式系统</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/ti-jie.html">题解</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/udp.html">UDP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/cas.html">cas</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rpc.html">rpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-xi-tong.html">数据系统</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-ku.html">数据库</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/leetcode.html">Leetcode</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/interview.html">interview</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multithread.html">multithread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/jian-suo-zeng-qiang-sheng-cheng.html">检索增强生成</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xian-liao.html">闲聊</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rag.html">RAG</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/modern-cpp.html">modern cpp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/protocol.html">protocol</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multi-thread.html">multi-thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/yi-zhi-xing.html">一致性</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/networking.html">networking</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/storage.html">storage</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xin-xi-jian-suo.html">信息检索</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/stup.html">STUP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/distributed-system.html">Distributed System</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/phxrpc.html">phxrpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/memory-barrier.html">memory-barrier</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/system-design.html">System Design</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/thread.html">thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/llm.html">LLM</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/tcp.html">tcp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/duo-xian-cheng.html">多线程</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/gong-kai-ke.html">公开课</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spinpromela.html">SPIN/Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/promela.html">Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/storage-system.html">storage system</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/google.html">Google</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/bing-fa-bian-cheng.html">并发编程</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/induction.html">induction</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/raft.html">raft</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/ucontext.html">ucontext</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/paxos.html">paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cse351.html">CSE351</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cmpxchg.html">cmpxchg</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/basic-paxos.html">basic paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/solution.html">Solution</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/azure.html">azure</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/async.html">async</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/3d-printing.html">3D printing</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/shu-ju-mi-ji-xing-ying-yong-xi-tong.html">数据密集型应用系统</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spin.html">SPIN</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-mo-xing.html">数据模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yi-zhi-xing-xie-yi.html">一致性协议</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/zi-fu-chuan-zhong-xie-xi-tong.html">字符串重写系统</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-xing-dp.html">树形DP</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-bian-cheng.html">编译期编程</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/mutex.html">mutex</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yuan-lei.html">元类</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon.html">CppCon</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon2024.html">CppCon2024</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dda-yin.html">3D打印</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/led.html">LED</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nei-cun-mo-xing.html">内存模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-shi-wu.html">分布式事务</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/diy.html">DIY</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/excrt.html">excrt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/segment-tree.html">segment-tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-lian-pou-fen.html">树链剖分</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/an-quan-xing.html">安全性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dp.html">dp</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bing-fa.html">并发</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/qi-fa-shi-he-bing.html">启发式合并</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/semaphore.html">semaphore</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-gong-shi.html">分布式共识</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nosql.html">nosql</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/post.html">Post</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-bian-ma.html">数据编码</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/litmus.html">litmus</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fan-she.html">反射</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/si-suo.html">死锁</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/hash.html">hash</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/partitioning.html">partitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/xian-duan-shu.html">线段树</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/volatile.html">volatile</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-jie-gou.html">数据结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/ab.html">A=B</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/tu-ling-wan-bei-xing.html">图灵完备性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/suo-yin-jie-gou.html">索引结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/repartitioning.html">repartitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/thue.html">Thue</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/crt.html">crt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/herb-sutter.html">Herb Sutter</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/condition_variable.html">condition_variable</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dsu-on-tree.html">DSU on Tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/math.html">math</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-you-hua.html">编译器优化</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/deng-ju-she-ji.html">灯具设计</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dmo-xing.html">3D模型</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2025 Wizmann
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://wizmann.top/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://wizmann.top/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://wizmann.top/theme/js/respond.min.js"></script>
+
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-46053117-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+
+</body>
+</html>

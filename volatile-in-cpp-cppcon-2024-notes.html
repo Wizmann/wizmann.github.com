@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="zhs" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>C++ 的 `volatile`：它到底管啥、不管啥 @ （Ben Saks @ CppCon 2024） - Maerlyn's Rainbow</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <link href="https://wizmann.top/statistics/favicon.png" rel="icon">
+
+<link rel="canonical" href="https://wizmann.top/volatile-in-cpp-cppcon-2024-notes.html">
+
+        <meta name="author" content="Wizmann" />
+        <meta name="keywords" content="C++,volatile,编译器优化,并发,内存模型,CppCon2024" />
+        <meta name="description" content="CppCon 2024 — What Volatile Means (and Doesn’t Mean), Ben Saks (video, slides) 0. 背景与提纲 volatile 的使命：阻止编译器做会伤害程序语义的某些优化。很多 C++ 程序员并不清 …" />
+
+        <meta property="og:site_name" content="Maerlyn's Rainbow" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="C++ 的 `volatile`：它到底管啥、不管啥 @ （Ben Saks @ CppCon 2024）"/>
+        <meta property="og:url" content="https://wizmann.top/volatile-in-cpp-cppcon-2024-notes.html"/>
+        <meta property="og:description" content="CppCon 2024 — What Volatile Means (and Doesn’t Mean), Ben Saks (video, slides) 0. 背景与提纲 volatile 的使命：阻止编译器做会伤害程序语义的某些优化。很多 C++ 程序员并不清 …"/>
+        <meta property="article:published_time" content="2025-10-01" />
+            <meta property="article:section" content="Blog" />
+            <meta property="article:tag" content="C++" />
+            <meta property="article:tag" content="volatile" />
+            <meta property="article:tag" content="编译器优化" />
+            <meta property="article:tag" content="并发" />
+            <meta property="article:tag" content="内存模型" />
+            <meta property="article:tag" content="CppCon2024" />
+            <meta property="article:author" content="Wizmann" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://wizmann.top/theme/css/bootstrap.flatly.min.css" type="text/css"/>
+    <link href="https://wizmann.top/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://wizmann.top/theme/css/pygments/solarizedlight.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://wizmann.top/theme/css/style.css" type="text/css"/>
+
+        <link href="https://wizmann.top/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow ATOM Feed"/>
+
+        <link href="https://wizmann.top/feeds/blog.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow Blog ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://wizmann.top/" class="navbar-brand">
+Maerlyn's Rainbow            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="/category/blog.html">Blog</a></li>
+                    <li><a href="https://vijos.org/d/wizmann/p">Online Judge</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://wizmann.top/volatile-in-cpp-cppcon-2024-notes.html"
+                       rel="bookmark"
+                       title="Permalink to C++ 的 `volatile`：它到底管啥、不管啥 @ （Ben Saks @ CppCon 2024）">
+                        C++ 的 `volatile`：它到底管啥、不管啥 @ （Ben Saks @ CppCon 2024）
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2025-10-01T09:00:00+08:00"> 2025-10-01</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://wizmann.top/tag/c.html">C++</a>
+        /
+	<a href="https://wizmann.top/tag/volatile.html">volatile</a>
+        /
+	<a href="https://wizmann.top/tag/bian-yi-qi-you-hua.html">编译器优化</a>
+        /
+	<a href="https://wizmann.top/tag/bing-fa.html">并发</a>
+        /
+	<a href="https://wizmann.top/tag/nei-cun-mo-xing.html">内存模型</a>
+        /
+	<a href="https://wizmann.top/tag/cppcon2024.html">CppCon2024</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <blockquote>
+<p>CppCon 2024 — What Volatile Means (and Doesn’t Mean), Ben Saks <br>
+(<a href="https://www.youtube.com/watch?v=GeblxEQIPFM&amp;list=PLHTh1InhhwT6U7t1yP2K8AtTEKmcM3XU_&amp;index=2&amp;t=2s">video</a>, <a href="https://github.com/CppCon/CppCon2024/blob/main/Presentations/What_Volatile_Means_(and_Doesn't_Mean).pdf">slides</a>)</p>
+</blockquote>
+<hr>
+<h2 id="0">0. 背景与提纲</h2>
+<ul>
+<li><code>volatile</code> 的使命：<strong>阻止编译器做会伤害程序语义的某些优化</strong>。很多 C++ 程序员并不清楚它到底提供哪些保护、又<strong>不</strong>提供哪些保护，从而误用：要么不必要地关掉了优化，要么以为得到了保护但其实没有，导致隐蔽的运行时缺陷。</li>
+<li>本次内容覆盖：</li>
+</ul>
+<ol>
+<li>为什么需要 <code>volatile</code>；</li>
+<li>声明里 <code>volatile</code> 的正确放置方法；</li>
+<li>它能/不能提供的保护；</li>
+<li>编译器把 <code>volatile</code> 搞砸时的几种work around</li>
+</ol>
+<hr>
+<h2 id="1-volatile-uart">1. 为什么需要 <code>volatile</code>：从 UART 驱动说起</h2>
+<h3 id="11">1.1 设备寄存器与内存映射</h3>
+<ul>
+<li>设备驱动通过<strong>设备寄存器</strong>与硬件通信；寄存器可能用于：控制（control）、状态（status）、发送（transmit）、接收（receive）、波特率等（以 ARM E7T UART 为例）。</li>
+<li>内存映射寄存器<strong>看起来</strong>像普通内存地址，但<strong>读/写都可能有副作用</strong>：写控制寄存器启动一次操作；读接收寄存器可能设置/清除状态位。优化器若改变访问次数，就可能改变副作用，导致驱动失效。</li>
+</ul>
+<h3 id="12-uart-tbe">1.2 UART 发送路径与 TBE 语义</h3>
+<ul>
+<li><code>USTAT.TBE</code>（Transmit Buffer Empty）为 1 时，<code>UTXBUF</code> 可写。写入 <code>UTXBUF</code> 会触发发送并清零 <code>TBE</code>，发送完成后硬件再把 <code>TBE</code> 置 1。</li>
+</ul>
+<hr>
+<h2 id="2-volatile">2. 没有 <code>volatile</code> 会怎样：编译器会更高效的做错事</h2>
+<p>下面这段<strong>故意不加 <code>volatile</code></strong> 的示例很“像对的”，但在优化器眼里全错了：</p>
+<div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="kt">uint32_t</span><span class="w"> </span><span class="o">&amp;</span><span class="n">USTAT0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">*</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="kt">uint32_t</span><span class="w"> </span><span class="o">*&gt;</span><span class="p">(</span><span class="mh">0x03FFD008</span><span class="p">);</span>
+<span class="n">std</span><span class="o">::</span><span class="kt">uint32_t</span><span class="w"> </span><span class="o">&amp;</span><span class="n">UTXBUF0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">*</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="kt">uint32_t</span><span class="w"> </span><span class="o">*&gt;</span><span class="p">(</span><span class="mh">0x03FFD00C</span><span class="p">);</span>
+
+<span class="k">while</span><span class="w"> </span><span class="p">((</span><span class="n">USTAT0</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">TBE</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">}</span><span class="w">   </span><span class="c1">// 忙等</span>
+<span class="n">UTXBUF0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sc">&#39;\r&#39;</span><span class="p">;</span>
+<span class="k">while</span><span class="w"> </span><span class="p">((</span><span class="n">USTAT0</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">TBE</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">}</span><span class="w">   </span><span class="c1">// 再等</span>
+<span class="n">UTXBUF0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">;</span>
+</code></pre></div>
+
+<p>优化器的推理链条（逐步“合理化”但错误的转化）：</p>
+<ol>
+<li><code>USTAT0</code> 看起来是普通对象，循环体为空，条件“从未变化”，把 busy loop 变成只判断一次、然后<strong>直接进死循环</strong>或<strong>跳过循环</strong>。</li>
+<li>第二个 <code>if</code>（或第二个 <code>while</code>）与第一个条件等价，且“无副作用相关性”，因此<strong>删除第二个条件检查</strong>。</li>
+<li>两次对 <code>UTXBUF0</code> 的写入相邻，第二次覆盖第一次，第一条<strong>可删除</strong>。最终只剩：</li>
+</ol>
+<div class="highlight"><pre><span></span><code><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">USTAT0</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">TBE</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">for</span><span class="p">(;;){}</span><span class="w"> </span><span class="p">}</span>
+<span class="n">UTXBUF0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">;</span>
+</code></pre></div>
+
+<p>——更高效地<strong>做错事</strong>。</p>
+<blockquote>
+<p>关闭整个区域的优化是一个粗暴但“可行”的办法，不过会错失许多有益优化；<code>volatile</code> 提供更<strong>精确</strong>的解决方案。</p>
+</blockquote>
+<hr>
+<h2 id="3-volatile">3. 加上 <code>volatile</code>：告诉编译器“别动我”</h2>
+<p>把寄存器声明成<strong>指向 <code>volatile</code> 的引用</strong>：</p>
+<div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="kt">uint32_t</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="o">&amp;</span><span class="n">USTAT0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">*</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="kt">uint32_t</span><span class="w"> </span><span class="o">*&gt;</span><span class="p">(</span><span class="mh">0x03FFD008</span><span class="p">);</span>
+<span class="n">std</span><span class="o">::</span><span class="kt">uint32_t</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="o">&amp;</span><span class="n">UTXBUF0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">*</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="kt">uint32_t</span><span class="w"> </span><span class="o">*&gt;</span><span class="p">(</span><span class="mh">0x03FFD00C</span><span class="p">);</span>
+</code></pre></div>
+
+<ul>
+<li>语义（概念层面）：对象会“自己变”，即便程序没有显式改它。</li>
+<li>语义（机械层面）：<strong>每一次对 <code>volatile</code> 对象的读/写都可能有副作用</strong>，编译器<strong>不能省略</strong>，也<strong>不能重排</strong>不同 <code>volatile</code> 对象间的访问顺序。</li>
+</ul>
+<p>因此：</p>
+<div class="highlight"><pre><span></span><code><span class="k">while</span><span class="w"> </span><span class="p">((</span><span class="n">USTAT0</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">TBE</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">}</span><span class="w">  </span><span class="c1">// 必须真的反复读</span>
+<span class="n">UTXBUF0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sc">&#39;\r&#39;</span><span class="p">;</span><span class="w">                  </span><span class="c1">// 不得被搬到循环上方</span>
+</code></pre></div>
+
+<p>这两者之间没有显式联系（只是两个地址），但<strong>仅凭“都声明成 <code>volatile</code>”</strong>，编译器就必须假定两者副作用相关而<strong>保持顺序</strong>。</p>
+<p><strong>但要注意</strong>：<code>volatile</code> 的保护是<strong>以“对象”为单位</strong>，不是“代码区域”。编译器仍然可以把<strong>对非 <code>volatile</code> 对象的访问</strong>与 <code>volatile</code> 访问<strong>重排</strong>（见 §5.1）。</p>
+<hr>
+<h2 id="4-volatile-volatile-volatile">4. 声明里 <code>volatile</code> 的摆放：别把“指针自己 volatile”搞成“指向的东西 volatile”</h2>
+<h3 id="41">4.1 声明结构与关键术语</h3>
+<ul>
+<li>每个声明有两部分：<strong>声明说明符</strong>（type / non-type）+ <strong>声明器</strong>（名字与 <code>* &amp; [] ()</code> 等）。</li>
+<li><code>volatile</code> 和 <code>const</code> 都是<strong>类型说明符</strong>，与 <code>unsigned</code>、<code>long</code> 类似；<code>static</code> / <code>extern</code> 等是<strong>非类型说明符</strong>。<strong>顺序对编译器不重要</strong>：<code>unsigned long</code> 与 <code>long unsigned</code> 等价。</li>
+</ul>
+<h3 id="42-volatile">4.2 <code>volatile</code> 同时可出现在“类型说明符”与“声明器”里</h3>
+<ul>
+<li><code>volatile int *v[N]</code> 与 <code>int volatile *v[N]</code> ——<strong>指向 <code>volatile int</code> 的指针</strong>数组。</li>
+<li><code>int *volatile v[N]</code> ——<strong><code>volatile</code> 指针</strong>数组，指向<strong>非 volatile</strong> 的 <code>int</code>。这在寄存器场景<strong>很少</strong>需要。</li>
+</ul>
+<h3 id="43-east-const-east-volatile">4.3 牢记一个简单准则：<strong>East const / East volatile</strong></h3>
+<blockquote>
+<p>先写不带 <code>cv</code> 的版本，再把 <code>const/volatile</code> 放到你想修饰的<strong>类型或运算符的右侧</strong>。</p>
+</blockquote>
+<p>例子：把 <code>x</code> 声明为“<strong>N 个 const 指针</strong>，每个指向 <strong>volatile uint32_t</strong>”</p>
+<div class="highlight"><pre><span></span><code><span class="kt">uint32_t</span><span class="w">          </span><span class="o">*</span><span class="w">      </span><span class="n">x</span><span class="p">[</span><span class="n">N</span><span class="p">];</span><span class="w">      </span><span class="c1">// 起步</span>
+<span class="kt">uint32_t</span><span class="w">          </span><span class="o">*</span><span class="k">const</span><span class="w"> </span><span class="n">x</span><span class="p">[</span><span class="n">N</span><span class="p">];</span><span class="w">      </span><span class="c1">// 指针是 const</span>
+<span class="kt">uint32_t</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="o">*</span><span class="k">const</span><span class="w"> </span><span class="n">x</span><span class="p">[</span><span class="n">N</span><span class="p">];</span><span class="w">      </span><span class="c1">// 所指对象是 volatile</span>
+</code></pre></div>
+
+<p>——<strong><code>x</code> 的最终类型</strong>：<code>uint32_t volatile * const [N]</code>。</p>
+<hr>
+<h2 id="5-volatile">5. <code>volatile</code> 能做什么 &amp; 不能做什么</h2>
+<h3 id="51">5.1 顺序与重排</h3>
+<ul>
+<li><strong>能</strong>：保持所有 <code>volatile</code> 访问的<strong>相对顺序</strong>（即便是不同对象）。</li>
+<li><strong>不能</strong>：禁止<strong>非 <code>volatile</code></strong> 访问相对 <code>volatile</code> 的重排。典型反例（Eide &amp; Regehr 2008 改编）：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="kt">bool</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="n">buffer_ready</span><span class="p">;</span>
+<span class="kt">char</span><span class="w"> </span><span class="n">buffer</span><span class="p">[</span><span class="n">BUF_SIZE</span><span class="p">];</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">buffer_init</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">BUF_SIZE</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="n">buffer</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">  </span><span class="n">buffer_ready</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span><span class="w">             </span><span class="c1">// 可能被重排到循环前！</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>编译器可把 <code>buffer_ready=true</code> 提前，导致<strong>过早信号</strong>。若把 <code>buffer</code> 也声明为 <code>volatile</code> 可抑制此类重排，但<strong>代价</strong>是：之后所有对 <code>buffer</code> 的使用都失去优化空间。<strong>正确做法</strong>：线程通信请用<strong>同步原语（mutex/semaphore/condvar）</strong>。</p>
+<p>小结：<code>volatile</code> <strong>不是</strong>多线程通信工具。标准库/线程库里的同步原语里已经“自带内存栅栏”，可表达所需的可见性与顺序。字幕 Q&amp;A 也特别提到：低层可用<strong>内存屏障</strong>/“同步点”，但大多数应用用高层原语更可靠。</p>
+<h3 id="52">5.2 不保证原子性</h3>
+<ul>
+<li><strong><code>volatile</code> 只防“错误优化”，不提供原子性或同步。</strong><br>
+  对 <code>volatile</code> 对象的 <code>++</code>、<code>--</code>、<code>+=</code> 等操作在机器层面通常会被拆成“读 → 改 → 写”多步序列，因此<strong>不是不可分割的</strong>。在类型本身<strong>不天然原子</strong>的平台上（例如某些平台的 <code>double</code>），并发线程可能观察到<strong>撕裂（torn）</strong>的中间值。</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="kt">double</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w">  </span><span class="c1">// 某些平台上 double 非原子</span>
+<span class="c1">// 线程 A</span>
+<span class="n">v</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">8.67</span><span class="p">;</span>
+<span class="n">v</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">53.09</span><span class="p">;</span><span class="w">   </span><span class="c1">// B 可能在此两步之间读到“半写入”的值</span>
+<span class="c1">// 线程 B</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">v</span><span class="p">;</span><span class="w">  </span><span class="c1">// 可能既不是 8.67 也不是 53.09</span>
+</code></pre></div>
+
+<ul>
+<li>
+<p><strong>标准演进提醒的是“误用”而非赋予能力。</strong><br>
+  由于这些用法（对 <code>volatile</code> 的自增/自减/复合赋值）<strong>极易被误解</strong>，它们在 <strong>C++20 被标记为弃用</strong>；考虑到大量存量代码与现实反馈，<strong>C++23 又（部分）撤销了弃用</strong>。但无论“是否弃用”，这些操作的<strong>本质并未改变</strong>——它们<strong>仍不具备原子性</strong>。</p>
+</li>
+<li>
+<p><strong>正确做法</strong></p>
+</li>
+<li>需要原子读写/复合操作：使用 <code>std::atomic&lt;T&gt;</code> 及合适的内存序。</li>
+<li>只需建立内存序屏障：使用 <code>atomic_thread_fence(...)</code>。</li>
+<li>访问硬件寄存器：继续用 <code>volatile</code> 来<strong>防止优化器消掉/重排访问</strong>，但<strong>不要</strong>把它当作并发同步工具。</li>
+</ul>
+<h3 id="53-const-volatile">5.3 <code>const volatile</code> 的组合</h3>
+<ul>
+<li>实务中很常见：<strong>只读状态寄存器</strong>可以声明为 <code>const volatile</code>，以防止误写、又保持“硬件会变”的可见性：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="kt">uint32_t</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="o">&amp;</span><span class="n">USTAT0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">*</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="kt">uint32_t</span><span class="o">*&gt;</span><span class="p">(</span><span class="mh">0x03FFD008</span><span class="p">);</span>
+</code></pre></div>
+
+<h3 id="54">5.4 其它不合适的用途</h3>
+<p><strong>Cache 预热不要用 <code>volatile</code> 去“强行保留一次读取”</strong>（即防止优化器删除未使用的读）。这会扩大优化屏障、引入不必要的排序/等待，却<strong>不等于</strong>真正的“预取”。</p>
+<p><strong>更合适的做法</strong>：</p>
+<ul>
+<li>使用平台提供的<strong>预取内建</strong>（如 <code>_mm_prefetch</code> 或编译器内建的 <code>__builtin_prefetch</code> 等），它们以“提示”的方式把 cache line 提前带入，而不引入实际的数据依赖或强制读。</li>
+<li>在数据结构层面，结合 C++17 的 <code>std::hardware_constructive_interference_size</code> / <code>std::hardware_destructive_interference_size</code>，通过<strong>字段分组与填充</strong>减少伪共享、提升命中率。</li>
+</ul>
+<hr>
+<h2 id="6-volatile">6. 当编译器把 <code>volatile</code> 搞砸了</h2>
+<p>Eide &amp; Regehr（EMSOFT’08）随机程序测试：<strong>5 个系列编译器的 13 个版本</strong>，每个都至少在一种情形<strong>错误处理</strong>了 <code>volatile</code>；新版本<strong>未必更少 bug</strong>（GCC 4.2.4 比 4.0.4 还多）。在安全关键系统里，这后果很严重。</p>
+<h3 id="61">6.1 方案一：局部禁用优化</h3>
+<div class="highlight"><pre><span></span><code><span class="c1">// 方式 A：GCC 函数级属性</span>
+<span class="kt">void</span><span class="w"> </span><span class="p">[[</span><span class="n">gnu</span><span class="o">::</span><span class="n">optimize</span><span class="p">(</span><span class="s">&quot;O0&quot;</span><span class="p">)]]</span><span class="w"> </span><span class="n">f</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">}</span><span class="w">   </span><span class="c1">// O0=最少优化</span>
+<span class="c1">// 方式 B：GCC #pragma</span>
+<span class="cp">#pragma GCC push_options</span>
+<span class="cp">#pragma GCC optimize(&quot;O0&quot;)</span>
+<span class="kt">void</span><span class="w"> </span><span class="n">g</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">}</span>
+<span class="cp">#pragma GCC pop_options</span>
+</code></pre></div>
+
+<blockquote>
+<p>注意：不同编译器的 pragma 与属性写法不同，且通常是<strong>函数级</strong>生效。</p>
+</blockquote>
+<h3 id="62">6.2 方案二：换版本/换编译器</h3>
+<p>同一编译器不同版本的 <code>volatile</code> bug 差异显著，且<strong>新</strong>不一定<strong>好</strong>。</p>
+<h3 id="63-workaround">6.3 方案三：非内联函数“包裹”读/写（经典 workaround）</h3>
+<blockquote>
+<p>Eide &amp; Regehr 的实验显示：把对 <code>volatile</code> 的读/写包在<strong>非内联函数</strong>里，能修复他们测到的 <strong>~96%</strong> 的误编译场景（不同编译器与版本）。</p>
+</blockquote>
+<p><strong>普通读/写：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kt">int</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="n">v_int</span><span class="p">;</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">v_int</span><span class="p">;</span><span class="w">       </span><span class="c1">// 读</span>
+<span class="n">v_int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">256</span><span class="p">;</span><span class="w">         </span><span class="c1">// 写</span>
+</code></pre></div>
+
+<p><strong>包裹版（关键在“非内联”）：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kt">int</span><span class="w"> </span><span class="nf">vol_read_int</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="o">&amp;</span><span class="n">vp</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">vp</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="kt">int</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="o">&amp;</span><span class="n">vol_id_int</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="o">&amp;</span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">v</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="n">v_int</span><span class="p">;</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vol_read_int</span><span class="p">(</span><span class="n">v_int</span><span class="p">);</span><span class="w">   </span><span class="c1">// 强化“每次都要真的去读”</span>
+<span class="n">vol_id_int</span><span class="p">(</span><span class="n">v_int</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">256</span><span class="p">;</span><span class="w">       </span><span class="c1">// 强化“这一次写不能合并/删除”</span>
+</code></pre></div>
+
+<p><strong>原理</strong><br>
+编译器在优化<strong>非内联</strong>调用时必须非常保守：</p>
+<ul>
+<li>它<strong>看不穿</strong>函数体的副作用，必须<strong>按源代码精确调用</strong>对应次数，不敢合并/删除/跨调用重排访问；这与我们要求的 “<code>volatile</code> 每次访问都要发生、且访问之间保持顺序” 高度一致，起到“<strong>冗余保险</strong>”作用。</li>
+<li>调用点天然形成<strong>优化边界</strong>，编译器会假设调用可能读写内存或触发外部副作用，从而不把与之相关的访存上提、下沉或合并。</li>
+</ul>
+<p><strong>问题到底可能出在哪里（workaround 要解决的就是这些）</strong><br>
+历史上，部分优化器曾把“对普通内存合法的变换”<strong>误用</strong>到 <code>volatile</code> 上，导致：</p>
+<ul>
+<li><strong>删除/合并访问</strong>（DSE/CSE）：把“前一次写会被后一次覆盖”当真，删掉前一次；或把多次读缓存成一次寄存器值——而对 <code>volatile</code>，<strong>每次访问都必须发生</strong>。</li>
+<li><strong>循环外提</strong>（LICM）：把“看似不变”的 <code>volatile</code> 读取搬出循环，导致只读一次；设备寄存器值可能变化，这会出错。</li>
+<li><strong>错序/跨语句重排</strong>：把 <code>volatile</code> 访问与其他访问错误换序，改变硬件交互因果。对不同 <code>volatile</code> 对象之间也必须保持顺序。</li>
+<li><strong>向量化/跨基本块合并</strong>：合并访存或调整时序，违背 “每次都要发生且按序” 的要求。上述问题均在论文与讲稿中有例示或讨论。</li>
+</ul>
+<p><strong>实践注意事项</strong></p>
+<ul>
+<li><strong>严禁被“自动内联”偷走护城河</strong>：模板版本或较高优化级别下，编译器可能<strong>自动内联</strong>这些小函数——一旦内联，优化边界消失，等同没加。解决：给函数（含模板实例）显式加 <code>[[gnu::noinline]]</code> / 对应编译器的 <code>noinline</code> 标记，并留意 LTO/IPO 设置。讲者在 GNU ARM Embedded Toolchain 10.2.1 上就遇到过自动内联，最终用 <code>[[gnu::noinline]]</code> 压住。</li>
+<li><strong>它是工程折中，不是语言保证</strong>：<strong>~96%</strong> 是经验数据，而非标准承诺；若仍遇到工具链缺陷，可配合“局部降优化级（O0）”“更换编译器/版本”等手段联合使用。</li>
+<li><strong>性能权衡</strong>：非内联调用在热路径/ISR 中有成本。可仅在特定编译器/配置下启用包裹，或将包裹函数放在对正确性至关重要、但调用频率相对适中的路径上。</li>
+</ul>
+<p>小结：问题出在优化器把“对普通内存安全的变换”（删除/合并/外提/重排）套在了 <code>volatile</code> 上；“非内联函数包裹”利用<strong>调用边界的保守性</strong>，强制保留<strong>每一次</strong>访问并<strong>按原序</strong>执行，从而在实践中大幅降低误编译风险。</p>
+<h3 id="uart">用于 UART 的实战改造：</h3>
+<div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="kt">uint32_t</span><span class="w"> </span><span class="nf">vol_read_u32</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kt">uint32_t</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="o">&amp;</span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">v</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="n">std</span><span class="o">::</span><span class="kt">uint32_t</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="o">&amp;</span><span class="n">vol_id_u32</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kt">uint32_t</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="o">&amp;</span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">v</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+
+<span class="n">std</span><span class="o">::</span><span class="kt">uint32_t</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="o">&amp;</span><span class="n">USTAT0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">*</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="kt">uint32_t</span><span class="w"> </span><span class="o">*&gt;</span><span class="p">(</span><span class="mh">0x03FFD008</span><span class="p">);</span>
+<span class="n">std</span><span class="o">::</span><span class="kt">uint32_t</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="o">&amp;</span><span class="n">UTXBUF0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">*</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="kt">uint32_t</span><span class="w"> </span><span class="o">*&gt;</span><span class="p">(</span><span class="mh">0x03FFD00C</span><span class="p">);</span>
+
+<span class="k">while</span><span class="w"> </span><span class="p">((</span><span class="n">vol_read_u32</span><span class="p">(</span><span class="n">USTAT0</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">TBE</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">}</span>
+<span class="n">vol_id_u32</span><span class="p">(</span><span class="n">UTXBUF0</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sc">&#39;\r&#39;</span><span class="p">;</span>
+</code></pre></div>
+
+<p>实测有效；<strong>模板版</strong>易被 -O1 起自动内联，需加 <code>[[gnu::noinline]]</code> 抑制（MSVC 可用 <code>__declspec(noinline)</code>，Clang/GCC 也支持 <code>__attribute__((noinline))</code>）。务必确认<strong>没被内联</strong>。</p>
+<hr>
+<h2 id="7-checklist">7. 实用清单（Checklist）</h2>
+<ol>
+<li><strong>硬件寄存器</strong>：指向寄存器的对象一律 <code>volatile</code>；只读寄存器用 <code>const volatile</code>。</li>
+<li><strong>East volatile</strong>：把 <code>volatile</code> 放在你想修饰的<strong>类型/运算符右边</strong>，别把“指针 volatile”写成“指向对象 volatile”或反过来。</li>
+<li><strong>线程通信</strong>：<strong>不要</strong>用 <code>volatile</code>；请用 <code>mutex / semaphore / condvar / std::atomic(*) / fence</code>。</li>
+<li><strong>原子性</strong>：<code>volatile</code> ≠ 原子；增量/复合赋值可能数据竞争。</li>
+<li><strong>遇到编译器问题</strong>：<br>
+   * 局部关优化（属性/pragma）；<br>
+   * 换版本/换编译器；<br>
+   * <strong>非内联函数包裹</strong>（并确认没被内联）。</li>
+<li><strong>缓存预取</strong>: 别靠 <code>volatile</code>，用 <code>_mm_prefetch</code> 等内建；缓存行布局可参考 C++17 的“硬件构造/破坏性干涉尺寸”常量。<ul>
+<li><code>std::hardware_constructive_interference_size</code>：构造性干涉尺寸。把经常一起访问的数据项放在不超过这个尺寸的距离内，倾向于落在同一 cache line，提升命中（“一起热”）。</li>
+<li><code>std::hardware_destructive_interference_size</code>：破坏性干涉尺寸。把可能被不同线程同时写的对象间隔至少这么大，尽量不落在同一 cache line，避免伪共享（false sharing，“互相拖累”）。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="8">8. 关键代码片段汇总</h2>
+<ul>
+<li><strong>错误示例（无 <code>volatile</code>）→ 被优化坏</strong>：忙等、两次写入被合并，仅发送 <code>'\n'</code>（详见 §2）。</li>
+<li><strong>正确示例（有 <code>volatile</code>）</strong>：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="kt">uint32_t</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="o">&amp;</span><span class="n">USTAT0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">*</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="kt">uint32_t</span><span class="o">*&gt;</span><span class="p">(</span><span class="mh">0x03FFD008</span><span class="p">);</span>
+<span class="n">std</span><span class="o">::</span><span class="kt">uint32_t</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="o">&amp;</span><span class="n">UTXBUF0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">*</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="kt">uint32_t</span><span class="o">*&gt;</span><span class="p">(</span><span class="mh">0x03FFD00C</span><span class="p">);</span>
+<span class="k">while</span><span class="w"> </span><span class="p">((</span><span class="n">USTAT0</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">TBE</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">}</span>
+<span class="n">UTXBUF0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">c</span><span class="p">;</span>
+</code></pre></div>
+
+<ul>
+<li><strong><code>const volatile</code> 状态寄存器</strong>：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="kt">uint32_t</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="o">&amp;</span><span class="n">USTAT0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">*</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="kt">uint32_t</span><span class="o">*&gt;</span><span class="p">(</span><span class="mh">0x03FFD008</span><span class="p">);</span>
+</code></pre></div>
+
+<ul>
+<li><strong>East volatile 模板</strong>：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="kt">uint32_t</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="o">*</span><span class="k">const</span><span class="w"> </span><span class="n">x</span><span class="p">[</span><span class="n">N</span><span class="p">];</span><span class="w"> </span><span class="c1">// “N 个 const 指针，指向 volatile uint32_t”</span>
+</code></pre></div>
+
+<ul>
+<li><strong>非内联包裹读/写</strong>：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1">//（模板版要 `[[gnu::noinline]]` 或对应编译器的 noinline）</span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">vol_read_int</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="o">&amp;</span><span class="n">vp</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">vp</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="kt">int</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="o">&amp;</span><span class="n">vol_id_int</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="o">&amp;</span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">v</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+
+<ul>
+<li><strong>GCC 局部关优化</strong>：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="p">[[</span><span class="n">gnu</span><span class="o">::</span><span class="n">optimize</span><span class="p">(</span><span class="s">&quot;O0&quot;</span><span class="p">)]]</span><span class="w"> </span><span class="n">f</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">}</span>
+
+<span class="cp">#pragma GCC push_options</span>
+<span class="cp">#pragma GCC optimize(&quot;O0&quot;)</span>
+<span class="kt">void</span><span class="w"> </span><span class="n">g</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">}</span>
+<span class="cp">#pragma GCC pop_options</span>
+</code></pre></div>
+
+<ul>
+<li><strong>缓存预取</strong>：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;atomic&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;new&gt;</span>
+
+<span class="c1">// 把两个热点计数器拆到不同的 cache line，避免伪共享</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">alignas</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">hardware_destructive_interference_size</span><span class="p">)</span><span class="w"> </span><span class="n">Counter</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="kt">long</span><span class="o">&gt;</span><span class="w"> </span><span class="n">value</span><span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+<span class="p">};</span>
+
+<span class="k">struct</span><span class="w"> </span><span class="nc">HotPair</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// 把经常一起读的字段放在“构造性干涉尺寸”内，利于同线命中</span>
+<span class="w">    </span><span class="k">alignas</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">hardware_constructive_interference_size</span><span class="p">)</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">b</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">touch</span><span class="p">(</span><span class="n">Counter</span><span class="o">&amp;</span><span class="w"> </span><span class="n">c1</span><span class="p">,</span><span class="w"> </span><span class="n">Counter</span><span class="o">&amp;</span><span class="w"> </span><span class="n">c2</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">HotPair</span><span class="o">*</span><span class="w"> </span><span class="n">hp</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// 平台预取（示例：x86 SSE/AVX），编译器/平台不同可用 __builtin_prefetch</span>
+<span class="w">    </span><span class="c1">// _mm_prefetch(reinterpret_cast&lt;const char*&gt;(hp), _MM_HINT_T0);</span>
+
+<span class="w">    </span><span class="n">c1</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">fetch_add</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">memory_order_relaxed</span><span class="p">);</span>
+<span class="w">    </span><span class="n">c2</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">fetch_add</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">memory_order_relaxed</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hp</span><span class="o">-&gt;</span><span class="n">a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">hp</span><span class="o">-&gt;</span><span class="n">b</span><span class="p">;</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">t</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr>
+<h2 id="9-takeaways">9. 压轴总结（Takeaways）</h2>
+<ul>
+<li><code>volatile</code> 的<strong>唯一核心价值</strong>：告诉编译器“这里的读写可能有副作用，请<strong>别省略、别合并、别重排</strong>这些访问”。它<strong>不会</strong>解决线程可见性/顺序/原子性问题。</li>
+<li><strong>多线程通信</strong>：请用同步原语/原子库/内存序；<code>volatile</code> 不适用。</li>
+<li><strong>工程上</strong>：若你怀疑编译器把 <code>volatile</code> 搞坏了，优先考虑<strong>局部关优化 / 换编译器版本 / 非内联包裹</strong>三种方法，并<strong>确认没被内联</strong>。</li>
+</ul>
+<div class="alert alert-warning" role="alert">
+  ⚠️ 本文根据视频字幕和 slides 由 AI 生成
+</div>
+            </div>
+            <!-- /.entry-content -->
+    <hr/>
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+            var disqus_config = function () {
+                this.language = "zhs";
+
+                        this.page.identifier = '2025-10-01-volatile-in-cpp-cppcon-2024-notes';
+                        this.page.url = 'https://wizmann.top/volatile-in-cpp-cppcon-2024-notes.html';
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="https://github.com/wizmann"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="https://wizmann.top//feeds/all.atom.xml"><i class="fa fa-rss-square fa-lg"></i> rss</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://wizmann.top/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/cpp.html">cpp</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/algorithm.html">algorithm</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/suan-fa.html">算法</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/codeforces.html">codeforces</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/c.html">C++</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/fen-bu-shi-xi-tong.html">分布式系统</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/ti-jie.html">题解</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/udp.html">UDP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/cas.html">cas</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rpc.html">rpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-xi-tong.html">数据系统</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-ku.html">数据库</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/leetcode.html">Leetcode</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/interview.html">interview</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multithread.html">multithread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/jian-suo-zeng-qiang-sheng-cheng.html">检索增强生成</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xian-liao.html">闲聊</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rag.html">RAG</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/modern-cpp.html">modern cpp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/protocol.html">protocol</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multi-thread.html">multi-thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/yi-zhi-xing.html">一致性</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/networking.html">networking</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/storage.html">storage</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xin-xi-jian-suo.html">信息检索</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/stup.html">STUP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/distributed-system.html">Distributed System</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/phxrpc.html">phxrpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/memory-barrier.html">memory-barrier</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/system-design.html">System Design</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/thread.html">thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/llm.html">LLM</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/tcp.html">tcp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/duo-xian-cheng.html">多线程</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/gong-kai-ke.html">公开课</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spinpromela.html">SPIN/Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/promela.html">Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/storage-system.html">storage system</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/google.html">Google</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/bing-fa-bian-cheng.html">并发编程</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/induction.html">induction</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/raft.html">raft</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/ucontext.html">ucontext</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/paxos.html">paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cse351.html">CSE351</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cmpxchg.html">cmpxchg</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/basic-paxos.html">basic paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/solution.html">Solution</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/azure.html">azure</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/async.html">async</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/3d-printing.html">3D printing</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/shu-ju-mi-ji-xing-ying-yong-xi-tong.html">数据密集型应用系统</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spin.html">SPIN</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-mo-xing.html">数据模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yi-zhi-xing-xie-yi.html">一致性协议</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/zi-fu-chuan-zhong-xie-xi-tong.html">字符串重写系统</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-xing-dp.html">树形DP</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-bian-cheng.html">编译期编程</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/mutex.html">mutex</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yuan-lei.html">元类</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon.html">CppCon</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon2024.html">CppCon2024</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dda-yin.html">3D打印</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/led.html">LED</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nei-cun-mo-xing.html">内存模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-shi-wu.html">分布式事务</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/diy.html">DIY</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/excrt.html">excrt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/segment-tree.html">segment-tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-lian-pou-fen.html">树链剖分</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/an-quan-xing.html">安全性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dp.html">dp</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bing-fa.html">并发</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/qi-fa-shi-he-bing.html">启发式合并</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/semaphore.html">semaphore</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-gong-shi.html">分布式共识</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nosql.html">nosql</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/post.html">Post</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-bian-ma.html">数据编码</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/litmus.html">litmus</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fan-she.html">反射</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/si-suo.html">死锁</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/hash.html">hash</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/partitioning.html">partitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/xian-duan-shu.html">线段树</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/volatile.html">volatile</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-jie-gou.html">数据结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/ab.html">A=B</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/tu-ling-wan-bei-xing.html">图灵完备性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/suo-yin-jie-gou.html">索引结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/repartitioning.html">repartitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/thue.html">Thue</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/crt.html">crt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/herb-sutter.html">Herb Sutter</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/condition_variable.html">condition_variable</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dsu-on-tree.html">DSU on Tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/math.html">math</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-you-hua.html">编译器优化</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/deng-ju-she-ji.html">灯具设计</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dmo-xing.html">3D模型</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2025 Wizmann
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://wizmann.top/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://wizmann.top/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://wizmann.top/theme/js/respond.min.js"></script>
+
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-46053117-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+
+</body>
+</html>

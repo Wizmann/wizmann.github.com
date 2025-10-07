@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="zhs" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>线段树入门：一种基于不变式的理解方式 - Maerlyn's Rainbow</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <link href="https://wizmann.top/statistics/favicon.png" rel="icon">
+
+<link rel="canonical" href="https://wizmann.top/segment-tree-by-invariant.html">
+
+        <meta name="author" content="Wizmann" />
+        <meta name="keywords" content="算法,线段树,algorithm,segment-tree" />
+        <meta name="description" content="前言 线段树是一种在算法中频繁出现的数据结构，既实用又略带挑战性。它之所以常见，是因为在涉及区间查询与修改的 …" />
+
+        <meta property="og:site_name" content="Maerlyn's Rainbow" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="线段树入门：一种基于不变式的理解方式"/>
+        <meta property="og:url" content="https://wizmann.top/segment-tree-by-invariant.html"/>
+        <meta property="og:description" content="前言 线段树是一种在算法中频繁出现的数据结构，既实用又略带挑战性。它之所以常见，是因为在涉及区间查询与修改的 …"/>
+        <meta property="article:published_time" content="2025-06-12" />
+            <meta property="article:section" content="Blog" />
+            <meta property="article:tag" content="算法" />
+            <meta property="article:tag" content="线段树" />
+            <meta property="article:tag" content="algorithm" />
+            <meta property="article:tag" content="segment-tree" />
+            <meta property="article:author" content="Wizmann" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://wizmann.top/theme/css/bootstrap.flatly.min.css" type="text/css"/>
+    <link href="https://wizmann.top/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://wizmann.top/theme/css/pygments/solarizedlight.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://wizmann.top/theme/css/style.css" type="text/css"/>
+
+        <link href="https://wizmann.top/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow ATOM Feed"/>
+
+        <link href="https://wizmann.top/feeds/blog.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow Blog ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://wizmann.top/" class="navbar-brand">
+Maerlyn's Rainbow            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="/category/blog.html">Blog</a></li>
+                    <li><a href="https://vijos.org/d/wizmann/p">Online Judge</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://wizmann.top/segment-tree-by-invariant.html"
+                       rel="bookmark"
+                       title="Permalink to 线段树入门：一种基于不变式的理解方式">
+                        线段树入门：一种基于不变式的理解方式
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2025-06-12T00:00:00+08:00"> 2025-06-12</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://wizmann.top/tag/suan-fa.html">算法</a>
+        /
+	<a href="https://wizmann.top/tag/xian-duan-shu.html">线段树</a>
+        /
+	<a href="https://wizmann.top/tag/algorithm.html">algorithm</a>
+        /
+	<a href="https://wizmann.top/tag/segment-tree.html">segment-tree</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h2 id="_1">前言</h2>
+<p>线段树是一种在算法中频繁出现的数据结构，既实用又略带挑战性。它之所以常见，是因为在涉及<strong>区间查询与修改</strong>的问题中，线段树常常能提供高效解法；而之所以“高阶”，则是因为在实现过程中需要细致处理边界和递归逻辑，否则容易出现<strong>运行时错误（RE）</strong>，因此也被戏称为“RE 树”（只有我）。</p>
+<p>市面上已有不少教程通过图解、动画等方式帮助初学者建立对线段树的直观印象。建议读者在阅读本文前，可先参考这些资料（见文末参考链接），以获得对线段树结构的整体感知。</p>
+<p>本文将尝试采用一种更为抽象的方式，从<strong>数据结构不变式</strong>的角度，系统分析线段树的设计逻辑，并通过若干经典例题，展示如何在实践中运用这些思想来构建高效且可扩展的线段树变体。</p>
+<hr>
+<h2 id="_2">基本原理：从递归到不变式</h2>
+<p>线段树的核心思想是：<strong>通过递归划分区间，使每个节点维护一个子区间的信息</strong>，进而高效支持查询和修改操作。</p>
+<h3 id="_3">示例：求区间最大值</h3>
+<p>以求解一个长度为 <span class="math">\(n\)</span> 的静态数组的区间最大值为例：</p>
+<p>设数组为 <span class="math">\(\text{array}[1 \dots n]\)</span>，我们定义 <span class="math">\(\text{maxi}_{i,j}\)</span> 表示区间 <span class="math">\([i,j]\)</span> 的最大值。</p>
+<p>当 <span class="math">\(i = j\)</span> 时，显然有：</p>
+<div class="math">$$
+\text{maxi}_{i,i} = \text{array}[i]
+$$</div>
+<p>若 <span class="math">\(i &lt; j\)</span>，我们可以将其一分为二，划分为 <span class="math">\([i,m]\)</span> 与 <span class="math">\([m+1,j]\)</span>，其中 <span class="math">\(m = \left\lfloor \frac{i+j}{2} \right\rfloor\)</span>，进而递推：</p>
+<div class="math">$$
+\text{maxi}_{i,j} = \max(\text{maxi}_{i,m}, \text{maxi}_{m+1,j})
+$$</div>
+<p>这就是线段树的<strong>核心不变式</strong>：</p>
+<blockquote>
+<p>每个区间的信息完全由其左右子区间决定。</p>
+</blockquote>
+<p>基于这个不变式，我们可以自底向上构建整棵线段树，或在查询和修改过程中维护其正确性。</p>
+<h2 id="_4">查询操作</h2>
+<p>当我们查询一个区间 <span class="math">\([l,r]\)</span> 的最大值时，可以递归地访问其子区间，并合并结果。</p>
+<p>最终，查询过程会遍历一组<strong>恰好覆盖区间 <span class="math">\([l,r]\)</span></strong> 的子区间，它们的最大值即为所求。</p>
+<h2 id="_5">修改操作</h2>
+<h3 id="_6">点修改</h3>
+<p>若数组中某个元素发生变动（如将 <span class="math">\(\text{array}[k]\)</span> 修改为 <span class="math">\(v\)</span>），只需从对应的叶子节点出发，沿路径向上传播更新信息，确保不变式在修改后依旧成立。该操作的时间复杂度为 <span class="math">\(O(log n)\)</span>。</p>
+<h3 id="_7">区间修改与懒标记</h3>
+<p>对于支持区间修改的线段树，其核心操作可以抽象为：</p>
+<ul>
+<li><strong>区间更新</strong>：对 <span class="math">\([l, r]\)</span> 中的所有元素执行某种操作，如加上一个常数 <span class="math">\(c\)</span>，即：</li>
+</ul>
+<div class="math">$$
+  \forall i \in [l, r],\quad A[i] := A[i] + c
+  $$</div>
+<p><br>
+* <strong>区间查询</strong>：查询某一子区间 <span class="math">\([l, r]\)</span> 的某个聚合函数，如最小值、和、最大值等。</p>
+<p>若直接递归修改所有受影响的节点，则时间复杂度最坏为 <span class="math">\(O(n)\)</span>。为避免这一问题，引入**懒标记（Lazy Propagation）**机制，通过“延迟计算”优化操作效率。</p>
+<h4 id="_8">不变式定义</h4>
+<p>设线段树的每个节点表示区间 <span class="math">\([L, R]\)</span>，维护的信息为 <span class="math">\(S_{L,R}\)</span>。我们希望维护以下<strong>结构不变式</strong>：</p>
+<ul>
+<li>对于区间加法操作：</li>
+</ul>
+<div class="math">$$
+  S_{L,R} = \sum_{i=L}^R A[i]
+  $$</div>
+<ul>
+<li>且满足：</li>
+</ul>
+<div class="math">$$
+  S_{L,R} = \text{Merge}(S_{L,M},\; S_{M+1,R})
+  $$</div>
+<h4 id="_9">懒标记设计</h4>
+<p>为保持整体结构在多次操作下仍可高效工作，引入<strong>延迟标记变量</strong> <span class="math">\(\text{lazy}_{L,R}\)</span>，用于记录尚未传播的修改信息。更新操作流程如下：</p>
+<ol>
+<li><strong>打标记</strong>（Apply）：</li>
+</ol>
+<ul>
+<li>当整个区间 <span class="math">\([L, R]\)</span> 被完全覆盖时，不递归更新子区间；</li>
+<li>
+<p>只需：</p>
+<p>
+<div class="math">$$
+ S_{L,R} \leftarrow S_{L,R} + (R - L + 1) \cdot c
+ $$</div>
+</p>
+<p>
+<div class="math">$$
+ \text{lazy}_{L,R} \leftarrow \text{lazy}_{L,R} + c
+ $$</div>
+</p>
+</li>
+</ul>
+<ol start="2">
+<li><strong>下推标记</strong>（PushDown）：</li>
+</ol>
+<ul>
+<li>
+<p>当访问某节点的子节点时，将标记下传至左右子区间：</p>
+<p>
+<div class="math">$$
+ \text{lazy}_{L,M} \leftarrow \text{lazy}_{L,M} + \text{lazy}_{L,R}
+ $$</div>
+</p>
+<p>
+<div class="math">$$
+ S_{L,M} \leftarrow S_{L,M} + (M - L + 1) \cdot \text{lazy}_{L,R}
+ $$</div>
+</p>
+<p>同理处理 <span class="math">\([M+1, R]\)</span>，然后清除父节点标记：</p>
+<p>
+<div class="math">$$
+ \text{lazy}_{L,R} \leftarrow 0
+ $$</div>
+</p>
+</li>
+</ul>
+<p>此时，每个节点所维护的信息可能<strong>暂不符合精确值定义</strong>，但满足以下<strong>宽松不变式</strong>：</p>
+<blockquote>
+<p>若未访问子区间，则本节点记录的是更新后的区间值；一旦访问子区间，将立即下推以恢复精确不变式。</p>
+</blockquote>
+<h4 id="_10">结构不变式对比总结</h4>
+<table class="table table-bordered table-striped table-hover align-middle">
+  <thead class="table-light">
+    <tr>
+      <th>状态</th>
+      <th>不变式形式</th>
+      <th>是否立即满足</th>
+      <th>性质</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>普通节点</td>
+      <td>\( S_{L,R} = \text{Merge}(S_{L,M}, S_{M+1,R}) \)</td>
+      <td>是</td>
+      <td>严格不变式</td>
+    </tr>
+    <tr>
+      <td>有懒标记</td>
+      <td>\( S_{L,R} = \text{真实值} + \delta \cdot (R - L + 1) \)</td>
+      <td>暂不满足</td>
+      <td>延迟不变式</td>
+    </tr>
+    <tr>
+      <td>下推后</td>
+      <td>子节点恢复准确值</td>
+      <td>恢复</td>
+      <td>最终仍满足整体一致性</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>如需支持更多操作（如区间赋值、区间最小值+修改等），只需根据操作类型调整：</p>
+<ul>
+<li>标记类型：如记录「待加数 <span class="math">\(c\)</span>」或「待赋值为 <span class="math">\(v\)</span>」；</li>
+<li>Merge 函数：如 <span class="math">\(\max\)</span>、<span class="math">\(\min\)</span>、<span class="math">\(\sum\)</span>；</li>
+<li>更新函数的结合律或可交换性是否成立。</li>
+</ul>
+<p>只要操作满足<strong>结合律与分配律</strong>，就可以稳定维护懒标记下的结构正确性。</p>
+<h2 id="_11">例题</h2>
+<h3 id="luogu-p3372-1">Luogu P3372 【模板】线段树 1：区间加法与求和查询</h3>
+<p>本题是线段树的经典模板题，支持两种操作：</p>
+<ul>
+<li>区间加值：对区间 <span class="math">\([l, r]\)</span> 内的每个元素加上一个常数 <span class="math">\(c\)</span>；</li>
+<li>区间求和：查询 <span class="math">\(\sum_{i=l}^r A[i]\)</span>。</li>
+</ul>
+<p><strong>实现要点</strong>：</p>
+<ul>
+<li>每个节点维护当前区间 <span class="math">\([L, R]\)</span> 的区间和 <span class="math">\(S_{L,R}\)</span>；</li>
+<li>引入懒标记 <span class="math">\(\text{lazy}_{L,R}\)</span>，用于延迟传播加值操作；</li>
+<li>满足如下不变式（带标记时）：</li>
+</ul>
+<div class="math">$$
+  S_{L,R} = \sum_{i=L}^R A[i] + (R - L + 1) \cdot \text{lazy}_{L,R}
+  $$</div>
+<p>结合懒标记机制，可将修改与查询操作均优化至 <span class="math">\(O(\log n)\)</span>。</p>
+<h3 id="luogu-p1816">Luogu P1816 忠诚：静态区间最小值查询</h3>
+<p>题目要求支持多次查询：</p>
+<ul>
+<li>给定初始数组 <span class="math">\(A[1 \dots m]\)</span>，回答若干个区间 <span class="math">\([a, b]\)</span> 内的最小值 <span class="math">\(\min_{i=a}^{b} A[i]\)</span>。</li>
+</ul>
+<p><strong>实现要点</strong>：</p>
+<ul>
+<li>每个节点维护对应区间的最小值 <span class="math">\(M_{L,R} = \min_{i=L}^{R} A[i]\)</span>；</li>
+<li>不涉及任何更新操作，结构在初始化后保持不变；</li>
+<li>查询过程仅需递归访问覆盖区间，合并左右子树最小值即可。</li>
+</ul>
+<blockquote>
+<p>由于为静态查询问题，可选用 ST 表（稀疏表）进行预处理，查询时间降至 <span class="math">\(O(1)\)</span>，此处不再展开。</p>
+</blockquote>
+<h3 id="luogu-p1558">Luogu P1558 色板游戏：区间赋值与状态统计</h3>
+<p>本题是典型的“染色问题”，操作包括：</p>
+<ul>
+<li>将区间 <span class="math">\([l, r]\)</span> 染为颜色 <span class="math">\(c\)</span>；</li>
+<li>查询区间 <span class="math">\([l, r]\)</span> 中<strong>不同颜色的种类数</strong>（颜色数 ≤ 30）。</li>
+</ul>
+<p><strong>实现要点</strong>：</p>
+<ul>
+<li>每个节点维护区间颜色集合 <span class="math">\(C_{L,R}\)</span>，使用 30 位整数位运算记录状态（例如第 <span class="math">\(k\)</span> 位为 1 表示颜色 <span class="math">\(k\)</span> 存在）；</li>
+<li>支持区间赋值，需使用懒标记 <span class="math">\(T_{L,R}\)</span> 表示待覆盖的颜色值；</li>
+<li>不变式表达为：</li>
+</ul>
+<div class="math">$$
+  C_{L,R} = 
+  \begin{cases}
+    \text{bitmask of color } c &amp; \text{若整段染色为 } c \\
+    C_{L,M} \,|\, C_{M+1,R} &amp; \text{否则}
+  \end{cases}
+  $$</div>
+<ul>
+<li>查询通过统计 <span class="math">\(C_{L,R}\)</span> 中二进制 1 的个数来获取颜色数。</li>
+</ul>
+<h2 id="_12">小结</h2>
+<p>线段树的设计之所以高效，是因为它通过<strong>递归划分 + 不变式维护</strong>，使得复杂的区间操作能够以对数级别的时间完成。</p>
+<p>本文从不变式角度出发，分析了线段树的构造与操作逻辑。与常见的图解类教程相比，这种方法更强调原理和形式化思维，适合希望进一步深入理解线段树本质的读者。</p>
+<h2 id="_13">参考链接</h2>
+<ul>
+<li><a href="https://algo.itcharge.cn/07.Tree/03.Segment-Tree/01.Segment-Tree/">算法通关手册（LeetCode）- 线段树知识</a></li>
+<li><a href="https://www.luogu.com.cn/training/206">题单 - 线段树</a></li>
+</ul>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/latest.js?config=TeX-AMS-MML_HTMLorMML';
+
+    var configscript = document.createElement('script');
+    configscript.type = 'text/x-mathjax-config';
+    configscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'none' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        availableFonts: ['STIX', 'TeX']," +
+        "        preferredFont: 'STIX'," +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(configscript);
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
+            </div>
+            <!-- /.entry-content -->
+    <hr/>
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+            var disqus_config = function () {
+                this.language = "zhs";
+
+                        this.page.identifier = '2025-06-12-segment-tree-by-invariant';
+                        this.page.url = 'https://wizmann.top/segment-tree-by-invariant.html';
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="https://github.com/wizmann"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="https://wizmann.top//feeds/all.atom.xml"><i class="fa fa-rss-square fa-lg"></i> rss</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://wizmann.top/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/cpp.html">cpp</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/algorithm.html">algorithm</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/suan-fa.html">算法</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/codeforces.html">codeforces</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/c.html">C++</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/fen-bu-shi-xi-tong.html">分布式系统</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/ti-jie.html">题解</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/udp.html">UDP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/cas.html">cas</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rpc.html">rpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-xi-tong.html">数据系统</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-ku.html">数据库</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/leetcode.html">Leetcode</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/interview.html">interview</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multithread.html">multithread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/jian-suo-zeng-qiang-sheng-cheng.html">检索增强生成</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xian-liao.html">闲聊</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rag.html">RAG</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/modern-cpp.html">modern cpp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/protocol.html">protocol</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multi-thread.html">multi-thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/yi-zhi-xing.html">一致性</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/networking.html">networking</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/storage.html">storage</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xin-xi-jian-suo.html">信息检索</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/stup.html">STUP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/distributed-system.html">Distributed System</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/phxrpc.html">phxrpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/memory-barrier.html">memory-barrier</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/system-design.html">System Design</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/thread.html">thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/llm.html">LLM</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/tcp.html">tcp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/duo-xian-cheng.html">多线程</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/gong-kai-ke.html">公开课</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spinpromela.html">SPIN/Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/promela.html">Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/storage-system.html">storage system</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/google.html">Google</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/bing-fa-bian-cheng.html">并发编程</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/induction.html">induction</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/raft.html">raft</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/ucontext.html">ucontext</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/paxos.html">paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cse351.html">CSE351</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cmpxchg.html">cmpxchg</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/basic-paxos.html">basic paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/solution.html">Solution</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/azure.html">azure</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/async.html">async</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/3d-printing.html">3D printing</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/shu-ju-mi-ji-xing-ying-yong-xi-tong.html">数据密集型应用系统</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spin.html">SPIN</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-mo-xing.html">数据模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yi-zhi-xing-xie-yi.html">一致性协议</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/zi-fu-chuan-zhong-xie-xi-tong.html">字符串重写系统</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-xing-dp.html">树形DP</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-bian-cheng.html">编译期编程</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/mutex.html">mutex</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yuan-lei.html">元类</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon.html">CppCon</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon2024.html">CppCon2024</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dda-yin.html">3D打印</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/led.html">LED</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nei-cun-mo-xing.html">内存模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-shi-wu.html">分布式事务</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/diy.html">DIY</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/excrt.html">excrt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/segment-tree.html">segment-tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-lian-pou-fen.html">树链剖分</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/an-quan-xing.html">安全性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dp.html">dp</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bing-fa.html">并发</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/qi-fa-shi-he-bing.html">启发式合并</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/semaphore.html">semaphore</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-gong-shi.html">分布式共识</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nosql.html">nosql</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/post.html">Post</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-bian-ma.html">数据编码</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/litmus.html">litmus</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fan-she.html">反射</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/si-suo.html">死锁</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/hash.html">hash</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/partitioning.html">partitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/xian-duan-shu.html">线段树</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/volatile.html">volatile</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-jie-gou.html">数据结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/ab.html">A=B</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/tu-ling-wan-bei-xing.html">图灵完备性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/suo-yin-jie-gou.html">索引结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/repartitioning.html">repartitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/thue.html">Thue</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/crt.html">crt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/herb-sutter.html">Herb Sutter</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/condition_variable.html">condition_variable</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dsu-on-tree.html">DSU on Tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/math.html">math</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-you-hua.html">编译器优化</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/deng-ju-she-ji.html">灯具设计</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dmo-xing.html">3D模型</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2025 Wizmann
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://wizmann.top/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://wizmann.top/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://wizmann.top/theme/js/respond.min.js"></script>
+
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-46053117-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+
+</body>
+</html>

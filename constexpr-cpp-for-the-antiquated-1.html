@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="zhs" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>constexpr详解 - C++ for the Antiquated（之一） - Maerlyn's Rainbow</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <link href="https://wizmann.top/statistics/favicon.png" rel="icon">
+
+<link rel="canonical" href="https://wizmann.top/constexpr-cpp-for-the-antiquated-1.html">
+
+        <meta name="author" content="Wizmann" />
+        <meta name="keywords" content="cpp,modern cpp" />
+        <meta name="description" content="在这篇文章中，我们将深入讨论 C++ 中的常量表达式（constexpr）及其与传统的const常量的区别，并结合实际代码示例进行说明。同时，我 …" />
+
+        <meta property="og:site_name" content="Maerlyn's Rainbow" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="constexpr详解 - C++ for the Antiquated（之一）"/>
+        <meta property="og:url" content="https://wizmann.top/constexpr-cpp-for-the-antiquated-1.html"/>
+        <meta property="og:description" content="在这篇文章中，我们将深入讨论 C++ 中的常量表达式（constexpr）及其与传统的const常量的区别，并结合实际代码示例进行说明。同时，我 …"/>
+        <meta property="article:published_time" content="2024-12-28" />
+            <meta property="article:section" content="Blog" />
+            <meta property="article:tag" content="cpp" />
+            <meta property="article:tag" content="modern cpp" />
+            <meta property="article:author" content="Wizmann" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://wizmann.top/theme/css/bootstrap.flatly.min.css" type="text/css"/>
+    <link href="https://wizmann.top/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://wizmann.top/theme/css/pygments/solarizedlight.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://wizmann.top/theme/css/style.css" type="text/css"/>
+
+        <link href="https://wizmann.top/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow ATOM Feed"/>
+
+        <link href="https://wizmann.top/feeds/blog.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow Blog ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://wizmann.top/" class="navbar-brand">
+Maerlyn's Rainbow            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="/category/blog.html">Blog</a></li>
+                    <li><a href="https://vijos.org/d/wizmann/p">Online Judge</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://wizmann.top/constexpr-cpp-for-the-antiquated-1.html"
+                       rel="bookmark"
+                       title="Permalink to constexpr详解 - C++ for the Antiquated（之一）">
+                        constexpr详解 - C++ for the Antiquated（之一）
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2024-12-28T00:00:00+08:00"> 2024-12-28</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://wizmann.top/tag/cpp.html">cpp</a>
+        /
+	<a href="https://wizmann.top/tag/modern-cpp.html">modern cpp</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p>在这篇文章中，我们将深入讨论 C++ 中的常量表达式（<code>constexpr</code>）及其与传统的<code>const</code>常量的区别，并结合实际代码示例进行说明。同时，我们还会探讨<code>constexpr</code>函数在模板编程中的应用，以及 C++11 之后对常量表达式的优化与扩展。</p>
+<h2 id="constexpr">常量表达式（constexpr）</h2>
+<p>在 C++ 中，<code>const</code> 关键字通常用于修饰变量、引用和指针，使得它们在运行时不能被修改。需要注意的是，<code>const</code> 并没有区分编译期常量和运行时常量，它只是保证了这些变量在运行时不可修改。</p>
+<p>例如，使用 <code>const</code> 声明的变量在运行时其值是固定的，但并不意味着它们在编译时已知。</p>
+<p>下面是传统 C++ 中 <code>const</code> 关键字的一些常见用法：</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#define CONSTANT_1 114514  </span><span class="c1">// 宏也是一种常量</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">helloworld1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;helloworld&quot;</span><span class="p">;</span><span class="w">  </span><span class="c1">// const 字符串</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">value1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w">  </span><span class="c1">// 常量值</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">value2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">value3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">value1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">value2</span><span class="p">;</span><span class="w">  </span><span class="c1">// 运行时计算</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">value8</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pow</span><span class="p">(</span><span class="n">value2</span><span class="p">,</span><span class="w"> </span><span class="n">value3</span><span class="p">);</span><span class="w"> </span>
+
+<span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">arr_pow_of_2</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">};</span><span class="w">  </span><span class="c1">// 数组初始化</span>
+</code></pre></div>
+
+<p>在上述代码中，虽然 const 修饰的变量在程序运行期间不能修改，但它们的值是在运行时计算的。因此，我们无法在编译时将它们视为常量。所以，<code>const</code> 变量也可以有内存地址，并且在某些情况下可以使用 <code>const_cast</code> 强行进行修改。</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdio&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdint&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cmath&gt;</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">MakeChange</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="o">&amp;</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="o">*</span><span class="p">(</span><span class="k">const_cast</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">*&gt;</span><span class="p">(</span><span class="o">&amp;</span><span class="n">x</span><span class="p">))</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="n">MakeChange</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span><span class="w"> </span><span class="c1">// 输出：2</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="constexpr_1">引入 constexpr</h3>
+<p>C++11 引入了 <code>constexpr</code>，它的字面意思是 <code>constant expression</code>（常量表达式），用于在编译时计算常量值。与 <code>const</code> 不同，<code>constexpr</code> 确保一个变量或者函数的值是在编译时已知的，编译器会在编译时对其进行求值。</p>
+<p>通过使用 <code>constexpr</code>，我们可以定义编译时常量，并且 <code>constexpr</code> 函数在某些情况下也能够在编译期计算结果。</p>
+<p>使用 <code>constexpr</code> 重写上述代码：</p>
+<div class="highlight"><pre><span></span><code><span class="k">constexpr</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">helloworld1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;helloworld&quot;</span><span class="p">;</span>
+<span class="k">constexpr</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">value1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="k">constexpr</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">value2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+<span class="k">constexpr</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">value3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">value1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">value2</span><span class="p">;</span><span class="w">  </span><span class="c1">// 编译期计算</span>
+<span class="k">constexpr</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">value8</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pow</span><span class="p">(</span><span class="n">value2</span><span class="p">,</span><span class="w"> </span><span class="n">value3</span><span class="p">);</span><span class="w">  </span><span class="c1">// 编译期计算</span>
+
+<span class="c1">// 编译期初始化数组</span>
+<span class="k">constexpr</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">arr_pow_of_2</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">};</span><span class="w">  </span>
+</code></pre></div>
+
+<h2 id="_1">常量表达式函数</h2>
+<p><code>constexpr</code> 不仅可以修饰变量，还可以修饰函数。<code>constexpr</code> 函数的特性是，若输入的参数是编译时常量，那么它的返回值也是一个编译时常量。</p>
+<p>以下是一个计算 Fibonacci 数列的示例：</p>
+<div class="highlight"><pre><span></span><code><span class="k">constexpr</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">MOD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="mf">1L</span><span class="n">L</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">62</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w">  </span><span class="c1">// 编译时常量</span>
+
+<span class="k">constexpr</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="nf">fib</span><span class="p">(</span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">temp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">b</span><span class="p">;</span>
+<span class="w">        </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">b</span><span class="p">;</span>
+<span class="w">        </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">temp</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">MOD</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">b</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// 在编译期计算 Fibonacci 数列</span>
+<span class="w">    </span><span class="k">constexpr</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fib</span><span class="p">(</span><span class="mi">123456</span><span class="p">);</span><span class="w">  </span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>在这段代码中，<code>fib</code> 函数被标记为 <code>constexpr</code>，因此当传入常量参数时，编译器会在编译期间计算出 Fibonacci 数列的第 <code>123456</code> 项。需要注意的是，<code>constexpr</code> 函数的计算存在一些限制：</p>
+<ol>
+<li><strong>递归深度限制</strong>：constexpr 函数的递归深度通常受到编译器的限制，如果递归过深，编译器可能会产生错误或警告。</li>
+<li><strong>计算效率</strong>：尽管常量表达式函数可以在编译期计算，但对于复杂的运算，可能会增加编译时间，因为编译器需要进行更多的计算。</li>
+</ol>
+<h3 id="constexpr-vs">constexpr vs 模板元编程</h3>
+<p><code>constexpr</code> 函数的使用在某种程度上简化了模板元编程。传统的模板元编程可以实现与 <code>constexpr</code> 类似的功能，但代码结构通常更加复杂。下面是使用模板元编程计算 Fibonacci 数列的代码：</p>
+<div class="highlight"><pre><span></span><code><span class="k">const</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">MOD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1999</span><span class="p">;</span>
+
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">N</span><span class="o">&gt;</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">Fibonacci</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">Fibonacci</span><span class="o">&lt;</span><span class="n">N</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="o">&gt;::</span><span class="n">value</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">Fibonacci</span><span class="o">&lt;</span><span class="n">N</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">2</span><span class="o">&gt;::</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">MOD</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;&gt;</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">Fibonacci</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="p">};</span>
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;&gt;</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">Fibonacci</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="p">};</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Fibonacci(40): &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">Fibonacci</span><span class="o">&lt;</span><span class="mi">40</span><span class="o">&gt;::</span><span class="n">value</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>在这个模板元编程示例中，Fibonacci 结构体使用递归模板计算 Fibonacci 数列的第 N 项。这与 <code>constexpr</code> 函数类似，但模板元编程的语法更加繁琐。<code>constexpr</code> 的优势在于它能够写出更加接近正常逻辑代码的形式，并且具有更强的表达能力</p>
+<h3 id="c14">C++14 对常量表达式函数的增强</h3>
+<p>在 C++14 中，常量表达式函数得到了进一步的增强。具体增强包括：</p>
+<ul>
+<li><strong>支持局部变量</strong>：<code>constexpr</code>  函数可以声明和初始化局部变量，但不能声明未初始化的变量、<code>static</code> 或 <code>thread_local</code> 变量。</li>
+<li><strong>支持 if 和 switch 语句</strong>：<code>constexpr</code> 函数可以使用 <code>if</code> 和 <code>switch</code> 语句来控制流程，但不能使用 <code>got</code>o。</li>
+<li><strong>支持循环语句</strong>：<code>constexpr</code> 函数支持所有类型的循环语句，包括 <code>for</code>、<code>while</code> 和 <code>do-while</code>。</li>
+<li><strong>修改生命周期</strong>：在 constexpr 函数内部，可以修改局部变量和非常量引用参数</li>
+<li><strong>返回值可以是 void</strong>：<code>constexpr</code> 函数可以声明返回类型为 <code>void</code>。</li>
+</ul>
+<h2 id="_2">常量表达式与模板函数</h2>
+<p>在 C++11 引入 <code>constexpr</code> 后，建议在所有需要常量语义的场景中使用 <code>constexpr</code>。<code>constexpr</code> 变量和函数作为编译时常量，在模板函数中具有广泛的应用场景，能够显著提升程序的效率和可读性。</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdio&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdint&gt;</span>
+
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span>
+<span class="k">constexpr</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="n">square</span><span class="p">(</span><span class="n">T</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">x</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">constexpr</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">square2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">square</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span><span class="w">       </span><span class="c1">// 计算常量的平方</span>
+<span class="w">    </span><span class="k">constexpr</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">square2_0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">square</span><span class="p">(</span><span class="mf">2.0</span><span class="p">);</span><span class="w">     </span><span class="c1">// 计算浮点数的平方</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;%lu</span><span class="se">\t</span><span class="s">%.04lf</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">square2</span><span class="p">,</span><span class="w"> </span><span class="n">square2_0</span><span class="p">);</span><span class="w">  </span><span class="c1">// 输出结果</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>模板函数 <code>square</code> 使用了 <code>constexpr</code>，确保在编译时就可以计算结果。对于不同类型的参数（如整数、浮点数），模板会自动进行实例化。</p>
+<p>如果模板参数不是编译期常量，<code>constexpr</code> 将不会在编译期执行，但函数本身仍然是有效的。</p>
+<h2 id="constexpr_2">constexpr 函数中的动态内存分配</h2>
+<p>在 C++20 中，<code>constexpr</code> 函数得到了进一步增强，支持在编译期进行动态内存分配，但仍然存在一些限制。</p>
+<p><code>std::array</code> 的所有数据都存储在栈上，而不是堆上。严格的说，<code>std::array</code>不涉及动态内存分配。所以<code>std::array</code>可以在<code>constexpr</code>函数中被初始化、修改并返回。</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdio&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdint&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;vector&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;array&gt;</span>
+
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="kt">int</span><span class="w"> </span><span class="n">maxstep</span><span class="o">=</span><span class="mi">100</span><span class="o">&gt;</span>
+<span class="k">constexpr</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">array</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">maxstep</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Collatz</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">array</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">maxstep</span><span class="o">&gt;</span><span class="w"> </span><span class="n">path</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nb">true</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">path</span><span class="p">[</span><span class="n">idx</span><span class="o">++</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x</span><span class="p">;</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">x</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">path</span><span class="p">;</span>
+<span class="p">}</span>
+
+
+<span class="kt">int</span><span class="w"> </span><span class="n">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Collatz</span><span class="p">(</span><span class="mi">12345</span><span class="p">);</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">item</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">path</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">item</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;%d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">item</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>而对于<code>std::string</code>或者<code>std::vector</code>这种 需要在堆上分配内存的数据结构，我们则不可以在constexpr函数中直接返回。但是可以在constexpr函数中则用其进行计算。</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdio&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdint&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;vector&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;array&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;string&gt;</span>
+
+<span class="k">constexpr</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">square</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">x</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">constexpr</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">CountPrimes</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">primes</span><span class="p">{</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">};</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">bool</span><span class="w"> </span><span class="n">flag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">prime</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">primes</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">prime</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">flag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="w">                </span><span class="k">break</span><span class="p">;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">square</span><span class="p">(</span><span class="n">prime</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="k">break</span><span class="p">;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">flag</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">primes</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">primes</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+<span class="p">}</span>
+
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">constexpr</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">cnt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CountPrimes</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;%d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cnt</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2 id="constexpr-virtual">constexpr virtual 函数</h2>
+<p>在 C++20 中，<code>constexpr</code> 函数可以与 <code>virtual</code> 关键字结合使用，实现在编译期进行多态求值。</p>
+<p>虚函数的 constexpr 限制：constexpr 虚函数只能在编译期求值，前提是其被调用的具体对象类型是确定的。</p>
+<p>在 constexpr 上下文中调用 virtual 函数时，调用将绑定到具体派生类的实现。</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdio&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdint&gt;</span>
+
+<span class="k">struct</span><span class="w"> </span><span class="nc">Base</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">constexpr</span><span class="w"> </span><span class="k">virtual</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">Value</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="c1">// 虚拟 constexpr 函数</span>
+<span class="p">};</span>
+
+<span class="k">struct</span><span class="w"> </span><span class="nc">Derived1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">Base</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">constexpr</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">Value</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="p">};</span>
+
+<span class="k">struct</span><span class="w"> </span><span class="nc">Derived2</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">Base</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">constexpr</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">Value</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="p">};</span>
+
+<span class="k">constexpr</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">Calc</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">Base</span><span class="o">*</span><span class="w"> </span><span class="n">d1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Derived1</span><span class="p">();</span><span class="w"> </span><span class="c1">// constexpr 中分配内存</span>
+<span class="w">    </span><span class="n">Base</span><span class="o">*</span><span class="w"> </span><span class="n">d2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Derived2</span><span class="p">();</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">d1</span><span class="o">-&gt;</span><span class="n">Value</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">d2</span><span class="o">-&gt;</span><span class="n">Value</span><span class="p">();</span><span class="w"> </span><span class="c1">// 调用虚函数</span>
+<span class="w">    </span><span class="k">delete</span><span class="w"> </span><span class="n">d1</span><span class="p">;</span><span class="w"> </span><span class="c1">// 必须释放内存</span>
+<span class="w">    </span><span class="k">delete</span><span class="w"> </span><span class="n">d2</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">value</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Calc</span><span class="p">();</span><span class="w"> </span><span class="c1">// 在编译期计算</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;%d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">v</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2 id="_3">常量表达式用于模板函数的类型判断</h2>
+<p>在 C++17 中引入的 <code>if constexpr</code> 提供了一种更加简洁和可读的方式来进行模板元编程的类型判断。根据类型特性，在编译期选择不同的分支路径。</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdio&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdint&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cmath&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;type_traits&gt;</span>
+
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span>
+<span class="kt">bool</span><span class="w"> </span><span class="n">equal</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">T</span><span class="o">&amp;</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">T</span><span class="o">&amp;</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">is_integral_v</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">b</span><span class="p">;</span><span class="w"> </span><span class="c1">// 整数类型直接比较</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">is_floating_point_v</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">fabs</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mf">1e-3</span><span class="p">;</span><span class="w"> </span><span class="c1">// 浮点数进行误差比较</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">static_assert</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">is_arithmetic_v</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">is_pointer_v</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;not supported&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">boolalpha</span><span class="p">;</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">equal</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span><span class="w">                 </span><span class="c1">// true</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">equal</span><span class="p">(</span><span class="mf">1L</span><span class="p">,</span><span class="w"> </span><span class="mf">1L</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span><span class="w">               </span><span class="c1">// true</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">equal</span><span class="p">(</span><span class="mf">1.0000001</span><span class="p">,</span><span class="w"> </span><span class="mf">1.000002</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span><span class="w">  </span><span class="c1">// true</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">equal</span><span class="p">(</span><span class="mf">1.0000001</span><span class="p">,</span><span class="w"> </span><span class="mf">2.000002</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span><span class="w">  </span><span class="c1">// false</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>在传统C++中，我们常用<code>std::enable_if</code>来实现类似的功能。但是很明显，语法会显得过于笨重。</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;type_traits&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cmath&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdio&gt;</span>
+
+<span class="c1">// 整数类型</span>
+<span class="n">template</span><span class="w"> </span><span class="o">&lt;</span><span class="n">typename</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span>
+<span class="n">typename</span><span class="w"> </span><span class="nc">std</span><span class="o">::</span><span class="n">enable_if</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">is_integral</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="kr">bool</span><span class="o">&gt;::</span><span class="n">type</span>
+<span class="n">equal</span><span class="p">(</span><span class="kr">const</span><span class="w"> </span><span class="n">T</span><span class="o">&amp;</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kr">const</span><span class="w"> </span><span class="n">T</span><span class="o">&amp;</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">b</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// 浮点类型</span>
+<span class="n">template</span><span class="w"> </span><span class="o">&lt;</span><span class="n">typename</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span>
+<span class="n">typename</span><span class="w"> </span><span class="nc">std</span><span class="o">::</span><span class="n">enable_if</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">is_floating_point</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="kr">bool</span><span class="o">&gt;::</span><span class="n">type</span>
+<span class="n">equal</span><span class="p">(</span><span class="kr">const</span><span class="w"> </span><span class="n">T</span><span class="o">&amp;</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kr">const</span><span class="w"> </span><span class="n">T</span><span class="o">&amp;</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">fabs</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mf">1e-3</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// 其他类型</span>
+<span class="n">template</span><span class="w"> </span><span class="o">&lt;</span><span class="n">typename</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span>
+<span class="n">typename</span><span class="w"> </span><span class="nc">std</span><span class="o">::</span><span class="n">enable_if</span><span class="o">&lt;</span>
+<span class="w">    </span><span class="o">!</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">is_integral</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">value</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">is_floating_point</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">value</span><span class="p">),</span><span class="w"> </span><span class="kr">bool</span><span class="o">&gt;::</span><span class="n">type</span>
+<span class="n">equal</span><span class="p">(</span><span class="kr">const</span><span class="w"> </span><span class="n">T</span><span class="o">&amp;</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kr">const</span><span class="w"> </span><span class="n">T</span><span class="o">&amp;</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">static_assert</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">is_arithmetic</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">value</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">is_pointer</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;not supported&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kr">false</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kr">int</span><span class="w"> </span><span class="n">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">puts</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;</span><span class="kr">true</span><span class="s">&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;</span><span class="kr">false</span><span class="s">&quot;</span><span class="p">);</span><span class="w">                      </span><span class="c1">// 整数</span>
+<span class="w">    </span><span class="n">puts</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mf">1.0000001</span><span class="p">,</span><span class="w"> </span><span class="mf">1.000002</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;</span><span class="kr">true</span><span class="s">&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;</span><span class="kr">false</span><span class="s">&quot;</span><span class="p">);</span><span class="w">        </span><span class="c1">// 浮点</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2 id="consteval">使用<code>consteval</code>强制使用编译期求值</h2>
+<p><code>consteval</code> 是在 C++20 中引入的关键字，用于声明立即函数（immediate function）。立即函数要求在编译时进行求值，不能在运行时调用。<br>
+如果调用一个<code>consteval</code>。如果调用 <code>consteval</code> 函数时无法在编译期计算，编译器将报错。</p>
+<p><code>constexpr</code> 函数在某些情况下可能会退化为运行时调用，<code>consteval</code> 可以避免这种情况。</p>
+<p>例如：</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+
+<span class="c1">// consteval 强制要求在编译时进行计算</span>
+<span class="k">consteval</span><span class="w"> </span><span class="kr">int</span><span class="w"> </span><span class="nf">factorial</span><span class="p">(</span><span class="kr">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">factorial</span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">));</span>
+<span class="p">}</span>
+
+<span class="kr">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">constexpr</span><span class="w"> </span><span class="kr">int</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">factorial</span><span class="p">(</span><span class="mi">5</span><span class="p">);</span><span class="w"> </span><span class="c1">// OK：在编译时计算</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Factorial of 5 is: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// int runtime = 5;</span>
+<span class="w">    </span><span class="c1">// std::cout &lt;&lt; &quot;Factorial of runtime: &quot; &lt;&lt; factorial(runtime) &lt;&lt; std::endl;</span>
+<span class="w">    </span><span class="c1">// 错误：factorial 必须在编译时调用</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2 id="constinit">使用<code>constinit</code>显式要求编译时初始化</h2>
+<p><code>constinit</code> 关键字用于显式要求全局或静态变量在编译期完成初始化。<br>
+如果变量无法在编译时初始化，编译器将报错。<br>
+<code>constinit</code> 不能用于局部变量。</p>
+<p>与 <code>constexpr</code> 不同，<code>constinit</code> 变量可以在运行时被修改。<br>
+线程安全性：在多线程环境中，<code>constinit</code> 确保变量在编译期初始化，避免线程安全问题。</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;array&gt;</span>
+
+<span class="c1">// 编译时初始化</span>
+<span class="n">constexpr</span><span class="w"> </span><span class="kr">int</span><span class="w"> </span><span class="nf">compute</span><span class="p">(</span><span class="kr">int</span><span class="w"> </span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">v</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="k">constinit</span><span class="w"> </span><span class="kr">int</span><span class="w"> </span><span class="n">global</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">compute</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
+
+<span class="c1">// 错误：constinit 变量不能依赖运行时初始化</span>
+<span class="c1">// constinit int another = global;</span>
+
+<span class="kr">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">global</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span><span class="p">;</span><span class="w"> </span><span class="c1">// 允许在运行时修改</span>
+
+<span class="w">    </span><span class="c1">// 错误：constinit 变量不是常量，不能用作数组大小</span>
+<span class="w">    </span><span class="c1">// std::array&lt;int, global&gt; arr;</span>
+
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Global value: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">global</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2 id="_4">总结</h2>
+<ul>
+<li><code>constexpr</code>在多数情况下可以替代<code>const</code>以表达“编译期常量”的语义，可用于函数、变量、类等场景。constexpr 支持在编译期和运行期进行求值，但在某些情况下可能会退化为运行期求值。</li>
+<li>常量表达式函数 提供了一种更清晰的编译期计算方式，能够在一定程度上取代复杂且晦涩的模板元编程。随着 C++ 标准的演进，<code>constexpr</code> 函数逐步支持了更复杂的语法和逻辑，例如条件语句、循环语句和局部变量。但对于极端复杂的计算场景，编译期计算可能导致显著的编译时间开销。</li>
+<li><code>constexpr</code>可以在模板函数中用于类型判断，通过<code>if constexpr</code>语法有效地取代<code>std::enable_if</code>，从而简化模板编程，提高代码的可读性和可维护性。</li>
+<li><code>constexpr</code>函数的隐式退化风险：在某些场景下，<code>constexpr</code> 函数可能在运行时执行。若需要严格保证仅在编译期求值，可以使用 <code>consteval</code> 来强制进行编译期求值，避免不必要的运行时开销。</li>
+<li><code>constinit</code>提供了一种显式要求变量在编译时完成初始化的机制，适用于非<code>constexpr</code>变量。这在全局和静态变量的初始化中尤为有用，同时也保证了多线程环境下的初始化安全性。</li>
+</ul>
+            </div>
+            <!-- /.entry-content -->
+    <hr/>
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+            var disqus_config = function () {
+                this.language = "zhs";
+
+                        this.page.identifier = '2024-12-28-constexpr-cpp-for-the-antiquated-1';
+                        this.page.url = 'https://wizmann.top/constexpr-cpp-for-the-antiquated-1.html';
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="https://github.com/wizmann"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="https://wizmann.top//feeds/all.atom.xml"><i class="fa fa-rss-square fa-lg"></i> rss</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://wizmann.top/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/cpp.html">cpp</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/algorithm.html">algorithm</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/suan-fa.html">算法</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/codeforces.html">codeforces</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/c.html">C++</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/fen-bu-shi-xi-tong.html">分布式系统</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/ti-jie.html">题解</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/udp.html">UDP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/cas.html">cas</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rpc.html">rpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-xi-tong.html">数据系统</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-ku.html">数据库</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/leetcode.html">Leetcode</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/interview.html">interview</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multithread.html">multithread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/jian-suo-zeng-qiang-sheng-cheng.html">检索增强生成</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xian-liao.html">闲聊</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rag.html">RAG</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/modern-cpp.html">modern cpp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/protocol.html">protocol</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multi-thread.html">multi-thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/yi-zhi-xing.html">一致性</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/networking.html">networking</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/storage.html">storage</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xin-xi-jian-suo.html">信息检索</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/stup.html">STUP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/distributed-system.html">Distributed System</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/phxrpc.html">phxrpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/memory-barrier.html">memory-barrier</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/system-design.html">System Design</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/thread.html">thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/llm.html">LLM</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/tcp.html">tcp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/duo-xian-cheng.html">多线程</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/gong-kai-ke.html">公开课</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spinpromela.html">SPIN/Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/promela.html">Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/storage-system.html">storage system</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/google.html">Google</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/bing-fa-bian-cheng.html">并发编程</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/induction.html">induction</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/raft.html">raft</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/ucontext.html">ucontext</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/paxos.html">paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cse351.html">CSE351</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cmpxchg.html">cmpxchg</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/basic-paxos.html">basic paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/solution.html">Solution</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/azure.html">azure</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/async.html">async</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/3d-printing.html">3D printing</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/shu-ju-mi-ji-xing-ying-yong-xi-tong.html">数据密集型应用系统</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spin.html">SPIN</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-mo-xing.html">数据模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yi-zhi-xing-xie-yi.html">一致性协议</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/zi-fu-chuan-zhong-xie-xi-tong.html">字符串重写系统</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-xing-dp.html">树形DP</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-bian-cheng.html">编译期编程</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/mutex.html">mutex</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yuan-lei.html">元类</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon.html">CppCon</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon2024.html">CppCon2024</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dda-yin.html">3D打印</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/led.html">LED</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nei-cun-mo-xing.html">内存模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-shi-wu.html">分布式事务</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/diy.html">DIY</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/excrt.html">excrt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/segment-tree.html">segment-tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-lian-pou-fen.html">树链剖分</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/an-quan-xing.html">安全性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dp.html">dp</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bing-fa.html">并发</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/qi-fa-shi-he-bing.html">启发式合并</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/semaphore.html">semaphore</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-gong-shi.html">分布式共识</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nosql.html">nosql</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/post.html">Post</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-bian-ma.html">数据编码</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/litmus.html">litmus</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fan-she.html">反射</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/si-suo.html">死锁</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/hash.html">hash</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/partitioning.html">partitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/xian-duan-shu.html">线段树</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/volatile.html">volatile</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-jie-gou.html">数据结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/ab.html">A=B</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/tu-ling-wan-bei-xing.html">图灵完备性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/suo-yin-jie-gou.html">索引结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/repartitioning.html">repartitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/thue.html">Thue</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/crt.html">crt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/herb-sutter.html">Herb Sutter</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/condition_variable.html">condition_variable</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dsu-on-tree.html">DSU on Tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/math.html">math</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-you-hua.html">编译器优化</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/deng-ju-she-ji.html">灯具设计</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dmo-xing.html">3D模型</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2025 Wizmann
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://wizmann.top/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://wizmann.top/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://wizmann.top/theme/js/respond.min.js"></script>
+
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-46053117-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+
+</body>
+</html>

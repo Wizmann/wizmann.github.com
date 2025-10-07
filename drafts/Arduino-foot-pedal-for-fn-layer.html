@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="zhs" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>利用Arduino制作脚踏板Fn层开关 - Maerlyn's Rainbow</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <link href="https://wizmann.top/statistics/favicon.png" rel="icon">
+
+<link rel="canonical" href="https://wizmann.top/drafts/Arduino-foot-pedal-for-fn-layer.html">
+
+        <meta name="author" content="Wizmann" />
+        <meta name="keywords" content="Arduino,ahk,autohotkey,fn-layer,keyboard" />
+        <meta name="description" content="背景 之前焊了两个客制化键盘，一个是ErgoDone，一个是仿minila配列的60键盘。这两个键盘的共同特点是双手大拇指各有一个额外的开关，我将其 …" />
+
+        <meta property="og:site_name" content="Maerlyn's Rainbow" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="利用Arduino制作脚踏板Fn层开关"/>
+        <meta property="og:url" content="https://wizmann.top/drafts/Arduino-foot-pedal-for-fn-layer.html"/>
+        <meta property="og:description" content="背景 之前焊了两个客制化键盘，一个是ErgoDone，一个是仿minila配列的60键盘。这两个键盘的共同特点是双手大拇指各有一个额外的开关，我将其 …"/>
+        <meta property="article:published_time" content="2021-04-08" />
+            <meta property="article:section" content="Blog" />
+            <meta property="article:tag" content="Arduino" />
+            <meta property="article:tag" content="ahk" />
+            <meta property="article:tag" content="autohotkey" />
+            <meta property="article:tag" content="fn-layer" />
+            <meta property="article:tag" content="keyboard" />
+            <meta property="article:author" content="Wizmann" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://wizmann.top/theme/css/bootstrap.flatly.min.css" type="text/css"/>
+    <link href="https://wizmann.top/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://wizmann.top/theme/css/pygments/solarizedlight.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://wizmann.top/theme/css/style.css" type="text/css"/>
+
+        <link href="https://wizmann.top/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow ATOM Feed"/>
+
+        <link href="https://wizmann.top/feeds/blog.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow Blog ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://wizmann.top/" class="navbar-brand">
+Maerlyn's Rainbow            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="/category/blog.html">Blog</a></li>
+                    <li><a href="https://vijos.org/d/wizmann/p">Online Judge</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://wizmann.top/drafts/Arduino-foot-pedal-for-fn-layer.html"
+                       rel="bookmark"
+                       title="Permalink to 利用Arduino制作脚踏板Fn层开关">
+                        利用Arduino制作脚踏板Fn层开关
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2021-04-08T00:00:00+08:00"> 2021-04-08</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://wizmann.top/tag/arduino.html">Arduino</a>
+        /
+	<a href="https://wizmann.top/tag/ahk.html">ahk</a>
+        /
+	<a href="https://wizmann.top/tag/autohotkey.html">autohotkey</a>
+        /
+	<a href="https://wizmann.top/tag/fn-layer.html">fn-layer</a>
+        /
+	<a href="https://wizmann.top/tag/keyboard.html">keyboard</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h2 id="_1">背景</h2>
+<p>之前焊了两个客制化键盘，一个是ErgoDone，一个是仿minila配列的60键盘。这两个键盘的共同特点是双手大拇指各有一个额外的开关，我将其做为Fn层的开关，用来开启两个fn层：Vim和NumPad（是啥并不重要，可以理解为功能键的重映射）。</p>
+<p>这两把键盘都是Cherry红轴。最近想把之前的酷冷扰民青轴87键用起来，但是因为它是标准配列，所以没有Fn键。重新焊一把新键盘或者换轴又太贵了。所以想用软硬结合的方法，额外做两个脚踏板按键，用来控制相应的Fn层。</p>
+<h2 id="_2">所需要的零件</h2>
+<ul>
+<li>一把正(yang)常(jian)配列的键盘</li>
+<li>Arduino Pro Micro （TB，25包邮，大概买贵了）</li>
+<li>两个脚踏板（TB，23两个包邮）</li>
+<li>一根USB 2.0公母线（PDD，3块钱。用来分离脚踏板开关和面包板）</li>
+<li>小号面包板一个（TB，5块）</li>
+<li>1个1K欧的电阻（成本不计，我用了两个）</li>
+<li>一些跳线和导线（成本不计）</li>
+</ul>
+<h2 id="_3">电路设计</h2>
+<p><img alt="circuit" src="https://github.com/Wizmann/assets/blob/df8691c2f4385919f024b7200a875485a8d0fb8b/wizmann-tk-pic/Snipaste_2021-04-08_00-23-08.png?raw=true"></p>
+<blockquote>
+<p>画图网站上只有Arduino Uno，这里需要Arduino Leonardo或者Arduino Pro Micro以支持键盘模拟</p>
+</blockquote>
+<p>像我上面说的，可以只使用一个下拉电阻。我为了跳线好看，就用了两个。</p>
+<p><img alt="realworld" src="https://github.com/Wizmann/assets/blob/abaecd1c3cc70e5860fb459345686eae18245580/wizmann-tk-pic/WeChat%20Image_20210408004402.jpg?raw=true"></p>
+<p>代码：</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;Keyboard.h&quot;</span>
+
+<span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">F18_Pin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">F19_Pin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8</span><span class="p">;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">RXLED</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">17</span><span class="p">;</span><span class="w"> </span><span class="c1">// The RX LED has a defined Arduino pin</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">TXLED</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">30</span><span class="p">;</span><span class="w"> </span><span class="c1">// The TX LED has a defined Arduino pin</span>
+
+<span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">KEY_COUNT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+
+<span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">PINS</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">F18_Pin</span><span class="p">,</span><span class="w"> </span><span class="n">F19_Pin</span><span class="p">};</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">LEDS</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">RXLED</span><span class="p">,</span><span class="w"> </span><span class="n">TXLED</span><span class="p">};</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">MAPPED_KEYS</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0xF5</span><span class="p">,</span><span class="w"> </span><span class="mh">0xF6</span><span class="p">};</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">previousButtonState</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">HIGH</span><span class="p">,</span><span class="w"> </span><span class="n">HIGH</span><span class="p">};</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">setup</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">KEY_COUNT</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">pinMode</span><span class="p">(</span><span class="n">PINS</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">INPUT</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="c1">// initialize control over the keyboard:</span>
+<span class="w">  </span><span class="n">Keyboard</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span>
+<span class="w">  </span><span class="n">pinMode</span><span class="p">(</span><span class="n">RXLED</span><span class="p">,</span><span class="w"> </span><span class="n">OUTPUT</span><span class="p">);</span><span class="w"> </span><span class="c1">// Set RX LED as an output</span>
+<span class="w">  </span><span class="n">pinMode</span><span class="p">(</span><span class="n">TXLED</span><span class="p">,</span><span class="w"> </span><span class="n">OUTPUT</span><span class="p">);</span><span class="w"> </span><span class="c1">// Set TX LED as an output</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">loop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// read the pushbutton:</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">KEY_COUNT</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">buttonPin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PINS</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">buttonState</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">digitalRead</span><span class="p">(</span><span class="n">buttonPin</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">previousButtonState</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">buttonState</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">buttonState</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">HIGH</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">//Keyboard.press(MAPPED_KEYS[i]);</span>
+<span class="w">        </span><span class="n">Keyboard</span><span class="p">.</span><span class="n">press</span><span class="p">(</span><span class="n">MAPPED_KEYS</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="w">        </span><span class="n">digitalWrite</span><span class="p">(</span><span class="n">LEDS</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">LOW</span><span class="p">);</span>
+<span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">Keyboard</span><span class="p">.</span><span class="n">release</span><span class="p">(</span><span class="n">MAPPED_KEYS</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="w">        </span><span class="n">digitalWrite</span><span class="p">(</span><span class="n">LEDS</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">HIGH</span><span class="p">);</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="c1">// save the current button state for comparison next time:</span>
+<span class="w">    </span><span class="n">previousButtonState</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">buttonState</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="n">delay</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>照着示例代码改的，简单的很，有手就行。</p>
+<h2 id="_4">接线设计</h2>
+<p>我使用了接线端子连接导线，优点是方便，缺点是难看，老大一坨，还不一定稳当。后面会考虑用高级一点的接线方法。</p>
+<p>还剪了一根USB2.0公母线，用来做“键线分离”。因为USB2.0里面有四根线，两个脚踏板开关共用GND线，正极各用一根，还有一根富裕。其实也可以用音频线。</p>
+<h2 id="_5">软件设计</h2>
+<p>由于我们并没有修改正常键盘的配列，所以需要用软件方法来对Fn层进行重映射。</p>
+<p>从上面的代码我们可以看出，两个脚踏板开关分别被映射到了F18和F19。所以我们就把这两个键当作Fn，使用AutoHotKey制作Fn层。</p>
+<div class="highlight"><pre><span></span><code><span class="nb">#MaxHotkeysPerInterval</span> <span class="mi">1000</span>
+<span class="nb">#NoEnv</span>
+<span class="nb">#UseHook</span> <span class="n">On</span>
+<span class="nb">#SingleInstance</span> <span class="n">force</span>
+<span class="nb">#InstallKeybdHook</span>
+<span class="nb">SendMode</span> <span class="n">Input</span>
+
+<span class="nl">F18::</span><span class="n">Return</span>
+<span class="nl">F19::</span><span class="n">Return</span>
+
+<span class="n">F19</span> <span class="o">&amp;</span> <span class="n">h</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{</span><span class="n">Left</span><span class="p">}</span>
+<span class="n">F19</span> <span class="o">&amp;</span> <span class="n">j</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{</span><span class="n">Down</span><span class="p">}</span>
+<span class="n">F19</span> <span class="o">&amp;</span> <span class="n">k</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{</span><span class="n">Up</span><span class="p">}</span>
+<span class="n">F19</span> <span class="o">&amp;</span> <span class="n">l</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{</span><span class="n">Right</span><span class="p">}</span>
+<span class="n">F19</span> <span class="o">&amp;</span> <span class="n">a</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{</span><span class="n">Home</span><span class="p">}</span>
+<span class="n">F19</span> <span class="o">&amp;</span> <span class="n">e</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{</span><span class="n">End</span><span class="p">}</span>
+<span class="n">F19</span> <span class="o">&amp;</span> <span class="n">x</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{</span><span class="n">Delete</span><span class="p">}</span>
+<span class="n">F19</span> <span class="o">&amp;</span> <span class="n">d</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{</span><span class="n">PgDn</span><span class="p">}</span>
+<span class="n">F19</span> <span class="o">&amp;</span> <span class="n">m</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{</span><span class="n">AppsKey</span><span class="p">}</span>
+<span class="n">F19</span> <span class="o">&amp;</span> <span class="n">u</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{</span><span class="n">PgUp</span><span class="p">}</span>
+<span class="n">F19</span> <span class="o">&amp;</span> <span class="n">i</span><span class="o">::</span>
+    <span class="nb">if </span><span class="nf">GetKeyState</span><span class="p">(</span><span class="s">&quot;LShift&quot;</span><span class="p">,</span> <span class="s">&quot;P&quot;</span><span class="p">)</span>
+        <span class="nb">SendInput</span> <span class="o">+</span><span class="p">{</span><span class="nf">Insert</span><span class="p">}</span>
+    <span class="nb">else</span>
+        <span class="nb">SendInput</span> <span class="p">{</span><span class="nf">Insert</span><span class="p">}</span>
+    <span class="nb">return</span>
+<span class="n">F19</span> <span class="o">&amp;</span> <span class="n">b</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{</span><span class="n">Backspace</span><span class="p">}</span>
+<span class="n">F19</span> <span class="o">&amp;</span> <span class="n">w</span><span class="o">::</span><span class="n">SendInput</span> <span class="o">^</span><span class="p">{</span><span class="n">w</span><span class="p">}</span>
+
+<span class="n">F18</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{</span><span class="n">F1</span><span class="p">}</span>
+<span class="n">F18</span> <span class="o">&amp;</span> <span class="mi">2</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{</span><span class="n">F2</span><span class="p">}</span>
+<span class="n">F18</span> <span class="o">&amp;</span> <span class="mi">3</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{</span><span class="n">F3</span><span class="p">}</span>
+<span class="n">F18</span> <span class="o">&amp;</span> <span class="mi">4</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{</span><span class="n">F4</span><span class="p">}</span>
+<span class="n">F18</span> <span class="o">&amp;</span> <span class="mi">5</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{</span><span class="n">F5</span><span class="p">}</span>
+<span class="n">F18</span> <span class="o">&amp;</span> <span class="mi">6</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{</span><span class="n">F6</span><span class="p">}</span>
+<span class="n">F18</span> <span class="o">&amp;</span> <span class="mi">7</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{</span><span class="n">F7</span><span class="p">}</span>
+<span class="n">F18</span> <span class="o">&amp;</span> <span class="mi">8</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{</span><span class="n">F8</span><span class="p">}</span>
+<span class="n">F18</span> <span class="o">&amp;</span> <span class="mi">9</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{</span><span class="n">F9</span><span class="p">}</span>
+<span class="n">F18</span> <span class="o">&amp;</span> <span class="mi">0</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{</span><span class="n">F10</span><span class="p">}</span>
+<span class="n">F18</span> <span class="o">&amp;</span> <span class="o">-::</span><span class="n">SendInput</span> <span class="p">{</span><span class="n">F11</span><span class="p">}</span>
+<span class="n">F18</span> <span class="o">&amp;</span> <span class="o">=::</span><span class="n">SendInput</span> <span class="p">{</span><span class="n">F12</span><span class="p">}</span>
+<span class="n">F18</span> <span class="o">&amp;</span> <span class="n">a</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{</span><span class="mi">1</span><span class="p">}</span>
+<span class="n">F18</span> <span class="o">&amp;</span> <span class="n">s</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{</span><span class="mi">2</span><span class="p">}</span>
+<span class="n">F18</span> <span class="o">&amp;</span> <span class="n">d</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{</span><span class="mi">3</span><span class="p">}</span>
+<span class="n">F18</span> <span class="o">&amp;</span> <span class="n">f</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{</span><span class="mi">4</span><span class="p">}</span>
+<span class="n">F18</span> <span class="o">&amp;</span> <span class="n">g</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{</span><span class="mi">5</span><span class="p">}</span>
+<span class="n">F18</span> <span class="o">&amp;</span> <span class="n">h</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{</span><span class="mi">6</span><span class="p">}</span>
+<span class="n">F18</span> <span class="o">&amp;</span> <span class="n">j</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{</span><span class="mi">7</span><span class="p">}</span>
+<span class="n">F18</span> <span class="o">&amp;</span> <span class="n">k</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{</span><span class="mi">8</span><span class="p">}</span>
+<span class="n">F18</span> <span class="o">&amp;</span> <span class="n">l</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{</span><span class="mi">9</span><span class="p">}</span>
+<span class="n">F18</span> <span class="o">&amp;</span> <span class="se">`;</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{</span><span class="mi">0</span><span class="p">}</span>
+<span class="n">F18</span> <span class="o">&amp;</span> <span class="n">q</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{</span><span class="o">!</span><span class="p">}</span>
+<span class="n">F18</span> <span class="o">&amp;</span> <span class="n">w</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{</span><span class="n">@</span><span class="p">}</span>
+<span class="n">F18</span> <span class="o">&amp;</span> <span class="n">e</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{</span><span class="n">#</span><span class="p">}</span>
+<span class="n">F18</span> <span class="o">&amp;</span> <span class="n">r</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{</span><span class="n">$</span><span class="p">}</span>
+<span class="n">F18</span> <span class="o">&amp;</span> <span class="n">t</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{</span><span class="se">`%</span><span class="p">}</span>
+<span class="n">F18</span> <span class="o">&amp;</span> <span class="n">y</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{</span><span class="o">^</span><span class="p">}</span>
+<span class="n">F18</span> <span class="o">&amp;</span> <span class="n">u</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{</span><span class="o">&amp;</span><span class="p">}</span>
+<span class="n">F18</span> <span class="o">&amp;</span> <span class="n">i</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{</span><span class="o">*</span><span class="p">}</span>
+<span class="n">F18</span> <span class="o">&amp;</span> <span class="n">o</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{(}</span>
+<span class="n">F18</span> <span class="o">&amp;</span> <span class="n">p</span><span class="o">::</span><span class="n">SendInput</span> <span class="p">{)}</span>
+</code></pre></div>
+
+<p>代码简单粗暴。</p>
+<h2 id="_6">总结</h2>
+<p>又要重学打字了，除了用手之外，还要用脚。。。</p>
+<p>感觉自己程序员当不下去之后，可以去电子厂上班了（做梦</p>
+            </div>
+            <!-- /.entry-content -->
+    <hr/>
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+            var disqus_config = function () {
+                this.language = "zhs";
+
+                        this.page.identifier = '2021-04-08-Arduino-foot-pedal-for-fn-layer';
+                        this.page.url = 'https://wizmann.top/drafts/Arduino-foot-pedal-for-fn-layer.html';
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="https://github.com/wizmann"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="https://wizmann.top//feeds/all.atom.xml"><i class="fa fa-rss-square fa-lg"></i> rss</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://wizmann.top/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/cpp.html">cpp</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/algorithm.html">algorithm</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/suan-fa.html">算法</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/codeforces.html">codeforces</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/c.html">C++</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/fen-bu-shi-xi-tong.html">分布式系统</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/ti-jie.html">题解</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/udp.html">UDP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/cas.html">cas</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rpc.html">rpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-xi-tong.html">数据系统</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-ku.html">数据库</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/leetcode.html">Leetcode</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/interview.html">interview</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multithread.html">multithread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/jian-suo-zeng-qiang-sheng-cheng.html">检索增强生成</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xian-liao.html">闲聊</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rag.html">RAG</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/modern-cpp.html">modern cpp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/protocol.html">protocol</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multi-thread.html">multi-thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/yi-zhi-xing.html">一致性</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/networking.html">networking</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/storage.html">storage</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xin-xi-jian-suo.html">信息检索</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/stup.html">STUP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/distributed-system.html">Distributed System</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/phxrpc.html">phxrpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/memory-barrier.html">memory-barrier</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/system-design.html">System Design</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/thread.html">thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/llm.html">LLM</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/tcp.html">tcp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/duo-xian-cheng.html">多线程</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/gong-kai-ke.html">公开课</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spinpromela.html">SPIN/Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/promela.html">Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/storage-system.html">storage system</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/google.html">Google</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/bing-fa-bian-cheng.html">并发编程</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/induction.html">induction</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/raft.html">raft</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/ucontext.html">ucontext</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/paxos.html">paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cse351.html">CSE351</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cmpxchg.html">cmpxchg</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/basic-paxos.html">basic paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/solution.html">Solution</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/azure.html">azure</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/async.html">async</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/3d-printing.html">3D printing</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/shu-ju-mi-ji-xing-ying-yong-xi-tong.html">数据密集型应用系统</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spin.html">SPIN</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-mo-xing.html">数据模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yi-zhi-xing-xie-yi.html">一致性协议</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/zi-fu-chuan-zhong-xie-xi-tong.html">字符串重写系统</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-xing-dp.html">树形DP</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-bian-cheng.html">编译期编程</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/mutex.html">mutex</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yuan-lei.html">元类</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon.html">CppCon</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon2024.html">CppCon2024</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dda-yin.html">3D打印</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/led.html">LED</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nei-cun-mo-xing.html">内存模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-shi-wu.html">分布式事务</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/diy.html">DIY</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/excrt.html">excrt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/segment-tree.html">segment-tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-lian-pou-fen.html">树链剖分</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/an-quan-xing.html">安全性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dp.html">dp</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bing-fa.html">并发</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/qi-fa-shi-he-bing.html">启发式合并</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/semaphore.html">semaphore</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-gong-shi.html">分布式共识</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nosql.html">nosql</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/post.html">Post</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-bian-ma.html">数据编码</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/litmus.html">litmus</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fan-she.html">反射</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/si-suo.html">死锁</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/hash.html">hash</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/partitioning.html">partitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/xian-duan-shu.html">线段树</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/volatile.html">volatile</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-jie-gou.html">数据结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/ab.html">A=B</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/tu-ling-wan-bei-xing.html">图灵完备性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/suo-yin-jie-gou.html">索引结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/repartitioning.html">repartitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/thue.html">Thue</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/crt.html">crt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/herb-sutter.html">Herb Sutter</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/condition_variable.html">condition_variable</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dsu-on-tree.html">DSU on Tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/math.html">math</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-you-hua.html">编译器优化</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/deng-ju-she-ji.html">灯具设计</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dmo-xing.html">3D模型</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2025 Wizmann
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://wizmann.top/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://wizmann.top/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://wizmann.top/theme/js/respond.min.js"></script>
+
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-46053117-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+
+</body>
+</html>

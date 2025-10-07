@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="zhs" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>非阻塞TCP流和HttpClient - phxrpc代码阅读(6) - Maerlyn's Rainbow</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <link href="https://wizmann.top/statistics/favicon.png" rel="icon">
+
+<link rel="canonical" href="https://wizmann.top/phxrpc-6.html">
+
+        <meta name="author" content="Wizmann" />
+        <meta name="keywords" content="phxrpc" />
+        <meta name="description" content="写在前面 其实这点东西有点鸡肋。因为TCP流在前面已经讲过，难点在于“流”和“流缓冲区”部分。而HttpClient只是TCP流的一个应用，代码不多，且重点在于HTTP协议的调教上面。 不过因为前面有写阻 …" />
+
+        <meta property="og:site_name" content="Maerlyn's Rainbow" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="非阻塞TCP流和HttpClient - phxrpc代码阅读(6)"/>
+        <meta property="og:url" content="https://wizmann.top/phxrpc-6.html"/>
+        <meta property="og:description" content="写在前面 其实这点东西有点鸡肋。因为TCP流在前面已经讲过，难点在于“流”和“流缓冲区”部分。而HttpClient只是TCP流的一个应用，代码不多，且重点在于HTTP协议的调教上面。 不过因为前面有写阻 …"/>
+        <meta property="article:published_time" content="2016-10-19" />
+            <meta property="article:section" content="Blog" />
+            <meta property="article:tag" content="phxrpc" />
+            <meta property="article:author" content="Wizmann" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://wizmann.top/theme/css/bootstrap.flatly.min.css" type="text/css"/>
+    <link href="https://wizmann.top/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://wizmann.top/theme/css/pygments/solarizedlight.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://wizmann.top/theme/css/style.css" type="text/css"/>
+
+        <link href="https://wizmann.top/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow ATOM Feed"/>
+
+        <link href="https://wizmann.top/feeds/blog.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow Blog ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://wizmann.top/" class="navbar-brand">
+Maerlyn's Rainbow            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="/category/blog.html">Blog</a></li>
+                    <li><a href="https://vijos.org/d/wizmann/p">Online Judge</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://wizmann.top/phxrpc-6.html"
+                       rel="bookmark"
+                       title="Permalink to 非阻塞TCP流和HttpClient - phxrpc代码阅读(6)">
+                        非阻塞TCP流和HttpClient - phxrpc代码阅读(6)
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2016-10-19T00:03:12+08:00"> 2016-10-19</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://wizmann.top/tag/phxrpc.html">phxrpc</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h2 id="_1">写在前面</h2>
+<p>其实这点东西有点鸡肋。因为TCP流在前面已经讲过，难点在于“流”和“流缓冲区”部分。而HttpClient只是TCP流的一个应用，代码不多，且重点在于HTTP协议的调教上面。</p>
+<p>不过因为前面有写阻塞TCP流，还是前后呼应，把非阻塞TCP流也小小的讲解一下。顺便饶一段HttpClient的讲解，算是充实一下内容吧。</p>
+<h2 id="tcp-uthreadtcpstreambuf">非阻塞TCP流缓冲区 - <code>UThreadTcpStreamBuf</code></h2>
+<p>这个其实没啥可讲的，传入一个<code>socket</code>，然后读写分别调用<code>UThreadRecv</code>和<code>UThreadSend</code>，IO复用和协程切换的复杂操作都被封装在里面了。剩下的操作都由基类函数来解决。</p>
+<h2 id="tcp-uthreadtcpstream">非阻塞TCP流 - <code>UThreadTcpStream</code></h2>
+<blockquote>
+<p>确实没啥可说的，你们自己去读代码吧。。。</p>
+</blockquote>
+<p>非阻塞TCP流和阻塞TCP流的区别是~~它不阻塞~~，在阻塞TCP流中，我们传入的是一个TCP流，而非阻塞TCP流传入的是一个协程调度器和一个TCP流。</p>
+<p>这个很好理解，一个阻塞流自然会占满一个线程的IO和CPU —— 在阻塞流IO读写时，CPU空闲；在CPU忙时，IO空闲。</p>
+<p>而非阻塞流会将自己IO wait的时间托管给epoll，把剩下的时间用于CPU计算（和一些overhead上）。所以一个线程可以handle多个socket，协程调度器就是必须的了。之后的读写操作就交由我们前面讨论过的epoll和ucontext协程来共同完成了。</p>
+<h2 id="httpclient">HttpClient</h2>
+<p>其实这里分析HttpClient的意义不是很大，因为Http毕竟是一个成熟的协议，然后相应的设置含义虽然明确，但是放到相应的上下文中分析比较好。</p>
+<p>这篇博文<a href="https://www.byvoid.com/blog/http-keep-alive-header">《HTTP协议头部与Keep-Alive模式详解》</a>中有一部分背景知识，感兴趣的同学可以简单了解一下。</p>
+<h3 id="httpdispatcher">在HttpDispatcher中使用的一个小技巧</h3>
+<p>在<code>http_dispatcher.h</code>文件中，作者使用了一个比较新奇的技巧：“<a href="http://tipsandtricks.runicsoft.com/Cpp/MemberFunctionPointers.html">Function Pointers to Member Functions</a>”。</p>
+<p>我们来看代码：</p>
+<div class="highlight"><pre><span></span><code><span class="n">typedef</span><span class="w"> </span><span class="nb nb-Type">int</span><span class="w"> </span><span class="p">(</span><span class="n">Dispatcher</span><span class="p">::</span><span class="o">*</span><span class="n">URIFunc_t</span><span class="p">)(</span><span class="k">const</span><span class="w"> </span><span class="n">HttpRequest</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">request</span><span class="p">,</span><span class="w"> </span><span class="n">HttpResponse</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">response</span><span class="p">);</span>
+</code></pre></div>
+
+<p>这行代码的意思是，为一个参数为<code>(const HttpRequest&amp;, HttpResponse*)</code>且返回值为<code>int</code>的函数声明一个别名<code>URIFunc_t</code>，并且这个函数，一定是<code>Dispatcher</code>类的成员函数。</p>
+<p>到目前为止，一切都还是正常的样子，语法也是我们常见的类型。但是下面这种写法，确实是我第一次见。</p>
+<div class="highlight"><pre><span></span><code>if (uri_func_map_.end() != iter) {
+    ret = (dispatcher_.*iter-&gt;second)(request, response);
+}
+</code></pre></div>
+
+<p>这里的<code>(dispatcher_.*iter-&gt;second)</code>，<code>iter-&gt;second</code>是从map中拿出来的，在<code>dispatcher_</code>对象中的成员函数的指针。我们使用星号解引用，再把它和<code>dispatcher_</code>对象拼接在一起，像正常调用成员函数一样调用就可以了。</p>
+<h2 id="-epoll">貌似写的有点少，再饶一段吧 - epoll测试服务端/客户端</h2>
+<p>我们翻篇回到<code>network</code>文件夹下面，看一下<code>test_epoll_[server|client].[h|cpp]</code>文件。</p>
+<h3 id="epoll">epoll测试客户端</h3>
+<p>首先，我们读取命令行参数，新建一个调度器，由参数决定调度器的woker协程数量。之后新建<code>UThreadEpollArgs_t</code>，把调度器指针塞进去。再之后把<code>echoclient</code>工作函数和<code>args</code>参数放由调度器中进行调度。</p>
+<p>接下来我们看看工作函数<code>echoclient</code>。</p>
+<p>工作函数的第一步是申请一个socket fd：</p>
+<div class="highlight"><pre><span></span><code>int fd = ::socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
+</code></pre></div>
+
+<p>这里我解释一下最后一个参数<code>IPPROTO_IP</code>：</p>
+<blockquote>
+<p>In the in.h file, the comment says: Dummy protocol for TCP.    <br>
+This constant has the value 0. It&rsquo;s actually an automatic choice depending on socket type and family.    <br>
+If you use it, and if the socket type is SOCK_STREAM and the family is AF_INET, then the protocol will automatically be TCP (exactly the same as if you&rsquo;d used IPPROTO_TCP). Buf if you use IPPROTO_IP together with AF_INET and SOCK_RAW, you will have an error, because the kernel cannot choose a protocol automatically in this case.</p>
+</blockquote>
+<p>这个参数的意义是告诉内核，如果只有一个选项的话，你特么爱用哪个协议就用哪个吧。所以有一些时候，我们会直接把最后一个参数写成0，这就是<code>IPPROTO_IP</code>宏的字面值。</p>
+<p>更多信息，可以参考这个<a href="http://stackoverflow.com/questions/24590818/what-is-the-difference-between-ipproto-ip-and-ipproto-raw">问题</a>。</p>
+<p>后面的流程非常简单，先接收server发来的欢迎信息，之后ping pong十次，发送“quit”包后结束协程。</p>
+<h3 id="epoll_1">epoll测试服务端</h3>
+<p>服务端和客户端区别不大，主要区别在于客户端在一开始只有一个协程。之后在accept连接时，会主动新建工作协程。</p>
+<p>这里解释一下<code>listen(fd, backlog)</code>函数的第二个参数<code>backlog</code>：</p>
+<p>backlog意为内核为相应套接字排队的最大连接个数。内核为任何一个给定的监听套接字维护两个队列：</p>
+<ul>
+<li>未完成连接队列(incomplete connection queue)        <br>
+已由某个客户发出并到达服务器，而服务器正在等待完成相应的TCP三路握手过程。这些套接字处于SYN_RCVD状态</li>
+<li>已完成连接队列(completed connection queue)     <br>
+每个已完成TCP三路握手过程的客户对应其中一项。这些套接字处于ESTABLISHED状态</li>
+</ul>
+<p>当队列满时，TCP会忽略改分节，但是不发送RST。服务端会期望客户端重发SYN，采用正常的重传机制来处理</p>
+<p>队列的真实大小往往比设定backlog值要大一些（~1.5倍）</p>
+<p>我们继续看工作函数<code>echoaccept</code>。第一步是新建一个<code>UThreadSocket_t</code>对象，用来监听accept事件。当有新的连接进入时，我们就将新的连接，以及连接所用的工作函数<code>echoserver</code>加入到调度器中。</p>
+<p><code>echoserver</code>函数首先发送一个欢迎信息，之后就和客户端打起乒乓球来，直到客户端发来quit，就结束这个工作协程。</p>
+<p>其实这里有一个问题，如果发生了一个字符串拆成两半发的现象，比如第一个包是“blahblahquitq”，之后一个包是“uit”，那么这个协程永远就不会停止了。由于TCP是一个流协议，我们不能保证每一次recv回来的信息都是一个完整的“包”。不做不必要的假设，不给自己找麻烦。</p>
+<p>不过因为这里ping pong的消息都比较短，可以强行认为每一个包都包含着一个完整的字符串。当然，这种假设也是无意义的。所以我们要留意phxrpc在真正的生产环境，是怎样处理这种“粘包”的问题的。</p>
+<h2 id="_2">写在最后</h2>
+<p>上一张女神的图：</p>
+<p><img alt="" src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/16-10-19/89151689.jpg"></p>
+<p>没啦~</p>
+            </div>
+            <!-- /.entry-content -->
+    <hr/>
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+            var disqus_config = function () {
+                this.language = "zhs";
+
+                        this.page.identifier = '2016-10-19-phxrpc-6';
+                        this.page.url = 'https://wizmann.top/phxrpc-6.html';
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="https://github.com/wizmann"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="https://wizmann.top//feeds/all.atom.xml"><i class="fa fa-rss-square fa-lg"></i> rss</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://wizmann.top/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/cpp.html">cpp</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/algorithm.html">algorithm</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/suan-fa.html">算法</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/codeforces.html">codeforces</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/c.html">C++</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/fen-bu-shi-xi-tong.html">分布式系统</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/ti-jie.html">题解</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/udp.html">UDP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/cas.html">cas</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rpc.html">rpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-xi-tong.html">数据系统</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-ku.html">数据库</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/leetcode.html">Leetcode</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/interview.html">interview</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multithread.html">multithread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/jian-suo-zeng-qiang-sheng-cheng.html">检索增强生成</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xian-liao.html">闲聊</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rag.html">RAG</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/modern-cpp.html">modern cpp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/protocol.html">protocol</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multi-thread.html">multi-thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/yi-zhi-xing.html">一致性</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/networking.html">networking</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/storage.html">storage</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xin-xi-jian-suo.html">信息检索</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/stup.html">STUP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/distributed-system.html">Distributed System</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/phxrpc.html">phxrpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/memory-barrier.html">memory-barrier</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/system-design.html">System Design</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/thread.html">thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/llm.html">LLM</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/tcp.html">tcp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/duo-xian-cheng.html">多线程</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/gong-kai-ke.html">公开课</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spinpromela.html">SPIN/Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/promela.html">Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/storage-system.html">storage system</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/google.html">Google</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/bing-fa-bian-cheng.html">并发编程</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/induction.html">induction</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/raft.html">raft</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/ucontext.html">ucontext</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/paxos.html">paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cse351.html">CSE351</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cmpxchg.html">cmpxchg</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/basic-paxos.html">basic paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/solution.html">Solution</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/azure.html">azure</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/async.html">async</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/3d-printing.html">3D printing</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/shu-ju-mi-ji-xing-ying-yong-xi-tong.html">数据密集型应用系统</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spin.html">SPIN</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-mo-xing.html">数据模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yi-zhi-xing-xie-yi.html">一致性协议</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/zi-fu-chuan-zhong-xie-xi-tong.html">字符串重写系统</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-xing-dp.html">树形DP</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-bian-cheng.html">编译期编程</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/mutex.html">mutex</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yuan-lei.html">元类</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon.html">CppCon</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon2024.html">CppCon2024</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dda-yin.html">3D打印</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/led.html">LED</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nei-cun-mo-xing.html">内存模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-shi-wu.html">分布式事务</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/diy.html">DIY</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/excrt.html">excrt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/segment-tree.html">segment-tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-lian-pou-fen.html">树链剖分</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/an-quan-xing.html">安全性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dp.html">dp</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bing-fa.html">并发</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/qi-fa-shi-he-bing.html">启发式合并</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/semaphore.html">semaphore</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-gong-shi.html">分布式共识</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nosql.html">nosql</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/post.html">Post</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-bian-ma.html">数据编码</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/litmus.html">litmus</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fan-she.html">反射</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/si-suo.html">死锁</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/hash.html">hash</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/partitioning.html">partitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/xian-duan-shu.html">线段树</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/volatile.html">volatile</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-jie-gou.html">数据结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/ab.html">A=B</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/tu-ling-wan-bei-xing.html">图灵完备性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/suo-yin-jie-gou.html">索引结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/repartitioning.html">repartitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/thue.html">Thue</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/crt.html">crt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/herb-sutter.html">Herb Sutter</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/condition_variable.html">condition_variable</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dsu-on-tree.html">DSU on Tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/math.html">math</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-you-hua.html">编译器优化</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/deng-ju-she-ji.html">灯具设计</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dmo-xing.html">3D模型</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2025 Wizmann
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://wizmann.top/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://wizmann.top/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://wizmann.top/theme/js/respond.min.js"></script>
+
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-46053117-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+
+</body>
+</html>

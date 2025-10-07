@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="zhs" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>std::visit实现运行时多态 - C++ for the Antiquated（之三） - Maerlyn's Rainbow</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <link href="https://wizmann.top/statistics/favicon.png" rel="icon">
+
+<link rel="canonical" href="https://wizmann.top/std-visit-polymorphism-cpp-for-the-antiquated-3.html">
+
+        <meta name="author" content="Wizmann" />
+        <meta name="keywords" content="cpp,modern cpp" />
+        <meta name="description" content="在传统的 C++ 中，运行时多态 通常依赖于 “接口 - 虚函数” 机制，通过抽象类、具体类与对象的设计来实现。这种多态方式通常被称 …" />
+
+        <meta property="og:site_name" content="Maerlyn's Rainbow" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="std::visit实现运行时多态 - C++ for the Antiquated（之三）"/>
+        <meta property="og:url" content="https://wizmann.top/std-visit-polymorphism-cpp-for-the-antiquated-3.html"/>
+        <meta property="og:description" content="在传统的 C++ 中，运行时多态 通常依赖于 “接口 - 虚函数” 机制，通过抽象类、具体类与对象的设计来实现。这种多态方式通常被称 …"/>
+        <meta property="article:published_time" content="2025-01-04" />
+            <meta property="article:section" content="Blog" />
+            <meta property="article:tag" content="cpp" />
+            <meta property="article:tag" content="modern cpp" />
+            <meta property="article:author" content="Wizmann" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://wizmann.top/theme/css/bootstrap.flatly.min.css" type="text/css"/>
+    <link href="https://wizmann.top/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://wizmann.top/theme/css/pygments/solarizedlight.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://wizmann.top/theme/css/style.css" type="text/css"/>
+
+        <link href="https://wizmann.top/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow ATOM Feed"/>
+
+        <link href="https://wizmann.top/feeds/blog.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow Blog ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://wizmann.top/" class="navbar-brand">
+Maerlyn's Rainbow            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="/category/blog.html">Blog</a></li>
+                    <li><a href="https://vijos.org/d/wizmann/p">Online Judge</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://wizmann.top/std-visit-polymorphism-cpp-for-the-antiquated-3.html"
+                       rel="bookmark"
+                       title="Permalink to std::visit实现运行时多态 - C++ for the Antiquated（之三）">
+                        std::visit实现运行时多态 - C++ for the Antiquated（之三）
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2025-01-04T00:00:00+08:00"> 2025-01-04</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://wizmann.top/tag/cpp.html">cpp</a>
+        /
+	<a href="https://wizmann.top/tag/modern-cpp.html">modern cpp</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p>在传统的 <strong>C++</strong> 中，<strong>运行时多态</strong> 通常依赖于 <strong>“接口 - 虚函数”</strong> 机制，通过抽象类、具体类与对象的设计来实现。这种多态方式通常被称为 <strong>子类型多态</strong>（<em>Subtype Polymorphism</em>）。</p>
+<p>在之前的文章中，我们介绍了现代 C++ 引入的 <code>std::variant</code> —— 一种类型安全的联合体，以及如何借助 <code>std::visit</code> 在类型安全的前提下，动态地访问联合体中的不同类型，并执行相应的逻辑。这种多态方式被称为 <strong>临时多态</strong>（<em>Ad-hoc Polymorphism</em>）。</p>
+<p>除此之外，还有一种被称为 <strong>参数化多态</strong>（<em>Parametric Polymorphism</em>），即我们熟知的 <strong>C++ 模板</strong>。它允许我们编写与类型无关的代码，提供更强的泛型编程能力。由于本篇文章的重点并不在此，我们暂且不展开。</p>
+<p>在本篇文章中，我们将重点对比 <strong>子类型多态</strong> 和 <strong>临时多态</strong> 的优劣，分析它们在实际场景中的应用与权衡，希望能更好地理解和选择合适的多态机制。</p>
+<h2 id="_1"><strong>临时多态的实现原理</strong></h2>
+<p><strong>临时多态</strong>（<em>Ad-hoc Polymorphism</em>）与 <strong>子类型多态</strong>（<em>Subtype Polymorphism</em>）在实现原理上有一定的相似性：它们都依赖于在类型中引入额外的信息来决定不同类型应执行的函数逻辑。  </p>
+<ul>
+<li><strong>子类型多态</strong>：依赖于<strong>虚表（vtable）</strong> 和 <strong>虚指针（vptr）</strong>，通过运行时的动态分派来确定调用哪个派生类的成员函数。  </li>
+<li><strong>临时多态</strong>：依赖一个 <strong>枚举值（enum）</strong> 来表示类型信息，通过显式的 <code>switch-case</code> 或 <code>if-else</code> 语句来选择不同的逻辑分支。</li>
+</ul>
+<h3 id="stdvisit"><strong>简单示例：模拟 std::visit</strong></h3>
+<blockquote>
+<p>这里只使用了传统C++的实现，关于<code>std::visit</code>的更详细的解读，可以参考本系列的“动手实现std::visit”一文。</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;string&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cassert&gt;</span>
+
+<span class="k">enum</span><span class="w"> </span><span class="nc">EType</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">TYPE_Int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">    </span><span class="n">TYPE_Float</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="n">TYPE_String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="p">};</span>
+
+<span class="k">struct</span><span class="w"> </span><span class="nc">MyVariant</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">EType</span><span class="w"> </span><span class="n">type</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">obj</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">MyVisitor</span><span class="p">(</span><span class="n">MyVariant</span><span class="o">&amp;</span><span class="w"> </span><span class="n">var</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">var</span><span class="p">.</span><span class="n">type</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">TYPE_Int</span><span class="p">:</span><span class="w"> </span>
+<span class="w">            </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Int: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="o">*</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="p">)</span><span class="n">var</span><span class="p">.</span><span class="n">obj</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">TYPE_Float</span><span class="p">:</span>
+<span class="w">            </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Float: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="o">*</span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="p">)</span><span class="n">var</span><span class="p">.</span><span class="n">obj</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">TYPE_String</span><span class="p">:</span>
+<span class="w">            </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;String: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="o">*</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">*</span><span class="p">)</span><span class="n">var</span><span class="p">.</span><span class="n">obj</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span>
+<span class="w">        </span><span class="k">default</span><span class="o">:</span>
+<span class="w">            </span><span class="n">assert</span><span class="p">(</span><span class="nb">false</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="s">&quot;Unknown type!&quot;</span><span class="p">);</span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">42</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="n">f</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3.14f</span><span class="p">;</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Hello&quot;</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">MyVariant</span><span class="w"> </span><span class="n">var1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">TYPE_Int</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">i</span><span class="p">};</span>
+<span class="w">    </span><span class="n">MyVariant</span><span class="w"> </span><span class="n">var2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">TYPE_Float</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">f</span><span class="p">};</span>
+<span class="w">    </span><span class="n">MyVariant</span><span class="w"> </span><span class="n">var3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">TYPE_String</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">s</span><span class="p">};</span>
+
+<span class="w">    </span><span class="n">MyVisitor</span><span class="p">(</span><span class="n">var1</span><span class="p">);</span>
+<span class="w">    </span><span class="n">MyVisitor</span><span class="p">(</span><span class="n">var2</span><span class="p">);</span>
+<span class="w">    </span><span class="n">MyVisitor</span><span class="p">(</span><span class="n">var3</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="_2"><strong>原理解析</strong></h3>
+<ol>
+<li><strong>EType 枚举</strong>  <ul>
+<li>定义了一个枚举类型 <code>EType</code>，用于标识 <code>MyVariant</code> 当前存储的具体类型。</li>
+</ul>
+</li>
+<li><strong>MyVariant 结构体</strong>  <ul>
+<li><code>type</code> 字段保存当前对象的类型信息。  </li>
+<li><code>obj</code> 字段是一个通用指针，指向实际存储的数据对象。  </li>
+</ul>
+</li>
+<li><strong>MyVisitor 函数</strong>  <ul>
+<li>通过 <code>switch-case</code> 语句，基于 <code>type</code> 字段选择不同的分支逻辑来访问和打印不同类型的数据。  </li>
+<li>如果遇到未知类型，程序会触发 <code>assert</code> 以防止未定义行为。</li>
+</ul>
+</li>
+</ol>
+<h3 id="_3"><strong>性能优化思考</strong></h3>
+<p>在实际应用中，<code>switch-case</code> 语句可能随着类型数量的增加而导致性能开销。可以通过二分查找（Binary Search）方法进行优化，减少 <code>switch-case</code> 的分支深度。</p>
+<h2 id="_4">临时多态的性能分析</h2>
+<p>虚函数常因其较低的性能而受到批评。为了更好地了解这一点，我们将对比使用虚函数实现的“子类型多态”和通过 <code>std::visit</code> 实现的“临时多态”在性能上的差异。</p>
+<ul>
+<li>使用虚函数实现的<a href="https://gist.github.com/Wizmann/df65af6d214c3b4ae296363839477b94">代码</a></li>
+<li>使用<code>std::visit</code> + <code>std::variant&lt;object&gt;</code> 实现的<a href="https://gist.github.com/Wizmann/f1494312a8e0cf30b97e9d8580fa9d6d">代码</a></li>
+<li>使用<code>std::visit</code> + <code>std::variant&lt;ptr&gt;</code> 实现的<a href="https://gist.github.com/Wizmann/a25708bcd732df8f6e3d158f7105b6c9">代码</a></li>
+</ul>
+<p>结果如下：</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 使用g++ --std=c++17 -O2编译运行</span>
+
+<span class="c1"># 使用虚函数实现</span>
+<span class="n">Total</span><span class="w"> </span><span class="nb nb-Type">Object</span><span class="w"> </span><span class="n">Creation</span><span class="w"> </span><span class="n">Time</span><span class="p">:</span><span class="w"> </span><span class="mf">55.53</span><span class="w"> </span><span class="n">ms</span>
+<span class="n">Total</span><span class="w"> </span><span class="n">Visit</span><span class="w"> </span><span class="n">Time</span><span class="p">:</span><span class="w"> </span><span class="mf">6.99</span><span class="w"> </span><span class="n">ms</span>
+
+<span class="c1"># 使用std::visit + std::variant&lt;object&gt;实现</span>
+<span class="n">Total</span><span class="w"> </span><span class="nb nb-Type">Object</span><span class="w"> </span><span class="n">Creation</span><span class="w"> </span><span class="n">Time</span><span class="p">:</span><span class="w"> </span><span class="mf">26.88</span><span class="w"> </span><span class="n">ms</span>
+<span class="n">Total</span><span class="w"> </span><span class="n">Visit</span><span class="w"> </span><span class="n">Time</span><span class="p">:</span><span class="w"> </span><span class="mf">5.93</span><span class="w"> </span><span class="n">ms</span>
+
+<span class="c1"># 使用std::visit + std::variant&lt;ptr&gt;实现</span>
+<span class="n">Total</span><span class="w"> </span><span class="nb nb-Type">Object</span><span class="w"> </span><span class="n">Creation</span><span class="w"> </span><span class="n">Time</span><span class="p">:</span><span class="w"> </span><span class="mf">52.15</span><span class="w"> </span><span class="n">ms</span>
+<span class="n">Total</span><span class="w"> </span><span class="n">Visit</span><span class="w"> </span><span class="n">Time</span><span class="p">:</span><span class="w"> </span><span class="mf">6.05</span><span class="w"> </span><span class="n">ms</span>
+</code></pre></div>
+
+<h3 id="_5">结果分析</h3>
+<ul>
+<li>内存管理开销：<br>
+    使用虚函数的子类型多态实现通常需要动态申请和释放内存，从而引入了额外的内存管理开销。而使用基于 <code>std::variant&lt;object&gt;</code>的临时多态可以一次性分配所有内存，虽然可能存在一定程度的内存浪费，但避免了频繁的动态内存管理。</li>
+<li>性能接近，<code>std::visit</code> 略优：<br>
+    虽然虚函数和 <code>std::visit</code> 的性能差距不大，但 <code>std::visit</code> 略微优于虚函数。两者都引入了额外的开销以实现多态。</li>
+</ul>
+<h2 id="vistor">通过临时多态实现Vistor模式</h2>
+<p>Visitor模式是一种行为设计模式，用于将数据结构的操作与数据结构本身分离。它通常通过“子类型多态”来实现，其中每个具体类型的对象都接受一个访问者（Visitor）并对其进行相应的处理。使用虚函数和继承是实现这一模式的一种方式，但有时我们可以用更轻量的方式来实现，比如通过临时多态结合 <code>std::variant</code> 和 <code>std::visit</code>。</p>
+<h3 id="visitor">使用虚函数实现Visitor模式</h3>
+<p>我们首先来看一个传统的通过子类型多态实现Visitor模式的例子：</p>
+<div class="highlight"><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">IVisitor</span><span class="p">;</span>
+
+<span class="k">struct</span><span class="w"> </span><span class="nc">IResource</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">virtual</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">accept</span><span class="p">(</span><span class="n">IVisitor</span><span class="o">*</span><span class="w"> </span><span class="n">visitor</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">IVisitor</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">virtual</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">visit</span><span class="p">(</span><span class="n">IResource</span><span class="o">*</span><span class="w"> </span><span class="n">res</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MyResource</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">IResource</span><span class="w"> </span><span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">accept</span><span class="p">(</span><span class="n">IVisitor</span><span class="o">*</span><span class="w"> </span><span class="n">visitor</span><span class="p">)</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">visitor</span><span class="o">-&gt;</span><span class="n">visit</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">};</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MyVisitor</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">IVisitor</span><span class="w"> </span><span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">visit</span><span class="p">(</span><span class="n">IResource</span><span class="o">*</span><span class="w"> </span><span class="n">res</span><span class="p">)</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 处理资源</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<p>这种实现方式虽然能很好地分离数据和操作，但它也有一些不足之处：</p>
+<ul>
+<li>每次调用 <code>visit</code> 都需要通过虚函数来间接调用方法，这会引入额外的性能开销。</li>
+<li><code>visitor</code> 无法在 <code>visit</code> 时直接获取资源对象的类型信息，通常需要额外传递类型信息或者让资源类暴露更多的接口。</li>
+</ul>
+<h3 id="stdvisit-visitor">使用 <code>std::visit</code> 实现Visitor模式</h3>
+<p>通过 <code>std::visit</code> 和 <code>std::variant</code>，我们可以显式地通过类型信息来处理每种资源类型，避免了虚函数调用的开销，同时使得代码更加简洁和类型安全。下面是一个通过临时多态实现Visitor模式的例子：</p>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="n">ResourceUnion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="n">ResourceA</span><span class="p">,</span><span class="w"> </span><span class="n">ResourceB</span><span class="p">,</span><span class="w"> </span><span class="n">ResourceC</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">ResourceUnion</span><span class="o">&gt;</span><span class="w"> </span><span class="n">resources</span><span class="p">;</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">res</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">resources</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">visit</span><span class="p">([](</span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">res</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">using</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">decay_t</span><span class="o">&lt;</span><span class="k">decltype</span><span class="p">(</span><span class="n">res</span><span class="p">)</span><span class="o">&gt;</span><span class="p">;</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">is_same_v</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="w"> </span><span class="n">ResourceA</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// 处理类型为 ResourceA 的资源</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">is_same_v</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="w"> </span><span class="n">ResourceB</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// 处理类型为 ResourceB 的资源</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">is_same_v</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="w"> </span><span class="n">ResourceC</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// 处理类型为 ResourceC 的资源</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">static_assert</span><span class="p">(</span><span class="n">always_false_v</span><span class="o">&lt;&gt;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Unhandled type!&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">},</span><span class="w"> </span><span class="n">res</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="_6">优点与分析</h3>
+<ol>
+<li>
+<p><strong>类型安全</strong>：<br>
+   使用 <code>std::visit</code> 时，编译器可以根据类型推断并为每种类型生成不同的代码路径，从而避免了运行时错误和类型错误，提升了类型安全性。</p>
+</li>
+<li>
+<p><strong>性能</strong>：<br>
+   由于不再依赖虚函数，<code>std::visit</code> 能避免每次调用 <code>visit</code> 时的虚函数开销，从而提高了性能。</p>
+</li>
+<li>
+<p><strong>简洁性</strong>：<br>
+   通过 <code>std::variant</code> 和 <code>std::visit</code>，代码更加简洁且不需要繁琐的继承结构。每个资源类型只需关注其自身的实现，而无需处理不同访问者的逻辑。</p>
+</li>
+<li>
+<p><strong>扩展性</strong>：<br>
+   如果要新增资源类型，只需在 <code>std::variant</code> 中添加新类型，并在 <code>std::visit</code> 的 lambda 表达式中添加对应的分支，避免了修改现有代码的风险。</p>
+</li>
+</ol>
+<h2 id="_7">临时多态的优点与缺点</h2>
+<h3 id="_8">优点：</h3>
+<ol>
+<li><strong>类型安全</strong>：<code>std::variant</code> 与 <code>std::visit</code> 确保了类型安全，避免了许多传统多态机制中的错误。</li>
+<li><strong>性能优化</strong>：相较于虚函数，<code>std::visit</code> 通过类型折叠和编译时分支优化，通常表现出更好的性能，尤其在没有动态内存管理时。</li>
+<li><strong>自由组织功能函数</strong>：你可以灵活地将功能函数组织在一个地方，而无需修改每个具体类型。</li>
+</ol>
+<h3 id="_9">缺点：</h3>
+<ol>
+<li><strong>职责分散</strong>：每个类型的行为都可能分散到多个<code>visit</code>函数中，导致代码难以维护。</li>
+<li><strong>高耦合风险</strong>：当新增类型时，所有访问逻辑需要修改，可能带来较高的耦合度，尤其在类型较多时。</li>
+</ol>
+<h2 id="_10">参考</h2>
+<ul>
+<li>C++20高级编程（罗能） —— 1.6 运行时多态</li>
+<li><a href="https://wiyi.org/polymorphism-in-java.html">深入理解面向对象中的多态</a></li>
+<li><a href="https://refactoringguru.cn/design-patterns/visitor/cpp/example">C++ 访问者模式讲解和代码示例</a></li>
+</ul>
+            </div>
+            <!-- /.entry-content -->
+    <hr/>
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+            var disqus_config = function () {
+                this.language = "zhs";
+
+                        this.page.identifier = '2025-01-04-std-visit-polymorphism-cpp-for-the-antiquated-3';
+                        this.page.url = 'https://wizmann.top/std-visit-polymorphism-cpp-for-the-antiquated-3.html';
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="https://github.com/wizmann"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="https://wizmann.top//feeds/all.atom.xml"><i class="fa fa-rss-square fa-lg"></i> rss</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://wizmann.top/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/cpp.html">cpp</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/algorithm.html">algorithm</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/suan-fa.html">算法</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/codeforces.html">codeforces</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/c.html">C++</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/fen-bu-shi-xi-tong.html">分布式系统</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/ti-jie.html">题解</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/udp.html">UDP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/cas.html">cas</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rpc.html">rpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-xi-tong.html">数据系统</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-ku.html">数据库</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/leetcode.html">Leetcode</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/interview.html">interview</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multithread.html">multithread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/jian-suo-zeng-qiang-sheng-cheng.html">检索增强生成</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xian-liao.html">闲聊</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rag.html">RAG</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/modern-cpp.html">modern cpp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/protocol.html">protocol</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multi-thread.html">multi-thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/yi-zhi-xing.html">一致性</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/networking.html">networking</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/storage.html">storage</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xin-xi-jian-suo.html">信息检索</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/stup.html">STUP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/distributed-system.html">Distributed System</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/phxrpc.html">phxrpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/memory-barrier.html">memory-barrier</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/system-design.html">System Design</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/thread.html">thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/llm.html">LLM</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/tcp.html">tcp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/duo-xian-cheng.html">多线程</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/gong-kai-ke.html">公开课</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spinpromela.html">SPIN/Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/promela.html">Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/storage-system.html">storage system</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/google.html">Google</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/bing-fa-bian-cheng.html">并发编程</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/induction.html">induction</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/raft.html">raft</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/ucontext.html">ucontext</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/paxos.html">paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cse351.html">CSE351</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cmpxchg.html">cmpxchg</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/basic-paxos.html">basic paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/solution.html">Solution</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/azure.html">azure</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/async.html">async</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/3d-printing.html">3D printing</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/shu-ju-mi-ji-xing-ying-yong-xi-tong.html">数据密集型应用系统</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spin.html">SPIN</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-mo-xing.html">数据模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yi-zhi-xing-xie-yi.html">一致性协议</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/zi-fu-chuan-zhong-xie-xi-tong.html">字符串重写系统</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-xing-dp.html">树形DP</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-bian-cheng.html">编译期编程</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/mutex.html">mutex</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yuan-lei.html">元类</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon.html">CppCon</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon2024.html">CppCon2024</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dda-yin.html">3D打印</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/led.html">LED</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nei-cun-mo-xing.html">内存模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-shi-wu.html">分布式事务</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/diy.html">DIY</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/excrt.html">excrt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/segment-tree.html">segment-tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-lian-pou-fen.html">树链剖分</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/an-quan-xing.html">安全性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dp.html">dp</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bing-fa.html">并发</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/qi-fa-shi-he-bing.html">启发式合并</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/semaphore.html">semaphore</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-gong-shi.html">分布式共识</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nosql.html">nosql</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/post.html">Post</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-bian-ma.html">数据编码</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/litmus.html">litmus</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fan-she.html">反射</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/si-suo.html">死锁</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/hash.html">hash</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/partitioning.html">partitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/xian-duan-shu.html">线段树</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/volatile.html">volatile</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-jie-gou.html">数据结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/ab.html">A=B</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/tu-ling-wan-bei-xing.html">图灵完备性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/suo-yin-jie-gou.html">索引结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/repartitioning.html">repartitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/thue.html">Thue</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/crt.html">crt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/herb-sutter.html">Herb Sutter</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/condition_variable.html">condition_variable</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dsu-on-tree.html">DSU on Tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/math.html">math</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-you-hua.html">编译器优化</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/deng-ju-she-ji.html">灯具设计</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dmo-xing.html">3D模型</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2025 Wizmann
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://wizmann.top/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://wizmann.top/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://wizmann.top/theme/js/respond.min.js"></script>
+
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-46053117-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+
+</body>
+</html>

@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="zhs" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Twisted Defer and DeferredQueue - Maerlyn's Rainbow</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <link href="https://wizmann.top/statistics/favicon.png" rel="icon">
+
+<link rel="canonical" href="https://wizmann.top/twisted-defer-and-deferredqueue.html">
+
+        <meta name="author" content="Wizmann" />
+        <meta name="keywords" content="twisted,defer,async" />
+        <meta name="description" content="写在最前面 这篇文章本来是想用英文写的，但是最近英文水平下降的和狗一样。还是怂一波吧。 写在前面 最近在用Twisted库写一个诡异的项目，具体 …" />
+
+        <meta property="og:site_name" content="Maerlyn's Rainbow" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Twisted Defer and DeferredQueue"/>
+        <meta property="og:url" content="https://wizmann.top/twisted-defer-and-deferredqueue.html"/>
+        <meta property="og:description" content="写在最前面 这篇文章本来是想用英文写的，但是最近英文水平下降的和狗一样。还是怂一波吧。 写在前面 最近在用Twisted库写一个诡异的项目，具体 …"/>
+        <meta property="article:published_time" content="2016-12-10" />
+            <meta property="article:section" content="Blog" />
+            <meta property="article:tag" content="twisted" />
+            <meta property="article:tag" content="defer" />
+            <meta property="article:tag" content="async" />
+            <meta property="article:author" content="Wizmann" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://wizmann.top/theme/css/bootstrap.flatly.min.css" type="text/css"/>
+    <link href="https://wizmann.top/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://wizmann.top/theme/css/pygments/solarizedlight.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://wizmann.top/theme/css/style.css" type="text/css"/>
+
+        <link href="https://wizmann.top/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow ATOM Feed"/>
+
+        <link href="https://wizmann.top/feeds/blog.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow Blog ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://wizmann.top/" class="navbar-brand">
+Maerlyn's Rainbow            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="/category/blog.html">Blog</a></li>
+                    <li><a href="https://vijos.org/d/wizmann/p">Online Judge</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://wizmann.top/twisted-defer-and-deferredqueue.html"
+                       rel="bookmark"
+                       title="Permalink to Twisted Defer and DeferredQueue">
+                        Twisted Defer and DeferredQueue
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2016-12-10T11:34:38+08:00"> 2016-12-10</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://wizmann.top/tag/twisted.html">twisted</a>
+        /
+	<a href="https://wizmann.top/tag/defer.html">defer</a>
+        /
+	<a href="https://wizmann.top/tag/async.html">async</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h2 id="_1">写在最前面</h2>
+<p>这篇文章本来是想用英文写的，但是最近英文水平下降的和狗一样。还是怂一波吧。</p>
+<h2 id="_2">写在前面</h2>
+<p>最近在用Twisted库写一个诡异的项目，具体内容暂且不在这里讨论。在写的过程中，被Twisted里面的一个重要概念 —— defer，折腾的不行。最终通过阅读twisted的部分源码，以及与代码做斗争的丰富经验，最终算是解决了问题。</p>
+<p>本文算是使用twisted开发踩坑的一个小小总结，如果一切顺利，后面会有大菜。：）</p>
+<h2 id="twisted">Twisted介绍</h2>
+<blockquote>
+<p>Twisted is an event-driven networking engine written in Python.</p>
+</blockquote>
+<p>Twisted是一个基于事件驱动的网络框架。那么什么是“事件驱动”呢？</p>
+<p>事件驱动指的是将事件与事件回调绑定起来，在程序运行时根据实时的事件触发相应的响应的一种机制。</p>
+<p>例如select/poll/epoll这些IO复用函数，在文件描述符（fd）可读/可写/出错时，会立即返回，由相应的处理函数来对新事件进行处理。事实上，twisted的事件驱动功能，正是由这些IO复用函数提供的。</p>
+<p>但与IO复用函数不同的是，twisted中的事件可以是“更高层次的事件”，即对网络的读/写/错等基础事件进行更进一步的封装。</p>
+<p>这里我们以<code>LineReceiver</code>为例（<a href="http://twistedmatrix.com/documents/current/api/twisted.protocols.basic.LineReceiver.html">API文档</a>）。<code>LineReceiver</code>是对传输层协议的二次封装，当我们读完一整行之后，就触发<code>lineReceived</code>事件，对获取的数据进行处理。</p>
+<p>这种封装，将开发者与底层的网络交互隔离开来。利用这些“高级事件”，开发者可以将更多的精力放到程序本身逻辑的开发之中。</p>
+<p>还有一点，正如Python语言本身的一大优点一样，Twisted现成的协议实现的非常丰富，同时在工业界也较为广泛的使用。虽然赶不上golang这种“明星语言”，但是也还是可以“自成一派”，搞点事情。</p>
+<h2 id="defer">Defer与回调</h2>
+<p>Twisted使用Defer来管理callback链，如果你写过js，就可能对被回调链（callback chains）所支配的恐惧记忆深刻。当然，Twisted的defer也并没有好到哪里去。（蛤！）</p>
+<p>Seriously，defer允许我们使用一般的顺序型编程模型来编写回调代码。我们只需要把函数按照顺序注册到defer当中，就可以完整的实现一个回调链了。</p>
+<p><img alt="" src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/public/16-12-9/90670835.jpg"></p>
+<p>本文不会对defer进行过多讲解，如果想要了解更多的话，可以参考twisted的<a href="https://twistedmatrix.com/documents/current/core/howto/defer.html">官方文档</a>。</p>
+<p>defer做为一个回调链的抽象，有一个非常重要的性质，就是你不fire它，它是不会调用它的callbacks的。正像俗话说的一样：</p>
+<blockquote>
+<p>事不说不知，木不钻不透，砂锅不打一辈子不漏</p>
+</blockquote>
+<p>又有人说过（异步发卡）：</p>
+<blockquote>
+<p>A: There&rsquo;s something between us.   <br>
+B: What is it?    <br>
+A: An unfired defer.</p>
+</blockquote>
+<p>如果你想激活defer中的callbacks，就需要手动的fire它。那么什么时候来fire它呢？当然是在需要的时候啦。</p>
+<h3 id="defer-txmongo">一个典型的defer使用场景 - txmongo</h3>
+<p>txmongo是一个异步的mongodb python sdk。而我们常用的pymongo库则是同步的，所有的请求都要同步等待数据库返回结果。</p>
+<p>由于是异步的sdk，所以在同一时间，txmongo会同时持有多个mongodb连接（连接池）。并且由于我们不能预测mongodb的响应时间，所以需要在收到mongodb响应后，启动相应的回调函数，以触发更高级别的消息事件。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># txmongo/protocol.py#L368</span>
+<span class="k">def</span> <span class="nf">handle_REPLY</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">response_to</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__deferreds</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__deferreds</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">response_to</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">response_flags</span> <span class="o">&amp;</span> <span class="n">REPLY_QUERY_FAILURE</span><span class="p">:</span>
+            <span class="c1"># some error handling code</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+</code></pre></div>
+
+<p>我们从这段代码中看出，当txmongo收到响应后，会先从<code>self.__deferreds</code>字典中取出相应的defer，之后使用<code>request</code>做为参数，启动defer中的callbacks，将查到的数据返回给调用者。</p>
+<h3 id="defer_1">新手会遇到的defer坑 —— 测试</h3>
+<p>做为一个马上就要步入中年的程序员，我最大的一个优点就是不相信自己（汗）。所以在开发时会及时写单元测试来尽可能保证代码的正确性。于是在开发的很早就踩到了defer的坑，包括：</p>
+<ol>
+<li>测试hang住</li>
+<li>测试通过，但是报错&rdquo;reactor was unclean&rdquo;</li>
+<li>由于回调没有执行，测试挂掉</li>
+</ol>
+<p>坑1比较好解决，defer没有callback，hang住了只能怪自己。不过查哪里hang住了会比较麻烦，最直接的方法是多打log，从log里很容易就知道哪里有问题。</p>
+<p>坑2和坑3都属于我们使用defer的姿势不对。defer是“延时”的，我们不能像调用函数一样的直接调用，测试代码需要defer执行完最后一个callback函数后再继续执行。那么我们需要把测试代码也写成callbacks，然后附在需要测试的defer后面吗？</p>
+<p>答案是否定的，twisted为我们提供了一个神奇的工具<code>@defer.inlineCallbacks</code>。这个装饰器可以用于开发环境与测试环境。我们可以使用yield等待defer执行完成，并且可以获得defer的返回值。这类似于C#的async/await语法，使用起来非常方便。</p>
+<p>所以在我们的测试当中如果使用了defer，就需要将测试case使用<code>inlineCallbacks</code>装饰起来，在等待defer时，需要使用yield语法，等待异步代码的执行。在case的最后，将不需要的defer cancel掉即可。</p>
+<h2 id="deferredqueue">DeferredQueue与循环</h2>
+<p>Queue的一个重要用法就是循环。包括线程/进程通信的Queue，BFS中使用的Queue，都是需要循环读取数据。</p>
+<p>DeferredQueue是Twisted中通信的一个重要数据结构，其使用方法和一般的Queue从逻辑上是一样的，接口也只有两个：<code>put</code>和<code>get</code>。</p>
+<p>DeferredQueue之所以有一个Deferred前辍，是因为它的get函数返回的是一个defer。我们可以在这个defer上绑定callbacks，即有数据可读时，触发相应的回调函数。</p>
+<p>所以我们很容易就把代码写成了这样：</p>
+<div class="highlight"><pre><span></span><code><span class="n">q</span> <span class="o">=</span> <span class="n">defer</span><span class="o">.</span><span class="n">DeferredQueue</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">get_and_print</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+    <span class="nb">print</span> <span class="n">item</span>
+    <span class="n">q</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">addCallback</span><span class="p">(</span><span class="n">get_and_print</span><span class="p">)</span>
+
+<span class="n">q</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">addCallback</span><span class="p">(</span><span class="n">get_and_print</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>
+    <span class="n">q</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+</code></pre></div>
+
+<p>一眼看上去，这个代码没有什么问题，我们会循环的从队列中获取数据并打印。但实际上，这段代码有一个神奇的坑。</p>
+<p>说一下这个坑是怎么发现的吧，我把代码写的差不多之后，就想跑benchmark来测性能。然后发现CPython的性能一般，就想试试pypy。然后却怎么也得不到正确的结果，最后发现是因为DeferredQueue引发了递归过深的异常。但是为什么CPython没有这个问题呢。原因在于CPython的递归栈是按深度算的，而pypy的递归栈是按大小算的，但是这两个参数的标量是一样的，所以pypy的递归栈就远小于CPython的。这才暴露了这个问题。不过单纯的扩栈也是不合理的，因为我们很难估计极端情况，并且Python的递归性能非常差。</p>
+<p>感兴趣的同学可以去参考<a href="https://github.com/twisted/twisted/blob/twisted-16.5.0/src/twisted/internet/defer.py#L1600">源码</a>，这里就直接说结论了。当队列中有元素时，<code>q.get().addCallback(get_and_print)</code>会直接调用<code>get_and_print</code>函数本身，如果队列中的元素非常多，那么我们就有递归过深的危险了。</p>
+<p>解决方案也很简单，与其让Twisted把我们的循环写成递归，还不如我们自己实现Queue的循环。至于方法，看看DeferredQueue的内部实现就清楚了，然后我们就发现了另外一个坑。</p>
+<h2 id="deferredqueue_1">DeferredQueue与性能</h2>
+<p>我啥都不说，就贴一行<a href="https://github.com/twisted/twisted/blob/twisted-16.5.0/src/twisted/internet/defer.py#L1665">代码</a>：</p>
+<div class="highlight"><pre><span></span><code><span class="k">return</span> <span class="n">succeed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pending</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+</code></pre></div>
+
+<p>您这就是在逗我。</p>
+<p><img alt="" src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/public/16-12-9/36902015.jpg"></p>
+<p>再贴个性能对比，使用<code>list.pop(0)</code>弹出10^5个数据需要2.23s，而使用<code>deque.popleft()</code>只需要0.12s。</p>
+<p>不要功能实现了就不管性能了嘛同学。</p>
+            </div>
+            <!-- /.entry-content -->
+    <hr/>
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+            var disqus_config = function () {
+                this.language = "zhs";
+
+                        this.page.identifier = '2016-12-10-twisted-defer-and-deferredqueue';
+                        this.page.url = 'https://wizmann.top/twisted-defer-and-deferredqueue.html';
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="https://github.com/wizmann"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="https://wizmann.top//feeds/all.atom.xml"><i class="fa fa-rss-square fa-lg"></i> rss</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://wizmann.top/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/cpp.html">cpp</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/algorithm.html">algorithm</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/suan-fa.html">算法</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/codeforces.html">codeforces</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/c.html">C++</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/fen-bu-shi-xi-tong.html">分布式系统</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/ti-jie.html">题解</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/udp.html">UDP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/cas.html">cas</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rpc.html">rpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-xi-tong.html">数据系统</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-ku.html">数据库</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/leetcode.html">Leetcode</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/interview.html">interview</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multithread.html">multithread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/jian-suo-zeng-qiang-sheng-cheng.html">检索增强生成</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xian-liao.html">闲聊</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rag.html">RAG</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/modern-cpp.html">modern cpp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/protocol.html">protocol</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multi-thread.html">multi-thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/yi-zhi-xing.html">一致性</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/networking.html">networking</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/storage.html">storage</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xin-xi-jian-suo.html">信息检索</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/stup.html">STUP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/distributed-system.html">Distributed System</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/phxrpc.html">phxrpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/memory-barrier.html">memory-barrier</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/system-design.html">System Design</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/thread.html">thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/llm.html">LLM</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/tcp.html">tcp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/duo-xian-cheng.html">多线程</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/gong-kai-ke.html">公开课</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spinpromela.html">SPIN/Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/promela.html">Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/storage-system.html">storage system</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/google.html">Google</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/bing-fa-bian-cheng.html">并发编程</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/induction.html">induction</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/raft.html">raft</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/ucontext.html">ucontext</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/paxos.html">paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cse351.html">CSE351</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cmpxchg.html">cmpxchg</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/basic-paxos.html">basic paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/solution.html">Solution</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/azure.html">azure</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/async.html">async</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/3d-printing.html">3D printing</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/shu-ju-mi-ji-xing-ying-yong-xi-tong.html">数据密集型应用系统</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spin.html">SPIN</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-mo-xing.html">数据模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yi-zhi-xing-xie-yi.html">一致性协议</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/zi-fu-chuan-zhong-xie-xi-tong.html">字符串重写系统</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-xing-dp.html">树形DP</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-bian-cheng.html">编译期编程</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/mutex.html">mutex</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yuan-lei.html">元类</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon.html">CppCon</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon2024.html">CppCon2024</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dda-yin.html">3D打印</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/led.html">LED</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nei-cun-mo-xing.html">内存模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-shi-wu.html">分布式事务</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/diy.html">DIY</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/excrt.html">excrt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/segment-tree.html">segment-tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-lian-pou-fen.html">树链剖分</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/an-quan-xing.html">安全性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dp.html">dp</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bing-fa.html">并发</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/qi-fa-shi-he-bing.html">启发式合并</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/semaphore.html">semaphore</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-gong-shi.html">分布式共识</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nosql.html">nosql</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/post.html">Post</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-bian-ma.html">数据编码</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/litmus.html">litmus</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fan-she.html">反射</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/si-suo.html">死锁</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/hash.html">hash</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/partitioning.html">partitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/xian-duan-shu.html">线段树</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/volatile.html">volatile</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-jie-gou.html">数据结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/ab.html">A=B</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/tu-ling-wan-bei-xing.html">图灵完备性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/suo-yin-jie-gou.html">索引结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/repartitioning.html">repartitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/thue.html">Thue</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/crt.html">crt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/herb-sutter.html">Herb Sutter</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/condition_variable.html">condition_variable</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dsu-on-tree.html">DSU on Tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/math.html">math</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-you-hua.html">编译器优化</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/deng-ju-she-ji.html">灯具设计</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dmo-xing.html">3D模型</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2025 Wizmann
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://wizmann.top/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://wizmann.top/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://wizmann.top/theme/js/respond.min.js"></script>
+
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-46053117-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+
+</body>
+</html>

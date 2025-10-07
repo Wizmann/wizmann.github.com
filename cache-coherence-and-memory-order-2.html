@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="zhs" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>CPU缓存一致性与内存一致性（第二部分-内存一致性） - Maerlyn's Rainbow</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <link href="https://wizmann.top/statistics/favicon.png" rel="icon">
+
+<link rel="canonical" href="https://wizmann.top/cache-coherence-and-memory-order-2.html">
+
+        <meta name="author" content="Wizmann" />
+        <meta name="keywords" content="cpp,memory-barrier,multithread,litmus,herd7" />
+        <meta name="description" content="缓存一致性与内存一致性 缓存一致性和内存一致性是多处理器系统中的两个不同概念，它们解决的是不同类型的内存 …" />
+
+        <meta property="og:site_name" content="Maerlyn's Rainbow" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="CPU缓存一致性与内存一致性（第二部分-内存一致性）"/>
+        <meta property="og:url" content="https://wizmann.top/cache-coherence-and-memory-order-2.html"/>
+        <meta property="og:description" content="缓存一致性与内存一致性 缓存一致性和内存一致性是多处理器系统中的两个不同概念，它们解决的是不同类型的内存 …"/>
+        <meta property="article:published_time" content="2024-09-01" />
+            <meta property="article:section" content="Blog" />
+            <meta property="article:tag" content="cpp" />
+            <meta property="article:tag" content="memory-barrier" />
+            <meta property="article:tag" content="multithread" />
+            <meta property="article:tag" content="litmus" />
+            <meta property="article:tag" content="herd7" />
+            <meta property="article:author" content="Wizmann" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://wizmann.top/theme/css/bootstrap.flatly.min.css" type="text/css"/>
+    <link href="https://wizmann.top/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://wizmann.top/theme/css/pygments/solarizedlight.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://wizmann.top/theme/css/style.css" type="text/css"/>
+
+        <link href="https://wizmann.top/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow ATOM Feed"/>
+
+        <link href="https://wizmann.top/feeds/blog.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow Blog ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://wizmann.top/" class="navbar-brand">
+Maerlyn's Rainbow            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="/category/blog.html">Blog</a></li>
+                    <li><a href="https://vijos.org/d/wizmann/p">Online Judge</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://wizmann.top/cache-coherence-and-memory-order-2.html"
+                       rel="bookmark"
+                       title="Permalink to CPU缓存一致性与内存一致性（第二部分-内存一致性）">
+                        CPU缓存一致性与内存一致性（第二部分-内存一致性）
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2024-09-01T00:24:00+08:00"> 2024-09-01</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://wizmann.top/tag/cpp.html">cpp</a>
+        /
+	<a href="https://wizmann.top/tag/memory-barrier.html">memory-barrier</a>
+        /
+	<a href="https://wizmann.top/tag/multithread.html">multithread</a>
+        /
+	<a href="https://wizmann.top/tag/litmus.html">litmus</a>
+        /
+	<a href="https://wizmann.top/tag/herd7.html">herd7</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h2 id="_1">缓存一致性与内存一致性</h2>
+<p>缓存一致性和内存一致性是多处理器系统中的两个不同概念，它们解决的是不同类型的内存访问问题。</p>
+<p>缓存一致性协议（如 MESI 协议）用于解决多个处理器对相同内存位置进行访问和修改时的数据一致性问题。它确保各处理器的缓存中针对同一内存地址的副本保持一致，避免因缓存不同步而导致的数据错误。</p>
+<p>而内存一致性关注的是处理器对多个不同内存地址的访问顺序问题。当不同处理器的内存访问顺序与程序代码中的预期顺序不一致时，就会引发内存一致性问题。它要求各处理器按照一定的规则访问内存，以保持程序逻辑的正确性。</p>
+<p>简而言之，缓存一致性解决的是同一内存位置的数据同步问题，而内存一致性则涉及多个内存位置的访问顺序问题。</p>
+<h2 id="_2">内存乱序访问产生的原因</h2>
+<p>内存乱序访问的原因可以从两个方面来理解：程序顺序（Program Order, PO）和内存顺序（Memory Order, MO）。程序顺序是指程序代码中编写的内存访问序列，反映了程序员预期的指令执行顺序。按照程序顺序，指令应该依次被执行，以确保程序的逻辑正确性。然而，在实际执行中，系统中可能存在一种不同的顺序，即内存顺序。</p>
+<p>内存顺序是指系统中所有处理器对内存操作达成一致的访问顺序。由于现代计算机系统通常由多个处理器共同操作共享内存，为了提高整体性能，这些处理器可能会对内存操作进行重排序，从而产生与程序顺序不一致的内存顺序。</p>
+<p>这种内存乱序访问的现象主要是为了优化程序执行效率，通常发生在两个阶段：编译阶段和执行阶段。在编译阶段，编译器会对代码进行优化，这可能会导致指令的重排序，以提高执行效率。在执行阶段，多个 CPU 之间的交互也会引起内存访问顺序的不一致。</p>
+<p>在单处理器系统中，CPU 对指令的乱序执行和重排对于程序员来说是透明的，即程序的执行结果与顺序执行的结果是一致的。然而，在多处理器系统中，不同的处理器（或称为观察者）可能会观察到不同的内存执行顺序，这与指令的实际执行顺序不完全一致，从而导致潜在的同步问题和数据不一致性。</p>
+<h2 id="_3">几种常见的一致性模型</h2>
+<p>在多处理器系统中，内存一致性模型决定了不同处理器之间如何观察和执行内存操作的顺序。以下介绍几种常见的一致性模型：</p>
+<h3 id="sequential-consistency-sc">顺序一致性模型（Sequential Consistency, SC）</h3>
+<p>顺序一致性模型的概念最早由 Leslie Lamport 在 1979 年的论文《如何构建正确执行多处理程序的多处理计算机》中提出。按照他的定义：</p>
+<p>任何执行的结果都与所有处理器的操作按照某种顺序依次执行的结果相同，并且每个处理器的操作在这个顺序中出现的顺序与其程序中指定的顺序一致。满足这一条件的多处理器被称为顺序一致性系统。</p>
+<p>顺序一致性模型保证了每个加载（Load）和存储（Store）指令按照程序中指定的严格顺序执行，确保了“读-&gt;读”、“读-&gt;写”、“写-&gt;写”以及“写-&gt;读”四种操作的顺序。这种模型提供了最强的内存一致性保证，但代价是较低的执行效率，因为它不允许任何形式的指令重排序。</p>
+<h3 id="processor-consistency-pc">处理器一致性模型（Processor Consistency, PC)</h3>
+<p>处理器一致性模型是顺序一致性模型的弱化版本，它放宽了对“写-&gt;读”操作顺序的要求。该模型允许处理器在读取时从存储缓冲区（Store Buffer）中获取一个尚未写入缓存的值，即使这个值还没有被其他处理器看到。x86-64 实现的全序写（Total Store Ordering, TSO）模型就是处理器一致性的一种。TSO 允许一定程度的乱序执行，提高了系统的性能，同时仍然提供了较强的一致性保证。</p>
+<h3 id="weak-consistency-wc">弱一致性模型（Weak Consistency, WC）</h3>
+<p>弱一致性模型进一步弱化了处理器一致性模型的要求，放宽了对“读-&gt;读”、“读-&gt;写”、“写-&gt;写”以及“写-&gt;读”四种操作顺序的约束。为了确保程序执行的正确性，程序员需要在合适的地方显式添加同步操作。在这种模型中，多处理器系统的内存访问满足以下三个条件时称为弱一致性内存访问：</p>
+<ul>
+<li>对全局同步变量的访问是顺序一致的</li>
+<li>在一个同步操作（如内存屏障指令）执行之前，所有先前的数据访问必须完成；</li>
+<li>在一个正常的数据访问（如数据访问指令）执行之前，所有先前的同步操作（如内存屏障指令）必须完成。</li>
+</ul>
+<h3 id="release-consistency-rc">释放一致性模型（Release Consistency, RC）</h3>
+<p>释放一致性模型是在弱一致性模型的基础上引入了“获取”（acquire）和“释放”（release）屏障原语，用于简化共享数据的互斥访问。</p>
+<p>在该模型中，“获取”屏障原语后面的读写操作不能被重排到该屏障之前，“释放”屏障原语前面的读写操作不能被重排到该屏障之后。这种机制能够更高效地管理多处理器系统中的共享数据访问，提高并行性能。</p>
+<p><img alt="" src="https://raw.githubusercontent.com/Wizmann/assets/38b192183bdefe1e658707d505a5263f12e4ba34/wizmann-pic/image_1724584827296_0.png"></p>
+<p>这些内存一致性模型提供了从严格到宽松的不同选择，适应不同的应用需求和性能要求。选择合适的一致性模型对多处理器系统的设计和优化至关重要。</p>
+<h2 id="_4">四种内存乱序</h2>
+<p>在多处理器系统中，为了优化性能，处理器可能会对内存操作进行不同类型的乱序执行。这种乱序行为包括四种主要类型，每一种都会以不同的方式影响多线程程序的正确性和一致性。</p>
+<h3 id="loadload">LoadLoad 乱序</h3>
+<p>LoadLoad 乱序指的是后续的加载（读取）操作可以在先前的加载操作完成之前开始，或者两个加载操作的完成顺序与它们的发起顺序不同。这意味着处理器可能会优先执行后发起的加载操作。这种乱序优化可能有助于提高程序的执行速度，但如果未加以控制，可能会导致某些线程读取到不一致的数据。</p>
+<h3 id="loadstore">LoadStore 乱序</h3>
+<p>LoadStore 乱序表示一个存储（写入）操作可以在之前发起的加载操作完成之前开始执行，或者写操作可能“超越”读操作。尽管这种优化可以提高处理器的性能，但在多线程程序中可能导致意外的行为。例如，一个线程可能会看到数据被写入之前的状态，导致逻辑错误或数据不一致。</p>
+<h3 id="storeload">StoreLoad 乱序</h3>
+<p>StoreLoad 乱序是四种乱序类型中对编程模型影响最大的一种。它允许一个加载操作在之前的存储操作完成之前开始，或者读取操作可能看到写操作的结果，即使这个写操作在程序中的顺序上应该发生在读操作之后。这种乱序执行可能导致一个线程读取到另一个线程的“旧”值，而不是最新写入的值，从而引发数据同步问题。</p>
+<h3 id="storestore">StoreStore 乱序</h3>
+<p>StoreStore 乱序涉及两个连续的存储操作，其中后一个存储操作可以在第一个操作完成之前开始，或者它们的完成顺序与它们被发起的顺序不同。这意味着，后一个写操作的结果可能在前一个写操作的结果对其他处理器可见之前就已经被观察到，从而造成数据顺序的不一致。</p>
+<h3 id="_5">管理内存乱序的重要性</h3>
+<p>正确管理这些乱序行为对于并发编程至关重要，特别是在设计无锁数据结构和编写多线程程序时。如果不加以控制，这些乱序可能导致数据不一致、难以重现的错误和程序崩溃。为了避免这些问题，现代处理器和编程语言提供了各种内存屏障（Memory Barriers）或内存顺序（Memory Order）指令，确保在关键的程序点上强制执行所需的内存操作顺序。这些机制帮助程序员在优化性能的同时，维护数据的一致性和正确性。</p>
+<h2 id="litmus-x86-tso">使用Litmus工具分析内存乱序 - 以x86-TSO为例</h2>
+<p>在并发编程中，理解和验证内存模型的行为对于确保程序的正确性至关重要。以 x86 Total Store Order (x86-TSO) 为例，我们可以使用 Litmus 测试工具来分析内存乱序现象，并了解如何通过内存屏障来避免这种情况。</p>
+<blockquote>
+<p>Litmus工具可以在<a href="https://developer.arm.com/herd7">这里</a>在线试用，也可以安装到本地环境</p>
+</blockquote>
+<h3 id="x86-total-store-order-x86-tso">x86 Total Store Order (x86-TSO)</h3>
+<p><img alt="" src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/24-09-01/1725159498577_mem-tso_1723970692408_0.png"></p>
+<p>在 x86 架构中，Store Buffer（存储缓冲区）用于暂时存放处理器的写操作，而不立即将其写入主存。这种机制提高了处理器的性能，因为它允许处理器在写操作尚未完成时继续执行后续指令。然而，Store Buffer 也导致了某些内存操作的可见性问题，特别是在多处理器环境中。</p>
+<p>x86 Total Store Order (x86-TSO) 模型的特性正是由这种 Store Buffer 机制决定的。由于写操作在 Store Buffer 中暂存，x86-TSO 模型保证了一些关键特性，同时也做出了一些基于性能的妥协：</p>
+<ul>
+<li>写操作顺序一致性：所有写操作按照程序的顺序执行，并对所有处理器可见，即写操作在 Store Buffer 刷新到主存之前，不会被其他处理器看到。</li>
+<li>读操作的自我可见性：处理器可以立即看到自己在 Store Buffer 中的最新写入，即本处理器的读操作可以从 Store Buffer 中读取未提交到主存的值。</li>
+<li>防止某些重排序：为了避免因 Store Buffer 导致的读写乱序，x86-TSO 禁止写操作与其后的读操作重排序，确保读写顺序一致。</li>
+<li>允许部分读操作重排序：为了进一步提升性能，处理器允许一些读操作的重排序，但仍然遵循严格的规则以保证程序的正确性。</li>
+</ul>
+<h3 id="litmus-x86-storeload">使用 Litmus 验证 x86 的 StoreLoad 乱序</h3>
+<p>我们可以使用 Litmus 工具来验证在 x86-TSO 内存模型下的 StoreLoad 乱序行为。以下是一个示例代码：</p>
+<div class="highlight"><pre><span></span><code><span class="n">X86</span><span class="w"> </span><span class="n">SB</span>
+<span class="err">{</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="err">}</span>
+
+<span class="n">P0</span><span class="w">          </span><span class="o">|</span><span class="w"> </span><span class="n">P1</span><span class="w">          </span><span class="p">;</span>
+<span class="n">MOV</span><span class="w"> </span><span class="o">[</span><span class="n">y</span><span class="o">]</span><span class="p">,</span><span class="err">$</span><span class="mi">1</span><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="n">MOV</span><span class="w"> </span><span class="o">[</span><span class="n">x</span><span class="o">]</span><span class="p">,</span><span class="err">$</span><span class="mi">1</span><span class="w">  </span><span class="p">;</span>
+<span class="n">MOV</span><span class="w"> </span><span class="n">EAX</span><span class="p">,</span><span class="o">[</span><span class="n">x</span><span class="o">]</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">MOV</span><span class="w"> </span><span class="n">EAX</span><span class="p">,</span><span class="o">[</span><span class="n">y</span><span class="o">]</span><span class="w"> </span><span class="p">;</span>
+<span class="ow">exists</span>
+<span class="p">(</span><span class="mi">0</span><span class="err">:</span><span class="n">EAX</span><span class="o">=</span><span class="mi">0</span><span class="w"> </span><span class="o">/</span><span class="err">\</span><span class="w"> </span><span class="mi">1</span><span class="err">:</span><span class="n">EAX</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</code></pre></div>
+
+<p>在执行该代码后，Litmus 会生成四种可能的结果，分别对应不同的执行顺序。</p>
+<h4 id="1">结果1</h4>
+<p><img alt="" src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/24-09-01/1725159921512_graph3_1725095884015_0.png"></p>
+<p>在结果1中，程序按照严格的顺序执行，每个处理器的内存操作顺序与程序中的顺序一致。</p>
+<p>图中，po（Program Order）表示程序顺序，rf（Reads-From）表示每个读操作从哪个写操作中读取的值。由于内存操作按照预期顺序执行，这种情况没有进一步的乱序行为，因此不需要进一步分析</p>
+<h4 id="23">结果2/结果3</h4>
+<p><img alt="" src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/24-09-01/1725160079968_graph1_1725098202554_0.png"><br>
+<img alt="" src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/24-09-01/1725160089725_graph2_1725098310293_0.png"></p>
+<p>结果2和结果3是对称的，表示在执行过程中，内存的读取发生了“乱序”，即读取操作被重排到了写入操作之前。在 Litmus 中，这种情况被标记为 fr（From-Read），表示一个写操作覆盖了一个读操作所读取的值，即这个写操作发生在读操作之后。这种“写读”操作的乱序可能是由于执行顺序的不同，也可能是内存模型的顺序造成的。</p>
+<h4 id="4">结果4</h4>
+<p><img alt="" src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/24-09-01/1725160171251_graph0_1725099005660_0.png"></p>
+<p>结果4表示两个线程各自都发生了 fr，即每个线程的读操作都被重排到了写操作之前。这种情况展示了最复杂的乱序行为，其中两个线程的读操作分别“超越”了各自的写操作。</p>
+<h3 id="mfence">使用内存屏障（MFENCE）指令避免内存乱序</h3>
+<p>为了避免这种乱序情况，可以使用 MFENCE（Memory Fence） 指令。在 x86 架构中，MFENCE 是一种强制内存屏障，确保所有在 MFENCE 之前的内存操作（无论是读还是写）在所有 MFENCE 之后的内存操作之前完成。这意味着在同一线程内，MFENCE 保证了内存操作的顺序性：MFENCE 之前的操作对其他线程可见后，才可以执行 MFENCE 之后的操作。</p>
+<p>我们可以将 Litmus 代码修改如下，以插入 MFENCE 指令：</p>
+<div class="highlight"><pre><span></span><code><span class="n">X86</span><span class="w"> </span><span class="n">SB</span>
+<span class="err">{</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="err">}</span>
+
+<span class="n">P0</span><span class="w">          </span><span class="o">|</span><span class="w"> </span><span class="n">P1</span><span class="w">          </span><span class="p">;</span>
+<span class="n">MOV</span><span class="w"> </span><span class="o">[</span><span class="n">y</span><span class="o">]</span><span class="p">,</span><span class="err">$</span><span class="mi">1</span><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="n">MOV</span><span class="w"> </span><span class="o">[</span><span class="n">x</span><span class="o">]</span><span class="p">,</span><span class="err">$</span><span class="mi">1</span><span class="w">  </span><span class="p">;</span>
+<span class="n">MFENCE</span><span class="w">      </span><span class="o">|</span><span class="w"> </span><span class="n">MFENCE</span><span class="w">      </span><span class="p">;</span>
+<span class="n">MOV</span><span class="w"> </span><span class="n">EAX</span><span class="p">,</span><span class="o">[</span><span class="n">x</span><span class="o">]</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">MOV</span><span class="w"> </span><span class="n">EAX</span><span class="p">,</span><span class="o">[</span><span class="n">y</span><span class="o">]</span><span class="w"> </span><span class="p">;</span>
+<span class="ow">exists</span>
+<span class="p">(</span><span class="mi">0</span><span class="err">:</span><span class="n">EAX</span><span class="o">=</span><span class="mi">0</span><span class="w"> </span><span class="o">/</span><span class="err">\</span><span class="w"> </span><span class="mi">1</span><span class="err">:</span><span class="n">EAX</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</code></pre></div>
+
+<p>在加入内存屏障后，我们看到结果1到结果3依然会出现，但结果4因 MFENCE 的存在而被避免。通过 MFENCE 确保了内存操作的顺序性，从而防止了某些类型的内存乱序，保证了多线程程序的正确性和一致性。</p>
+<h2 id="_6">接下来&hellip;</h2>
+<p>下一篇文章中，我们会介绍C++的内存顺序模型，并且分析更复杂的内存乱序问题</p>
+<h2 id="references">References</h2>
+<ul>
+<li><a href="https://colobu.com/2021/06/30/hwmm/">硬件内存模型</a></li>
+<li><a href="https://book.douban.com/subject/36240082/">RISC-V体系结构编程与实践</a></li>
+<li><a href="https://www.microsoft.com/en-us/research/publication/make-multiprocessor-computer-correctly-executes-multiprocess-programs/">How to Make a Multiprocessor Computer That Correctly Executes Multiprocess Programs</a></li>
+<li><a href="https://dl.acm.org/doi/10.1145/285930.285991">Memory access buffering in multiprocessors</a></li>
+<li><a href="https://www.cl.cam.ac.uk/~pes20/weakmemory/tacas11.pdf">Litmus: Running Tests Against Hardware</a></li>
+<li><a href="https://developer.arm.com/herd7">Herd7 Simulator</a></li>
+<li><a href="https://github.com/0voice/dpdk_engineer_manual/blob/main/%E5%A4%A7%E4%BC%9APPT/NA%202021-Memory%20Model%20Simulation%20Tool%20-%20Herd7.pdf">Memory Model Simulation Tool - Herd7</a></li>
+<li><a href="https://community.arm.com/arm-community-blogs/b/architectures-and-processors-blog/posts/how-to-use-the-memory-model-tool#intuitively">A working example of how to use the herd7 Memory Model Tool</a></li>
+</ul>
+<div class="alert alert-info" role="alert">本文大（划掉）部分内容由ChatGPT4生成</div>
+            </div>
+            <!-- /.entry-content -->
+    <hr/>
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+            var disqus_config = function () {
+                this.language = "zhs";
+
+                        this.page.identifier = '2024-09-01-cache-coherence-and-memory-order-2';
+                        this.page.url = 'https://wizmann.top/cache-coherence-and-memory-order-2.html';
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="https://github.com/wizmann"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="https://wizmann.top//feeds/all.atom.xml"><i class="fa fa-rss-square fa-lg"></i> rss</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://wizmann.top/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/cpp.html">cpp</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/algorithm.html">algorithm</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/suan-fa.html">算法</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/codeforces.html">codeforces</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/c.html">C++</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/fen-bu-shi-xi-tong.html">分布式系统</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/ti-jie.html">题解</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/udp.html">UDP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/cas.html">cas</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rpc.html">rpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-xi-tong.html">数据系统</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-ku.html">数据库</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/leetcode.html">Leetcode</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/interview.html">interview</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multithread.html">multithread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/jian-suo-zeng-qiang-sheng-cheng.html">检索增强生成</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xian-liao.html">闲聊</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rag.html">RAG</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/modern-cpp.html">modern cpp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/protocol.html">protocol</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multi-thread.html">multi-thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/yi-zhi-xing.html">一致性</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/networking.html">networking</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/storage.html">storage</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xin-xi-jian-suo.html">信息检索</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/stup.html">STUP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/distributed-system.html">Distributed System</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/phxrpc.html">phxrpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/memory-barrier.html">memory-barrier</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/system-design.html">System Design</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/thread.html">thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/llm.html">LLM</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/tcp.html">tcp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/duo-xian-cheng.html">多线程</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/gong-kai-ke.html">公开课</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spinpromela.html">SPIN/Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/promela.html">Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/storage-system.html">storage system</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/google.html">Google</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/bing-fa-bian-cheng.html">并发编程</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/induction.html">induction</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/raft.html">raft</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/ucontext.html">ucontext</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/paxos.html">paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cse351.html">CSE351</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cmpxchg.html">cmpxchg</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/basic-paxos.html">basic paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/solution.html">Solution</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/azure.html">azure</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/async.html">async</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/3d-printing.html">3D printing</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/shu-ju-mi-ji-xing-ying-yong-xi-tong.html">数据密集型应用系统</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spin.html">SPIN</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-mo-xing.html">数据模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yi-zhi-xing-xie-yi.html">一致性协议</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/zi-fu-chuan-zhong-xie-xi-tong.html">字符串重写系统</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-xing-dp.html">树形DP</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-bian-cheng.html">编译期编程</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/mutex.html">mutex</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yuan-lei.html">元类</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon.html">CppCon</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon2024.html">CppCon2024</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dda-yin.html">3D打印</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/led.html">LED</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nei-cun-mo-xing.html">内存模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-shi-wu.html">分布式事务</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/diy.html">DIY</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/excrt.html">excrt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/segment-tree.html">segment-tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-lian-pou-fen.html">树链剖分</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/an-quan-xing.html">安全性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dp.html">dp</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bing-fa.html">并发</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/qi-fa-shi-he-bing.html">启发式合并</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/semaphore.html">semaphore</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-gong-shi.html">分布式共识</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nosql.html">nosql</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/post.html">Post</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-bian-ma.html">数据编码</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/litmus.html">litmus</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fan-she.html">反射</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/si-suo.html">死锁</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/hash.html">hash</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/partitioning.html">partitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/xian-duan-shu.html">线段树</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/volatile.html">volatile</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-jie-gou.html">数据结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/ab.html">A=B</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/tu-ling-wan-bei-xing.html">图灵完备性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/suo-yin-jie-gou.html">索引结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/repartitioning.html">repartitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/thue.html">Thue</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/crt.html">crt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/herb-sutter.html">Herb Sutter</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/condition_variable.html">condition_variable</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dsu-on-tree.html">DSU on Tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/math.html">math</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-you-hua.html">编译器优化</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/deng-ju-she-ji.html">灯具设计</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dmo-xing.html">3D模型</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2025 Wizmann
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://wizmann.top/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://wizmann.top/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://wizmann.top/theme/js/respond.min.js"></script>
+
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-46053117-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+
+</body>
+</html>

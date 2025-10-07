@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="zhs" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Introduction to Ceph - Maerlyn's Rainbow</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <link href="https://wizmann.top/statistics/favicon.png" rel="icon">
+
+<link rel="canonical" href="https://wizmann.top/introduction-to-ceph.html">
+
+        <meta name="author" content="Wizmann" />
+        <meta name="keywords" content="Ceph,Distributed System,Storage System,Storage,System Design" />
+        <meta name="description" content="什么是Ceph Ceph是一个可扩展的，高性能的分布式存储系统。提供了三种不同类型的接口以适应不同的应用场景： block-based: 块存储，可以用做VM的虚拟磁盘 object-based: 对象 …" />
+
+        <meta property="og:site_name" content="Maerlyn's Rainbow" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Introduction to Ceph"/>
+        <meta property="og:url" content="https://wizmann.top/introduction-to-ceph.html"/>
+        <meta property="og:description" content="什么是Ceph Ceph是一个可扩展的，高性能的分布式存储系统。提供了三种不同类型的接口以适应不同的应用场景： block-based: 块存储，可以用做VM的虚拟磁盘 object-based: 对象 …"/>
+        <meta property="article:published_time" content="2020-11-29" />
+            <meta property="article:section" content="Blog" />
+            <meta property="article:tag" content="Ceph" />
+            <meta property="article:tag" content="Distributed System" />
+            <meta property="article:tag" content="Storage System" />
+            <meta property="article:tag" content="Storage" />
+            <meta property="article:tag" content="System Design" />
+            <meta property="article:author" content="Wizmann" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://wizmann.top/theme/css/bootstrap.flatly.min.css" type="text/css"/>
+    <link href="https://wizmann.top/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://wizmann.top/theme/css/pygments/solarizedlight.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://wizmann.top/theme/css/style.css" type="text/css"/>
+
+        <link href="https://wizmann.top/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow ATOM Feed"/>
+
+        <link href="https://wizmann.top/feeds/blog.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow Blog ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://wizmann.top/" class="navbar-brand">
+Maerlyn's Rainbow            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="/category/blog.html">Blog</a></li>
+                    <li><a href="https://vijos.org/d/wizmann/p">Online Judge</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://wizmann.top/introduction-to-ceph.html"
+                       rel="bookmark"
+                       title="Permalink to Introduction to Ceph">
+                        Introduction to Ceph
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2020-11-29T00:00:00+08:00"> 2020-11-29</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://wizmann.top/tag/ceph.html">Ceph</a>
+        /
+	<a href="https://wizmann.top/tag/distributed-system.html">Distributed System</a>
+        /
+	<a href="https://wizmann.top/tag/storage-system.html">Storage System</a>
+        /
+	<a href="https://wizmann.top/tag/storage.html">Storage</a>
+        /
+	<a href="https://wizmann.top/tag/system-design.html">System Design</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h2 id="ceph">什么是Ceph</h2>
+<p>Ceph是一个可扩展的，高性能的分布式存储系统。提供了三种不同类型的接口以适应不同的应用场景：</p>
+<ul>
+<li>block-based: 块存储，可以用做VM的虚拟磁盘</li>
+<li>object-based: 对象存储，与Amazon S3等常用对象存储兼容</li>
+<li>file system: POSIX兼容的分布式文件系统，可以被本地系统挂载，并且能被多个客户端共享</li>
+</ul>
+<p><img alt="" src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/20-11-28/2020-11-28_22-04-49.png"></p>
+<h3 id="ceph_1">Ceph的特性</h3>
+<p>由于采用了CRUSH算法，Ceph有着优异的可扩展性（宣称可以无限扩展）。并且借助可扩展性，进而实现高性能、高可靠性和高可用性。</p>
+<p>Ceph是一个去中心化的存储系统，无需中心节点进行资源的管理与调度，全部的管理功能由存储节点自治完成。使得整个系统可以自我管理与自我恢复，减少运维成本与管理成本。</p>
+<h2 id="rados-ceph">RADOS - Ceph的存储引擎</h2>
+<p>RADOS=Reliable Autonomic Distributed Object Store。RADOS是Ceph底层的存储引擎，所有的接口都建立在RADOS的功能之上。</p>
+<h3 id="rados">RADOS中的存储结构</h3>
+<p><img alt="" src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/20-11-28/2020-11-28_22-24-56.png"></p>
+<ul>
+<li>存储池（pool）：逻辑层，每一个pool里都包含一些放置组</li>
+<li>放置组（placement-group, PG)：逻辑层，一份数据会在PG当中进行灾备复制。每一个PG都对应着一系列的存储节点</li>
+<li>存储节点（OSD）：用以存储数据的物理节点。与PG之间形成多对多的关系。</li>
+</ul>
+<p>一份数据在写入RADOS时，会先选中一个pool。Pool中再使用一定的hash规则，伪随机的选中某一个PG。PG会将数据写入多个OSD中。读取数据时，也是类似的规则。</p>
+<p>Pool是用户可见的管理数据的基本单位，用户可以对Pool进行一系列的配置（权限控制、使用SSD or HDD、使用数据拷贝 or 纠删码，etc.）。而PG与OSD对于用户是不可见的。</p>
+<p><img alt="" src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/20-11-28/2020-11-28_23-00-51.png"></p>
+<h4 id="pg">PG的组织</h4>
+<p>在一致性哈希中，我们使用节点来划分哈希值域。这种方法的问题是，如果产生了数据不平衡，我们需要重新进行划分值域来进行再平衡。这会造成大量的数据迁移。</p>
+<p>CRUSH采用了虚拟节点（也就是PG）将哈希值域划分成了固定的等长区域。这种方法在单条数据与物理节点之间加入了一个虚拟层。之后，再使用哈希取模的算法确定数据属于哪个PG。使得数据的迁移是以虚拟节点为单位，而不是对每一条数据都重新计算。Ceph官方的建议是，每1个OSD对应着100个PG。</p>
+<p>一般情况下，在规划的初期需要确定PG的数目，如果后期需要调整PG，有可能会导致大量的数据迁移，甚至需要服务暂时停止服务。</p>
+<h3 id="moncluster-map">监控子集群（MON）与Cluster Map</h3>
+<p><img alt="" src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/20-11-28/2020-11-28_22-48-10.png"></p>
+<p>RADOS集群中除了OSD存储节点之外，还有监控子集群（MON），用于存储系统的拓扑结构——Cluster Map。</p>
+<blockquote>
+<p>元数组管理（MDS）节点用于管理CephFS中的文件元信息，后文会有介绍。</p>
+</blockquote>
+<p>不同于传统的中心化管理节点，MON并不会对资源进行调配与调度，而仅仅是一个观测者，用以存储系统当前的拓扑与状态。</p>
+<p>MON与OSD、OSD与OSD之间会定时发送心跳包，检测OSD是否健康。如果某个节点失效，MON会更新内部存储的拓扑结构信息（ClusterMap），并且通过P2P协议广播出去，从而使得整个系统都有着（最终）一致的拓扑信息。</p>
+<h3 id="_1">主从同步与节点自治</h3>
+<p>在一个PG中，会有一个主节点（Primary）和一个或多个从节点（Secondary）。主节点负责维护从节点的状态，包括数据复制（replication）、失效检测（failure detection）和失效恢复（failure recovery）。</p>
+<h2 id="crush-ceph">CRUSH - Ceph皇冠上的明珠</h2>
+<p>CRUSH是一个可扩展的，伪随机的数据放置算法。以去中心化方法，将PG按规则映射到相应的存储设备上。并且系统的拓扑结构发生变化时，尽可能的减少数据的迁移。</p>
+<h3 id="crush">CRUSH的优势</h3>
+<p>CRUSH对于每一个数据元素使用一个伪随机算法，决定其放置的位置。所以，只要所有参与者都拥有相同的系统拓扑结构信息，那么数据的位置就是一定的。所以我们可以去掉中心节点，采用P2P的方法来进行数据的存储与检索。</p>
+<p>并且，由于伪随机算法只与单个PG相关，如果我们操作得当，节点数量的变化并不会引起大量的数据迁移，而是会接近理论最优值。</p>
+<h3 id="data-placement">数据放置（Data Placement）</h3>
+<p>CRUSH的数据放置算法有很多不同的实现，这里只介绍最常用的straw算法。</p>
+<p>Ceph中，每一个OSD节点都有一个权值w，代表着某个节点能支持多少数据的存储与检索。一般来说，权值与节点的容量成正比。</p>
+<p>假设一个pool里面有n个PG，在一条新的数据写入时，我们分别会计算这n个PG的length值。</p>
+<div class="math">$$ length_{i} = f(w_{i}) * hash(x) $$</div>
+<p><span class="math">\(f(w_{i})\)</span>是一个只于当前OSD节点权值有关的函数。<span class="math">\(hash(x)\)</span>代表当前PG的哈希值。所以，PG会放置在哪个OSD上，仅与其权值相关。</p>
+<p>假设某个OSD节点发生变化时（新加、删除、权值变化），在此受影响节点的数据会迁移到其它的OSD节点。其它OSD节点的原有数据并不会受到影响。</p>
+<blockquote>
+<p>Ceph当中的straw算法有<code>straw1</code>和<code>straw2</code>。<code>straw1</code>的实现采用了有缺陷f(w)函数，会导致意外的数据迁移。<code>straw2</code>解决了这个问题。<br>
+详情请戳<a href="https://www.spinics.net/lists/ceph-devel/msg21635.html">这里</a></p>
+</blockquote>
+<h4 id="_2">主从架构</h4>
+<p>每个PG所包含的OSD都由CRUSH算法计算得出，并根据配置选出前r个OSD进行主从配对。列表中的第1个OSD做为主节点（Primary），其它的节点为从节点（Secondary）。</p>
+<p>主从节点的分配与管理由PG内部进行自治，不需要额外的外部系统进行管理。</p>
+<h2 id="cephfs">CephFS</h2>
+<p>CephFS是一个POSIX兼容的（共享）文件系统。CephFS利用文件元数据子系统（MDS）来维护目录树结构和文件和目录的元信息（owner, timestamps, inodes, etc.)等。</p>
+<p>MDS子系统会在内存里面维护一份Cache，对于需要持久化的信息，会使用WAL的方式写入RADOS里一个专用的Pool当中。</p>
+<h3 id="dynamic-tree-partitioningdtp">动态树划分（Dynamic Tree Partitioning，DTP）</h3>
+<p>CephFS的扩展性的关键之一，在于元信息子系统的扩展性。CephFS实现了动态树划分的算法，将目录树结构根据当前系统的负载，将其划分到不同的MDS节点上去。</p>
+<p>维护目录树结构的优势在于利用了文件系统的局部性（locality），可以方便的进行预取（prefetch）。动态的树划分，可以保证元信息可以线性增长，以保持高可扩展性。</p>
+<p><img alt="" src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/20-11-29/2020-11-29_18-53-09.png"></p>
+<h2 id="_3">写在最后</h2>
+<p>本文基于Ceph的三篇论文综合而成（CephFS、RADOS、CRUSH）。其中加入了一些自己的看法，使其逻辑通顺，并不保证与论文的思路完全一致。</p>
+<p>这三篇论文并没有明确的依赖关系，换句话说，需要综合阅读，才能有比较明确的理解。</p>
+<p>建议在通读论文后，去学习一下<a href="https://www.youtube.com/watch?v=PmLPbrf-x9g&amp;ab_channel=Ceph">这个视频</a>，会对理解Ceph有很大的帮助。Youtube上面还有很多Ceph的tech talk，可以一并的了解一下。</p>
+<p>Ceph相关的书籍以实践居多，只推荐<a href="https://www.oreilly.com/library/view/learning-ceph-/9781787127913/">Learning Ceph</a>。</p>
+<h2 id="_4">参考链接</h2>
+<ul>
+<li><a href="https://crossoverjie.top/2018/01/08/Consistent-Hash/">一致性 Hash 算法分析</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/60963885">从一致性 hash 到 ceph crush</a></li>
+<li><a href="https://ceph.io/publications/">Ceph Publications</a></li>
+</ul>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/latest.js?config=TeX-AMS-MML_HTMLorMML';
+
+    var configscript = document.createElement('script');
+    configscript.type = 'text/x-mathjax-config';
+    configscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'none' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        availableFonts: ['STIX', 'TeX']," +
+        "        preferredFont: 'STIX'," +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(configscript);
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
+            </div>
+            <!-- /.entry-content -->
+    <hr/>
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+            var disqus_config = function () {
+                this.language = "zhs";
+
+                        this.page.identifier = '2020-11-29-introduction-to-ceph';
+                        this.page.url = 'https://wizmann.top/introduction-to-ceph.html';
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="https://github.com/wizmann"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="https://wizmann.top//feeds/all.atom.xml"><i class="fa fa-rss-square fa-lg"></i> rss</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://wizmann.top/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/cpp.html">cpp</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/algorithm.html">algorithm</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/suan-fa.html">算法</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/codeforces.html">codeforces</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/c.html">C++</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/fen-bu-shi-xi-tong.html">分布式系统</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/ti-jie.html">题解</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/udp.html">UDP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/cas.html">cas</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rpc.html">rpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-xi-tong.html">数据系统</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-ku.html">数据库</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/leetcode.html">Leetcode</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/interview.html">interview</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multithread.html">multithread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/jian-suo-zeng-qiang-sheng-cheng.html">检索增强生成</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xian-liao.html">闲聊</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rag.html">RAG</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/modern-cpp.html">modern cpp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/protocol.html">protocol</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multi-thread.html">multi-thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/yi-zhi-xing.html">一致性</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/networking.html">networking</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/storage.html">storage</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xin-xi-jian-suo.html">信息检索</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/stup.html">STUP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/distributed-system.html">Distributed System</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/phxrpc.html">phxrpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/memory-barrier.html">memory-barrier</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/system-design.html">System Design</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/thread.html">thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/llm.html">LLM</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/tcp.html">tcp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/duo-xian-cheng.html">多线程</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/gong-kai-ke.html">公开课</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spinpromela.html">SPIN/Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/promela.html">Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/storage-system.html">storage system</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/google.html">Google</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/bing-fa-bian-cheng.html">并发编程</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/induction.html">induction</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/raft.html">raft</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/ucontext.html">ucontext</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/paxos.html">paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cse351.html">CSE351</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cmpxchg.html">cmpxchg</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/basic-paxos.html">basic paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/solution.html">Solution</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/azure.html">azure</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/async.html">async</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/3d-printing.html">3D printing</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/shu-ju-mi-ji-xing-ying-yong-xi-tong.html">数据密集型应用系统</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spin.html">SPIN</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-mo-xing.html">数据模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yi-zhi-xing-xie-yi.html">一致性协议</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/zi-fu-chuan-zhong-xie-xi-tong.html">字符串重写系统</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-xing-dp.html">树形DP</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-bian-cheng.html">编译期编程</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/mutex.html">mutex</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yuan-lei.html">元类</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon.html">CppCon</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon2024.html">CppCon2024</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dda-yin.html">3D打印</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/led.html">LED</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nei-cun-mo-xing.html">内存模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-shi-wu.html">分布式事务</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/diy.html">DIY</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/excrt.html">excrt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/segment-tree.html">segment-tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-lian-pou-fen.html">树链剖分</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/an-quan-xing.html">安全性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dp.html">dp</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bing-fa.html">并发</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/qi-fa-shi-he-bing.html">启发式合并</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/semaphore.html">semaphore</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-gong-shi.html">分布式共识</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nosql.html">nosql</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/post.html">Post</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-bian-ma.html">数据编码</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/litmus.html">litmus</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fan-she.html">反射</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/si-suo.html">死锁</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/hash.html">hash</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/partitioning.html">partitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/xian-duan-shu.html">线段树</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/volatile.html">volatile</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-jie-gou.html">数据结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/ab.html">A=B</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/tu-ling-wan-bei-xing.html">图灵完备性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/suo-yin-jie-gou.html">索引结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/repartitioning.html">repartitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/thue.html">Thue</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/crt.html">crt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/herb-sutter.html">Herb Sutter</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/condition_variable.html">condition_variable</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dsu-on-tree.html">DSU on Tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/math.html">math</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-you-hua.html">编译器优化</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/deng-ju-she-ji.html">灯具设计</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dmo-xing.html">3D模型</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2025 Wizmann
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://wizmann.top/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://wizmann.top/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://wizmann.top/theme/js/respond.min.js"></script>
+
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-46053117-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+
+</body>
+</html>

@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="zhs" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>[tl;dr] 论文阅读：Borg - Large-scale cluster management at Google - Maerlyn's Rainbow</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <link href="https://wizmann.top/statistics/favicon.png" rel="icon">
+
+<link rel="canonical" href="https://wizmann.top/tl-dr-borg.html">
+
+        <meta name="author" content="Wizmann" />
+        <meta name="keywords" content="Borg,Distributed System,Kubernetes,Google" />
+        <meta name="description" content="系统概览 Borg是谷歌开发的一种高效的集群管理系统，旨在优化资源利用率和提高系统的可靠性及可用性 隐藏资源管理细节与故障处理，允许用户专注于应用程 …" />
+
+        <meta property="og:site_name" content="Maerlyn's Rainbow" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="[tl;dr] 论文阅读：Borg - Large-scale cluster management at Google"/>
+        <meta property="og:url" content="https://wizmann.top/tl-dr-borg.html"/>
+        <meta property="og:description" content="系统概览 Borg是谷歌开发的一种高效的集群管理系统，旨在优化资源利用率和提高系统的可靠性及可用性 隐藏资源管理细节与故障处理，允许用户专注于应用程 …"/>
+        <meta property="article:published_time" content="2023-12-27" />
+            <meta property="article:section" content="Blog" />
+            <meta property="article:tag" content="Borg" />
+            <meta property="article:tag" content="Distributed System" />
+            <meta property="article:tag" content="Kubernetes" />
+            <meta property="article:tag" content="Google" />
+            <meta property="article:author" content="Wizmann" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://wizmann.top/theme/css/bootstrap.flatly.min.css" type="text/css"/>
+    <link href="https://wizmann.top/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://wizmann.top/theme/css/pygments/solarizedlight.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://wizmann.top/theme/css/style.css" type="text/css"/>
+
+        <link href="https://wizmann.top/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow ATOM Feed"/>
+
+        <link href="https://wizmann.top/feeds/blog.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow Blog ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://wizmann.top/" class="navbar-brand">
+Maerlyn's Rainbow            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="/category/blog.html">Blog</a></li>
+                    <li><a href="https://vijos.org/d/wizmann/p">Online Judge</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://wizmann.top/tl-dr-borg.html"
+                       rel="bookmark"
+                       title="Permalink to [tl;dr] 论文阅读：Borg - Large-scale cluster management at Google">
+                        [tl;dr] 论文阅读：Borg - Large-scale cluster management at Google
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2023-12-27T00:00:00+08:00"> 2023-12-27</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://wizmann.top/tag/borg.html">Borg</a>
+        /
+	<a href="https://wizmann.top/tag/distributed-system.html">Distributed System</a>
+        /
+	<a href="https://wizmann.top/tag/kubernetes.html">Kubernetes</a>
+        /
+	<a href="https://wizmann.top/tag/google.html">Google</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <ul>
+<li>
+<h2 id="_1">系统概览</h2>
+<ul>
+<li>Borg是谷歌开发的一种高效的集群管理系统，旨在优化资源利用率和提高系统的可靠性及可用性<ul>
+<li>隐藏资源管理细节与故障处理，允许用户专注于应用程序的开发</li>
+<li>保证非常高的可靠性和可用性，以支持用户应用程序的高可靠性和高可用性</li>
+<li>支持运行来自众多应用的数十万个作业，并高效运行于数以万计的机器上</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<h2 id="_2">用户视角</h2>
+<ul>
+<li>用户通过定义<em>job</em>和<em>task</em>与Borg进行交互<ul>
+<li>一个<em>job</em>由运行相同程序的一个或多个<em>task</em>组成</li>
+<li>每一个<em>job</em>运行于一个<em>Borg cell</em>（单元）之中，<em>cell</em>是一组机器的集合，是Borg管理的基本单元</li>
+</ul>
+</li>
+<li>Borg的工作负载<ul>
+<li>长期运行的时延敏感型服务</li>
+<li>批处理作业</li>
+<li>运行在实体机上，避免VM的虚拟化开销</li>
+</ul>
+</li>
+<li><em>Allocs</em><ul>
+<li>预留给一项或多项任务的一组资源</li>
+<li><em>Alloc</em>可以将不同 <em>jobs</em> 的 <em>tasks</em> 聚集到同一台机器上</li>
+<li>如果一个 <em>alloc</em> 必须重新分配到另外一台主机，属于它的 <em>task(s)</em> 也会同它一起重新被调度</li>
+<li>一旦创建一个 <em>alloc</em> 集合，就可以提交一个或多个 jobs 运行其中</li>
+</ul>
+</li>
+<li>命名服务和监控<ul>
+<li>Borg包含一个稳定的 <em>Borg命名服务</em> (BNS)，包括 cell 名，job 名和 task id</li>
+<li>Borg将 <em>task</em> 的主机名和端口写入 Chubby，用于 RPC 系统查找 task endpoint</li>
+<li>Borg还会将 <em>job</em> size与其运行状态写入Chubby，便于load balancer平衡流量</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<h2 id="borg">Borg的架构</h2>
+<ul>
+<li><em>Borgmaster</em><ul>
+<li>主管理进程<ul>
+<li>逻辑上的“单点”，有5个在线备份，使用Paxos选举master</li>
+<li>状态存储在内存中，并且备份在高可靠性的Paxos存储中</li>
+</ul>
+</li>
+<li>调度进程<ul>
+<li>可行性检查<ul>
+<li>用于找到满足任务约束、具备足够可用资源的一组机器</li>
+</ul>
+</li>
+<li>打分（scoring）<ul>
+<li>在“可行机器”中根据用户偏好，为机器打分</li>
+<li>打分策略<ul>
+<li>worst fit（E-PVN的变种）会将任务分散到不同的机器上<ul>
+<li>有余量应对流量的尖峰</li>
+<li>会导致资源的碎片化，阻碍大型<em>task</em>的部署</li>
+</ul>
+</li>
+<li>best fit，会尽量“紧凑”的使用机器，以减少资源碎片<ul>
+<li>便于大型<em>task</em>的部署</li>
+<li>错误的资源估计会被“惩罚”，尤其影响突发的负载</li>
+<li>影响利于富裕计算资源的batch jobs</li>
+</ul>
+</li>
+<li>混合模型，尽量减少“受困资源”，即因为其它资源被完全占用而无法分配出去的资源</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>优化<ul>
+<li>启动时间优化<ul>
+<li>中位数启动时间为25s，80%用于安装相关依赖</li>
+<li>将相关<em>task</em>优先分配到拥有相关依赖的机器上</li>
+<li>使用 <em>tree-like</em> 或 <em>torrent-like</em> 机制，并发的分发相关依赖</li>
+</ul>
+</li>
+<li>计算开销优化<ul>
+<li>使得Borg能管理更多的机器</li>
+<li>打分缓存：将可行性检查和打分结果缓存</li>
+<li>等价类：同一 <em>job</em> 中的 <em>task</em> 通常具有类似的约束，因此可以将多个任务视为一个等价类</li>
+<li>松弛随机化：计算所有机器的可行性和得分代价太高，可以随机取样一批机器，然后选择其中一个“足够好”的机器</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><em>Borglet</em><ul>
+<li><em>Borglet</em> 是运行在每台机器上的本地代理，管理本地的任务和资源</li>
+<li><em>Borgmaster</em> 会周期性地向每一个Borglet拉取当前状态，易于控制通信速度，避免“恢复风暴”</li>
+<li>为了性能可扩展性，每个Borgmaster副本会运行无状态的 <em>link shard</em> 去处理与部分Borglet通信<ul>
+<li>当 <em>Borgmaster</em> 重新选举时，<em>link shard</em> 会重新划分分区</li>
+<li><em>link shard</em> 会聚合和压缩信息，仅仅向被Borgmaster报告状态的更新，以此减少更新负载</li>
+</ul>
+</li>
+<li>如果 <em>Borglet</em> 多轮没有响应资源查询，则会被标记为down。运行其上的任务会被重新调度到其他机器。如果恢复通信，则 <em>Borgmaster</em> 会通知 <em>Borglet</em> 杀死已经重新调度的任务，以此保证任务的唯一性</li>
+<li>Borglet与Borgmaster失去联系时，仍会继续处理相关任务。以应对 <em>Borgmaster</em> 的暂时失效</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<h2 id="_3">可靠性</h2>
+<ul>
+<li>自动重新调度器被驱逐的任务</li>
+<li>将任务分散到不同的失败域中</li>
+<li>限制一个作业中同时失败任务的个数和中断率</li>
+<li>使用声明式的期望状态表示和幂等的变更操作，以便无害地重新提交请求</li>
+<li>对于机器级别的失效，限制其重新调度的速率，因为难以区分大规模机器故障和网络分区</li>
+<li>避免重试引发错误的&lt;任务-机器&gt;匹配对</li>
+<li>关键数据持久化，写入磁盘</li>
+</ul>
+</li>
+<li>
+<h2 id="_4">资源利用和效率</h2>
+<ul>
+<li>评估方法<ul>
+<li><em>cell compaction</em>：通过移除机器来找出给定工作负载能适应的最小的单元大小，然后反复从头开始重新打包工作负载，以确保不会因错误的配置而陷入困境</li>
+</ul>
+</li>
+<li>“单元共享”：在同一台机器上运行生产任务和非生产任务，以优化资源使用<ul>
+<li>实验表明，共享资源会影响实际的CPU计算性能</li>
+<li>但是在节约成本的巨大优势上面，CPU性能的退化是可以容忍的</li>
+</ul>
+</li>
+<li>“大型单元”：允许超大型计算任务，减少任务的碎片化</li>
+<li>细粒度资源请求<ul>
+<li>以千分之一的CPU核，和内存、磁盘的字节数为资源请求的最小单元</li>
+<li>相比预设资源分配（套餐），可以避免额外的资源开销</li>
+</ul>
+</li>
+<li>资源回收<ul>
+<li>对于可以容忍低质量资源的工作（例如批处理作业），Borg会评估任务将使用的资源，并回收空闲资源</li>
+<li>最初的预留值与其资源请求一致，然后300秒之后，会慢慢降低到实际使用率外加一个安全边缘</li>
+<li>如果利用率超过资源预留值，预留值会快速增长。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<h2 id="_5">隔离与安全性：</h2>
+<ul>
+<li>安全隔离<ul>
+<li>使用Linux chroot jail在共享同一台机器的任务之间确保安全性</li>
+</ul>
+</li>
+<li>性能隔离<ul>
+<li>基于cgroup的资源容器，允许详细的资源核算并执行限制，防止任务相互干扰，确保稳定和可预测的性能</li>
+<li>使用<em>appclass</em>，尽可能保证延迟敏感服务的资源使用</li>
+<li>区分<em>可压缩资源</em> 和 <em>不可压缩资源</em><ul>
+<li>可压缩资源（compressiable） - CPU%和Disk IO，可以暂时限流</li>
+<li>不可压缩资源（non-compressible） - 内存、磁盘占用，需要清除优先级低的线程</li>
+</ul>
+</li>
+<li>内核的CPU调度器，允许根据每个资源容器的负载状况来动态决定是否要驱逐低优先级任务，同时避免多个高优先级任务在一个cpu上争抢<ul>
+<li>仍在尝试cpu调度时更好的考虑线程亲和、NUMA亲和等策略</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<h2 id="_6">经验教训：</h2>
+<ul>
+<li>
+<h3 id="_7">负面经验</h3>
+<ul>
+<li><em>Job</em>作为<em>Task</em>的唯一分组机制的局限性<ul>
+<li>缺乏将整个多<em>Job</em>服务作为单一实体进行管理，或引用服务相关<em>Job</em>（如Canary与Prod滚动更新）的方式</li>
+<li>用户会在<em>Job</em>名称中编入拓扑，并构建外部管理工具来解析这些名称，这导致了滚动更新和作业调整大小等问题的不灵活语义</li>
+<li>Kubernetes通过使用标签组织其调度单元（Pods），提供了更多灵活性</li>
+</ul>
+</li>
+<li>单个IP地址带来的复杂性<ul>
+<li>同一台机器上的所有任务共享该机器的单个IP地址和端口空间</li>
+<li>导致端口也成为一种资源，在调度时候需要被考虑</li>
+<li>Kubernetes采用了更友好的方法，每个Pod和服务都获取自己的IP地址，从而简化了这些复杂性。</li>
+</ul>
+</li>
+<li>偏向于高级用户<ul>
+<li>Borg提供了一整套面向“高级用户”的功能，允许他们细致调整程序运行方式</li>
+<li>这种API的丰富性使得对于“普通”用户更加困难，并限制了其演变</li>
+<li>Google构建了自动化工具，对于允许“失败”的应用程序，通过实验来探测适当配置</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<h3 id="_8">积极经验</h3>
+<ul>
+<li>Allocs是有用的<ul>
+<li>Kubernetes中的Alloc等效物是Pod，它是一个资源包，用于一个或多个容器，总是被调度到同一台机器上并可以共享资源</li>
+</ul>
+</li>
+<li>集群管理不仅是任务管理<ul>
+<li>尽管Borg的主要角色是管理任务和机器的生命周期，但运行在Borg上的应用程序从许多其他集群服务中受益，包括命名和负载均衡</li>
+<li>Kubernetes使用服务抽象支持命名和负载均衡，服务有一个名称和一组由标签选择器定义的动态Pods。</li>
+</ul>
+</li>
+<li>自省至关重要<ul>
+<li>尽管Borg几乎总是“运行良好”，但当出现问题时，找到根本原因可能具有挑战性</li>
+<li>Borg的重要设计决策之一是向所有用户展示调试信息</li>
+<li>Kubernetes旨在复制Borg的许多内省技术，例如，它配备了cAdvisor等工具进行资源监控和基于Elasticsearch/Kibana和Fluentd的日志聚合</li>
+</ul>
+</li>
+<li>主控节点是分布式系统的核心<ul>
+<li>Borgmaster最初被设计为一个单体系统，但随着时间的推移，它变得更像是一个内核，位于协作管理用户作业的一系列服务的中心</li>
+<li>Kubernetes架构更进一步，它有一个核心的API服务器，仅负责处理请求和操纵底层状态对象，集群管理逻辑被构建为小型可组合的微服务，这些服务是这个API服务器的客户端​​</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="https://research.google/pubs/large-scale-cluster-management-at-google-with-borg/">论文</a></li>
+</ul>
+<div class="alert alert-info" role="alert">本文部分内容由ChatGPT4生成</div>
+            </div>
+            <!-- /.entry-content -->
+    <hr/>
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+            var disqus_config = function () {
+                this.language = "zhs";
+
+                        this.page.identifier = '2023-12-27-tl-dr-borg';
+                        this.page.url = 'https://wizmann.top/tl-dr-borg.html';
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="https://github.com/wizmann"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="https://wizmann.top//feeds/all.atom.xml"><i class="fa fa-rss-square fa-lg"></i> rss</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://wizmann.top/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/cpp.html">cpp</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/algorithm.html">algorithm</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/suan-fa.html">算法</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/codeforces.html">codeforces</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/c.html">C++</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/fen-bu-shi-xi-tong.html">分布式系统</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/ti-jie.html">题解</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/udp.html">UDP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/cas.html">cas</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rpc.html">rpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-xi-tong.html">数据系统</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-ku.html">数据库</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/leetcode.html">Leetcode</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/interview.html">interview</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multithread.html">multithread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/jian-suo-zeng-qiang-sheng-cheng.html">检索增强生成</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xian-liao.html">闲聊</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rag.html">RAG</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/modern-cpp.html">modern cpp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/protocol.html">protocol</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multi-thread.html">multi-thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/yi-zhi-xing.html">一致性</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/networking.html">networking</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/storage.html">storage</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xin-xi-jian-suo.html">信息检索</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/stup.html">STUP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/distributed-system.html">Distributed System</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/phxrpc.html">phxrpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/memory-barrier.html">memory-barrier</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/system-design.html">System Design</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/thread.html">thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/llm.html">LLM</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/tcp.html">tcp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/duo-xian-cheng.html">多线程</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/gong-kai-ke.html">公开课</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spinpromela.html">SPIN/Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/promela.html">Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/storage-system.html">storage system</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/google.html">Google</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/bing-fa-bian-cheng.html">并发编程</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/induction.html">induction</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/raft.html">raft</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/ucontext.html">ucontext</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/paxos.html">paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cse351.html">CSE351</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cmpxchg.html">cmpxchg</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/basic-paxos.html">basic paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/solution.html">Solution</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/azure.html">azure</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/async.html">async</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/3d-printing.html">3D printing</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/shu-ju-mi-ji-xing-ying-yong-xi-tong.html">数据密集型应用系统</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spin.html">SPIN</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-mo-xing.html">数据模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yi-zhi-xing-xie-yi.html">一致性协议</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/zi-fu-chuan-zhong-xie-xi-tong.html">字符串重写系统</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-xing-dp.html">树形DP</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-bian-cheng.html">编译期编程</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/mutex.html">mutex</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yuan-lei.html">元类</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon.html">CppCon</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon2024.html">CppCon2024</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dda-yin.html">3D打印</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/led.html">LED</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nei-cun-mo-xing.html">内存模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-shi-wu.html">分布式事务</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/diy.html">DIY</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/excrt.html">excrt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/segment-tree.html">segment-tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-lian-pou-fen.html">树链剖分</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/an-quan-xing.html">安全性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dp.html">dp</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bing-fa.html">并发</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/qi-fa-shi-he-bing.html">启发式合并</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/semaphore.html">semaphore</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-gong-shi.html">分布式共识</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nosql.html">nosql</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/post.html">Post</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-bian-ma.html">数据编码</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/litmus.html">litmus</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fan-she.html">反射</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/si-suo.html">死锁</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/hash.html">hash</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/partitioning.html">partitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/xian-duan-shu.html">线段树</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/volatile.html">volatile</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-jie-gou.html">数据结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/ab.html">A=B</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/tu-ling-wan-bei-xing.html">图灵完备性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/suo-yin-jie-gou.html">索引结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/repartitioning.html">repartitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/thue.html">Thue</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/crt.html">crt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/herb-sutter.html">Herb Sutter</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/condition_variable.html">condition_variable</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dsu-on-tree.html">DSU on Tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/math.html">math</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-you-hua.html">编译器优化</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/deng-ju-she-ji.html">灯具设计</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dmo-xing.html">3D模型</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2025 Wizmann
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://wizmann.top/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://wizmann.top/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://wizmann.top/theme/js/respond.min.js"></script>
+
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-46053117-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+
+</body>
+</html>

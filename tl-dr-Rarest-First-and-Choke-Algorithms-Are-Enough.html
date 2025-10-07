@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="zhs" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>[tl;dr] 论文阅读：Rarest First and Choke Algorithms Are Enough - Maerlyn's Rainbow</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <link href="https://wizmann.top/statistics/favicon.png" rel="icon">
+
+<link rel="canonical" href="https://wizmann.top/tl-dr-Rarest-First-and-Choke-Algorithms-Are-Enough.html">
+
+        <meta name="author" content="Wizmann" />
+        <meta name="keywords" content="BitTorrent,Distributed System" />
+        <meta name="description" content="基本概念 Peer：BitTorrent P2P下载的参与者 Leecher：“吸血者”，仍在下载过程中的peer Seeder：做种者，下载完成后还在继续做种的peer Piece：Piece是文件的数据单元。当文件被分享时，它被分割 …" />
+
+        <meta property="og:site_name" content="Maerlyn's Rainbow" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="[tl;dr] 论文阅读：Rarest First and Choke Algorithms Are Enough"/>
+        <meta property="og:url" content="https://wizmann.top/tl-dr-Rarest-First-and-Choke-Algorithms-Are-Enough.html"/>
+        <meta property="og:description" content="基本概念 Peer：BitTorrent P2P下载的参与者 Leecher：“吸血者”，仍在下载过程中的peer Seeder：做种者，下载完成后还在继续做种的peer Piece：Piece是文件的数据单元。当文件被分享时，它被分割 …"/>
+        <meta property="article:published_time" content="2023-12-08" />
+            <meta property="article:section" content="Blog" />
+            <meta property="article:tag" content="BitTorrent" />
+            <meta property="article:tag" content="Distributed System" />
+            <meta property="article:author" content="Wizmann" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://wizmann.top/theme/css/bootstrap.flatly.min.css" type="text/css"/>
+    <link href="https://wizmann.top/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://wizmann.top/theme/css/pygments/solarizedlight.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://wizmann.top/theme/css/style.css" type="text/css"/>
+
+        <link href="https://wizmann.top/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow ATOM Feed"/>
+
+        <link href="https://wizmann.top/feeds/blog.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow Blog ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://wizmann.top/" class="navbar-brand">
+Maerlyn's Rainbow            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="/category/blog.html">Blog</a></li>
+                    <li><a href="https://vijos.org/d/wizmann/p">Online Judge</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://wizmann.top/tl-dr-Rarest-First-and-Choke-Algorithms-Are-Enough.html"
+                       rel="bookmark"
+                       title="Permalink to [tl;dr] 论文阅读：Rarest First and Choke Algorithms Are Enough">
+                        [tl;dr] 论文阅读：Rarest First and Choke Algorithms Are Enough
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2023-12-08T00:00:00+08:00"> 2023-12-08</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://wizmann.top/tag/bittorrent.html">BitTorrent</a>
+        /
+	<a href="https://wizmann.top/tag/distributed-system.html">Distributed System</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <ul>
+<li>
+<h2 id="_1">基本概念</h2>
+<ul>
+<li><strong>Peer</strong>：BitTorrent P2P下载的参与者</li>
+<li><strong>Leecher</strong>：“吸血者”，仍在下载过程中的peer</li>
+<li><strong>Seeder</strong>：做种者，下载完成后还在继续做种的peer</li>
+<li><strong>Piece</strong>：Piece是文件的数据单元。当文件被分享时，它被分割成多个大小相等的片段，称为&rdquo;pieces&rdquo;。这些pieces是peer间传输的基本单位</li>
+</ul>
+</li>
+<li>
+<h2 id="rarest-first-algorithm">&ldquo;最稀有优先算法&rdquo;（Rarest First Algorithm）</h2>
+<ul>
+<li>&ldquo;最稀有优先算法&rdquo;（Rarest First Algorithm）是BitTorrent协议中的一个关键策略，用于决定哪些数据块（piece）首先被下载和分享。这个算法的核心目标是优化整个网络中数据的分布，确保更快的下载速度和更高的效率。</li>
+<li>
+<h3 id="_2">基本原理</h3>
+<ul>
+<li><strong>数据块的稀有度</strong><ul>
+<li>在BitTorrent网络中，文件被分割成许多小的数据块。<ul>
+<li>“最稀有优先”算法的目的是优先下载那些网络中数量最少的数据块。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>选择下载的块</strong>：<ul>
+<li>当一个peer加入Torrent网络，并开始下载文件时，它首先会从所有连接的peer那里获取有关哪些数据块是稀有的信息。<ul>
+<li>然后，它优先请求下载那些最稀有的数据块。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>动态调整</strong>：<ul>
+<li>随着下载的进行，每个peer会不断更新和重新评估网络中每个数据块的稀有度，并相应地调整其下载优先级。</li>
+</ul>
+</li>
+<li>
+<h3 id="_3">算法的重要性</h3>
+<ul>
+<li><strong>提高效率</strong>：通过优先下载最稀有的块，这个算法帮助加快了文件的整体下载速度。一旦最稀有的块被更多peer获取，它们就更容易被进一步分享和分发。</li>
+<li><strong>防止瓶颈</strong>：如果没有这个算法，某些数据块可能会变得很难获得，导致下载过程在接近完成时放慢，这被称为“最后一块问题”（Last Piece Problem）。</li>
+<li><strong>促进平等分享</strong>：这种方法鼓励peer分享它们拥有的稀有块，从而提高了整个网络中的合作和资源共享。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<h3 id="_4">实际应用</h3>
+<ul>
+<li>在BitTorrent网络中，这个算法对于确保高效的数据分发至关重要。它不仅提高了单个用户的下载速度，而且还提高了整个网络的效率，确保了资源在用户之间的均衡分配。通过这种方式，BitTorrent网络能够有效地避免瓶颈和提高数据的可用性，即使在面对大量用户的情况下也是如此。</li>
+</ul>
+</li>
+<li>
+<h3 id="_5">结论</h3>
+<ul>
+<li>最稀有优先算法是BitTorrent网络高效运行的关键组成部分。它通过智能地选择下载和分享网络中最稀有的数据块，提高了资源的整体分布和可用性，确保了快速、平衡的文件共享。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<h2 id="choking-algorithm">&ldquo;窒息算法&rdquo;（Choking Algorithm）</h2>
+<ul>
+<li>&ldquo;窒息算法&rdquo;（Choking Algorithm）是BitTorrent协议中的一个关键组成部分，用于管理多个peer之间的数据传输。这个算法帮助优化带宽的使用，确保网络中的资源被高效合理地分配。其核心目的是促进peer间的合作和数据的快速分发。</li>
+<li>
+<h3 id="_6">窒息算法的基本原理</h3>
+<ul>
+<li><strong>选择和窒息（Choking and Unchoking）</strong><ul>
+<li>在BitTorrent网络中，每个peer同时维护着一组“窒息”（choked）和“未窒息”（unchoked）的peer名单。<ul>
+<li>被“窒息”的peer无法从窒息方接收文件数据，而“未窒息”的peer可以进行数据交换。</li>
+<li>这种状态是动态的，peer根据算法定期更新它们的窒息/未窒息peer名单。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>利益驱动的决策</strong><ul>
+<li>算法核心是“利益驱动”（tit-for-tat）策略，即peer更倾向于向那些能给它提供数据的peer提供数据。<ul>
+<li>这种方法鼓励peer分享数据，因为分享越多，获得数据的机会也越大。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>优化器</strong>：<ul>
+<li>除了基于交换数据的量来决定窒息状态外，大多数BitTorrent客户端还实现了一个“优化器”（Optimizer），用于探索新的peer。<ul>
+<li>通常，这是通过定期“未窒息”一个随机选择的peer来实现的，即使它在过去的数据交换中表现不佳或没有数据交换。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>窒息周期</strong>：<ul>
+<li>peer定期评估其连接，并根据从其他peer接收到的数据速率来更新其窒息/未窒息名单</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<h3 id="_7">窒息算法的重要性</h3>
+<ul>
+<li><strong>合作促进</strong>：通过奖励那些分享资源的peer，窒息算法鼓励合作，提高了网络中的资源共享效率。</li>
+<li><strong>防止自私行为</strong>：算法减少了自私peer（只下载不上传的）的优势，因为这些peer不太可能被其他peer“未窒息”。</li>
+<li><strong>网络拥塞控制</strong>：它帮助控制网络拥塞，通过限制peer的连接数量和数据传输，优化带宽使用。</li>
+</ul>
+</li>
+<li>
+<h3 id="_8">结论</h3>
+<ul>
+<li>窒息算法是BitTorrent协议高效性的关键，它通过一种简单但有效的方式来鼓励数据共享和合作，保证了整个网络的健康和高效运行。通过这种动态的窒息/未窒息机制，BitTorrent网络能够有效地管理带宽和连接，确保资源在网络中的快速且公平的分配。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<h2 id="_9">为什么说“已经足够了”</h2>
+<ul>
+<li>
+<blockquote>
+<p>因为这是一门实验科学</p>
+</blockquote>
+</li>
+<li>
+<h3 id="rarest-first-algorithm_1">&ldquo;最稀有优先算法&rdquo;（Rarest First Algorithm）</h3>
+<ul>
+<li>
+<h3 id="_10">种子的熵</h3>
+<ul>
+<li>描述了种子中各个数据块在所有peer间的分布情况</li>
+<li>高熵意味着数据块在所有peer中分布得很均匀，peer之间更有可能拥有彼此尚未下载的块</li>
+<li>高熵的种子通常意味着更高的数据交换效率</li>
+</ul>
+</li>
+<li>
+<h3 id="ideal-entrophy">理想熵（Ideal Entrophy）</h3>
+<ul>
+<li>是指网络中的数据块（pieces）在所有leechers之间均匀分布</li>
+<li>每个leechers都持有一些其他leechers需要的数据块，从而确保了网络中的每个leechers都对其他leechers感兴趣。</li>
+</ul>
+</li>
+<li>
+<h3 id="transient-state">冷启动（Transient State）</h3>
+<ul>
+<li>当种子刚开始传播时的动态，优先传播稀有块，提高下载效率</li>
+<li>Rarest First Algorithm解决了种子的冷启动问题，确保了最不常见的块被优先传播，提高了整个网络的下载效率</li>
+</ul>
+</li>
+<li>
+<h3 id="steady-state">稳定态（Steady State）</h3>
+<ul>
+<li>网络中的大部分块已经被比较均匀地传播。最稀有优先算法在这一阶段继续确保数据块的多样性，从而减少了任何特定块成为瓶颈的可能性</li>
+<li>算法鼓励peer间的有效合作，因为每个peer都可能持有其他peer需要的稀有块</li>
+</ul>
+</li>
+<li>
+<h3 id="last-pieces-problem">“最后一块”问题（Last Pieces Problem）</h3>
+<ul>
+<li>下载接近完成时，某些块变得非常稀有，从而延缓整个下载过程</li>
+<li>算法确保即使在下载的后期，所有参与的peer仍然有激励去交换彼此之间缺少的块</li>
+<li>避免了下载末期的稀有块瓶颈</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<h3 id="choking-algorithm_1">&ldquo;窒息算法&rdquo;（Choking Algorithm）</h3>
+<ul>
+<li>
+<h3 id="tit-for-tat-fairness">“对等原则”（Tit-for-tat Fairness）</h3>
+<ul>
+<li>如果A从B下载的数据少于B从A下载的数据，A会拒绝继续与B分享数据</li>
+<li>用来保证公平性，杜绝free rider</li>
+<li>在动态或非对称网络环境中可能效率低下</li>
+<li>会导致网络空闲资源的浪费</li>
+</ul>
+</li>
+<li>
+<h3 id="_11">旧版窒息算法</h3>
+<ul>
+<li>旧版窒息算法只考虑了peer之间的下载速度，而不是它们的上传贡献<ul>
+<li>少量上传速度快的leecher会占据大量带宽，不利于种子熵的增加</li>
+<li>下载速度快的free riders得到了比实际贡献更多的回报</li>
+</ul>
+</li>
+<li>基于更宏观的性能指标（如整体上传贡献）的策略能够更好地适应这些变化</li>
+</ul>
+</li>
+<li>
+<h3 id="_12">新版窒息算法</h3>
+<ul>
+<li>上传速度快的leecher一定比上传速度慢的leecher获得更多的下载速度，保证了近似的对等原则</li>
+<li>对于seed（做种者）而言，应该对每个leecher提供相同的服务时间。保证了网络中的公平性和效率</li>
+<li>因为文件块可以被更平均的分配给了其它peer，在冷启动时的弹性更强，对于free riders的抵抗性也更强</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Link<ul>
+<li><a href="http://conferences.sigcomm.org/imc/2006/papers/p20-legout.pdf">Rarest First and Choke Algorithms Are Enough</a></li>
+</ul>
+</li>
+</ul>
+<div class="alert alert-info" role="alert">本文部分内容由ChatGPT4生成</div>
+            </div>
+            <!-- /.entry-content -->
+    <hr/>
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+            var disqus_config = function () {
+                this.language = "zhs";
+
+                        this.page.identifier = '2023-12-08-tl-dr-Rarest-First-and-Choke-Algorithms-Are-Enough';
+                        this.page.url = 'https://wizmann.top/tl-dr-Rarest-First-and-Choke-Algorithms-Are-Enough.html';
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="https://github.com/wizmann"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="https://wizmann.top//feeds/all.atom.xml"><i class="fa fa-rss-square fa-lg"></i> rss</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://wizmann.top/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/cpp.html">cpp</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/algorithm.html">algorithm</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/suan-fa.html">算法</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/codeforces.html">codeforces</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/c.html">C++</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/fen-bu-shi-xi-tong.html">分布式系统</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/ti-jie.html">题解</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/udp.html">UDP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/cas.html">cas</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rpc.html">rpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-xi-tong.html">数据系统</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-ku.html">数据库</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/leetcode.html">Leetcode</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/interview.html">interview</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multithread.html">multithread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/jian-suo-zeng-qiang-sheng-cheng.html">检索增强生成</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xian-liao.html">闲聊</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rag.html">RAG</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/modern-cpp.html">modern cpp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/protocol.html">protocol</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multi-thread.html">multi-thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/yi-zhi-xing.html">一致性</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/networking.html">networking</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/storage.html">storage</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xin-xi-jian-suo.html">信息检索</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/stup.html">STUP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/distributed-system.html">Distributed System</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/phxrpc.html">phxrpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/memory-barrier.html">memory-barrier</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/system-design.html">System Design</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/thread.html">thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/llm.html">LLM</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/tcp.html">tcp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/duo-xian-cheng.html">多线程</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/gong-kai-ke.html">公开课</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spinpromela.html">SPIN/Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/promela.html">Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/storage-system.html">storage system</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/google.html">Google</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/bing-fa-bian-cheng.html">并发编程</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/induction.html">induction</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/raft.html">raft</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/ucontext.html">ucontext</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/paxos.html">paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cse351.html">CSE351</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cmpxchg.html">cmpxchg</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/basic-paxos.html">basic paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/solution.html">Solution</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/azure.html">azure</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/async.html">async</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/3d-printing.html">3D printing</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/shu-ju-mi-ji-xing-ying-yong-xi-tong.html">数据密集型应用系统</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spin.html">SPIN</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-mo-xing.html">数据模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yi-zhi-xing-xie-yi.html">一致性协议</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/zi-fu-chuan-zhong-xie-xi-tong.html">字符串重写系统</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-xing-dp.html">树形DP</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-bian-cheng.html">编译期编程</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/mutex.html">mutex</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yuan-lei.html">元类</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon.html">CppCon</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon2024.html">CppCon2024</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dda-yin.html">3D打印</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/led.html">LED</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nei-cun-mo-xing.html">内存模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-shi-wu.html">分布式事务</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/diy.html">DIY</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/excrt.html">excrt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/segment-tree.html">segment-tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-lian-pou-fen.html">树链剖分</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/an-quan-xing.html">安全性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dp.html">dp</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bing-fa.html">并发</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/qi-fa-shi-he-bing.html">启发式合并</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/semaphore.html">semaphore</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-gong-shi.html">分布式共识</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nosql.html">nosql</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/post.html">Post</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-bian-ma.html">数据编码</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/litmus.html">litmus</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fan-she.html">反射</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/si-suo.html">死锁</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/hash.html">hash</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/partitioning.html">partitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/xian-duan-shu.html">线段树</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/volatile.html">volatile</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-jie-gou.html">数据结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/ab.html">A=B</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/tu-ling-wan-bei-xing.html">图灵完备性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/suo-yin-jie-gou.html">索引结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/repartitioning.html">repartitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/thue.html">Thue</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/crt.html">crt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/herb-sutter.html">Herb Sutter</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/condition_variable.html">condition_variable</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dsu-on-tree.html">DSU on Tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/math.html">math</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-you-hua.html">编译器优化</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/deng-ju-she-ji.html">灯具设计</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dmo-xing.html">3D模型</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2025 Wizmann
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://wizmann.top/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://wizmann.top/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://wizmann.top/theme/js/respond.min.js"></script>
+
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-46053117-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+
+</body>
+</html>

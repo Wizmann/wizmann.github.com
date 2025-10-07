@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="zhs" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>为什么我不建议你阅读《数据密集型应用系统设计》（之三） - Maerlyn's Rainbow</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <link href="https://wizmann.top/statistics/favicon.png" rel="icon">
+
+<link rel="canonical" href="https://wizmann.top/why-not-start-with-ddia-part-3.html">
+
+        <meta name="author" content="Wizmann" />
+        <meta name="keywords" content="数据库,数据系统,分布式系统,分布式事务" />
+        <meta name="description" content="分布式存储系统的常见挑战 “不可靠”的数据复制 在上一篇文章中，我们讨论了数据的复制机制。在理想情况下，副本间的数 …" />
+
+        <meta property="og:site_name" content="Maerlyn's Rainbow" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="为什么我不建议你阅读《数据密集型应用系统设计》（之三）"/>
+        <meta property="og:url" content="https://wizmann.top/why-not-start-with-ddia-part-3.html"/>
+        <meta property="og:description" content="分布式存储系统的常见挑战 “不可靠”的数据复制 在上一篇文章中，我们讨论了数据的复制机制。在理想情况下，副本间的数 …"/>
+        <meta property="article:published_time" content="2025-06-01" />
+            <meta property="article:section" content="Blog" />
+            <meta property="article:tag" content="数据库" />
+            <meta property="article:tag" content="数据系统" />
+            <meta property="article:tag" content="分布式系统" />
+            <meta property="article:tag" content="分布式事务" />
+            <meta property="article:author" content="Wizmann" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://wizmann.top/theme/css/bootstrap.flatly.min.css" type="text/css"/>
+    <link href="https://wizmann.top/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://wizmann.top/theme/css/pygments/solarizedlight.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://wizmann.top/theme/css/style.css" type="text/css"/>
+
+        <link href="https://wizmann.top/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow ATOM Feed"/>
+
+        <link href="https://wizmann.top/feeds/blog.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow Blog ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://wizmann.top/" class="navbar-brand">
+Maerlyn's Rainbow            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="/category/blog.html">Blog</a></li>
+                    <li><a href="https://vijos.org/d/wizmann/p">Online Judge</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://wizmann.top/why-not-start-with-ddia-part-3.html"
+                       rel="bookmark"
+                       title="Permalink to 为什么我不建议你阅读《数据密集型应用系统设计》（之三）">
+                        为什么我不建议你阅读《数据密集型应用系统设计》（之三）
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2025-06-01T00:00:00+08:00"> 2025-06-01</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://wizmann.top/tag/shu-ju-ku.html">数据库</a>
+        /
+	<a href="https://wizmann.top/tag/shu-ju-xi-tong.html">数据系统</a>
+        /
+	<a href="https://wizmann.top/tag/fen-bu-shi-xi-tong.html">分布式系统</a>
+        /
+	<a href="https://wizmann.top/tag/fen-bu-shi-shi-wu.html">分布式事务</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h2 id="_1">分布式存储系统的常见挑战</h2>
+<h3 id="_2">“不可靠”的数据复制</h3>
+<p>在上一篇文章中，我们讨论了数据的复制机制。在理想情况下，副本间的数据同步通常能在毫秒级内完成（跨地域时可能达到百毫秒级）。但实际环境远不总是理想的。由于网络抖动、链路中断、节点重启等因素，数据复制在某些情况下会出现<strong>秒级甚至分钟级的延迟</strong>；如果遇到节点长时间下线，更可能出现<strong>数据副本严重不一致</strong>的情况。</p>
+<p>这对复制协议提出了巨大的挑战：</p>
+<ul>
+<li>如果采用<strong>同步复制协议</strong>，即每条写入都要求所有副本成功确认后才能返回成功，那么只要有一个副本故障或延迟，整个写入流程就会<strong>阻塞</strong>，严重影响系统可用性；</li>
+<li>如果采用<strong>异步复制协议</strong>，虽然可以提升可用性和写入吞吐量，但容易出现副本间状态不一致的情况。一些“快副本”已经处理完最新写入，而“慢副本”可能仍滞留在较旧的版本，导致相同的读请求在不同副本上返回不同结果，这种行为是<strong>反直觉</strong>的。</li>
+</ul>
+<p>这类副本不一致的问题，通常需要借助 <strong>版本号</strong>、<strong>向量时钟</strong>、或者<strong>合并策略</strong>来解决。但在用户可见的数据上，这类差异往往会被感知为“数据不稳定”或“系统不可靠”，尤其在多地部署、跨区域访问的系统中尤为显著。</p>
+<h3 id="_3">“不可靠”的时钟</h3>
+<p>在分布式系统中，时钟同步是一个长期未解的“老问题”。这是因为每台机器的硬件时钟本身就存在漂移，而借助网络同步协议（如 NTP）也会不可避免地引入<strong>延迟抖动与误差上限</strong>。虽然可以通过部署 GPS、原子钟等硬件来获取更高精度的时钟，但这会显著提高运维成本，也并不适用于所有场景。</p>
+<p>时间不可靠，会直接影响到基于时间戳的操作决策 —— 比如选择最新版本的数据、判断操作先后顺序、设定超时等。</p>
+<p>为了绕开对物理时间的强依赖，分布式系统通常会引入以下两种方案：</p>
+<ul>
+<li><strong>单调逻辑时钟（如 Lamport Clock）</strong>：不依赖真实时间，仅保证“事件先后”的单调性，即后来的事件时间戳总大于前一个。这在因果性判断中非常有用。</li>
+<li><strong>混合时钟（如 Hybrid Logical Clock）</strong>：结合物理时间和逻辑时钟，在尽量保留实际时间语义的同时，兼顾可比性和单调性，是一些新型分布式数据库（如 CockroachDB）所采用的策略。</li>
+</ul>
+<p>此外，也有像 Google Spanner 那样的系统使用了更激进的手段 —— 它基于 GPS 和原子钟构建了一个全局“置信时钟窗口”（TrueTime），允许系统在已知的最大时钟误差范围内进行一致性推理。这虽然代价较高，但在需要<strong>严格全球一致性</strong>的场景中是当前最实用的路径之一。</p>
+<h2 id="_4">分布式事务</h2>
+<p>在分布式数据系统中，最典型的应用场景是键值存储。对于这类系统，<strong>单次读写往往就是一个完整的业务操作</strong>。系统的可靠性此时主要依赖副本机制来保障：在多数情况下，只要数据成功写入任意副本（或写入达成多数派确认），系统即可对外返回成功，后续的副本同步则交由后台异步处理。</p>
+<p>然而，随着业务复杂性提升，单点读写已不足以覆盖所有逻辑。此时，我们需要将多个相关的读写操作<strong>打包为一个原子性的操作单元</strong> —— 这正是<strong>事务</strong>产生的背景。</p>
+<p>事务的核心目标非常明确：<strong>要么全部成功，要么全部失败</strong>。这大大降低了开发者的心智负担 —— 无需再为中间状态的异常处理编写大量补偿逻辑，系统也能避免因“部分提交”造成的数据污染。</p>
+<h3 id="acid-base">分布式事务的 ACID 与 BASE</h3>
+<p>传统数据库中的事务遵循 ACID 原则：</p>
+<ul>
+<li><strong>A（Atomicity，原子性）</strong>：事务中的所有操作必须全部完成，或全部不做；</li>
+<li><strong>C（Consistency，一致性）</strong>：事务完成后，系统从一个一致状态转变到另一个一致状态；</li>
+<li><strong>I（Isolation，隔离性）</strong>：并发执行的事务互不干扰；</li>
+<li><strong>D（Durability，持久性）</strong>：一旦提交的数据不能丢失，即使系统崩溃。</li>
+</ul>
+<p>然而在分布式环境下，严格遵守 ACID 通常意味着高延迟、复杂的锁管理，以及对网络中断的极度敏感。在追求高可用、横向扩展、低延迟的背景下，许多系统转而采用更宽松的 BASE 理论：</p>
+<ul>
+<li><strong>Basically Available（基本可用）</strong>：系统即使出现故障，也尽量保持部分功能可用；</li>
+<li><strong>Soft State（软状态）</strong>：系统状态在一段时间内允许不一致；</li>
+<li><strong>Eventual Consistency（最终一致性）</strong>：只要不发生新的更新，所有副本最终会趋于一致。</li>
+</ul>
+<p>BASE 并不是 ACID 的“反面”，而是为了解决分布式条件下“网络不可靠”“节点不可用”“复制延迟”等问题所做的一种实用妥协。<strong>ACID 更强调一致性和正确性，BASE 更强调可用性和恢复能力。</strong></p>
+<h3 id="_5">事务隔离级别：性能与一致性的权衡</h3>
+<p>在支持事务的分布式系统中，另一个核心挑战是如何处理并发读写引发的数据冲突。这决定了系统提供的<strong>隔离级别（Isolation Level）</strong>。</p>
+<p>理想状态下，我们希望事务之间完全串行执行 —— 没有任何交叉。但这会带来严重的性能瓶颈。因此系统通常设计多个隔离等级，提供不同程度的并发控制：</p>
+<ul>
+<li>
+<p><strong>读已提交（Read Committed）</strong><br>
+  每个事务只能读取到其他事务“已提交”的数据。这避免了脏读，但仍可能出现“不可重复读”（同一条记录先后读取结果不同）。</p>
+</li>
+<li>
+<p><strong>快照隔离（Snapshot Isolation）</strong><br>
+  每个事务在开始时看到的是数据库的某一时刻快照。虽然可避免脏读和不可重复读，但无法防止 <strong>写倾斜（Write Skew）</strong> —— 多个事务读取相同状态后独立写入，结果违反了业务约束。</p>
+</li>
+<li>
+<p><strong>可重复读（Repeatable Read）</strong><br>
+  每次读取相同记录得到的值不变，但对于范围查询仍可能遇到 <strong>幻读（Phantom Read）</strong> —— 第二次查询返回了新插入或删除的行。</p>
+</li>
+<li>
+<p><strong>串行化（Serializable）</strong><br>
+  最强隔离等级，要求事务执行效果等同于串行执行。能彻底消除幻读、写倾斜等问题，但开销也最大。常见实现方式有：</p>
+</li>
+<li>
+<p>基于锁的两阶段锁协议（2PL），强制事务在获取锁后完成或回滚；</p>
+</li>
+<li>基于版本控制和冲突检测的 SSI（Serializable Snapshot Isolation），通过检测事务之间的读写依赖关系，在提交时回滚冲突事务。</li>
+</ul>
+<p>这一系列隔离等级背后，其实是<strong>一致性、并发性与可用性三者之间的动态权衡</strong>。系统必须根据业务特点和性能要求，选取合适的隔离级别。</p>
+<h2 id="_6">小结</h2>
+<p>分布式存储系统并不只是“多放几份数据”这么简单。它必须在<strong>不可靠的网络、失效的节点、漂移的时钟和冲突的写入</strong>之间，构建起一个对用户“看起来稳定可靠”的系统。而这背后，是副本同步机制、时钟模型、事务协议与一致性等级等一系列工程权衡与设计抉择。</p>
+<p>我们无法一劳永逸地解决所有问题，只能根据具体场景选择合适的折中方案。正如你所看到的：CAP 不可兼得，ACID 与 BASE 各有利弊，串行化隔离并非银弹 —— 分布式系统的设计，从来都是一场关于“权衡”的艺术。</p>
+<p>在接下来的文章中，我们将继续探索分布式系统中的一致性定义和常见一致性模型的适用场景 —— 如果有下一篇的话。</p>
+            </div>
+            <!-- /.entry-content -->
+    <hr/>
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+            var disqus_config = function () {
+                this.language = "zhs";
+
+                        this.page.identifier = '2025-06-01-why-not-start-with-ddia-part-3';
+                        this.page.url = 'https://wizmann.top/why-not-start-with-ddia-part-3.html';
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="https://github.com/wizmann"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="https://wizmann.top//feeds/all.atom.xml"><i class="fa fa-rss-square fa-lg"></i> rss</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://wizmann.top/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/cpp.html">cpp</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/algorithm.html">algorithm</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/suan-fa.html">算法</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/codeforces.html">codeforces</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/c.html">C++</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/fen-bu-shi-xi-tong.html">分布式系统</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/ti-jie.html">题解</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/udp.html">UDP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/cas.html">cas</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rpc.html">rpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-xi-tong.html">数据系统</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-ku.html">数据库</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/leetcode.html">Leetcode</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/interview.html">interview</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multithread.html">multithread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/jian-suo-zeng-qiang-sheng-cheng.html">检索增强生成</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xian-liao.html">闲聊</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rag.html">RAG</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/modern-cpp.html">modern cpp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/protocol.html">protocol</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multi-thread.html">multi-thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/yi-zhi-xing.html">一致性</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/networking.html">networking</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/storage.html">storage</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xin-xi-jian-suo.html">信息检索</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/stup.html">STUP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/distributed-system.html">Distributed System</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/phxrpc.html">phxrpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/memory-barrier.html">memory-barrier</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/system-design.html">System Design</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/thread.html">thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/llm.html">LLM</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/tcp.html">tcp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/duo-xian-cheng.html">多线程</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/gong-kai-ke.html">公开课</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spinpromela.html">SPIN/Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/promela.html">Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/storage-system.html">storage system</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/google.html">Google</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/bing-fa-bian-cheng.html">并发编程</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/induction.html">induction</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/raft.html">raft</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/ucontext.html">ucontext</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/paxos.html">paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cse351.html">CSE351</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cmpxchg.html">cmpxchg</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/basic-paxos.html">basic paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/solution.html">Solution</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/azure.html">azure</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/async.html">async</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/3d-printing.html">3D printing</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/shu-ju-mi-ji-xing-ying-yong-xi-tong.html">数据密集型应用系统</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spin.html">SPIN</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-mo-xing.html">数据模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yi-zhi-xing-xie-yi.html">一致性协议</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/zi-fu-chuan-zhong-xie-xi-tong.html">字符串重写系统</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-xing-dp.html">树形DP</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-bian-cheng.html">编译期编程</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/mutex.html">mutex</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yuan-lei.html">元类</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon.html">CppCon</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon2024.html">CppCon2024</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dda-yin.html">3D打印</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/led.html">LED</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nei-cun-mo-xing.html">内存模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-shi-wu.html">分布式事务</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/diy.html">DIY</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/excrt.html">excrt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/segment-tree.html">segment-tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-lian-pou-fen.html">树链剖分</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/an-quan-xing.html">安全性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dp.html">dp</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bing-fa.html">并发</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/qi-fa-shi-he-bing.html">启发式合并</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/semaphore.html">semaphore</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-gong-shi.html">分布式共识</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nosql.html">nosql</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/post.html">Post</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-bian-ma.html">数据编码</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/litmus.html">litmus</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fan-she.html">反射</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/si-suo.html">死锁</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/hash.html">hash</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/partitioning.html">partitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/xian-duan-shu.html">线段树</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/volatile.html">volatile</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-jie-gou.html">数据结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/ab.html">A=B</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/tu-ling-wan-bei-xing.html">图灵完备性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/suo-yin-jie-gou.html">索引结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/repartitioning.html">repartitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/thue.html">Thue</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/crt.html">crt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/herb-sutter.html">Herb Sutter</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/condition_variable.html">condition_variable</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dsu-on-tree.html">DSU on Tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/math.html">math</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-you-hua.html">编译器优化</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/deng-ju-she-ji.html">灯具设计</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dmo-xing.html">3D模型</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2025 Wizmann
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://wizmann.top/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://wizmann.top/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://wizmann.top/theme/js/respond.min.js"></script>
+
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-46053117-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+
+</body>
+</html>

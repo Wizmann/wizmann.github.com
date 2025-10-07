@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="zhs" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Mosca源码阅读 - Maerlyn's Rainbow</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <link href="https://wizmann.top/statistics/favicon.png" rel="icon">
+
+<link rel="canonical" href="https://wizmann.top/mosca.html">
+
+        <meta name="author" content="Wizmann" />
+        <meta name="keywords" content="mosca,mq,message queue" />
+        <meta name="description" content="先在前面 最近心血来潮看了看一个比较有名的开源MQTT broker —— Mosca。不读不知道，读完才恍然大悟 —— 这是啥破玩意（哈哈）。 由于我是nodejs的超级初学者 …" />
+
+        <meta property="og:site_name" content="Maerlyn's Rainbow" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Mosca源码阅读"/>
+        <meta property="og:url" content="https://wizmann.top/mosca.html"/>
+        <meta property="og:description" content="先在前面 最近心血来潮看了看一个比较有名的开源MQTT broker —— Mosca。不读不知道，读完才恍然大悟 —— 这是啥破玩意（哈哈）。 由于我是nodejs的超级初学者 …"/>
+        <meta property="article:published_time" content="2016-11-11" />
+            <meta property="article:section" content="Blog" />
+            <meta property="article:tag" content="mosca" />
+            <meta property="article:tag" content="mq" />
+            <meta property="article:tag" content="message queue" />
+            <meta property="article:author" content="Wizmann" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://wizmann.top/theme/css/bootstrap.flatly.min.css" type="text/css"/>
+    <link href="https://wizmann.top/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://wizmann.top/theme/css/pygments/solarizedlight.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://wizmann.top/theme/css/style.css" type="text/css"/>
+
+        <link href="https://wizmann.top/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow ATOM Feed"/>
+
+        <link href="https://wizmann.top/feeds/blog.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow Blog ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://wizmann.top/" class="navbar-brand">
+Maerlyn's Rainbow            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="/category/blog.html">Blog</a></li>
+                    <li><a href="https://vijos.org/d/wizmann/p">Online Judge</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://wizmann.top/mosca.html"
+                       rel="bookmark"
+                       title="Permalink to Mosca源码阅读">
+                        Mosca源码阅读
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2016-11-11T22:04:13+08:00"> 2016-11-11</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://wizmann.top/tag/mosca.html">mosca</a>
+        /
+	<a href="https://wizmann.top/tag/mq.html">mq</a>
+        /
+	<a href="https://wizmann.top/tag/message-queue.html">message queue</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h2 id="_1">先在前面</h2>
+<p>最近心血来潮看了看一个比较有名的开源MQTT broker —— Mosca。不读不知道，读完才恍然大悟 —— 这是啥破玩意（哈哈）。</p>
+<p>由于我是nodejs的超级初学者，所以本文会比较浅显，并且只关注big picture，不陷入细节。</p>
+<p>这里先规定几个缩写，让后面行文时少打一点字：</p>
+<ul>
+<li>MQ - MessageQueue</li>
+<li>Asco - Ascoltatori</li>
+</ul>
+<h2 id="ascoltatori-">Ascoltatori - 听者</h2>
+<p>Ascoltatori是一个意大利语单词，翻译成英文就是listener。</p>
+<blockquote>
+<p>这里严重吐槽作者取名字的方式，mosca这种短小的外语单词我们是可以接受的，你说ascoltatori这么长的意大利语单词，你让我们怎么记。    <br>
+差评，退款，邮费也要退！</p>
+</blockquote>
+<p>Asco模块的作用是提供一个一致的MQ的抽象，供上层broker使用。</p>
+<p>这里我们只分析基于Redis的实现，原因是Redis我相对比较熟悉，功能也比较简单。</p>
+<h3 id="_2">接口分析</h3>
+<p><code>RedisAscoltatore</code>有三个半接口：</p>
+<ul>
+<li>subscribe</li>
+<li>unsubscribe</li>
+<li>publish</li>
+</ul>
+<p>剩下的那半个是模块的构造函数。接下来我们分别分析接口的功能及其实现。</p>
+<h3 id="subscribe">Subscribe接口</h3>
+<p><code>this._sub</code>是<code>RedisAscoltatore</code>用来subscribe的连接。首先我们要向MQ订阅指定的topic。</p>
+<p>之后我们要在本地维护一个<code>topic</code>到<code>callback</code>s的映射关系。因为Mosca是一个broker，需要将end user订阅的topic的内容完整的发送到用户那里去，每一个用户在Asco里，用一个callback函数来代表。</p>
+<p>用户可以订阅一个特定的topic，也可以使用一个pattern来订阅一系列的topic。</p>
+<p><img alt="" src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/public/16-11-10/27730251.jpg"></p>
+<p>从图中我们可以看出，右上方的client订阅了<code>h?llo</code>（相当于regex中的<code>h.llo</code>）。右下方的client订阅了<code>h[abcde]llo</code>。而左边的client向<code>hello</code> topic发布了一个消息。此时右边的两个client都收到了这条消息，其中pmessage代表这条消息是有pattern的，第二个参数代表了client订阅的pattern topic，而第三个参数代表了这条消息的实际topic，最后一个参数是消息的正文。</p>
+<p>所以我们在维护topic-client列表时，只需要维护pattern topic（没有pattern的topic可以视做只匹配当前topic的patter）。当有消息到来时，我们使用pattern topic映射到clients，之后再进行下一步操作。</p>
+<p>这里Asco使用了一个叫做<a href="https://github.com/davedoesdev/qlobber"><code>qlobber</code></a>的库，它使用Trie树对topic进行匹配。我们在上文已经说到，Asco是一个统一化的MQ抽象层，所以在不同的MQ中所使用的不同的pattern，我们都需要将其统一成同一种语法进行匹配。而qlobber，在Asco中被封装成<code>RedisAscoltatore</code>，就是用来统一不同的语法的。</p>
+<h3 id="unsubscribe">Unsubscribe接口</h3>
+<p>有订阅就有退订，这个接口与上面的是对应的关系。我们只需要将订阅的顺序反过来做一遍就可以了。这个函数相对简单，就不多说了。</p>
+<h3 id="publish">Publish接口</h3>
+<p>这里的publish，代表是用户的publish的操作。用户数据在“去MQ特色化”之后，会经由<code>this._client</code>发布到相应的redis服务。最后调用用户的callback。</p>
+<p>这里再吐一个槽，为啥订阅连接叫<code>this._sub</code>，发布连接叫<code>this._client</code>。难道你不造pub/sub才是真正的对应吗？</p>
+<h3 id="_3">构造函数</h3>
+<p>构造函数虽然说是“半个接口”，但是代码量和重要性，却高于上面的接口。因为redis的pub/sub模型是单工的，需要两个连接才可以完成。所以两条连接需要单独初始化。</p>
+<h4 id="this_startpub">this._startPub</h4>
+<p>我们先从简单的开始。</p>
+<p>这个太简单了，没的可说。就是拉一条电话线，成功了之后改一下状态。</p>
+<p>没了。</p>
+<h4 id="this_startsub">this._startSub</h4>
+<p>这个比pub要复杂一点。首先，我们还是要拉一条到redis的电话线（连接）。之后注册消息到来时的回调。</p>
+<p>我们来看一看这个回调是怎样的流程。</p>
+<p>首先还是“去MQ特色化”，将Redis的pattern语法化归成Asco的内部语法。再通过pattern取出相应的callbacks，将消息通过callbacks传递给相应的用户。</p>
+<p>这里补充一下，<code>(sub, topic, payload)</code>三个参数如果命名为<code>(pattern, topic, payload)</code>其实会更清晰。</p>
+<p>这个类其实原理上并不复杂，但是由于其需要将不同MQ的pattern转换为统一的语法，所以在中间加了一层，导致复杂性的提升。如果我们只做一个专用的broker，代码其实可以写的更明朗的。</p>
+<h2 id="mosca-">Mosca - 苍蝇</h2>
+<p>与Mosquito相对，Mosca是苍蝇的意思。Mosca是Asco的上层封装，与其一起组成了一个MQTT broker，与end user直接交互。</p>
+<p>MQ的单一职责是负责消息的发布/订阅，Mosca在其上添加了：</p>
+<ol>
+<li>在线离线状态检测</li>
+<li>离线消息的支持</li>
+<li>客户端持久化</li>
+<li>一些权限检测接口</li>
+</ol>
+<p>在这里，我们从Mosca的工作流程出发，主要关注离线消息和客户端持久化这两个broker中非常重要的特性。</p>
+<h3 id="_4">持久化</h3>
+<p>这里我们还是只看Redis的实现。其实Redis并不是真正的持久化，不过who cares。</p>
+<p>这里的持久化就包括了离线消息和客户端持久化两个概念。</p>
+<p>离线消息使用<code>packet:{client_id}</code>为key进行保存，当用户离线时，broker会将消息先保存在redis中，当用户重新上线时，就将保存好的消息一口气推送过去。</p>
+<p>客户端持久化稍微复杂一点。客户端在broker中的状态是其订阅的topic，一般情况下，broker会一直保存用户所订阅的topic，以便保存用户的离线信息。当broker掉电或重启时，我们需要从持久化层将用户的状态重新load到内存。此时，我们使用<code>client:sub:{client_id}</code>为key进行保存。</p>
+<h3 id="_5">整体工作流程</h3>
+<p>在Mosca启动时，先会注册一些事件，比如“用户登录”，“用户下线”，“用户订阅”等。这些消息由配置文件决定是否下发。</p>
+<p>这种设计是为了方便broker的scale out，我们可以在一个MQ上面部署多个broker，这些broker通过MQ的<code>$SYS</code>信道进行通信。</p>
+<p>当Mosca启动完成后，我们像上面一样，重点关注broker的三个重要事件：</p>
+<ul>
+<li>subscribe</li>
+<li>publish</li>
+<li>unsubscribe</li>
+</ul>
+<p>这些事件理论上是Asco的封装，添加了权限控制接口、更复杂的事件，当然还有持久化的支持。例如<code>subscribe</code>事件，除了调用Asco之外，还将用户的这次订阅记录在了持久层里。</p>
+<p><code>publish</code>事件则是先将数据包存放在持久层，再调用Asco的publish函数。<code>unsubscribe</code>也是同样的道理。</p>
+<h3 id="_6">补一张结构图</h3>
+<p><img alt="" src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/public/16-11-11/55787779.jpg"></p>
+<h3 id="mosca">Mosca的可扩展性</h3>
+<p>根据我浅薄的理解，Mosca是可以支持scale out的。也就是我们可以在同一个MQ（或同一个MQ抽象）上部署多个Mosca，以服务更多的用户。但是一个用户必须严格对应一个shard，否则会出现消息的重复。这个问题可以在Client端解决，但是不应该是一种常态，只应该在用户迁移或者比较大的系统变动的时候才出现。</p>
+<p>由于Mosca的持久化层是以Client为Key的，所以不支持多MQ的模式。MQ的扩展需要由MQ自己来完成，对外提供一个统一的抽象即可。不过这种功能，并不被所有MQ所支持。</p>
+<h2 id="disclaimer">Disclaimer</h2>
+<p>真是nodejs小白以及MQ小白，上面说的哪里不对，请帮忙提出来。强烈建议不要以本文中的任何观点不加测试的应用到生产环境当中去。</p>
+            </div>
+            <!-- /.entry-content -->
+    <hr/>
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+            var disqus_config = function () {
+                this.language = "zhs";
+
+                        this.page.identifier = '2016-11-11-mosca';
+                        this.page.url = 'https://wizmann.top/mosca.html';
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="https://github.com/wizmann"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="https://wizmann.top//feeds/all.atom.xml"><i class="fa fa-rss-square fa-lg"></i> rss</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://wizmann.top/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/cpp.html">cpp</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/algorithm.html">algorithm</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/suan-fa.html">算法</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/codeforces.html">codeforces</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/c.html">C++</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/fen-bu-shi-xi-tong.html">分布式系统</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/ti-jie.html">题解</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/udp.html">UDP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/cas.html">cas</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rpc.html">rpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-xi-tong.html">数据系统</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-ku.html">数据库</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/leetcode.html">Leetcode</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/interview.html">interview</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multithread.html">multithread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/jian-suo-zeng-qiang-sheng-cheng.html">检索增强生成</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xian-liao.html">闲聊</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rag.html">RAG</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/modern-cpp.html">modern cpp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/protocol.html">protocol</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multi-thread.html">multi-thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/yi-zhi-xing.html">一致性</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/networking.html">networking</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/storage.html">storage</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xin-xi-jian-suo.html">信息检索</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/stup.html">STUP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/distributed-system.html">Distributed System</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/phxrpc.html">phxrpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/memory-barrier.html">memory-barrier</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/system-design.html">System Design</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/thread.html">thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/llm.html">LLM</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/tcp.html">tcp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/duo-xian-cheng.html">多线程</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/gong-kai-ke.html">公开课</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spinpromela.html">SPIN/Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/promela.html">Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/storage-system.html">storage system</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/google.html">Google</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/bing-fa-bian-cheng.html">并发编程</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/induction.html">induction</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/raft.html">raft</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/ucontext.html">ucontext</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/paxos.html">paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cse351.html">CSE351</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cmpxchg.html">cmpxchg</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/basic-paxos.html">basic paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/solution.html">Solution</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/azure.html">azure</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/async.html">async</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/3d-printing.html">3D printing</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/shu-ju-mi-ji-xing-ying-yong-xi-tong.html">数据密集型应用系统</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spin.html">SPIN</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-mo-xing.html">数据模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yi-zhi-xing-xie-yi.html">一致性协议</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/zi-fu-chuan-zhong-xie-xi-tong.html">字符串重写系统</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-xing-dp.html">树形DP</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-bian-cheng.html">编译期编程</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/mutex.html">mutex</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yuan-lei.html">元类</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon.html">CppCon</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon2024.html">CppCon2024</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dda-yin.html">3D打印</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/led.html">LED</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nei-cun-mo-xing.html">内存模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-shi-wu.html">分布式事务</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/diy.html">DIY</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/excrt.html">excrt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/segment-tree.html">segment-tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-lian-pou-fen.html">树链剖分</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/an-quan-xing.html">安全性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dp.html">dp</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bing-fa.html">并发</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/qi-fa-shi-he-bing.html">启发式合并</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/semaphore.html">semaphore</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-gong-shi.html">分布式共识</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nosql.html">nosql</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/post.html">Post</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-bian-ma.html">数据编码</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/litmus.html">litmus</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fan-she.html">反射</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/si-suo.html">死锁</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/hash.html">hash</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/partitioning.html">partitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/xian-duan-shu.html">线段树</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/volatile.html">volatile</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-jie-gou.html">数据结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/ab.html">A=B</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/tu-ling-wan-bei-xing.html">图灵完备性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/suo-yin-jie-gou.html">索引结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/repartitioning.html">repartitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/thue.html">Thue</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/crt.html">crt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/herb-sutter.html">Herb Sutter</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/condition_variable.html">condition_variable</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dsu-on-tree.html">DSU on Tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/math.html">math</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-you-hua.html">编译器优化</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/deng-ju-she-ji.html">灯具设计</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dmo-xing.html">3D模型</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2025 Wizmann
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://wizmann.top/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://wizmann.top/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://wizmann.top/theme/js/respond.min.js"></script>
+
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-46053117-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+
+</body>
+</html>

@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="zhs" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Metaprogramming in .NET 读书笔记 - 1 - Maerlyn's Rainbow</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <link href="https://wizmann.top/statistics/favicon.png" rel="icon">
+
+<link rel="canonical" href="https://wizmann.top/drafts/metaprogramming-in-dotnet-1.html">
+
+        <meta name="author" content="Wizmann" />
+        <meta name="keywords" content="Metaprogramming,.NET,C#" />
+        <meta name="description" content="什么是 Metaprogramming (元编程) 元编程从字面上理解就是“能处理程序的程序”。 这里的“处理”，有两个意思。 一是“编写”、“生成”，最经典例子就是编 …" />
+
+        <meta property="og:site_name" content="Maerlyn's Rainbow" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Metaprogramming in .NET 读书笔记 - 1"/>
+        <meta property="og:url" content="https://wizmann.top/drafts/metaprogramming-in-dotnet-1.html"/>
+        <meta property="og:description" content="什么是 Metaprogramming (元编程) 元编程从字面上理解就是“能处理程序的程序”。 这里的“处理”，有两个意思。 一是“编写”、“生成”，最经典例子就是编 …"/>
+        <meta property="article:published_time" content="2017-07-26" />
+            <meta property="article:section" content="Blog" />
+            <meta property="article:tag" content="Metaprogramming" />
+            <meta property="article:tag" content=".NET" />
+            <meta property="article:tag" content="C#" />
+            <meta property="article:author" content="Wizmann" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://wizmann.top/theme/css/bootstrap.flatly.min.css" type="text/css"/>
+    <link href="https://wizmann.top/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://wizmann.top/theme/css/pygments/solarizedlight.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://wizmann.top/theme/css/style.css" type="text/css"/>
+
+        <link href="https://wizmann.top/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow ATOM Feed"/>
+
+        <link href="https://wizmann.top/feeds/blog.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow Blog ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://wizmann.top/" class="navbar-brand">
+Maerlyn's Rainbow            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="/category/blog.html">Blog</a></li>
+                    <li><a href="https://vijos.org/d/wizmann/p">Online Judge</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://wizmann.top/drafts/metaprogramming-in-dotnet-1.html"
+                       rel="bookmark"
+                       title="Permalink to Metaprogramming in .NET 读书笔记 - 1">
+                        Metaprogramming in .NET 读书笔记 - 1
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2017-07-26T00:00:00+08:00"> 2017-07-26</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://wizmann.top/tag/metaprogramming.html">Metaprogramming</a>
+        /
+	<a href="https://wizmann.top/tag/net.html">.NET</a>
+        /
+	<a href="https://wizmann.top/tag/c.html">C#</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h2 id="metaprogramming">什么是 Metaprogramming (元编程)</h2>
+<p><img alt="" src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/17-2-15/1418894-file_1487139497158_1868c.jpg"></p>
+<p>元编程从字面上理解就是“能处理程序的程序”。</p>
+<p>这里的“处理”，有两个意思。</p>
+<p>一是“编写”、“生成”，最经典例子就是编译器，它将我们的所编写的高级语言翻译成机器代码。编译器就像建筑工人，将“蓝图”（高级语言）转化成“高楼大厦”（机器语言）。还有一个我们经常用到的就是“宏”(Macro)。我们可以在代码中使用预先编写好的宏，在编译期，宏会被自动展开成相应的代码。这样的好处是用机器带替人类劳动。</p>
+<p>“处理”的另外一个意思就是“处理自己”，元编程让程序在运行时了解自己的状态，并动态的扩展并执行的相应逻辑。</p>
+<p>当然，最高级的“处理”就是能完全代替人脑的人工智能。如果那一天到来，我们就距离生活在Matrix里不远了。</p>
+<h2 id="_1">元编程的实现</h2>
+<p>元编程主要实现在编译期前后以及运行时。</p>
+<p>元编程主要依赖于以下技术：</p>
+<ul>
+<li>代码生成(code generation)</li>
+<li>反射(reflection)</li>
+<li>汇编重写(assembly rewriting)</li>
+<li>表达式(expression)</li>
+<li>代码分析(code analysis)</li>
+</ul>
+<h2 id="code-generation">代码生成(code generation)</h2>
+<blockquote>
+<p>“拳有定势，而用时则无定势。然当其用也，变无定势，而实不失势”</p>
+</blockquote>
+<p>虽然写代码是一项创造性工作，但是这不意味着对于每一个项目，我们都要从零开始。在软件工程的发展过程中，前人已经为我们总结了一些常用的“最佳实践”(best practise)。在我们的开发工程中，灵活恰当的应用这些“定势”，会大大简化我们的工作，降低人力成本。</p>
+<p>“定势”意味着“重复”。而重复工作往往是复杂而易出错的，所以有人提出了DRY原则：Don&rsquo;t Repeat Yourself。代码生成工具则是这个问题的一种解决方案。</p>
+<p>对于灵活多变而又遵从定势的代码，使用代码生成可以提高开发速度，降低学习成本和维护成本，使代码维护同一种抽象方法，遵从预先确定的模式，也更方便管理。</p>
+<h3 id="_2">举一个例子</h3>
+<p>在C++里，我们可以这样实现一个<code>max(a, b)</code>函数：</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#define max(a, b) ((a) &gt; (b)? (a): (b))</span>
+</code></pre></div>
+
+<p>当然，有经验的老司机都知道这样写的问题。那么我们换一种方法：</p>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span>
+<span class="k">const</span><span class="w"> </span><span class="n">T</span><span class="o">&amp;</span><span class="w"> </span><span class="n">max</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">T</span><span class="o">&amp;</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">T</span><span class="o">&amp;</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">b</span><span class="o">?</span><span class="w"> </span><span class="n">a</span><span class="o">:</span><span class="w"> </span><span class="n">b</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>这看起来不错，但是在C#里，我们并不能这么做。</p>
+<p>比如，我们强行套用C++的语法：</p>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="n">MyMax</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">T</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">b</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>这样的代码会报编译错误，因为不是所有的类型都支持<code>&gt;</code>比较操作。进一步说，C++的template展开是编译时进行的，根据不同的模板参数生成不同版本的代码，运行时的逻辑是确定的。而C#的泛型在运行时仍是“泛型”的，所以在编译时，C#编译器需要知道更多的信息来保证运行时的类型安全(type-safe)。</p>
+<p>所以我们要给<code>&lt;T&gt;</code>加一个限制。一般来说，C#中可以继承<code>IComparable&lt;T&gt;</code>接口来实现&rdquo;比较&rdquo;(compare)操作。</p>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="n">MyMax</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">T</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">T</span><span class="p">:</span><span class="w"> </span><span class="n">IComparable</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">CompareTo</span><span class="p">(</span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">b</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>这样似乎解决了问题，对于实现了<code>IComparable&lt;T&gt;</code>接口的类，我们可以使用<code>MyMax&lt;T&gt;</code>来取两个元素的最大值。但是，对于只实现了<code>IComparable</code>的类，我们仍不能使用<code>MyMax&lt;T&gt;</code>函数。</p>
+<p>我们可以实现两个不同版本的<code>MyMax&lt;T&gt;</code>函数，来匹配<code>IComparable</code>和<code>IComparable&lt;T&gt;</code>两个不同的接口。但是，我们无法预知一切，假如上游团队使用了一个私有的比较接口，或者直接硬编码了<code>CompareTo(other)</code>函数。那么我们该怎么办呢？</p>
+<h3 id="_3">代码生成的优点</h3>
+<p>利用代码生成，我们就可以突破编程语言对我们的限制。在上面的例子中，我们可以穷举可能被比较的类型，生成相应的函数重载，实现相应的功能。</p>
+<p>当然，我们可以使用语言的一些动态特性来绕过限制，但是动态特性带来的性能损失是不可忽略的。</p>
+<p>同时，代码生成可以轻松的生成大段的重复性逻辑代码，比如数据表查询，业务流程等。这是代码生成的不可替代的特长。</p>
+<h3 id="t4">T4模板引擎</h3>
+<p>T4的全称是“Text Template Transformation Toolkit”。是微软出品的基于模板的文本生成框架，最早在VS2008中被引入。</p>
+<p>T4可以使用不同的语言来进行编码，包括C#, VB, F#等，目标格式没有限制。</p>
+<p>对于模板引擎，这里就不做过多展开。另外，我最喜欢的引擎是Jinja2。（</p>
+<h3 id="codedom">CodeDOM</h3>
+<p>通常意义上的DOM是用来描述浏览器中展示的元素。CodeDOM和DOM定义类似，是用来描述代码中的结构的。</p>
+<p>CodeDOM比一般的模板引擎要更严谨，同时是语言无关的，即支持将一份CodeDOM生成为不同的语言。同时，还支持在运行时动态的生成代码。</p>
+<p>CodeDOM的应用很广泛，例如.NET中的表达式树(expression tree，后会中会提到)，以及前文中提到的T4。</p>
+<p>下面是一个例子：</p>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="nn">System</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="nn">System.CodeDom</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="nn">System.CodeDom.Compiler</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="nn">System.Collections.Generic</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="nn">System.IO</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="nn">System.Linq</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="nn">System.Text</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="nn">System.Threading.Tasks</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="nn">Microsoft.CSharp</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="nn">Microsoft.VisualBasic</span><span class="p">;</span>
+
+<span class="k">namespace</span><span class="w"> </span><span class="nn">ConsoleApplication5</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">class</span><span class="w"> </span><span class="nc">Program</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">static</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Main</span><span class="p">(</span><span class="kt">string</span><span class="p">[]</span><span class="w"> </span><span class="n">args</span><span class="p">)</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="n">CodeCompileUnit</span><span class="w"> </span><span class="n">lUnit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">CodeCompileUnit</span><span class="p">();</span>
+
+<span class="w">            </span><span class="n">CodeNamespace</span><span class="w"> </span><span class="n">lNamespace</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">CodeNamespace</span><span class="p">(</span><span class="s">&quot;MyNamespace&quot;</span><span class="p">);</span>
+<span class="w">            </span><span class="n">lNamespace</span><span class="p">.</span><span class="n">Imports</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">CodeNamespaceImport</span><span class="p">(</span><span class="s">&quot;System&quot;</span><span class="p">));</span>
+<span class="w">            </span><span class="n">lNamespace</span><span class="p">.</span><span class="n">Imports</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">CodeNamespaceImport</span><span class="p">(</span><span class="s">&quot;System.IO&quot;</span><span class="p">));</span>
+<span class="w">            </span><span class="n">lUnit</span><span class="p">.</span><span class="n">Namespaces</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">lNamespace</span><span class="p">);</span>
+
+<span class="w">            </span><span class="n">CodeTypeDeclaration</span><span class="w"> </span><span class="n">lClass</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">CodeTypeDeclaration</span><span class="p">(</span><span class="s">&quot;MyClass&quot;</span><span class="p">);</span>
+<span class="w">            </span><span class="n">CodeMethodInvokeExpression</span><span class="w"> </span><span class="n">lExpression</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">CodeMethodInvokeExpression</span><span class="p">(</span>
+<span class="w">                </span><span class="k">new</span><span class="w"> </span><span class="nf">CodeTypeReferenceExpression</span><span class="p">(</span><span class="s">&quot;Console&quot;</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;WriteLine&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">CodePrimitiveExpression</span><span class="p">(</span><span class="s">&quot;hello world !&quot;</span><span class="p">));</span>
+<span class="w">            </span><span class="n">lNamespace</span><span class="p">.</span><span class="n">Types</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">lClass</span><span class="p">);</span>
+
+<span class="w">            </span><span class="n">CodeEntryPointMethod</span><span class="w"> </span><span class="n">lMain</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">CodeEntryPointMethod</span><span class="p">();</span>
+<span class="w">            </span><span class="n">lMain</span><span class="p">.</span><span class="n">Statements</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">lExpression</span><span class="p">);</span>
+<span class="w">            </span><span class="n">lClass</span><span class="p">.</span><span class="n">Members</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">lMain</span><span class="p">);</span>
+
+<span class="w">            </span><span class="kt">string</span><span class="w"> </span><span class="n">lDesktopPath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Environment</span><span class="p">.</span><span class="n">GetFolderPath</span><span class="p">(</span><span class="n">Environment</span><span class="p">.</span><span class="n">SpecialFolder</span><span class="p">.</span><span class="n">DesktopDirectory</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">@&quot;\&quot;</span><span class="p">;</span>
+<span class="w">            </span><span class="n">CodeGeneratorOptions</span><span class="w"> </span><span class="n">lOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">CodeGeneratorOptions</span><span class="p">();</span>
+<span class="w">            </span><span class="n">lOptions</span><span class="p">.</span><span class="n">IndentString</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;    &quot;</span><span class="p">;</span>
+<span class="w">            </span><span class="n">lOptions</span><span class="p">.</span><span class="n">BlankLinesBetweenMembers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="p">;</span>
+
+<span class="w">            </span><span class="c1">// generate a C# source code file</span>
+<span class="w">            </span><span class="n">CSharpCodeProvider</span><span class="w"> </span><span class="n">lCSharpCodeProvider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">CSharpCodeProvider</span><span class="p">();</span>
+<span class="w">            </span><span class="k">using</span><span class="w"> </span><span class="p">(</span><span class="n">StreamWriter</span><span class="w"> </span><span class="n">lStreamWriter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">StreamWriter</span><span class="p">(</span><span class="n">lDesktopPath</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;HelloWorld.cs&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">false</span><span class="p">))</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="n">lCSharpCodeProvider</span><span class="p">.</span><span class="n">GenerateCodeFromCompileUnit</span><span class="p">(</span><span class="n">lUnit</span><span class="p">,</span><span class="w"> </span><span class="n">lStreamWriter</span><span class="p">,</span><span class="w"> </span><span class="n">lOptions</span><span class="p">);</span>
+<span class="w">            </span><span class="p">}</span>
+
+<span class="w">            </span><span class="c1">// generate a VB source code file</span>
+<span class="w">            </span><span class="n">VBCodeProvider</span><span class="w"> </span><span class="n">lVBCodeProvider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">VBCodeProvider</span><span class="p">();</span>
+<span class="w">            </span><span class="k">using</span><span class="w"> </span><span class="p">(</span><span class="n">StreamWriter</span><span class="w"> </span><span class="n">lStreamWriter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">StreamWriter</span><span class="p">(</span><span class="n">lDesktopPath</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;HelloWorld.vb&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">false</span><span class="p">))</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="n">lVBCodeProvider</span><span class="p">.</span><span class="n">GenerateCodeFromCompileUnit</span><span class="p">(</span><span class="n">lUnit</span><span class="p">,</span><span class="w"> </span><span class="n">lStreamWriter</span><span class="p">,</span><span class="w"> </span><span class="n">lOptions</span><span class="p">);</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>生成的C#代码如下：</p>
+<div class="highlight"><pre><span></span><code><span class="k">namespace</span><span class="w"> </span><span class="nn">MyNamespace</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="nn">System</span><span class="p">;</span>
+<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="nn">System.IO</span><span class="p">;</span>
+
+
+<span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">MyClass</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">        </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;hello world !&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>生成的VB代码如下：</p>
+<div class="highlight"><pre><span></span><code><span class="k">Option</span><span class="w"> </span><span class="n">Strict</span><span class="w"> </span><span class="k">Off</span>
+<span class="k">Option</span><span class="w"> </span><span class="n">Explicit</span><span class="w"> </span><span class="k">On</span>
+
+<span class="n">Imports</span><span class="w"> </span><span class="k">System</span>
+<span class="n">Imports</span><span class="w"> </span><span class="k">System</span><span class="p">.</span><span class="n">IO</span>
+
+<span class="n">Namespace</span><span class="w"> </span><span class="n">MyNamespace</span>
+
+<span class="w">    </span><span class="k">Public</span><span class="w"> </span><span class="k">Class</span><span class="w"> </span><span class="o">[</span><span class="n">MyClass</span><span class="o">]</span>
+
+<span class="w">        </span><span class="k">Public</span><span class="w"> </span><span class="n">Shared</span><span class="w"> </span><span class="n">Sub</span><span class="w"> </span><span class="n">Main</span><span class="p">()</span>
+<span class="w">            </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="ss">&quot;hello world !&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="k">End</span><span class="w"> </span><span class="n">Sub</span>
+<span class="w">    </span><span class="k">End</span><span class="w"> </span><span class="k">Class</span>
+<span class="k">End</span><span class="w"> </span><span class="n">Namespace</span>
+</code></pre></div>
+
+<p>我们可以看出，与模板引擎相比，CodeDOM更复杂，也更不直观。但是由于它的语言无关性，非常适合用来生成一些工具代码，比如SDK等。</p>
+<h2 id="whats-next">What&rsquo;s next?</h2>
+<p>由于.NET元编程是一个比较大的话题，所以读书笔记写会做成一个小系列一篇一篇发出。</p>
+<p>下一篇我们会更进步，讨论IL级别的代码生成。</p>
+<h2 id="_4">一些测试代码</h2>
+<ul>
+<li><a href="http://code.wizmann.tk/Home/Code?guid=81cb583a-2498-4f2a-8eff-b17a1af9b5e5"><code>max(a, b)</code> function with template in C++</a></li>
+<li><a href="http://code.wizmann.tk/Home/Code?guid=1a30e464-c08c-45bd-b9ca-da2675de19df">Generate code with CodeDOM</a></li>
+</ul>
+<h2 id="_5">参考链接</h2>
+<ul>
+<li><a href="https://blogs.msdn.microsoft.com/csharpfaq/2004/03/12/how-do-c-generics-compare-to-c-templates/">How do C# generics compare to C++ templates?</a></li>
+<li><a href="http://www.pl-enthusiast.net/2014/08/05/type-safety/">What is type safety?</a></li>
+<li><a href="https://csharphardcoreprogramming.wordpress.com/tag/codedom/">Reflection (part 5, professional), CodeDOM (&amp; lambda expression tree)</a></li>
+</ul>
+            </div>
+            <!-- /.entry-content -->
+    <hr/>
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+            var disqus_config = function () {
+                this.language = "zhs";
+
+                        this.page.identifier = '2017-07-26-metaprogramming-in-dotnet-1';
+                        this.page.url = 'https://wizmann.top/drafts/metaprogramming-in-dotnet-1.html';
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="https://github.com/wizmann"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="https://wizmann.top//feeds/all.atom.xml"><i class="fa fa-rss-square fa-lg"></i> rss</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://wizmann.top/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/cpp.html">cpp</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/algorithm.html">algorithm</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/suan-fa.html">算法</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/codeforces.html">codeforces</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/c.html">C++</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/fen-bu-shi-xi-tong.html">分布式系统</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/ti-jie.html">题解</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/udp.html">UDP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/cas.html">cas</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rpc.html">rpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-xi-tong.html">数据系统</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-ku.html">数据库</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/leetcode.html">Leetcode</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/interview.html">interview</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multithread.html">multithread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/jian-suo-zeng-qiang-sheng-cheng.html">检索增强生成</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xian-liao.html">闲聊</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rag.html">RAG</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/modern-cpp.html">modern cpp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/protocol.html">protocol</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multi-thread.html">multi-thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/yi-zhi-xing.html">一致性</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/networking.html">networking</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/storage.html">storage</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xin-xi-jian-suo.html">信息检索</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/stup.html">STUP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/distributed-system.html">Distributed System</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/phxrpc.html">phxrpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/memory-barrier.html">memory-barrier</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/system-design.html">System Design</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/thread.html">thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/llm.html">LLM</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/tcp.html">tcp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/duo-xian-cheng.html">多线程</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/gong-kai-ke.html">公开课</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spinpromela.html">SPIN/Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/promela.html">Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/storage-system.html">storage system</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/google.html">Google</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/bing-fa-bian-cheng.html">并发编程</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/induction.html">induction</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/raft.html">raft</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/ucontext.html">ucontext</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/paxos.html">paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cse351.html">CSE351</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cmpxchg.html">cmpxchg</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/basic-paxos.html">basic paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/solution.html">Solution</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/azure.html">azure</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/async.html">async</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/3d-printing.html">3D printing</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/shu-ju-mi-ji-xing-ying-yong-xi-tong.html">数据密集型应用系统</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spin.html">SPIN</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-mo-xing.html">数据模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yi-zhi-xing-xie-yi.html">一致性协议</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/zi-fu-chuan-zhong-xie-xi-tong.html">字符串重写系统</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-xing-dp.html">树形DP</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-bian-cheng.html">编译期编程</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/mutex.html">mutex</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yuan-lei.html">元类</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon.html">CppCon</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon2024.html">CppCon2024</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dda-yin.html">3D打印</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/led.html">LED</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nei-cun-mo-xing.html">内存模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-shi-wu.html">分布式事务</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/diy.html">DIY</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/excrt.html">excrt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/segment-tree.html">segment-tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-lian-pou-fen.html">树链剖分</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/an-quan-xing.html">安全性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dp.html">dp</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bing-fa.html">并发</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/qi-fa-shi-he-bing.html">启发式合并</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/semaphore.html">semaphore</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-gong-shi.html">分布式共识</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nosql.html">nosql</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/post.html">Post</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-bian-ma.html">数据编码</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/litmus.html">litmus</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fan-she.html">反射</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/si-suo.html">死锁</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/hash.html">hash</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/partitioning.html">partitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/xian-duan-shu.html">线段树</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/volatile.html">volatile</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-jie-gou.html">数据结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/ab.html">A=B</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/tu-ling-wan-bei-xing.html">图灵完备性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/suo-yin-jie-gou.html">索引结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/repartitioning.html">repartitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/thue.html">Thue</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/crt.html">crt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/herb-sutter.html">Herb Sutter</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/condition_variable.html">condition_variable</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dsu-on-tree.html">DSU on Tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/math.html">math</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-you-hua.html">编译器优化</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/deng-ju-she-ji.html">灯具设计</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dmo-xing.html">3D模型</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2025 Wizmann
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://wizmann.top/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://wizmann.top/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://wizmann.top/theme/js/respond.min.js"></script>
+
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-46053117-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+
+</body>
+</html>

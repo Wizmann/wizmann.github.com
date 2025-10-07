@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="zhs" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>CPU cache引发的性能血案 - Maerlyn's Rainbow</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <link href="https://wizmann.top/statistics/favicon.png" rel="icon">
+
+<link rel="canonical" href="https://wizmann.top/cpu-cache-miss.html">
+
+        <meta name="author" content="Wizmann" />
+        <meta name="keywords" content="cpu,cache,profile,valgrind,cachegrind" />
+        <meta name="description" content="在__为什么转置一个512x512的矩阵，会比513x513的矩阵慢很多？__一文中，作者引用了一个矩阵转置的例子，来讲解由于CPU cache的失效而带来的性能损失。 上面的文章对问题的解释与讨论都 …" />
+
+        <meta property="og:site_name" content="Maerlyn's Rainbow" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="CPU cache引发的性能血案"/>
+        <meta property="og:url" content="https://wizmann.top/cpu-cache-miss.html"/>
+        <meta property="og:description" content="在__为什么转置一个512x512的矩阵，会比513x513的矩阵慢很多？__一文中，作者引用了一个矩阵转置的例子，来讲解由于CPU cache的失效而带来的性能损失。 上面的文章对问题的解释与讨论都 …"/>
+        <meta property="article:published_time" content="2014-07-20" />
+            <meta property="article:section" content="Blog" />
+            <meta property="article:tag" content="cpu" />
+            <meta property="article:tag" content="cache" />
+            <meta property="article:tag" content="profile" />
+            <meta property="article:tag" content="valgrind" />
+            <meta property="article:tag" content="cachegrind" />
+            <meta property="article:author" content="Wizmann" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://wizmann.top/theme/css/bootstrap.flatly.min.css" type="text/css"/>
+    <link href="https://wizmann.top/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://wizmann.top/theme/css/pygments/solarizedlight.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://wizmann.top/theme/css/style.css" type="text/css"/>
+
+        <link href="https://wizmann.top/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow ATOM Feed"/>
+
+        <link href="https://wizmann.top/feeds/blog.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow Blog ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://wizmann.top/" class="navbar-brand">
+Maerlyn's Rainbow            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="/category/blog.html">Blog</a></li>
+                    <li><a href="https://vijos.org/d/wizmann/p">Online Judge</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://wizmann.top/cpu-cache-miss.html"
+                       rel="bookmark"
+                       title="Permalink to CPU cache引发的性能血案">
+                        CPU cache引发的性能血案
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2014-07-20T00:18:00+08:00"> 2014-07-20</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://wizmann.top/tag/cpu.html">cpu</a>
+        /
+	<a href="https://wizmann.top/tag/cache.html">cache</a>
+        /
+	<a href="https://wizmann.top/tag/profile.html">profile</a>
+        /
+	<a href="https://wizmann.top/tag/valgrind.html">valgrind</a>
+        /
+	<a href="https://wizmann.top/tag/cachegrind.html">cachegrind</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p>在__<a href="http://evol128.is-programmer.com/posts/35453.html">为什么转置一个512x512的矩阵，会比513x513的矩阵慢很多？</a>__一文中，作者引用了一个矩阵转置的例子，来讲解由于CPU cache的失效而带来的性能损失。</p>
+<p>上面的文章对问题的解释与讨论都非常的透彻。我的这篇文章只是对上面文章的一篇读后感和实验报告。就酱。</p>
+<h2 id="cpu-cache">CPU cache 之 组相联</h2>
+<p><img alt="组相联" src="https://github.com/Wizmann/assets/raw/master/wizmann-tk-pic/blog-cpu-cache-2-way-set-assosiate.jpg"></p>
+<p>组相联的实现和原理不必再赘述了。我想讨论的是，如何在编程中优化CPU的cache性能。</p>
+<h2 id="cpu">查看CPU信息</h2>
+<p>我的系统是Ubuntu 12.04，CPU是i5-3230M。（屌丝机 :D)</p>
+<div class="highlight"><pre><span></span><code><span class="nx">wizmann</span><span class="err">@</span><span class="nx">Wichmann</span><span class="p">:</span><span class="o">~</span><span class="err">$</span><span class="w"> </span><span class="nx">ls</span><span class="w"> </span><span class="o">/</span><span class="nx">sys</span><span class="o">/</span><span class="nx">devices</span><span class="o">/</span><span class="nx">system</span><span class="o">/</span><span class="nx">cpu</span><span class="o">/</span><span class="nx">cpu0</span><span class="o">/</span><span class="nx">cache</span><span class="o">/</span><span class="nx">index0</span><span class="o">/</span>
+<span class="nx">coherency_line_size</span><span class="w">  </span><span class="nx">physical_line_partition</span><span class="w">  </span><span class="nx">size</span>
+<span class="nx">level</span><span class="w">                </span><span class="nx">shared_cpu_list</span><span class="w">          </span><span class="k">type</span>
+<span class="nx">number_of_sets</span><span class="w">       </span><span class="nx">shared_cpu_map</span><span class="w">           </span><span class="nx">ways_of_associativity</span>
+</code></pre></div>
+
+<p>使用cat命令查看文件内容，可以获得CPU L1 cache的一些信息。</p>
+<table class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>Key</th>
+ <th>Value</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>level</td>
+ <td>1</td>
+</tr>
+<tr>
+ <td>size</td>
+ <td>32K</td>
+</tr>
+<tr>
+ <td>ways_of_associativity</td>
+ <td>8</td>
+</tr>
+<tr>
+ <td>type</td>
+ <td>Data</td>
+</tr>
+<tr>
+ <td>number_of_sets</td>
+ <td>64</td>
+</tr>
+</tbody></table>
+
+<p>以上可知，CPU L1 cache有64组，每组有8个cache line。是<strong>8位组相联</strong>的Cache类型。</p>
+<h2 id="_1">分析缓存失效率</h2>
+<p>对于以上问题，我们可以手工计算，也可以使用程序模拟Cache的失效率。</p>
+<p>同时，Valgrind为我们提供了cachegrind工具来分析cache的失效。</p>
+<div class="highlight"><pre><span></span><code><span class="n">wizmann</span><span class="err">@</span><span class="n">Wichmann</span><span class="p">:</span><span class="o">/</span><span class="n">tmp</span><span class="o">$</span><span class="w"> </span><span class="n">valgrind</span><span class="w"> </span><span class="o">--</span><span class="k">tool</span><span class="o">=</span><span class="n">cachegrind</span><span class="w"> </span><span class="o">--</span><span class="n">D1</span><span class="o">=</span><span class="mi">32768</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">16</span><span class="w"> </span><span class="o">./</span><span class="n">test</span>
+<span class="o">==</span><span class="mi">14282</span><span class="o">==</span><span class="w"> </span><span class="n">Cachegrind</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">cache</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">branch</span><span class="o">-</span><span class="n">prediction</span><span class="w"> </span><span class="n">profiler</span>
+<span class="o">==</span><span class="mi">14282</span><span class="o">==</span><span class="w"> </span><span class="n">Copyright</span><span class="w"> </span><span class="p">(</span><span class="n">C</span><span class="p">)</span><span class="w"> </span><span class="mi">2002</span><span class="o">-</span><span class="mi">2011</span><span class="p">,</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">GNU</span><span class="w"> </span><span class="n">GPL</span><span class="s1">&#39;d, by Nicholas Nethercote et al.</span>
+<span class="o">==</span><span class="mi">14282</span><span class="o">==</span><span class="w"> </span><span class="n">Using</span><span class="w"> </span><span class="n">Valgrind</span><span class="o">-</span><span class="mf">3.7</span><span class="o">.</span><span class="mi">0</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">LibVEX</span><span class="p">;</span><span class="w"> </span><span class="n">rerun</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="o">-</span><span class="n">h</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">copyright</span><span class="w"> </span><span class="n">info</span>
+<span class="o">==</span><span class="mi">14282</span><span class="o">==</span><span class="w"> </span><span class="n">Command</span><span class="p">:</span><span class="w"> </span><span class="o">./</span><span class="n">test</span>
+<span class="o">==</span><span class="mi">14282</span><span class="o">==</span><span class="w"> </span>
+<span class="o">--</span><span class="mi">14282</span><span class="o">--</span><span class="w"> </span><span class="n">warning</span><span class="p">:</span><span class="w"> </span><span class="n">L3</span><span class="w"> </span><span class="n">cache</span><span class="w"> </span><span class="n">found</span><span class="p">,</span><span class="w"> </span><span class="n">using</span><span class="w"> </span><span class="n">its</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">LL</span><span class="w"> </span><span class="n">simulation</span><span class="o">.</span>
+<span class="n">Average</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">matrix</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="mi">257</span><span class="p">:</span><span class="w"> </span><span class="mi">1875</span><span class="o">==</span><span class="mi">14282</span><span class="o">==</span><span class="w"> </span>
+<span class="o">==</span><span class="mi">14282</span><span class="o">==</span><span class="w"> </span><span class="n">I</span><span class="w">   </span><span class="n">refs</span><span class="p">:</span><span class="w">      </span><span class="mi">18</span><span class="p">,</span><span class="mi">708</span><span class="p">,</span><span class="mi">198</span>
+<span class="o">==</span><span class="mi">14282</span><span class="o">==</span><span class="w"> </span><span class="n">I1</span><span class="w">  </span><span class="n">misses</span><span class="p">:</span><span class="w">         </span><span class="mi">1</span><span class="p">,</span><span class="mi">404</span>
+<span class="o">==</span><span class="mi">14282</span><span class="o">==</span><span class="w"> </span><span class="n">LLi</span><span class="w"> </span><span class="n">misses</span><span class="p">:</span><span class="w">         </span><span class="mi">1</span><span class="p">,</span><span class="mi">355</span>
+<span class="o">==</span><span class="mi">14282</span><span class="o">==</span><span class="w"> </span><span class="n">I1</span><span class="w">  </span><span class="n">miss</span><span class="w"> </span><span class="n">rate</span><span class="p">:</span><span class="w">       </span><span class="mf">0.00</span><span class="o">%</span>
+<span class="o">==</span><span class="mi">14282</span><span class="o">==</span><span class="w"> </span><span class="n">LLi</span><span class="w"> </span><span class="n">miss</span><span class="w"> </span><span class="n">rate</span><span class="p">:</span><span class="w">       </span><span class="mf">0.00</span><span class="o">%</span>
+<span class="o">==</span><span class="mi">14282</span><span class="o">==</span><span class="w"> </span>
+<span class="o">==</span><span class="mi">14282</span><span class="o">==</span><span class="w"> </span><span class="n">D</span><span class="w">   </span><span class="n">refs</span><span class="p">:</span><span class="w">       </span><span class="mi">8</span><span class="p">,</span><span class="mi">936</span><span class="p">,</span><span class="mi">548</span><span class="w">  </span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">543</span><span class="p">,</span><span class="mi">346</span><span class="w"> </span><span class="n">rd</span><span class="w">   </span><span class="o">+</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="mi">393</span><span class="p">,</span><span class="mi">202</span><span class="w"> </span><span class="n">wr</span><span class="p">)</span>
+<span class="o">==</span><span class="mi">14282</span><span class="o">==</span><span class="w"> </span><span class="n">D1</span><span class="w">  </span><span class="n">misses</span><span class="p">:</span><span class="w">     </span><span class="mi">1</span><span class="p">,</span><span class="mi">107</span><span class="p">,</span><span class="mi">687</span><span class="w">  </span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">086</span><span class="p">,</span><span class="mi">263</span><span class="w"> </span><span class="n">rd</span><span class="w">   </span><span class="o">+</span><span class="w">    </span><span class="mi">21</span><span class="p">,</span><span class="mi">424</span><span class="w"> </span><span class="n">wr</span><span class="p">)</span>
+<span class="o">==</span><span class="mi">14282</span><span class="o">==</span><span class="w"> </span><span class="n">LLd</span><span class="w"> </span><span class="n">misses</span><span class="p">:</span><span class="w">        </span><span class="mi">10</span><span class="p">,</span><span class="mi">502</span><span class="w">  </span><span class="p">(</span><span class="w">    </span><span class="mi">5</span><span class="p">,</span><span class="mi">179</span><span class="w"> </span><span class="n">rd</span><span class="w">   </span><span class="o">+</span><span class="w">     </span><span class="mi">5</span><span class="p">,</span><span class="mi">323</span><span class="w"> </span><span class="n">wr</span><span class="p">)</span>
+<span class="o">==</span><span class="mi">14282</span><span class="o">==</span><span class="w"> </span><span class="n">D1</span><span class="w">  </span><span class="n">miss</span><span class="w"> </span><span class="n">rate</span><span class="p">:</span><span class="w">       </span><span class="mf">12.3</span><span class="o">%</span><span class="w"> </span><span class="p">(</span><span class="w">     </span><span class="mf">23.9</span><span class="o">%</span><span class="w">     </span><span class="o">+</span><span class="w">       </span><span class="mf">0.4</span><span class="o">%</span><span class="w">  </span><span class="p">)</span>
+<span class="o">==</span><span class="mi">14282</span><span class="o">==</span><span class="w"> </span><span class="n">LLd</span><span class="w"> </span><span class="n">miss</span><span class="w"> </span><span class="n">rate</span><span class="p">:</span><span class="w">        </span><span class="mf">0.1</span><span class="o">%</span><span class="w"> </span><span class="p">(</span><span class="w">      </span><span class="mf">0.1</span><span class="o">%</span><span class="w">     </span><span class="o">+</span><span class="w">       </span><span class="mf">0.1</span><span class="o">%</span><span class="w">  </span><span class="p">)</span>
+<span class="o">==</span><span class="mi">14282</span><span class="o">==</span><span class="w"> </span>
+<span class="o">==</span><span class="mi">14282</span><span class="o">==</span><span class="w"> </span><span class="n">LL</span><span class="w"> </span><span class="n">refs</span><span class="p">:</span><span class="w">        </span><span class="mi">1</span><span class="p">,</span><span class="mi">109</span><span class="p">,</span><span class="mi">091</span><span class="w">  </span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">087</span><span class="p">,</span><span class="mi">667</span><span class="w"> </span><span class="n">rd</span><span class="w">   </span><span class="o">+</span><span class="w">    </span><span class="mi">21</span><span class="p">,</span><span class="mi">424</span><span class="w"> </span><span class="n">wr</span><span class="p">)</span>
+<span class="o">==</span><span class="mi">14282</span><span class="o">==</span><span class="w"> </span><span class="n">LL</span><span class="w"> </span><span class="n">misses</span><span class="p">:</span><span class="w">         </span><span class="mi">11</span><span class="p">,</span><span class="mi">857</span><span class="w">  </span><span class="p">(</span><span class="w">    </span><span class="mi">6</span><span class="p">,</span><span class="mi">534</span><span class="w"> </span><span class="n">rd</span><span class="w">   </span><span class="o">+</span><span class="w">     </span><span class="mi">5</span><span class="p">,</span><span class="mi">323</span><span class="w"> </span><span class="n">wr</span><span class="p">)</span>
+<span class="o">==</span><span class="mi">14282</span><span class="o">==</span><span class="w"> </span><span class="n">LL</span><span class="w"> </span><span class="n">miss</span><span class="w"> </span><span class="n">rate</span><span class="p">:</span><span class="w">         </span><span class="mf">0.0</span><span class="o">%</span><span class="w"> </span><span class="p">(</span><span class="w">      </span><span class="mf">0.0</span><span class="o">%</span><span class="w">     </span><span class="o">+</span><span class="w">       </span><span class="mf">0.1</span><span class="o">%</span><span class="w">  </span><span class="p">)</span>
+</code></pre></div>
+
+<p>其中I1代表指令1级缓存，D1代表数据1级缓存，而LL代表二级或三级缓存。</p>
+<p>上面的输出也许过于复杂，我们在下面列表分析。</p>
+<h3 id="_2">测试环境</h3>
+<p>只讨论L1的情况，L1大小32768 Bytes，2路组相联，每个cache line有16 Bytes。</p>
+<p>valgrind测试命令为：</p>
+<div class="highlight"><pre><span></span><code><span class="n">wizmann</span><span class="err">@</span><span class="n">Wichmann</span><span class="p">:</span><span class="o">/</span><span class="n">tmp</span><span class="o">$</span><span class="w"> </span><span class="n">valgrind</span><span class="w"> </span><span class="o">--</span><span class="k">tool</span><span class="o">=</span><span class="n">cachegrind</span><span class="w"> </span><span class="o">--</span><span class="n">D1</span><span class="o">=</span><span class="mi">32768</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">16</span><span class="w"> </span><span class="o">./</span><span class="n">test</span>
+</code></pre></div>
+
+<h3 id="_3">测试程序</h3>
+<div class="highlight"><pre><span></span><code><span class="cp">#define SAMPLES 64</span>
+<span class="cp">#define MATSIZE 256</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;time.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">mat</span><span class="p">[</span><span class="n">MATSIZE</span><span class="p">][</span><span class="n">MATSIZE</span><span class="p">];</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">transpose</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">   </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">MATSIZE</span><span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="w">   </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="w">   </span><span class="p">{</span>
+<span class="w">       </span><span class="kt">int</span><span class="w"> </span><span class="n">aux</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mat</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">];</span>
+<span class="w">       </span><span class="n">mat</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mat</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">i</span><span class="p">];</span>
+<span class="w">       </span><span class="n">mat</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">aux</span><span class="p">;</span>
+<span class="w">   </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">   </span><span class="c1">//initialize matrix</span>
+<span class="w">   </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">MATSIZE</span><span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="w">   </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">MATSIZE</span><span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="n">mat</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="o">+</span><span class="n">j</span><span class="p">;</span>
+
+<span class="w">   </span><span class="kt">int</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">clock</span><span class="p">();</span>
+<span class="w">   </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">SAMPLES</span><span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="n">transpose</span><span class="p">();</span>
+<span class="w">   </span><span class="kt">int</span><span class="w"> </span><span class="n">elapsed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">clock</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">t</span><span class="p">;</span>
+
+<span class="w">   </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Average for a matrix of &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">MATSIZE</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">elapsed</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">SAMPLES</span><span class="p">;</span>
+<span class="w">   </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="_4">测试结果</h3>
+<table class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>-</th>
+ <th>MATSIZE = 256</th>
+ <th>MATSIZE = 256 + 1</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>运行时间 (g++ O2) 1024次</td>
+ <td>78ms</td>
+ <td>39ms</td>
+</tr>
+<tr>
+ <td>D1 Miss</td>
+ <td>2,621,967</td>
+ <td>1,107,687</td>
+</tr>
+<tr>
+ <td>D1 Miss Rate</td>
+ <td>29.5%</td>
+ <td>12.3%</td>
+</tr>
+</tbody></table>
+
+<p>由此可见，Cache的Miss Rate基本决定了程序的运行速度，运行时间比例和D1 MISS RATE的比例基本一致。</p>
+<ul>
+<li>注：本机环境与cachegrind参数是不一致的，在本机上由于cache较大，且采用8位组相联，所以D1 cache miss较少，差异主要体现在LLd Miss Rate上。</li>
+</ul>
+<h2 id="_5">实际意义</h2>
+<p>如果程序对一段内存进行顺序读取的时候，以上的缓存失效问题有可能会显现出来。但是缓存失效只是程序性能问题的一个可能的原因，应该在对程序进行profile之后再做结论。</p>
+<h2 id="profile">其它profile工具</h2>
+<p>我的提问：__<a href="http://www.zhihu.com/question/24540567/noti-answers?group_id=564624072">有没有什么方法可以对CPU cache失效进行计数？</a>__中，各位答主还提供了以下几种工具：</p>
+<ul>
+<li>perf (linux)</li>
+<li><a href="http://tiptop.gforge.inria.fr/">Tiptop</a></li>
+<li>qemu</li>
+<li>visual studio的cpu counter</li>
+<li>intel performance counter monitor</li>
+<li>vtunes</li>
+</ul>
+<p>profile的方法很多，选一个易用性与正确性达到平衡就可以。反正我是哪个也不会_(:з」∠)_</p>
+<h2 id="_6">参考链接</h2>
+<ul>
+<li><a href="http://yoursunny.com/study/EI209/?topic=cache">cache映射功能、命中率计算</a></li>
+<li><a href="http://blog.focus-linux.net/?p=391">使用valgrind检查cache命中率，提高程序性能</a></li>
+<li><a href="http://valgrind.org/docs/manual/cg-manual.html">Cachegrind: a cache and branch-prediction profiler</a> （官方文档）</li>
+<li><a href="https://access.redhat.com/documentation/zh-CN/Red_Hat_Enterprise_Linux/6/html/Performance_Tuning_Guide/ch05s03s02.html">使用 Cachegrind 简要概述缓存使用</a></li>
+<li><a href="http://wwwcdf.pd.infn.it/valgrind/cg_main.html">Cachegrind: a cache-miss profiler</a></li>
+<li><a href="http://www.ibm.com/developerworks/cn/linux/l-cn-perf">Perf &ndash; Linux下的系统性能调优工具，第 1 部分</a></li>
+<li><a href="http://coolshell.cn/articles/10249.html">7个示例科普CPU Cache（扩展阅读）</a></li>
+</ul>
+            </div>
+            <!-- /.entry-content -->
+    <hr/>
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+            var disqus_config = function () {
+                this.language = "zhs";
+
+                        this.page.identifier = '2014-07-20-cpu-cache-miss';
+                        this.page.url = 'https://wizmann.top/cpu-cache-miss.html';
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="https://github.com/wizmann"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="https://wizmann.top//feeds/all.atom.xml"><i class="fa fa-rss-square fa-lg"></i> rss</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://wizmann.top/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/cpp.html">cpp</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/algorithm.html">algorithm</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/suan-fa.html">算法</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/codeforces.html">codeforces</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/c.html">C++</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/fen-bu-shi-xi-tong.html">分布式系统</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/ti-jie.html">题解</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/udp.html">UDP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/cas.html">cas</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rpc.html">rpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-xi-tong.html">数据系统</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-ku.html">数据库</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/leetcode.html">Leetcode</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/interview.html">interview</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multithread.html">multithread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/jian-suo-zeng-qiang-sheng-cheng.html">检索增强生成</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xian-liao.html">闲聊</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rag.html">RAG</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/modern-cpp.html">modern cpp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/protocol.html">protocol</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multi-thread.html">multi-thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/yi-zhi-xing.html">一致性</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/networking.html">networking</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/storage.html">storage</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xin-xi-jian-suo.html">信息检索</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/stup.html">STUP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/distributed-system.html">Distributed System</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/phxrpc.html">phxrpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/memory-barrier.html">memory-barrier</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/system-design.html">System Design</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/thread.html">thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/llm.html">LLM</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/tcp.html">tcp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/duo-xian-cheng.html">多线程</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/gong-kai-ke.html">公开课</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spinpromela.html">SPIN/Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/promela.html">Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/storage-system.html">storage system</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/google.html">Google</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/bing-fa-bian-cheng.html">并发编程</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/induction.html">induction</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/raft.html">raft</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/ucontext.html">ucontext</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/paxos.html">paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cse351.html">CSE351</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cmpxchg.html">cmpxchg</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/basic-paxos.html">basic paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/solution.html">Solution</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/azure.html">azure</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/async.html">async</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/3d-printing.html">3D printing</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/shu-ju-mi-ji-xing-ying-yong-xi-tong.html">数据密集型应用系统</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spin.html">SPIN</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-mo-xing.html">数据模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yi-zhi-xing-xie-yi.html">一致性协议</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/zi-fu-chuan-zhong-xie-xi-tong.html">字符串重写系统</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-xing-dp.html">树形DP</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-bian-cheng.html">编译期编程</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/mutex.html">mutex</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yuan-lei.html">元类</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon.html">CppCon</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon2024.html">CppCon2024</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dda-yin.html">3D打印</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/led.html">LED</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nei-cun-mo-xing.html">内存模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-shi-wu.html">分布式事务</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/diy.html">DIY</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/excrt.html">excrt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/segment-tree.html">segment-tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-lian-pou-fen.html">树链剖分</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/an-quan-xing.html">安全性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dp.html">dp</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bing-fa.html">并发</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/qi-fa-shi-he-bing.html">启发式合并</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/semaphore.html">semaphore</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-gong-shi.html">分布式共识</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nosql.html">nosql</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/post.html">Post</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-bian-ma.html">数据编码</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/litmus.html">litmus</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fan-she.html">反射</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/si-suo.html">死锁</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/hash.html">hash</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/partitioning.html">partitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/xian-duan-shu.html">线段树</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/volatile.html">volatile</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-jie-gou.html">数据结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/ab.html">A=B</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/tu-ling-wan-bei-xing.html">图灵完备性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/suo-yin-jie-gou.html">索引结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/repartitioning.html">repartitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/thue.html">Thue</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/crt.html">crt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/herb-sutter.html">Herb Sutter</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/condition_variable.html">condition_variable</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dsu-on-tree.html">DSU on Tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/math.html">math</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-you-hua.html">编译器优化</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/deng-ju-she-ji.html">灯具设计</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dmo-xing.html">3D模型</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2025 Wizmann
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://wizmann.top/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://wizmann.top/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://wizmann.top/theme/js/respond.min.js"></script>
+
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-46053117-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+
+</body>
+</html>

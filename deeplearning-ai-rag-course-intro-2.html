@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="zhs" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Deeplearning.ai 《Retrieval-Augmented Generation (RAG)》课程导读（二） - Maerlyn's Rainbow</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <link href="https://wizmann.top/statistics/favicon.png" rel="icon">
+
+<link rel="canonical" href="https://wizmann.top/deeplearning-ai-rag-course-intro-2.html">
+
+        <meta name="author" content="Wizmann" />
+        <meta name="keywords" content="RAG,信息检索,LLM,检索增强生成" />
+        <meta name="description" content="课程视频 根据视频字幕生成，是给不想看视频的人准备的速读文档 简介 在实际生产环境中，信息检索理论需要与大规模 …" />
+
+        <meta property="og:site_name" content="Maerlyn's Rainbow" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Deeplearning.ai 《Retrieval-Augmented Generation (RAG)》课程导读（二）"/>
+        <meta property="og:url" content="https://wizmann.top/deeplearning-ai-rag-course-intro-2.html"/>
+        <meta property="og:description" content="课程视频 根据视频字幕生成，是给不想看视频的人准备的速读文档 简介 在实际生产环境中，信息检索理论需要与大规模 …"/>
+        <meta property="article:published_time" content="2025-09-22" />
+            <meta property="article:section" content="Blog" />
+            <meta property="article:tag" content="RAG" />
+            <meta property="article:tag" content="信息检索" />
+            <meta property="article:tag" content="LLM" />
+            <meta property="article:tag" content="检索增强生成" />
+            <meta property="article:author" content="Wizmann" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://wizmann.top/theme/css/bootstrap.flatly.min.css" type="text/css"/>
+    <link href="https://wizmann.top/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://wizmann.top/theme/css/pygments/solarizedlight.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://wizmann.top/theme/css/style.css" type="text/css"/>
+
+        <link href="https://wizmann.top/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow ATOM Feed"/>
+
+        <link href="https://wizmann.top/feeds/blog.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow Blog ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://wizmann.top/" class="navbar-brand">
+Maerlyn's Rainbow            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="/category/blog.html">Blog</a></li>
+                    <li><a href="https://vijos.org/d/wizmann/p">Online Judge</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://wizmann.top/deeplearning-ai-rag-course-intro-2.html"
+                       rel="bookmark"
+                       title="Permalink to Deeplearning.ai 《Retrieval-Augmented Generation (RAG)》课程导读（二）">
+                        Deeplearning.ai 《Retrieval-Augmented Generation (RAG)》课程导读（二）
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2025-09-22T10:00:00+08:00"> 2025-09-22</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://wizmann.top/tag/rag.html">RAG</a>
+        /
+	<a href="https://wizmann.top/tag/xin-xi-jian-suo.html">信息检索</a>
+        /
+	<a href="https://wizmann.top/tag/llm.html">LLM</a>
+        /
+	<a href="https://wizmann.top/tag/jian-suo-zeng-qiang-sheng-cheng.html">检索增强生成</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p><a href="https://www.bilibili.com/video/BV1QRbnzTEyK?spm_id_from=333.788.videopod.episodes&amp;vd_source=dbe2034ffbdf969aa84f0fa33428b1ae">课程视频</a></p>
+<blockquote>
+<p>根据视频字幕生成，是给不想看视频的人准备的速读文档</p>
+</blockquote>
+<h2 id="_1">简介</h2>
+<p>在实际生产环境中，信息检索理论需要与大规模数据处理结合。传统关系型数据库虽能支撑大部分基础检索，但当文档规模扩展至数百万甚至数十亿，尤其涉及语义搜索时，其性能会显著下降。</p>
+<p>为此，我们需要<strong>向量数据库</strong>。它专为存储与检索海量向量而设计，几乎等同于 RAG（Retrieval-Augmented Generation）系统的底层设施。本模块的核心目标是：</p>
+<ul>
+<li>理解为什么向量数据库在向量检索方面更优；</li>
+<li>掌握多种搜索操作的执行方式；</li>
+<li>学习在生产级 RAG 系统中常用的优化技术（文档分块、查询解析、结果重排序等）。</li>
+</ul>
+<h2 id="ann">ANN 算法</h2>
+<p>在语义搜索中，关键词匹配与向量相似度是基础。但若直接进行精确向量搜索，随着数据扩展，计算资源消耗与系统延迟会急剧增加。</p>
+<ul>
+<li><strong>k近邻（kNN）</strong>：计算查询与所有文档向量的距离并排序，返回前 k 个邻居。直观但扩展性差，计算量随数据线性增长。</li>
+<li><strong>近似最近邻（ANN）</strong>：通过牺牲精确度换取效率，保证结果“足够接近”。</li>
+</ul>
+<p>典型方法：</p>
+<ol>
+<li><strong>NSW（可导航小世界）</strong>：构建邻近图，搜索从随机起点出发逐步靠近目标。速度快但可能错过全局最优。</li>
+<li><strong>HNSW（分层 NSW）</strong>：构建多层邻近图，从顶层到低层逐步收敛，时间复杂度近似对数级，能在十亿级规模下将延迟保持在几百毫秒。</li>
+</ol>
+<p>三大特性总结：</p>
+<ol>
+<li>搜索速度远超精确 kNN；</li>
+<li>返回近似最优解；</li>
+<li>依赖高质量的图构建（预处理耗时但可离线完成）。</li>
+</ol>
+<p>因此，ANN 是现代向量检索的核心基础。</p>
+<h2 id="_2">向量数据库</h2>
+<p><strong>向量数据库（Vector Database）</strong>专为高维向量的存储与 ANN 检索而设计，在语义搜索中优势明显。</p>
+<p>核心优化：</p>
+<ul>
+<li>高效构建邻近图（如 HNSW 索引）；</li>
+<li>快速计算向量距离；</li>
+<li>在大规模应用中保持高扩展性与低延迟。</li>
+</ul>
+<p>典型产品：<strong>Weaviate</strong>（开源，支持本地与云端），同时市面上还有 Milvus、Pinecone 等。</p>
+<p>操作流程：</p>
+<ol>
+<li><strong>配置数据库</strong>：连接或创建实例；</li>
+<li><strong>准备数据</strong>：生成稀疏向量（关键词搜索）和密集向量（语义搜索）；</li>
+<li><strong>创建索引</strong>：构建 ANN 所需结构；</li>
+<li><strong>添加数据</strong>：批量写入集合（如 <em>article</em>），自动生成语义向量并跟踪错误。</li>
+</ol>
+<p>支持的检索类型：</p>
+<ul>
+<li><strong>向量搜索</strong>（基于向量距离）；</li>
+<li><strong>关键词搜索</strong>（BM25 倒排索引）；</li>
+<li><strong>混合搜索</strong>（按权重结合语义与关键词结果）；</li>
+<li><strong>过滤查询</strong>（属性条件筛选）。</li>
+</ul>
+<p>流程总结：配置数据库 → 数据加载与索引 → 混合搜索 + 过滤。</p>
+<h2 id="_3">文本分块技术</h2>
+<p>虽然向量数据库已对向量检索高度优化，但在生产环境中，<strong>文本分块（chunking）</strong>依然是必需步骤。</p>
+<p>意义：</p>
+<ol>
+<li>嵌入模型有输入长度限制；</li>
+<li>分块能提升搜索相关性；</li>
+<li>仅将最相关片段传递给 LLM，节省上下文窗口。</li>
+</ol>
+<p>问题：若知识库中只有整本书的嵌入，检索相关性差且上下文占用过大。通过分块，可生成数百万片段向量，数据库能高效存储与检索。</p>
+<p>方法：</p>
+<ul>
+<li><strong>固定大小分块</strong>：如 250 字符/块，设置 10% 重叠，避免截断语义。</li>
+<li><strong>递归字符切分</strong>：优先按换行等标记切分，保持结构完整。</li>
+<li><strong>类型感知切分</strong>：HTML 按标签，代码按函数，文本按段落等。</li>
+</ul>
+<p>推荐默认方案：<strong>每块约 500 字符，重叠 50–100 字符</strong>。</p>
+<h2 id="_4">高级分块技术</h2>
+<p>基础分块可能破坏语义，因此出现了高级方法：</p>
+<ol>
+<li><strong>语义分块</strong>：逐句向量化，若与前块相似度高则合并，否则切分。优点是块更符合语义转折，缺点是计算量大。</li>
+<li><strong>LLM 分块</strong>：用语言模型直接根据语义和主题切分，黑箱但效果好，随着模型成本下降越来越可行。</li>
+<li><strong>上下文感知分块（chunk enrichment）</strong>：为每块生成摘要或上下文说明并与其一同嵌入，提升检索与生成效果。</li>
+</ol>
+<p>结论：多数系统使用固定或递归切分，语义/LLM 分块适合高质量场景；上下文感知分块可与任意方法叠加，常带来双重收益。</p>
+<h2 id="_5">查询语句解析</h2>
+<p>用户查询往往模糊或冗余，直接送入数据库效果差，因此需做<strong>查询解析</strong>。</p>
+<p>常见方法：</p>
+<ul>
+<li><strong>查询重写</strong>（推荐优先）：利用 LLM 将冗长自然语言转为结构化检索友好语句，常显著提升效果。</li>
+<li><strong>命名实体识别（NER）</strong>：抽取地点、人名、日期等实体，用于元数据过滤。</li>
+<li><strong>假设文档嵌入（HIDE）</strong>：生成理想搜索结果的假设文档，嵌入后与知识库匹配。</li>
+</ul>
+<p>经验：多数场景下，<strong>查询重写</strong>是性价比最高的必选步骤；NER 和 HIDE 更适合特定高精度场景。</p>
+<h2 id="colbert">交叉编码器与 ColBERT</h2>
+<p>三类语义检索架构：</p>
+<ul>
+<li><strong>基础编码器（bi-encoder）</strong>：查询与文档分别嵌入，依赖向量数据库搜索，速度快、存储小，但语境交互有限。</li>
+<li><strong>交叉编码器（cross-encoder）</strong>：提示与文档拼接输入模型，直接输出相关性分数，质量最佳但极慢，仅适合重排序。</li>
+<li><strong>ColBERT</strong>：文档与查询逐词嵌入，评分时逐词匹配相加，兼具交互性与效率，但存储需求极大。</li>
+</ul>
+<p>结论：</p>
+<ul>
+<li>默认用 bi-encoder；</li>
+<li>重排序用 cross-encoder；</li>
+<li>高精度场景（法律、医疗）可采用 ColBERT。</li>
+</ul>
+<h2 id="_6">检索结果重排序</h2>
+<p><strong>重排序（reranking）</strong>是在初始检索后、送入 LLM 前进行的关键步骤。</p>
+<p>流程：</p>
+<ol>
+<li>初始检索返回 20–100 个候选；</li>
+<li>用交叉编码器或 LLM 对候选重新打分；</li>
+<li>最终选取 5–10 个结果。</li>
+</ol>
+<p>优势：既利用 ANN 的高效性，又保证结果质量，显著提升相关性。</p>
+<p>工程实现：在大多数框架中，只需为查询添加参数即可启用重排序，改造成本低。实践表明，这是优化 RAG 时最值得优先尝试的手段之一。</p>
+<h2 id="_7">总结</h2>
+<p>本模块内容涵盖了从算法原理到生产优化的完整路径：</p>
+<ul>
+<li><strong>ANN 算法</strong>：以近似解换取高效搜索；</li>
+<li><strong>向量数据库</strong>：为高维向量检索而生，支撑大规模 RAG 系统；</li>
+<li>
+<p><strong>优化技术</strong>：</p>
+</li>
+<li>
+<p>文档分块：更细粒度语义捕捉 + 上下文节省；</p>
+</li>
+<li>查询解析：让自然语言提示更适配检索；</li>
+<li>重排序：用强模型精修候选结果。</li>
+</ul>
+<p>这些方法常与混合搜索组合使用，是大多数生产级系统的标准做法。进阶方法（语义分块、LLM 分块、HIDE 等）则适合在验证效果后引入。</p>
+<p>最终，学习者将把这些知识整合进完整的 RAG 系统，掌握从<strong>基础检索到性能优化</strong>的全链路技能。下一模块将转向 RAG 的另一核心：<strong>大语言模型</strong>，探索如何在检索结果基础上生成更优答案。</p>
+            </div>
+            <!-- /.entry-content -->
+    <hr/>
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+            var disqus_config = function () {
+                this.language = "zhs";
+
+                        this.page.identifier = '2025-09-22-deeplearning-ai-rag-course-intro-2';
+                        this.page.url = 'https://wizmann.top/deeplearning-ai-rag-course-intro-2.html';
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="https://github.com/wizmann"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="https://wizmann.top//feeds/all.atom.xml"><i class="fa fa-rss-square fa-lg"></i> rss</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://wizmann.top/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/cpp.html">cpp</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/algorithm.html">algorithm</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/suan-fa.html">算法</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/codeforces.html">codeforces</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/c.html">C++</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/fen-bu-shi-xi-tong.html">分布式系统</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/ti-jie.html">题解</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/udp.html">UDP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/cas.html">cas</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rpc.html">rpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-xi-tong.html">数据系统</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-ku.html">数据库</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/leetcode.html">Leetcode</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/interview.html">interview</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multithread.html">multithread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/jian-suo-zeng-qiang-sheng-cheng.html">检索增强生成</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xian-liao.html">闲聊</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rag.html">RAG</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/modern-cpp.html">modern cpp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/protocol.html">protocol</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multi-thread.html">multi-thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/yi-zhi-xing.html">一致性</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/networking.html">networking</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/storage.html">storage</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xin-xi-jian-suo.html">信息检索</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/stup.html">STUP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/distributed-system.html">Distributed System</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/phxrpc.html">phxrpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/memory-barrier.html">memory-barrier</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/system-design.html">System Design</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/thread.html">thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/llm.html">LLM</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/tcp.html">tcp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/duo-xian-cheng.html">多线程</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/gong-kai-ke.html">公开课</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spinpromela.html">SPIN/Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/promela.html">Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/storage-system.html">storage system</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/google.html">Google</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/bing-fa-bian-cheng.html">并发编程</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/induction.html">induction</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/raft.html">raft</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/ucontext.html">ucontext</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/paxos.html">paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cse351.html">CSE351</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cmpxchg.html">cmpxchg</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/basic-paxos.html">basic paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/solution.html">Solution</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/azure.html">azure</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/async.html">async</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/3d-printing.html">3D printing</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/shu-ju-mi-ji-xing-ying-yong-xi-tong.html">数据密集型应用系统</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spin.html">SPIN</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-mo-xing.html">数据模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yi-zhi-xing-xie-yi.html">一致性协议</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/zi-fu-chuan-zhong-xie-xi-tong.html">字符串重写系统</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-xing-dp.html">树形DP</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-bian-cheng.html">编译期编程</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/mutex.html">mutex</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yuan-lei.html">元类</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon.html">CppCon</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon2024.html">CppCon2024</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dda-yin.html">3D打印</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/led.html">LED</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nei-cun-mo-xing.html">内存模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-shi-wu.html">分布式事务</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/diy.html">DIY</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/excrt.html">excrt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/segment-tree.html">segment-tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-lian-pou-fen.html">树链剖分</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/an-quan-xing.html">安全性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dp.html">dp</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bing-fa.html">并发</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/qi-fa-shi-he-bing.html">启发式合并</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/semaphore.html">semaphore</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-gong-shi.html">分布式共识</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nosql.html">nosql</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/post.html">Post</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-bian-ma.html">数据编码</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/litmus.html">litmus</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fan-she.html">反射</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/si-suo.html">死锁</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/hash.html">hash</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/partitioning.html">partitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/xian-duan-shu.html">线段树</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/volatile.html">volatile</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-jie-gou.html">数据结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/ab.html">A=B</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/tu-ling-wan-bei-xing.html">图灵完备性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/suo-yin-jie-gou.html">索引结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/repartitioning.html">repartitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/thue.html">Thue</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/crt.html">crt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/herb-sutter.html">Herb Sutter</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/condition_variable.html">condition_variable</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dsu-on-tree.html">DSU on Tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/math.html">math</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-you-hua.html">编译器优化</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/deng-ju-she-ji.html">灯具设计</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dmo-xing.html">3D模型</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2025 Wizmann
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://wizmann.top/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://wizmann.top/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://wizmann.top/theme/js/respond.min.js"></script>
+
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-46053117-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+
+</body>
+</html>

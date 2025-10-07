@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="zhs" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>论文阅读-WiscKey：SSD友好的KV分离存储引擎 - Maerlyn's Rainbow</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <link href="https://wizmann.top/statistics/favicon.png" rel="icon">
+
+<link rel="canonical" href="https://wizmann.top/paper-wisckey.html">
+
+        <meta name="author" content="Wizmann" />
+        <meta name="keywords" content="wisckey,rocksdb,leveldb,lsm-tree,storage,system,storage system" />
+        <meta name="description" content="背景 基于LSM-Tree的存储引擎 Log-Structed Merge-Tree (a.k.a. LSM-Tree)是当下常用的一种基于磁盘的存储引擎。与Hash索引和B-Tree同为数据库核心的数据结构。 LSM-Tree的优势在于： 无需将所有的Key索引在内存中。可以通过分级查找的方式，查 …" />
+
+        <meta property="og:site_name" content="Maerlyn's Rainbow" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="论文阅读-WiscKey：SSD友好的KV分离存储引擎"/>
+        <meta property="og:url" content="https://wizmann.top/paper-wisckey.html"/>
+        <meta property="og:description" content="背景 基于LSM-Tree的存储引擎 Log-Structed Merge-Tree (a.k.a. LSM-Tree)是当下常用的一种基于磁盘的存储引擎。与Hash索引和B-Tree同为数据库核心的数据结构。 LSM-Tree的优势在于： 无需将所有的Key索引在内存中。可以通过分级查找的方式，查 …"/>
+        <meta property="article:published_time" content="2021-08-15" />
+            <meta property="article:section" content="Blog" />
+            <meta property="article:tag" content="wisckey" />
+            <meta property="article:tag" content="rocksdb" />
+            <meta property="article:tag" content="leveldb" />
+            <meta property="article:tag" content="lsm-tree" />
+            <meta property="article:tag" content="storage" />
+            <meta property="article:tag" content="system" />
+            <meta property="article:tag" content="storage system" />
+            <meta property="article:author" content="Wizmann" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://wizmann.top/theme/css/bootstrap.flatly.min.css" type="text/css"/>
+    <link href="https://wizmann.top/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://wizmann.top/theme/css/pygments/solarizedlight.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://wizmann.top/theme/css/style.css" type="text/css"/>
+
+        <link href="https://wizmann.top/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow ATOM Feed"/>
+
+        <link href="https://wizmann.top/feeds/blog.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow Blog ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://wizmann.top/" class="navbar-brand">
+Maerlyn's Rainbow            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="/category/blog.html">Blog</a></li>
+                    <li><a href="https://vijos.org/d/wizmann/p">Online Judge</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://wizmann.top/paper-wisckey.html"
+                       rel="bookmark"
+                       title="Permalink to 论文阅读-WiscKey：SSD友好的KV分离存储引擎">
+                        论文阅读-WiscKey：SSD友好的KV分离存储引擎
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2021-08-15T00:00:00+08:00"> 2021-08-15</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://wizmann.top/tag/wisckey.html">wisckey</a>
+        /
+	<a href="https://wizmann.top/tag/rocksdb.html">rocksdb</a>
+        /
+	<a href="https://wizmann.top/tag/leveldb.html">leveldb</a>
+        /
+	<a href="https://wizmann.top/tag/lsm-tree.html">lsm-tree</a>
+        /
+	<a href="https://wizmann.top/tag/storage.html">storage</a>
+        /
+	<a href="https://wizmann.top/tag/system.html">system</a>
+        /
+	<a href="https://wizmann.top/tag/storage-system.html">storage system</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h2 id="_1">背景</h2>
+<h3 id="lsm-tree">基于LSM-Tree的存储引擎</h3>
+<p>Log-Structed Merge-Tree (a.k.a. LSM-Tree)是当下常用的一种基于磁盘的存储引擎。与Hash索引和B-Tree同为数据库核心的数据结构。</p>
+<p>LSM-Tree的优势在于：</p>
+<ol>
+<li>无需将所有的Key索引在内存中。可以通过分级查找的方式，查询到特定KV在磁盘中的偏移量</li>
+<li>数据写入与合并使用顺序追加写，最大程度的利用磁盘的顺序写性能</li>
+<li>对于数据写入，会使用batch方式写入磁盘</li>
+<li>支持范围查询</li>
+</ol>
+<p>LSM-Tree的劣势在于：</p>
+<ol>
+<li>读放大与写放大</li>
+<li>无法对单条数据加锁（事务支持）</li>
+</ol>
+<p>现在常用的LevelDB和RocksDB，都是基于LSM-Tree的存储引擎。</p>
+<p><img alt="LSM-Tree-Architecture" src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/21-08-14/2021-08-14_18-00-50.png"></p>
+<h3 id="wisckey">WiscKey主要解决的问题</h3>
+<p>LSM-Tree在性能上面的瓶颈主要在于读写的放大。简单说来，假设你的磁盘最大带宽为4GB/s，读写放大倍数为10，那么在应用层的有效吞吐量（<a href="https://en.wikipedia.org/wiki/Goodput">Goodput</a>）最多只能达到400MB/s。并且，对于一些大数据集，读写放大的值有可能会非常大（大于100）。</p>
+<p>那么是什么原因导致的读写放大呢？我们下面分开讨论。</p>
+<h4 id="_2">读放大</h4>
+<p>我们重温一下LSM-Tree的查询机制：</p>
+<ol>
+<li>首先在mutable memtable中进行查找</li>
+<li>然后在immutable memtable中进行查找</li>
+<li>最后在不同的LSM-Tree层级中的SST file中进行查找</li>
+</ol>
+<p>对于1和2，都是内存操作，其耗时与读取磁盘相比可以忽略不计。<br>
+对于3，SST file文件的查找会先使用二分查找定位特定KV位于该层的哪一个SST文件中。</p>
+<p>如果特定的KV不存在于此SST文件中，会被常驻内存的bloom filter过滤掉，不会真正的读取文件。（大概率，bloom filter的原理了解一下）</p>
+<p>如果特定的KV在此SST文件中，会通过index block进行二分查找，确定KV位于哪个block。然后这个block会被从磁盘上读取到内存进行解压，最后通过二分+遍历找到对应的KV。</p>
+<blockquote>
+<p>论文里对于读放大的计算方法有点夸大了。对于RocksDB来说，一般情况下index block和bloom filter都是常驻内存的。除非是内存非常紧张的场景，否则并不会产生论文中如此夸张的磁盘读放大的。</p>
+</blockquote>
+<p>所以读放大主要因为读取一个KV，需要读取+解压整个block。当KV大小远小于block size的时候，问题会更加严重。</p>
+<h4 id="_3">写放大</h4>
+<p>我们再重温一个LSM-Tree的写入机制：<br>
+1. 首先写入mutable memtable<br>
+2. mutable memtable后续会被sealed，成为immutable memtable<br>
+3. immutable memtable会被flush到磁盘，成为L0<br>
+4. L0中的数据会在后台，逐层向下合并，直到合并到最底层</p>
+<p>层次数据逐层向下合并的过程中，必然会产生写放大。（具体原理这里不展开了）</p>
+<p>写放大值可以使用以下方法估算。已知<code>options.max_bytes_for_level_multiplier</code>代表每一层大小的倍数k，并且假设L0与L1的大小相等，总共有N层。那么写放大约为<code>(N - 1) * k + 1</code>。</p>
+<h2 id="_4">正文</h2>
+<blockquote>
+<p>入活了入活了！</p>
+</blockquote>
+<h3 id="wisckey_1">WiscKey的设计目标</h3>
+<ul>
+<li>降低写放大</li>
+<li>降低读放大</li>
+<li>对SSD进行优化</li>
+<li>提供LSM-Tree兼容的API</li>
+<li>针对现实场景的KV size</li>
+</ul>
+<h3 id="wisckeykv">WiscKey的设计思路——KV分离</h3>
+<p>在一般的场景中，在一对KV中，Key的大小远比Value的要小。如果我们在LSM-Tree中只保留Key，那么对于一次读写，我们所要处理的数据就会少很多，从而降低了读写放大。</p>
+<p>对于Value，我们会将其存储在另外一个数据结构vLog中。每一次查询，会在LSM-Tree中记录其在vLog中的<code>&lt;offset, length&gt;</code> 。这样一来，读取Value的操作也只有一次磁盘访问，并且不会产生写放大。</p>
+<p><img alt="WiscKey-data-layout" src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/21-08-14/2021-08-14_23-08-54.png"></p>
+<blockquote>
+<p>这里有一个疑问，如果按论文里面的设计，vLog里面的数据是不会打包的block进行压缩的，必然会损失capacity。如果打包压缩了，那么读放大并没有显著优化。又如果value size ≈ block size，那么其实在读放大上面的优化也就比较微弱了。</p>
+</blockquote>
+<h3 id="wisckey_2">WiscKey的设计挑战</h3>
+<h4 id="_5">并发范围查找</h4>
+<p>因为使用了KV分离的存储方式，所以范围查找（range query）对于value就会退化成很多次随机读取。</p>
+<p>但是由于SSD的并发读取特性，WiscKey会将所需要读取的value的<code>&lt;offset, length&gt;</code>放到一个队列中，多线程并发读取所需要的value。</p>
+<p><img alt="seq-rand-reads-on-ssd" src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/21-08-14/2021-08-14_23-42-44.png"></p>
+<p>如图所示，对于较大的value size，顺序读与并发读的throughput基本保持一致。</p>
+<p>但是多线程并发读会消耗更多的CPU。</p>
+<p><img alt="CPU-usage" src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/21-08-15/2021-08-15_16-02-21.png"></p>
+<blockquote>
+<p>不过对于一个存储系统来说，CPU大概是最不重要的资源了吧（见仁见智咯）</p>
+</blockquote>
+<h4 id="_6">垃圾回收</h4>
+<p>对于重复写入的KV，LSM-Tree会通过层次合并来将旧值换出。而WiscKey会使用垃圾回收机制来将旧值换出。</p>
+<p><img alt="vlog-data-layout" src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/21-08-15/2021-08-15_00-11-06.png"></p>
+<p>vLog可以视作一个循环数组，head指针表示数据的开头（较新的数据），tail指针表示数据的结尾（较旧的数据）。在head和tail指针之外的空间都视作free space。</p>
+<p>当空闲数据小于一定阈值之后，会触发GC。WiscKey会从tail依次读出一部分旧数据（batch read），查询LSM-Tree，如果这条数据已经被覆盖或删除，那么就丢弃此数据；否则从head指针处写入此条数据。</p>
+<p>为了保证在GC过程中的crash不产生数据的丢失，GC的流程为：</p>
+<ol>
+<li>将tail处的KV写入到head处，并调用<code>fsync()</code>将其持久化</li>
+<li>同步的将KV的新位置，和head/tail指针的最新位置写入LSM-Tree</li>
+</ol>
+<p>由于我们使用了LSM-Tree的WAL，可以保证所有在LSM-Tree里的数据都是可用的。</p>
+<h4 id="crash-consistency">崩溃一致性（Crash Consistency）</h4>
+<p>在垃圾回收一节中，我们其实已经遇到了一致性的问题。其根本原因，在于LSM-Tree和vLog是两个不同的模块，在其间保持一致性必然是困难的。</p>
+<p>WiscKey使用了现代文件系统（ext4，btrfs和xfs）的一个有趣特性，即对于一个（将要）写入文件的数据流，文件系统会保证这个数据流的一个前缀（或者整个数据流）成功写入文件。</p>
+<h3 id="wisckey_3">WiscKey的优化</h3>
+<h4 id="vlogbuffer">vLog写入Buffer</h4>
+<p><img alt="impact-of-write-unit-size" src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/21-08-15/2021-08-15_12-20-02.png"></p>
+<p>众所周知，磁盘的同步写入必然会带来一些overhead。对于小数据来说，这在性能上会产生严重的损耗。</p>
+<p>这里的优化类似于将vLog也添加一个memory table，所有写入vLog的数据都先写入这个memory table，然后依次flush到磁盘上。</p>
+<p>这样的优势在于将写入batch化，可以减少overhead，提升性能。劣势在于，在系统崩溃时，可能会丢失部分数据。但丢失数据时，仍能抱证上文提到的崩溃一致性。</p>
+<h4 id="lsm-tree-wal">优化LSM-Tree WAL</h4>
+<p>LSM-Tree的WAL虽然保证了写入的数据的持久性，但是不可避免的，它也会消耗磁盘的一部分带宽。</p>
+<p>关闭WAL，意味着LSM-Tree memtable在进程重启时一定会丢失数据。不过我们可以利用vLog重建LSM-Tree（的memtable部分）。</p>
+<p>由于vLog之中已经包括了所有的KV对，所以在WiscKey重启时，我们可以从head指针处扫描vLog的数据，由于崩溃一致性的保证，当指针扫描到已经存在于LSM-Tree的数据时，可以认为LSM-Tree已经重建成功。</p>
+<h4 id="_7">文件系统的优化</h4>
+<p>WiscKey使用<code>posix_fadvice()</code>向OS层预声明接下来vLog的操作类型以适应不同场景的磁盘访问模式。使用<code>fallocate()</code>，通过&rdquo;hole-punching&rdquo;功能进行GC，以减少数据的移动。</p>
+<h3 id="wisckey_4">WiscKey的性能</h3>
+<p>论文的最后给出了一系列数字。由于WiscKey的读写放大很小，所以在value size比较大的场景下（&gt;= 1KB），性能远优于传统LSM-Tree。同时，磁盘空间的使用也更友好。</p>
+<blockquote>
+<p>这里有一个疑问，论文里做microbenchmark的时候，对于LevelDB和RocksDB，是不是还开着压缩。。。</p>
+</blockquote>
+<h2 id="_8">后记</h2>
+<p>WiscKey应该是“LSM-Tree + KV分离”思路的比较早期的论文，其中仍有很多不明确的细节。但是整体思路是可行的。</p>
+<p>PingCAP的<a href="https://pingcap.com/zh/blog/titan-design-and-implementation">Titan</a>是一个基于WiscKey思想的RocksDB KV分离存储引擎。后续可以参考其实现再了解更多的实现思路与细节。</p>
+            </div>
+            <!-- /.entry-content -->
+    <hr/>
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+            var disqus_config = function () {
+                this.language = "zhs";
+
+                        this.page.identifier = '2021-08-15-paper-wisckey';
+                        this.page.url = 'https://wizmann.top/paper-wisckey.html';
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="https://github.com/wizmann"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="https://wizmann.top//feeds/all.atom.xml"><i class="fa fa-rss-square fa-lg"></i> rss</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://wizmann.top/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/cpp.html">cpp</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/algorithm.html">algorithm</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/suan-fa.html">算法</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/codeforces.html">codeforces</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/c.html">C++</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/fen-bu-shi-xi-tong.html">分布式系统</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/ti-jie.html">题解</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/udp.html">UDP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/cas.html">cas</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rpc.html">rpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-xi-tong.html">数据系统</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-ku.html">数据库</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/leetcode.html">Leetcode</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/interview.html">interview</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multithread.html">multithread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/jian-suo-zeng-qiang-sheng-cheng.html">检索增强生成</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xian-liao.html">闲聊</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rag.html">RAG</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/modern-cpp.html">modern cpp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/protocol.html">protocol</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multi-thread.html">multi-thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/yi-zhi-xing.html">一致性</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/networking.html">networking</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/storage.html">storage</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xin-xi-jian-suo.html">信息检索</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/stup.html">STUP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/distributed-system.html">Distributed System</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/phxrpc.html">phxrpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/memory-barrier.html">memory-barrier</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/system-design.html">System Design</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/thread.html">thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/llm.html">LLM</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/tcp.html">tcp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/duo-xian-cheng.html">多线程</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/gong-kai-ke.html">公开课</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spinpromela.html">SPIN/Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/promela.html">Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/storage-system.html">storage system</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/google.html">Google</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/bing-fa-bian-cheng.html">并发编程</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/induction.html">induction</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/raft.html">raft</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/ucontext.html">ucontext</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/paxos.html">paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cse351.html">CSE351</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cmpxchg.html">cmpxchg</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/basic-paxos.html">basic paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/solution.html">Solution</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/azure.html">azure</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/async.html">async</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/3d-printing.html">3D printing</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/shu-ju-mi-ji-xing-ying-yong-xi-tong.html">数据密集型应用系统</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spin.html">SPIN</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-mo-xing.html">数据模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yi-zhi-xing-xie-yi.html">一致性协议</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/zi-fu-chuan-zhong-xie-xi-tong.html">字符串重写系统</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-xing-dp.html">树形DP</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-bian-cheng.html">编译期编程</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/mutex.html">mutex</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yuan-lei.html">元类</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon.html">CppCon</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon2024.html">CppCon2024</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dda-yin.html">3D打印</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/led.html">LED</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nei-cun-mo-xing.html">内存模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-shi-wu.html">分布式事务</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/diy.html">DIY</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/excrt.html">excrt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/segment-tree.html">segment-tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-lian-pou-fen.html">树链剖分</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/an-quan-xing.html">安全性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dp.html">dp</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bing-fa.html">并发</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/qi-fa-shi-he-bing.html">启发式合并</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/semaphore.html">semaphore</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-gong-shi.html">分布式共识</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nosql.html">nosql</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/post.html">Post</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-bian-ma.html">数据编码</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/litmus.html">litmus</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fan-she.html">反射</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/si-suo.html">死锁</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/hash.html">hash</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/partitioning.html">partitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/xian-duan-shu.html">线段树</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/volatile.html">volatile</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-jie-gou.html">数据结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/ab.html">A=B</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/tu-ling-wan-bei-xing.html">图灵完备性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/suo-yin-jie-gou.html">索引结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/repartitioning.html">repartitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/thue.html">Thue</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/crt.html">crt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/herb-sutter.html">Herb Sutter</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/condition_variable.html">condition_variable</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dsu-on-tree.html">DSU on Tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/math.html">math</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-you-hua.html">编译器优化</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/deng-ju-she-ji.html">灯具设计</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dmo-xing.html">3D模型</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2025 Wizmann
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://wizmann.top/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://wizmann.top/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://wizmann.top/theme/js/respond.min.js"></script>
+
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-46053117-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+
+</body>
+</html>

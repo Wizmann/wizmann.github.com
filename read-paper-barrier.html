@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="zhs" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>内存屏障初探 - Maerlyn's Rainbow</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <link href="https://wizmann.top/statistics/favicon.png" rel="icon">
+
+<link rel="canonical" href="https://wizmann.top/read-paper-barrier.html">
+
+        <meta name="author" content="Wizmann" />
+        <meta name="keywords" content="cpp,memory-barrier,asm,multiprocess,multithread,thread,cocurrency" />
+        <meta name="description" content="原文地址 Barrier February 17th, 2007 前言：多核时代的挑战 尽管80核心的浮点运算巨兽仍然遥不可及，多核处理器的时代已经到来。多核处理器的概念并非新鲜事物，在Power Macintosh 9500中就已经采用了多核处理器技术 …" />
+
+        <meta property="og:site_name" content="Maerlyn's Rainbow" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="内存屏障初探"/>
+        <meta property="og:url" content="https://wizmann.top/read-paper-barrier.html"/>
+        <meta property="og:description" content="原文地址 Barrier February 17th, 2007 前言：多核时代的挑战 尽管80核心的浮点运算巨兽仍然遥不可及，多核处理器的时代已经到来。多核处理器的概念并非新鲜事物，在Power Macintosh 9500中就已经采用了多核处理器技术 …"/>
+        <meta property="article:published_time" content="2014-05-08" />
+            <meta property="article:section" content="Blog" />
+            <meta property="article:tag" content="cpp" />
+            <meta property="article:tag" content="memory-barrier" />
+            <meta property="article:tag" content="asm" />
+            <meta property="article:tag" content="multiprocess" />
+            <meta property="article:tag" content="multithread" />
+            <meta property="article:tag" content="thread" />
+            <meta property="article:tag" content="cocurrency" />
+            <meta property="article:author" content="Wizmann" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://wizmann.top/theme/css/bootstrap.flatly.min.css" type="text/css"/>
+    <link href="https://wizmann.top/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://wizmann.top/theme/css/pygments/solarizedlight.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://wizmann.top/theme/css/style.css" type="text/css"/>
+
+        <link href="https://wizmann.top/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow ATOM Feed"/>
+
+        <link href="https://wizmann.top/feeds/blog.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow Blog ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://wizmann.top/" class="navbar-brand">
+Maerlyn's Rainbow            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="/category/blog.html">Blog</a></li>
+                    <li><a href="https://vijos.org/d/wizmann/p">Online Judge</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://wizmann.top/read-paper-barrier.html"
+                       rel="bookmark"
+                       title="Permalink to 内存屏障初探">
+                        内存屏障初探
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2014-05-08T19:05:26+08:00"> 2014-05-08</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://wizmann.top/tag/cpp.html">cpp</a>
+        /
+	<a href="https://wizmann.top/tag/memory-barrier.html">memory-barrier</a>
+        /
+	<a href="https://wizmann.top/tag/asm.html">asm</a>
+        /
+	<a href="https://wizmann.top/tag/multiprocess.html">multiprocess</a>
+        /
+	<a href="https://wizmann.top/tag/multithread.html">multithread</a>
+        /
+	<a href="https://wizmann.top/tag/thread.html">thread</a>
+        /
+	<a href="https://wizmann.top/tag/cocurrency.html">cocurrency</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h2 id="_1">原文地址</h2>
+<p><a href="http://ridiculousfish.com/blog/posts/barrier.html">Barrier February 17th, 2007</a></p>
+<h2 id="_2">前言：多核时代的挑战</h2>
+<p>尽管80核心的浮点运算巨兽仍然遥不可及，多核处理器的时代已经到来。多核处理器的概念并非新鲜事物，在Power Macintosh 9500中就已经采用了多核处理器技术。现在，让我们深入理解多核处理器的内在机制。</p>
+<h2 id="_3">线程技术探讨</h2>
+<h3 id="_4">名词解释</h3>
+<h4 id="_5">线程</h4>
+<p>线程是一种拥有共享地址空间的、能被抢占式调度的执行上下文。</p>
+<h4 id="_6">多线程</h4>
+<p>多线程是一种用于简化控制流、绕过阻塞系统调用的方法，并不专门用于实现程序的并行化。</p>
+<h4 id="_7">并发多线程</h4>
+<p>物理上并行执行的线程，旨在通过利用多核处理器优化系统性能。</p>
+<h3 id="_8">“并发多线程”的挑战</h3>
+<p>尽管并发多线程被广泛讨论，其挑战并非源自自然原因，而是我们自己的设计选择所造成的。主要问题在于，针对单线程程序的过度优化在多线程环境中不再适用。</p>
+<p>具体来说，由于CPU的执行速度远超内存响应速度，我们开始对内存内容进行“预测”，从而避免CPU等待内存检查。这里的“预测”实际上是CPU和编译器对内存状态做出的越来越激进的假设。</p>
+<h2 id="_9">示例分析</h2>
+<h3 id="_10">写线程示例</h3>
+<div class="highlight"><pre><span></span><code><span class="c1">// 初始时 variable1 = variable2 = 0;</span>
+<span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">variable1</span><span class="o">++</span><span class="p">;</span>
+<span class="w">    </span><span class="n">variable2</span><span class="o">++</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="_11">读线程示例</h3>
+<div class="highlight"><pre><span></span><code><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">local2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">variable2</span><span class="p">;</span>
+<span class="w">    </span><span class="n">local1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">variable1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">local2</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">local1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">print</span><span class="p">(</span><span class="s">&quot;Error!&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>正常逻辑下，local2 应当始终小于或等于 local1，因为 variable1 总是在 variable2 之后增加。</p>
+<p>然而，现实是否如此？</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdio&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;ctime&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;pthread.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;sys/time.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;unistd.h&gt;</span>
+
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">std</span><span class="p">;</span>
+
+<span class="kt">unsigned</span><span class="w"> </span><span class="n">variable1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="kt">unsigned</span><span class="w"> </span><span class="n">variable2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="cp">#define ITERATIONS 200000000</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="nf">writer</span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">unused</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">variable1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">variable1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">        </span><span class="n">variable2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">variable2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="nf">reader</span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">unused</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">timeval</span><span class="w"> </span><span class="n">start</span><span class="p">,</span><span class="w"> </span><span class="n">end</span><span class="p">;</span>
+<span class="w">    </span><span class="n">gettimeofday</span><span class="p">(</span><span class="o">&amp;</span><span class="n">start</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">unsigned</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">failureCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">ITERATIONS</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">unsigned</span><span class="w"> </span><span class="n">v2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">variable2</span><span class="p">;</span>
+<span class="w">        </span><span class="kt">unsigned</span><span class="w"> </span><span class="n">v1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">variable1</span><span class="p">;</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">v2</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">v1</span><span class="p">)</span><span class="w"> </span><span class="n">failureCount</span><span class="o">++</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">gettimeofday</span><span class="p">(</span><span class="o">&amp;</span><span class="n">end</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">seconds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">end</span><span class="p">.</span><span class="n">tv_sec</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">end</span><span class="p">.</span><span class="n">tv_usec</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">1000000.</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="p">.</span><span class="n">tv_sec</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="p">.</span><span class="n">tv_usec</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">1000000.</span><span class="p">;</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;%u failure%s (%2.1f percent of the time) in %2.1f seconds</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span>
+<span class="w">           </span><span class="n">failureCount</span><span class="p">,</span><span class="w"> </span><span class="n">failureCount</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;s&quot;</span><span class="p">,</span>
+<span class="w">           </span><span class="p">(</span><span class="mf">100.</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">failureCount</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">ITERATIONS</span><span class="p">,</span><span class="w"> </span><span class="n">seconds</span><span class="p">);</span>
+<span class="w">    </span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">pthread_t</span><span class="w"> </span><span class="n">thread1</span><span class="p">,</span><span class="w"> </span><span class="n">thread2</span><span class="p">;</span>
+<span class="w">    </span><span class="n">pthread_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">thread1</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="n">writer</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<span class="w">    </span><span class="n">pthread_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">thread2</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="n">reader</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span><span class="w"> </span><span class="n">sleep</span><span class="p">(</span><span class="mi">1000000</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>输出结果：<code>0 failures (0.0 percent of the time) in 1.2 seconds</code></p>
+<h3 id="_12">貌似是正确的？</h3>
+<p>程序运行的正如我们预期的那样，那么我们可以确信程序是一定正确的吗？</p>
+<p>不能。</p>
+<p>因为程序中的两个线程如果在同一个CPU上被调度，我们永远都会得到正确的结果。</p>
+<h3 id="cpu">线程与不同的CPU进行绑定</h3>
+<div class="highlight"><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="nf">writer</span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">unused</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">cpu_set_t</span><span class="w"> </span><span class="n">cpuset</span><span class="p">;</span>
+<span class="w">    </span><span class="n">CPU_ZERO</span><span class="p">(</span><span class="o">&amp;</span><span class="n">cpuset</span><span class="p">);</span>
+<span class="w">    </span><span class="n">CPU_SET</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">cpuset</span><span class="p">);</span>
+<span class="w">    </span><span class="n">sched_setaffinity</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">cpuset</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">cpuset</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// ...</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="nf">reader</span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">unused</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">cpu_set_t</span><span class="w"> </span><span class="n">cpuset</span><span class="p">;</span>
+<span class="w">    </span><span class="n">CPU_ZERO</span><span class="p">(</span><span class="o">&amp;</span><span class="n">cpuset</span><span class="p">);</span>
+<span class="w">    </span><span class="n">CPU_SET</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">cpuset</span><span class="p">);</span>
+<span class="w">    </span><span class="n">sched_setaffinity</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">cpuset</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">cpuset</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// ...</span>
+<span class="p">}</span>
+
+<span class="c1">// p.s. 我机器是i5双核四线程，所以绑在了CPU0和CPU2上</span>
+</code></pre></div>
+
+<p>结果：<code>0 failures (0.0 percent of the time) in 1.4 seconds</code></p>
+<h3 id="_13">似乎仍然是准确的</h3>
+<p>尽管如此，我们考虑到CPU对变量的操作其实是作用在寄存器上，而variable1和variable2紧密相邻，这可能导致它们位于缓存的同一行。因此，它们有可能会同时被写入缓存并一起写回内存。</p>
+<p>为了观察不同的效果，我们尝试将这两个变量分别放置在堆和栈上。</p>
+<div class="highlight"><pre><span></span><code><span class="mf">0</span><span class="w"> </span><span class="n">failures</span><span class="w"> </span><span class="p">(</span><span class="mf">0.0</span><span class="w"> </span><span class="n">percent</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">time</span><span class="p">)</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="mf">1.2</span><span class="w"> </span><span class="n">seconds</span>
+<span class="mf">0</span><span class="w"> </span><span class="n">failures</span><span class="w"> </span><span class="p">(</span><span class="mf">0.0</span><span class="w"> </span><span class="n">percent</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">time</span><span class="p">)</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="mf">1.2</span><span class="w"> </span><span class="n">seconds</span>
+<span class="mf">2000000000</span><span class="w"> </span><span class="n">failures</span><span class="w"> </span><span class="p">(</span><span class="mf">100.0</span><span class="w"> </span><span class="n">percent</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">time</span><span class="p">)</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="mf">1.2</span><span class="w"> </span><span class="n">seconds</span>
+</code></pre></div>
+
+<p><strong>太感人了！</strong></p>
+<h3 id="_14">我们的敌人 —— 编译器</h3>
+<blockquote>
+<p>Multithreading bugs are very delicate.</p>
+</blockquote>
+<p>并行多线程的错误总是那么的奇妙，也许你的程序运行了几天安然无恙，但是在某一天某一时突然出现了难以复现的精妙bug。</p>
+<p>如果多个线程调度在同一个CPU核心上，Bug会被掩盖。  <br>
+如果多个变量在CPU同一行Cache上，Bug会被掩盖。  <br>
+如果你人品足够好的话，Bug同样会被掩盖。</p>
+<p>但是，如果我们排除了以上的情况后，问题就浮现出来了。</p>
+<p>我们来看一看reader的反汇编代码：</p>
+<div class="highlight"><pre><span></span><code><span class="p">(</span><span class="n">gdb</span><span class="p">)</span><span class="w"> </span><span class="n">disas</span><span class="w"> </span><span class="n">reader</span>
+<span class="n">Dump</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">assembler</span><span class="w"> </span><span class="n">code</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">function</span><span class="w"> </span><span class="n">reader</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="o">:</span>
+<span class="w">   </span><span class="mh">0x0000000000400950</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">0</span><span class="o">&gt;:</span><span class="w"> </span><span class="n">push</span><span class="w">   </span><span class="o">%</span><span class="n">rbx</span>
+<span class="w">   </span><span class="mh">0x0000000000400951</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">1</span><span class="o">&gt;:</span><span class="w"> </span><span class="k">xor</span><span class="w">    </span><span class="o">%</span><span class="n">eax</span><span class="p">,</span><span class="o">%</span><span class="n">eax</span>
+<span class="w">   </span><span class="mh">0x0000000000400953</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">3</span><span class="o">&gt;:</span><span class="w"> </span><span class="n">mov</span><span class="w">    </span><span class="n">$0x10</span><span class="p">,</span><span class="o">%</span><span class="n">ecx</span>
+<span class="w">   </span><span class="mh">0x0000000000400958</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">8</span><span class="o">&gt;:</span><span class="w"> </span><span class="n">mov</span><span class="w">    </span><span class="n">$0x80</span><span class="p">,</span><span class="o">%</span><span class="n">esi</span>
+<span class="w">   </span><span class="mh">0x000000000040095d</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">13</span><span class="o">&gt;:</span><span class="w">    </span><span class="k">xor</span><span class="w">    </span><span class="o">%</span><span class="n">ebx</span><span class="p">,</span><span class="o">%</span><span class="n">ebx</span>
+<span class="w">   </span><span class="mh">0x000000000040095f</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">15</span><span class="o">&gt;:</span><span class="w">    </span><span class="n">sub</span><span class="w">    </span><span class="n">$0xa0</span><span class="p">,</span><span class="o">%</span><span class="n">rsp</span>
+<span class="w">   </span><span class="mh">0x0000000000400966</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">22</span><span class="o">&gt;:</span><span class="w">    </span><span class="n">mov</span><span class="w">    </span><span class="o">%</span><span class="n">rsp</span><span class="p">,</span><span class="o">%</span><span class="n">rdi</span>
+<span class="w">   </span><span class="mh">0x0000000000400969</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">25</span><span class="o">&gt;:</span><span class="w">    </span><span class="n">mov</span><span class="w">    </span><span class="o">%</span><span class="n">rsp</span><span class="p">,</span><span class="o">%</span><span class="n">rdx</span>
+<span class="w">   </span><span class="mh">0x000000000040096c</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">28</span><span class="o">&gt;:</span><span class="w">    </span><span class="n">rep</span><span class="w"> </span><span class="n">stos</span><span class="w"> </span><span class="o">%</span><span class="n">rax</span><span class="p">,</span><span class="o">%</span><span class="n">es</span><span class="o">:</span><span class="p">(</span><span class="o">%</span><span class="n">rdi</span><span class="p">)</span>
+<span class="w">   </span><span class="mh">0x000000000040096f</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">31</span><span class="o">&gt;:</span><span class="w">    </span><span class="k">xor</span><span class="w">    </span><span class="o">%</span><span class="n">edi</span><span class="p">,</span><span class="o">%</span><span class="n">edi</span>
+<span class="w">   </span><span class="mh">0x0000000000400971</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">33</span><span class="o">&gt;:</span><span class="w">    </span><span class="n">movq</span><span class="w">   </span><span class="n">$0x4</span><span class="p">,(</span><span class="o">%</span><span class="n">rsp</span><span class="p">)</span>
+<span class="w">   </span><span class="mh">0x0000000000400979</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">41</span><span class="o">&gt;:</span><span class="w">    </span><span class="n">callq</span><span class="w">  </span><span class="mh">0x400790</span><span class="w"> </span><span class="o">&lt;</span><span class="n">sched_setaffinity</span><span class="err">@</span><span class="n">plt</span><span class="o">&gt;</span>
+<span class="w">   </span><span class="mh">0x000000000040097e</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">46</span><span class="o">&gt;:</span><span class="w">    </span><span class="n">lea</span><span class="w">    </span><span class="mh">0x80</span><span class="p">(</span><span class="o">%</span><span class="n">rsp</span><span class="p">),</span><span class="o">%</span><span class="n">rdi</span>
+<span class="w">   </span><span class="mh">0x0000000000400986</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">54</span><span class="o">&gt;:</span><span class="w">    </span><span class="k">xor</span><span class="w">    </span><span class="o">%</span><span class="n">esi</span><span class="p">,</span><span class="o">%</span><span class="n">esi</span>
+<span class="w">   </span><span class="mh">0x0000000000400988</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">56</span><span class="o">&gt;:</span><span class="w">    </span><span class="n">callq</span><span class="w">  </span><span class="mh">0x400710</span><span class="w"> </span><span class="o">&lt;</span><span class="n">gettimeofday</span><span class="err">@</span><span class="n">plt</span><span class="o">&gt;</span>
+<span class="w">   </span><span class="mh">0x000000000040098d</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">61</span><span class="o">&gt;:</span><span class="w">    </span><span class="n">mov</span><span class="w">    </span><span class="mh">0x2006e4</span><span class="p">(</span><span class="o">%</span><span class="n">rip</span><span class="p">),</span><span class="o">%</span><span class="n">rax</span><span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="mh">0x601078</span><span class="w"> </span><span class="o">&lt;</span><span class="n">variable2_p</span><span class="o">&gt;</span>
+<span class="w">   </span><span class="mh">0x0000000000400994</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">68</span><span class="o">&gt;:</span><span class="w">    </span><span class="n">mov</span><span class="w">    </span><span class="mh">0x2006e6</span><span class="p">(</span><span class="o">%</span><span class="n">rip</span><span class="p">),</span><span class="o">%</span><span class="n">edx</span><span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="mh">0x601080</span><span class="w"> </span><span class="o">&lt;</span><span class="n">variable1</span><span class="o">&gt;</span>
+<span class="w">   </span><span class="mh">0x000000000040099a</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">74</span><span class="o">&gt;:</span><span class="w">    </span><span class="n">mov</span><span class="w">    </span><span class="p">(</span><span class="o">%</span><span class="n">rax</span><span class="p">),</span><span class="o">%</span><span class="n">ecx</span>
+<span class="w">   </span><span class="mh">0x000000000040099c</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">76</span><span class="o">&gt;:</span><span class="w">    </span><span class="n">mov</span><span class="w">    </span><span class="n">$0x77359400</span><span class="p">,</span><span class="o">%</span><span class="n">eax</span>
+<span class="w">   </span><span class="mh">0x00000000004009a1</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">81</span><span class="o">&gt;:</span><span class="w">    </span><span class="n">nopl</span><span class="w">   </span><span class="mh">0x0</span><span class="p">(</span><span class="o">%</span><span class="n">rax</span><span class="p">)</span>
+<span class="w">   </span><span class="mh">0x00000000004009a8</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">88</span><span class="o">&gt;:</span><span class="w">    </span><span class="n">cmp</span><span class="w">    </span><span class="o">%</span><span class="n">ecx</span><span class="p">,</span><span class="o">%</span><span class="n">edx</span>
+<span class="w">   </span><span class="mh">0x00000000004009aa</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">90</span><span class="o">&gt;:</span><span class="w">    </span><span class="n">adc</span><span class="w">    </span><span class="n">$0x0</span><span class="p">,</span><span class="o">%</span><span class="n">ebx</span>
+<span class="w">   </span><span class="mh">0x00000000004009ad</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">93</span><span class="o">&gt;:</span><span class="w">    </span><span class="n">sub</span><span class="w">    </span><span class="n">$0x1</span><span class="p">,</span><span class="o">%</span><span class="n">eax</span>
+<span class="w">   </span><span class="mh">0x00000000004009b0</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">96</span><span class="o">&gt;:</span><span class="w">    </span><span class="n">jne</span><span class="w">    </span><span class="mh">0x4009a8</span><span class="w"> </span><span class="o">&lt;</span><span class="n">reader</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="o">+</span><span class="mi">88</span><span class="o">&gt;</span>
+<span class="w">   </span><span class="mh">0x00000000004009b2</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">98</span><span class="o">&gt;:</span><span class="w">    </span><span class="n">lea</span><span class="w">    </span><span class="mh">0x90</span><span class="p">(</span><span class="o">%</span><span class="n">rsp</span><span class="p">),</span><span class="o">%</span><span class="n">rdi</span>
+<span class="w">   </span><span class="mh">0x00000000004009ba</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">106</span><span class="o">&gt;:</span><span class="w">   </span><span class="k">xor</span><span class="w">    </span><span class="o">%</span><span class="n">esi</span><span class="p">,</span><span class="o">%</span><span class="n">esi</span>
+<span class="w">   </span><span class="mh">0x00000000004009bc</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">108</span><span class="o">&gt;:</span><span class="w">   </span><span class="n">callq</span><span class="w">  </span><span class="mh">0x400710</span><span class="w"> </span><span class="o">&lt;</span><span class="n">gettimeofday</span><span class="err">@</span><span class="n">plt</span><span class="o">&gt;</span>
+<span class="w">   </span><span class="mh">0x00000000004009c1</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">113</span><span class="o">&gt;:</span><span class="w">   </span><span class="n">cvtsi2sdq</span><span class="w"> </span><span class="mh">0x98</span><span class="p">(</span><span class="o">%</span><span class="n">rsp</span><span class="p">),</span><span class="o">%</span><span class="n">xmm0</span>
+<span class="w">   </span><span class="mh">0x00000000004009cb</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">123</span><span class="o">&gt;:</span><span class="w">   </span><span class="n">cvtsi2sdq</span><span class="w"> </span><span class="mh">0x90</span><span class="p">(</span><span class="o">%</span><span class="n">rsp</span><span class="p">),</span><span class="o">%</span><span class="n">xmm1</span>
+<span class="w">   </span><span class="mh">0x00000000004009d5</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">133</span><span class="o">&gt;:</span><span class="w">   </span><span class="n">movsd</span><span class="w">  </span><span class="mh">0x1a3</span><span class="p">(</span><span class="o">%</span><span class="n">rip</span><span class="p">),</span><span class="o">%</span><span class="n">xmm3</span><span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="mh">0x400b80</span>
+<span class="w">   </span><span class="mh">0x00000000004009dd</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">141</span><span class="o">&gt;:</span><span class="w">   </span><span class="n">mov</span><span class="w">    </span><span class="o">%</span><span class="n">ebx</span><span class="p">,</span><span class="o">%</span><span class="n">eax</span>
+<span class="w">   </span><span class="mh">0x00000000004009df</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">143</span><span class="o">&gt;:</span><span class="w">   </span><span class="n">cvtsi2sdq</span><span class="w"> </span><span class="mh">0x88</span><span class="p">(</span><span class="o">%</span><span class="n">rsp</span><span class="p">),</span><span class="o">%</span><span class="n">xmm2</span>
+<span class="w">   </span><span class="mh">0x00000000004009e9</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">153</span><span class="o">&gt;:</span><span class="w">   </span><span class="n">cmp</span><span class="w">    </span><span class="n">$0x1</span><span class="p">,</span><span class="o">%</span><span class="n">ebx</span>
+<span class="w">   </span><span class="mh">0x00000000004009ec</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">156</span><span class="o">&gt;:</span><span class="w">   </span><span class="n">mov</span><span class="w">    </span><span class="n">$0x400b3d</span><span class="p">,</span><span class="o">%</span><span class="n">ecx</span>
+<span class="w">   </span><span class="mh">0x00000000004009f1</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">161</span><span class="o">&gt;:</span><span class="w">   </span><span class="n">mov</span><span class="w">    </span><span class="n">$0x1</span><span class="p">,</span><span class="o">%</span><span class="n">edi</span>
+<span class="w">   </span><span class="mh">0x00000000004009f6</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">166</span><span class="o">&gt;:</span><span class="w">   </span><span class="n">divsd</span><span class="w">  </span><span class="o">%</span><span class="n">xmm3</span><span class="p">,</span><span class="o">%</span><span class="n">xmm0</span>
+<span class="w">   </span><span class="mh">0x00000000004009fa</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">170</span><span class="o">&gt;:</span><span class="w">   </span><span class="n">mov</span><span class="w">    </span><span class="o">%</span><span class="n">ebx</span><span class="p">,</span><span class="o">%</span><span class="n">edx</span>
+<span class="w">   </span><span class="mh">0x00000000004009fc</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">172</span><span class="o">&gt;:</span><span class="w">   </span><span class="n">mov</span><span class="w">    </span><span class="n">$0x400b40</span><span class="p">,</span><span class="o">%</span><span class="n">esi</span>
+<span class="w">   </span><span class="mh">0x0000000000400a01</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">177</span><span class="o">&gt;:</span><span class="w">   </span><span class="n">divsd</span><span class="w">  </span><span class="o">%</span><span class="n">xmm3</span><span class="p">,</span><span class="o">%</span><span class="n">xmm2</span>
+<span class="w">   </span><span class="mh">0x0000000000400a05</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">181</span><span class="o">&gt;:</span><span class="w">   </span><span class="n">addsd</span><span class="w">  </span><span class="o">%</span><span class="n">xmm0</span><span class="p">,</span><span class="o">%</span><span class="n">xmm1</span>
+<span class="w">   </span><span class="mh">0x0000000000400a09</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">185</span><span class="o">&gt;:</span><span class="w">   </span><span class="n">cvtsi2sdq</span><span class="w"> </span><span class="mh">0x80</span><span class="p">(</span><span class="o">%</span><span class="n">rsp</span><span class="p">),</span><span class="o">%</span><span class="n">xmm0</span>
+<span class="w">   </span><span class="mh">0x0000000000400a13</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">195</span><span class="o">&gt;:</span><span class="w">   </span><span class="n">subsd</span><span class="w">  </span><span class="o">%</span><span class="n">xmm0</span><span class="p">,</span><span class="o">%</span><span class="n">xmm1</span>
+<span class="w">   </span><span class="mh">0x0000000000400a17</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">199</span><span class="o">&gt;:</span><span class="w">   </span><span class="n">cvtsi2sd</span><span class="w"> </span><span class="o">%</span><span class="n">rax</span><span class="p">,</span><span class="o">%</span><span class="n">xmm0</span>
+<span class="w">   </span><span class="mh">0x0000000000400a1c</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">204</span><span class="o">&gt;:</span><span class="w">   </span><span class="n">mov</span><span class="w">    </span><span class="n">$0x400b3c</span><span class="p">,</span><span class="o">%</span><span class="n">eax</span>
+<span class="w">   </span><span class="mh">0x0000000000400a21</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">209</span><span class="o">&gt;:</span><span class="w">   </span><span class="n">cmovne</span><span class="w"> </span><span class="o">%</span><span class="n">rax</span><span class="p">,</span><span class="o">%</span><span class="n">rcx</span>
+<span class="w">   </span><span class="mh">0x0000000000400a25</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">213</span><span class="o">&gt;:</span><span class="w">   </span><span class="n">mov</span><span class="w">    </span><span class="n">$0x2</span><span class="p">,</span><span class="o">%</span><span class="n">eax</span>
+<span class="w">   </span><span class="mh">0x0000000000400a2a</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">218</span><span class="o">&gt;:</span><span class="w">   </span><span class="n">mulsd</span><span class="w">  </span><span class="mh">0x156</span><span class="p">(</span><span class="o">%</span><span class="n">rip</span><span class="p">),</span><span class="o">%</span><span class="n">xmm0</span><span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="mh">0x400b88</span>
+<span class="w">   </span><span class="mh">0x0000000000400a32</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">226</span><span class="o">&gt;:</span><span class="w">   </span><span class="n">subsd</span><span class="w">  </span><span class="o">%</span><span class="n">xmm2</span><span class="p">,</span><span class="o">%</span><span class="n">xmm1</span>
+<span class="w">   </span><span class="mh">0x0000000000400a36</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">230</span><span class="o">&gt;:</span><span class="w">   </span><span class="n">divsd</span><span class="w">  </span><span class="mh">0x152</span><span class="p">(</span><span class="o">%</span><span class="n">rip</span><span class="p">),</span><span class="o">%</span><span class="n">xmm0</span><span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="mh">0x400b90</span>
+<span class="w">   </span><span class="mh">0x0000000000400a3e</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">238</span><span class="o">&gt;:</span><span class="w">   </span><span class="n">callq</span><span class="w">  </span><span class="mh">0x400700</span><span class="w"> </span><span class="o">&lt;</span><span class="n">__printf_chk</span><span class="err">@</span><span class="n">plt</span><span class="o">&gt;</span>
+<span class="w">   </span><span class="mh">0x0000000000400a43</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">243</span><span class="o">&gt;:</span><span class="w">   </span><span class="k">xor</span><span class="w">    </span><span class="o">%</span><span class="n">edi</span><span class="p">,</span><span class="o">%</span><span class="n">edi</span>
+<span class="w">   </span><span class="mh">0x0000000000400a45</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">245</span><span class="o">&gt;:</span><span class="w">   </span><span class="n">callq</span><span class="w">  </span><span class="mh">0x4006f0</span><span class="w"> </span><span class="o">&lt;</span><span class="n">exit</span><span class="err">@</span><span class="n">plt</span><span class="o">&gt;</span>
+</code></pre></div>
+
+<p>简而言之，关键在以下几句：</p>
+<div class="highlight"><pre><span></span><code><span class="mh">0x000000000040098d</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">61</span><span class="o">&gt;:</span><span class="w">    </span><span class="n">mov</span><span class="w">    </span><span class="mh">0x2006e4</span><span class="p">(</span><span class="o">%</span><span class="n">rip</span><span class="p">),</span><span class="o">%</span><span class="n">rax</span><span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="mh">0x601078</span><span class="w"> </span><span class="o">&lt;</span><span class="n">variable2_p</span><span class="o">&gt;</span>
+<span class="mh">0x0000000000400994</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">68</span><span class="o">&gt;:</span><span class="w">    </span><span class="n">mov</span><span class="w">    </span><span class="mh">0x2006e6</span><span class="p">(</span><span class="o">%</span><span class="n">rip</span><span class="p">),</span><span class="o">%</span><span class="n">edx</span><span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="mh">0x601080</span><span class="w"> </span><span class="o">&lt;</span><span class="n">variable1</span><span class="o">&gt;</span>
+<span class="mh">0x000000000040099a</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">74</span><span class="o">&gt;:</span><span class="w">    </span><span class="n">mov</span><span class="w">    </span><span class="p">(</span><span class="o">%</span><span class="n">rax</span><span class="p">),</span><span class="o">%</span><span class="n">ecx</span>
+<span class="mh">0x000000000040099c</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">76</span><span class="o">&gt;:</span><span class="w">    </span><span class="n">mov</span><span class="w">    </span><span class="n">$0x77359400</span><span class="p">,</span><span class="o">%</span><span class="n">eax</span>
+<span class="mh">0x00000000004009a1</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">81</span><span class="o">&gt;:</span><span class="w">    </span><span class="n">nopl</span><span class="w">   </span><span class="mh">0x0</span><span class="p">(</span><span class="o">%</span><span class="n">rax</span><span class="p">)</span>
+<span class="mh">0x00000000004009a8</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">88</span><span class="o">&gt;:</span><span class="w">    </span><span class="n">cmp</span><span class="w">    </span><span class="o">%</span><span class="n">ecx</span><span class="p">,</span><span class="o">%</span><span class="n">edx</span>
+<span class="mh">0x00000000004009aa</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">90</span><span class="o">&gt;:</span><span class="w">    </span><span class="n">adc</span><span class="w">    </span><span class="n">$0x0</span><span class="p">,</span><span class="o">%</span><span class="n">ebx</span>
+<span class="mh">0x00000000004009ad</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">93</span><span class="o">&gt;:</span><span class="w">    </span><span class="n">sub</span><span class="w">    </span><span class="n">$0x1</span><span class="p">,</span><span class="o">%</span><span class="n">eax</span>
+<span class="mh">0x00000000004009b0</span><span class="w"> </span><span class="o">&lt;+</span><span class="mi">96</span><span class="o">&gt;:</span><span class="w">    </span><span class="n">jne</span><span class="w">    </span><span class="mh">0x4009a8</span><span class="w"> </span><span class="o">&lt;</span><span class="n">reader</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="o">+</span><span class="mi">88</span><span class="o">&gt;</span>
+</code></pre></div>
+
+<p>我们可以看出，循环体在+88～+96行，而对variable1与variable2的取值都放在了循环以外。</p>
+<blockquote>
+<p>注： <br>
+adc是带进位加法，adc $0x0, %ebx =&gt; %ebx = $0x0 + %ebx + CF  <br>
+cmp的结果正是放在CF（大于表示为溢出），ZF（相等表示为0），PF（小于表示为-1,则低8位全为1,故有偶数个1）</p>
+</blockquote>
+<p>正是这个“小意外”，导致了我们的结果要不是100%正确，要不是100%错误。</p>
+<h4 id="volitile">使用volitile（？）</h4>
+<p>让我们修改一下代码：</p>
+<div class="highlight"><pre><span></span><code><span class="k">volatile</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="n">variable1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="k">volatile</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="o">*</span><span class="n">variable2_p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+<span class="cp">#define ITERATIONS 500000000LL </span><span class="c1">// 调小一下数据规模，因为volatile太慢了_(:з」∠)_</span>
+</code></pre></div>
+
+<p>我得出的来的结果是：</p>
+<div class="highlight"><pre><span></span><code><span class="mf">0</span><span class="w"> </span><span class="n">failures</span><span class="w"> </span><span class="p">(</span><span class="mf">0.0</span><span class="w"> </span><span class="n">percent</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">time</span><span class="p">)</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="mf">9.6</span><span class="w"> </span><span class="n">seconds</span>
+</code></pre></div>
+
+<p>而作者得出的结果是：<br>
+（时间上的差异不计，因为我们的数据规模不一样，我实验的次数要多一些。</p>
+<div class="highlight"><pre><span></span><code>fish ) ./a.out
+12462711 failures (24.9 percent of the time) in 3.7 seconds
+</code></pre></div>
+
+<p>从作者的结果来看，看起来效果好了很多，虽然慢了30多倍，但是结果并不是全对全错了。</p>
+<p>而从我的结果来看，volatile看似神丹妙药，解决了所有的问题。(both g++ and clang++)</p>
+<p><strong>这是为什么呢?</strong></p>
+<p>其原因在于体系结构的差异。volatile只能保证如下两点：</p>
+<ul>
+<li>volatile变量的访问不会优化成寄存器访问，而是每次都去访问“内存”（这个引号一会再解释）</li>
+<li>volatile变量间的访问顺序不会被编译器乱序</li>
+</ul>
+<p>而其他的一切，volatile和编译器都不会给出任何保证。</p>
+<p>例如，不同的CPU都有其内部的私有Cache，CPU的内存访问，如果命中了Cache，则不会真正的访问内存。但由于其私有Cache对于其它的CPU是不可见的，使用volatile就埋下的Bug的种子。</p>
+<p>虽然在我们的实验中，程序运行的很好，没有出现Bug。但是，一是由于多线程的Bug都是subtle和delicate的，我不能保证在一个需要7x24工作的服务器程序中，它不会出现任何Bug；二是至少我们的代码是<strong> not portable </strong>的，如果有一天，我们从x86-64平台切换到了<code>PowerPC</code>？或是<code>IA64</code>？我们不能保证在这些体系结构上，编译器和CPU能为我们提供同样的保障。</p>
+<p>于是有人高声疾呼： volatile不能用来做为多线程的同步机制！</p>
+<blockquote>
+<p>补充于20240317：在一台老旧的安卓手机上重复了实验，volatile确实无法提供相关的保障</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code>~/tmp $ clang++ -O2 a.cc &amp;&amp; ./a.out
+99880586 failures (49.9 percent of the time) in 3.0 seconds
+</code></pre></div>
+
+<h4 id="cpu_1">小心CPU的行为</h4>
+<p>在先前的实验中，尽管程序的表现与预期一致，但我们无法确保CPU将始终按顺序执行代码。实际上，CPU可能会对操作顺序进行优化，例如，将var1++和var2++的执行顺序调换，这在当前主流的CPU中是常见的做法。</p>
+<p>值得注意的是，由于乱序执行会导致功耗增加，某些处理器如ARM和Intel Atom已经取消了这一机制。然而，我们无法预知未来代码可能会在哪种硬件架构上运行，例如ARM集群，这需要我们保持警惕。</p>
+<h4 id="_15">避免使用锁</h4>
+<p>通常情况下，通过引入互斥锁（mutex）似乎能够解决并发问题。然而，根据作者的测试，引入互斥锁可能会导致程序速度降低至原来的1/130，而自旋锁（spinlock）也可能使得速度降低至原来的1/4。</p>
+<p>因此，我们应该暂缓，仔细考虑作者接下来的建议。</p>
+<h3 id="_16">内存屏障的应用</h3>
+<p>在多CPU环境中，处理器往往独立运行，不会协调彼此的操作。</p>
+<p>目前，我们面临两个并不理想的解决方案：一是将所有线程限制在单个CPU上运行，二是通过引入重量级锁来同步操作。这些方法都不尽人意，且效率低下。</p>
+<p>实际上，我们需要做的是，通过内存屏障技术，暂时阻止编译器或CPU对程序中的数据读写操作进行重排序。</p>
+<div class="highlight"><pre><span></span><code><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">variable1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">variable1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="n">barrier</span><span class="p">();</span>
+<span class="w">    </span><span class="o">*</span><span class="n">variable2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">*</span><span class="n">variable2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>这样我们保证了，在var1++必然早于var2++。var2++后面也可以加一道barrier，只不过在我们的场景下，提供这种保证是不必须的。</p>
+<p>作者又做了一次试验。</p>
+<div class="highlight"><pre><span></span><code>fish ) ./a.out
+260 failures (0.0 percent of the time) in 0.9 seconds
+</code></pre></div>
+
+<p>这次且错误减少了许多。</p>
+<p>我们再把读线程写加上memory barrier.</p>
+<div class="highlight"><pre><span></span><code><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">ITERATIONS</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">unsigned</span><span class="w"> </span><span class="n">v2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">*</span><span class="n">variable2</span><span class="p">;</span>
+<span class="w">    </span><span class="n">barrier</span><span class="p">();</span>
+<span class="w">    </span><span class="kt">unsigned</span><span class="w"> </span><span class="n">v1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">variable1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">v2</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">v1</span><span class="p">)</span><span class="w"> </span><span class="n">failureCount</span><span class="o">++</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>看看结果：</p>
+<div class="highlight"><pre><span></span><code>fish ) ./a.out
+0 failures (0.0 percent of the time) in 4.2 seconds
+</code></pre></div>
+
+<p>程序表现出了正确的结果。</p>
+<p>我们可以看出，如果你对线程A的读写顺序做出要求，必然的，你也要对线程B的顺序做要求，以此类推，线程C，线程D……</p>
+<p>所以，<strong>Memory barriers always come in pairs, or triplets or more.</strong></p>
+<p>同样的，线程锁也是这样的，自己锁自己总不是一种愉快的体验（笑</p>
+<h3 id="cpu_2">CPU的乱序执行</h3>
+<p>我们可以看到PowerPC有三种内存屏障，而DEC Alpha平台有更多。这意味着，CPU使用更激进的策略来重排指令，而强制限制其重排的代价是非常高的。</p>
+<p>而x86平台则非常守序，作者猜测其原因是由于早期x86的指令技术并非完善，而在那时内存与CPU的速度不像现在这样悬殊，所以x86使用了<code>strongly ordered memory</code>而非像上面几款CPU一样的采用过多的指令重排序。如今，由于x86背上了向前兼容性的包袱，看似我们的&rdquo;好日子&rdquo;一直不会结束。</p>
+<p>x86-64，做为x86的64位升级版，同样没有实现<code>weakly ordered</code>，或者说，保留了实现<code>weakly ordered</code>的权利。而<code>IA64</code>平台，如<code>Itanium</code>，则实现了<code>weakly ordered</code>。</p>
+<p>作者猜测x86_64之所以保守，是为了与IA64平台对抗。x86_64的对于x86良好的兼容性可以让程序员多活几年，所以x86_64在市场的表现更好。</p>
+<p>作者还表示，而苹果放弃IA64平台转投x86-64多少有一些可惜，因为苹果并没有移植性问题，PowerPC已经逐渐衰落，为什么不试试IA64呢。</p>
+<p>实际上，根据Wikipedia，现在支持IA64的操作系统非常少，只有WinNT Family，Red Hat Linux，Debian/Gentoo/Suse以及其它。而从Windows Server 2008 R2之后，Microsoft也表示不再支持Itanium。所以从现在看来，IA64平台相对x86/x64来说，是失败的。</p>
+<h3 id="_17">双重检查锁</h3>
+<p>让我们看一下如下的Obj-C代码</p>
+<div class="highlight"><pre><span></span><code><span class="p">+</span> <span class="nf">getSharedObject</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">id</span><span class="w"> </span><span class="n">sharedObject</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="w"> </span><span class="n">sharedObject</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">LOCK</span><span class="p">;</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="w"> </span><span class="n">sharedObject</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">sharedObject</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[[</span><span class="nb">self</span><span class="w"> </span><span class="n">alloc</span><span class="p">]</span><span class="w"> </span><span class="n">init</span><span class="p">];</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="n">UNLOCK</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">sharedObject</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>这是非常经典的一种DCLP(Double Checked Lock Pattern)的实现。</p>
+<p>这个看起来不错，但是你已经知道这并不靠谱了。当我们初始化我们的共享单例，先要再修改类内的指针，使其指向一块声明好的内存，再初始化一个sharedObject的instance。</p>
+<p>不过，你是知道的，CPU和编译器会把一切都搞砸，它们会以任意的顺序执行我们的命令，同时处理器之间互相不通气，于是就会出现如下的情况：</p>
+<p>线程A为指针声明了一段空间，但是还没来及初始化这个instance，线程A就被挂起了。</p>
+<p>之后线程B接管一切，发现指针有值，结果因为访问了野指针导致程序挂掉。</p>
+<p>不过根据上面的文章，你们应该知道怎么处理这个问题了 —— 试试内存屏障！</p>
+<p>p.s. 如果大家对obj-c不熟悉的话，可以看我另外一篇文章。那篇文章是关于Scott Meyers大神写的一篇论文，专门用来讨论DCLP问题的。</p>
+<div class="highlight"><pre><span></span><code><span class="p">+</span> <span class="nf">getSharedObject</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">id</span><span class="w"> </span><span class="n">sharedObject</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="w"> </span><span class="n">sharedObject</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">LOCK</span><span class="p">;</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="w"> </span><span class="n">sharedObject</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kt">id</span><span class="w"> </span><span class="n">temp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[[</span><span class="nb">self</span><span class="w"> </span><span class="n">alloc</span><span class="p">]</span><span class="w"> </span><span class="n">init</span><span class="p">];</span>
+<span class="w">            </span><span class="n">OSMemoryBarrier</span><span class="p">();</span>
+<span class="w">            </span><span class="n">sharedObject</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">temp</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="n">UNLOCK</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">OSMemoryBarrier</span><span class="p">();</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">sharedObject</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>而在《C++ and the Perils of Double-Checked Locking》一文中，Scott Meyers和Andrei Alexandrescu给出的解决方案如下。</p>
+<div class="highlight"><pre><span></span><code><span class="n">Singleton</span><span class="o">*</span><span class="w"> </span><span class="nf">Singleton::instance</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">Singleton</span><span class="o">*</span><span class="w"> </span><span class="n">tmp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pInstance</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// insert memory barrier</span>
+<span class="w">    </span><span class="c1">// clear the cache to flush ``pInstance``</span>
+<span class="w">    </span><span class="c1">// prevents &quot;downwards migration&quot; of Singleton’s construction (by another thread);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tmp</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">Lock</span><span class="w"> </span><span class="n">lock</span><span class="p">;</span>
+<span class="w">        </span><span class="n">tmp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pInstance</span><span class="p">;</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tmp</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">tmp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Singleton</span><span class="p">;</span>
+<span class="w">            </span><span class="c1">// insert memory barrier</span>
+<span class="w">            </span><span class="c1">// prevent optimistic that eliminate the temporary variable ``tmp``</span>
+<span class="w">            </span><span class="c1">// prevents &quot;upwards migration&quot; of pInstance’s initialization</span>
+<span class="w">            </span><span class="n">pInstance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tmp</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w">  </span><span class="n">tmp</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>两种解决方案的memory barrier插入的位置不同。但是都不能说是错的。因为一个是传static instance，一个是传pointer。</p>
+<p>其实还有更“暴力”的方法。</p>
+<p>直接来一把大锁，哐当把整个函数锁起来，并且在每一个线程内保留一个<strong>本线程专属</strong>指向单例的指针（做cache）。这样N个线程只需要调用这个函数N次，线程竞争也相对少很多。并且根据Linux下的futex技术，无竞争下的锁相对节省了不少资源。</p>
+<div class="highlight"><pre><span></span><code><span class="n">Singleton</span><span class="o">*</span><span class="w"> </span><span class="nf">Singleton::instance</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">Lock</span><span class="w"> </span><span class="n">lock</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">pInstance</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">pInstance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Singleton</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">pInstance</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="_18">我们真的需要这么做吗</h3>
+<p>上面的obj-c代码中，保证双重检查锁正确的，其实是第二个内存屏障。但是，在那里，我们需要的其实是一个&rdquo;data dependency barrier&rdquo;。</p>
+<p>Linux内核中给出很多经过精心优化的内存屏障，我们在这里可以使用。不过，要在使用的时候写好注释，一是为了未来的验证，二是为了记录自己当时的思路。</p>
+<p>毕竟多线程的操作要小心再小心，我们需要充足的理由，更多的小心来应对。</p>
+<div class="highlight"><pre><span></span><code><span class="p">+</span> <span class="nf">getSharedObject</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">id</span><span class="w"> </span><span class="n">sharedObject</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="w"> </span><span class="n">sharedObject</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">LOCK</span><span class="p">;</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="w"> </span><span class="n">sharedObject</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kt">id</span><span class="w"> </span><span class="n">temp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[[</span><span class="nb">self</span><span class="w"> </span><span class="n">alloc</span><span class="p">]</span><span class="w"> </span><span class="n">init</span><span class="p">];</span>
+<span class="w">            </span><span class="n">OSMemoryBarrier</span><span class="p">();</span>
+<span class="w">            </span><span class="n">sharedObject</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">temp</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="n">UNLOCK</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="cm">/* data dependency memory barrier here */</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">sharedObject</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="_19">一切都结束了吗？</h3>
+<p>是的。不过让我们总结一下吧。</p>
+<p><img alt="Mutex Tank" src="https://github.com/Wizmann/assets/raw/master/wizmann-tk-pic/barrier_tank.png"></p>
+<ul>
+<li>处理器和编译器并不能充分保证代码执行的顺序，它们会把你的代码到处移动。所以<strong>Be warned and wary!</strong></li>
+<li>多线程的错误是非常subtle和delicate的，所以我们很难设计测试用例</li>
+<li>因此，别指责QA了，他们也不是故意的。RD要对自己的代码负责</li>
+<li>锁很安全，但是也很重</li>
+<li>内存屏障是一种更快的，不阻塞的，不会死锁的一种锁的替代物。它们总要花费更多的心思，并且也不是到处可用的银弹。但是它确实很快，有更好的伸缩性。</li>
+<li>内存屏障往往是成对出现的。了解第二个内存屏障要出现在哪里，有助于你理解你的代码，即使你所使用的体系结构不需要第二个内存屏障。</li>
+</ul>
+<h3 id="_20">扩展阅读</h3>
+<p><a href="https://www.kernel.org/doc/Documentation/memory-barriers.txt">LINUX KERNEL MEMORY BARRIERS</a></p>
+<p><a href="http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.17.8112">Memory Consistency and Event Ordering in Scalable Shared-Memory Multiprocessors</a></p>
+            </div>
+            <!-- /.entry-content -->
+    <hr/>
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+            var disqus_config = function () {
+                this.language = "zhs";
+
+                        this.page.identifier = '2014-05-08-read-paper-barrier';
+                        this.page.url = 'https://wizmann.top/read-paper-barrier.html';
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="https://github.com/wizmann"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="https://wizmann.top//feeds/all.atom.xml"><i class="fa fa-rss-square fa-lg"></i> rss</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://wizmann.top/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/cpp.html">cpp</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/algorithm.html">algorithm</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/suan-fa.html">算法</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/codeforces.html">codeforces</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/c.html">C++</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/fen-bu-shi-xi-tong.html">分布式系统</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/ti-jie.html">题解</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/udp.html">UDP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/cas.html">cas</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rpc.html">rpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-xi-tong.html">数据系统</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-ku.html">数据库</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/leetcode.html">Leetcode</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/interview.html">interview</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multithread.html">multithread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/jian-suo-zeng-qiang-sheng-cheng.html">检索增强生成</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xian-liao.html">闲聊</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rag.html">RAG</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/modern-cpp.html">modern cpp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/protocol.html">protocol</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multi-thread.html">multi-thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/yi-zhi-xing.html">一致性</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/networking.html">networking</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/storage.html">storage</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xin-xi-jian-suo.html">信息检索</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/stup.html">STUP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/distributed-system.html">Distributed System</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/phxrpc.html">phxrpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/memory-barrier.html">memory-barrier</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/system-design.html">System Design</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/thread.html">thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/llm.html">LLM</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/tcp.html">tcp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/duo-xian-cheng.html">多线程</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/gong-kai-ke.html">公开课</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spinpromela.html">SPIN/Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/promela.html">Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/storage-system.html">storage system</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/google.html">Google</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/bing-fa-bian-cheng.html">并发编程</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/induction.html">induction</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/raft.html">raft</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/ucontext.html">ucontext</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/paxos.html">paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cse351.html">CSE351</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cmpxchg.html">cmpxchg</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/basic-paxos.html">basic paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/solution.html">Solution</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/azure.html">azure</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/async.html">async</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/3d-printing.html">3D printing</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/shu-ju-mi-ji-xing-ying-yong-xi-tong.html">数据密集型应用系统</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spin.html">SPIN</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-mo-xing.html">数据模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yi-zhi-xing-xie-yi.html">一致性协议</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/zi-fu-chuan-zhong-xie-xi-tong.html">字符串重写系统</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-xing-dp.html">树形DP</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-bian-cheng.html">编译期编程</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/mutex.html">mutex</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yuan-lei.html">元类</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon.html">CppCon</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon2024.html">CppCon2024</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dda-yin.html">3D打印</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/led.html">LED</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nei-cun-mo-xing.html">内存模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-shi-wu.html">分布式事务</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/diy.html">DIY</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/excrt.html">excrt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/segment-tree.html">segment-tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-lian-pou-fen.html">树链剖分</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/an-quan-xing.html">安全性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dp.html">dp</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bing-fa.html">并发</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/qi-fa-shi-he-bing.html">启发式合并</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/semaphore.html">semaphore</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-gong-shi.html">分布式共识</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nosql.html">nosql</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/post.html">Post</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-bian-ma.html">数据编码</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/litmus.html">litmus</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fan-she.html">反射</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/si-suo.html">死锁</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/hash.html">hash</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/partitioning.html">partitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/xian-duan-shu.html">线段树</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/volatile.html">volatile</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-jie-gou.html">数据结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/ab.html">A=B</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/tu-ling-wan-bei-xing.html">图灵完备性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/suo-yin-jie-gou.html">索引结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/repartitioning.html">repartitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/thue.html">Thue</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/crt.html">crt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/herb-sutter.html">Herb Sutter</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/condition_variable.html">condition_variable</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dsu-on-tree.html">DSU on Tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/math.html">math</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-you-hua.html">编译器优化</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/deng-ju-she-ji.html">灯具设计</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dmo-xing.html">3D模型</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2025 Wizmann
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://wizmann.top/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://wizmann.top/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://wizmann.top/theme/js/respond.min.js"></script>
+
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-46053117-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+
+</body>
+</html>

@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="zhs" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>白话一致性协议 - Paxos、Raft和PacificA[1] - Maerlyn's Rainbow</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <link href="https://wizmann.top/statistics/favicon.png" rel="icon">
+
+<link rel="canonical" href="https://wizmann.top/paxos-raft-pecifaca[1].html">
+
+        <meta name="author" content="Wizmann" />
+        <meta name="keywords" content="paxos,basic paxos,multi paxos,raft,数据库,分布式系统,一致性" />
+        <meta name="description" content="书接上文 - Multi Paxos 在上一篇文章中，我们提到了Basic Paxos和Multi Paxos的异同。在Paxos Made Simple论文中，作者提到了Multi Paxos的一种实现。这个实现允许我们对一个连续的数 …" />
+
+        <meta property="og:site_name" content="Maerlyn's Rainbow" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="白话一致性协议 - Paxos、Raft和PacificA[1]"/>
+        <meta property="og:url" content="https://wizmann.top/paxos-raft-pecifaca[1].html"/>
+        <meta property="og:description" content="书接上文 - Multi Paxos 在上一篇文章中，我们提到了Basic Paxos和Multi Paxos的异同。在Paxos Made Simple论文中，作者提到了Multi Paxos的一种实现。这个实现允许我们对一个连续的数 …"/>
+        <meta property="article:published_time" content="2018-12-05" />
+            <meta property="article:section" content="Blog" />
+            <meta property="article:tag" content="paxos" />
+            <meta property="article:tag" content="basic paxos" />
+            <meta property="article:tag" content="multi paxos" />
+            <meta property="article:tag" content="raft" />
+            <meta property="article:tag" content="数据库" />
+            <meta property="article:tag" content="分布式系统" />
+            <meta property="article:tag" content="一致性" />
+            <meta property="article:author" content="Wizmann" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://wizmann.top/theme/css/bootstrap.flatly.min.css" type="text/css"/>
+    <link href="https://wizmann.top/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://wizmann.top/theme/css/pygments/solarizedlight.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://wizmann.top/theme/css/style.css" type="text/css"/>
+
+        <link href="https://wizmann.top/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow ATOM Feed"/>
+
+        <link href="https://wizmann.top/feeds/blog.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow Blog ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://wizmann.top/" class="navbar-brand">
+Maerlyn's Rainbow            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="/category/blog.html">Blog</a></li>
+                    <li><a href="https://vijos.org/d/wizmann/p">Online Judge</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://wizmann.top/paxos-raft-pecifaca[1].html"
+                       rel="bookmark"
+                       title="Permalink to 白话一致性协议 - Paxos、Raft和PacificA[1]">
+                        白话一致性协议 - Paxos、Raft和PacificA[1]
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2018-12-05T00:00:00+08:00"> 2018-12-05</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://wizmann.top/tag/paxos.html">paxos</a>
+        /
+	<a href="https://wizmann.top/tag/basic-paxos.html">basic paxos</a>
+        /
+	<a href="https://wizmann.top/tag/multi-paxos.html">multi paxos</a>
+        /
+	<a href="https://wizmann.top/tag/raft.html">raft</a>
+        /
+	<a href="https://wizmann.top/tag/shu-ju-ku.html">数据库</a>
+        /
+	<a href="https://wizmann.top/tag/fen-bu-shi-xi-tong.html">分布式系统</a>
+        /
+	<a href="https://wizmann.top/tag/yi-zhi-xing.html">一致性</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h2 id="-multi-paxos">书接上文 - Multi Paxos</h2>
+<p>在上一篇文章中，我们提到了Basic Paxos和Multi Paxos的异同。在<a href="https://lamport.azurewebsites.net/pubs/paxos-simple.pdf">Paxos Made Simple</a>论文中，作者提到了Multi Paxos的一种实现。这个实现允许我们对一个连续的数据流（也可以称为复制日志，replicated log）达成共识，从而实现节点状态的一致性复制。</p>
+<h3 id="_1">确定性状态机</h3>
+<p>我们可以将系统中的每一个节点抽象为一个有着确定性状态机，即给定多个状态一致的状态机，在执行同一个命令之后，其状态仍保持一致。（可以想一想编译原理里面的DFA）</p>
+<h3 id="leader-proposer">Leader - 系统中唯一的proposer</h3>
+<p>如果系统中存在有多个proposer，那么就很可能会出现多个提案相互干扰的情况。虽然根据证明，最终这些提案都会收敛到一致，但是性能会非常低下。所以我们可以在系统中通过选举，选出一个leader做为主proposer（distinguishied proposer），所有的提案都由leader提出。</p>
+<p>这样一来，在绝大多数情况下都不会出现提案相互干扰的情况。只有在leader切换的瞬间，可能会出现相同编号的不同提案，但是我们的算法可以很好的处理这种情况。</p>
+<h3 id="tcp">分布式系统中的“TCP”</h3>
+<p>类似于TCP协议中序列号，Multi Paxos中的每一个命令都有一个递增的编号。即我们前一个执行的命令是100号，那么下一个执行的命令一定是101号。每一个命令都是一个Paxos实例，Leader向所有节点发布这个提案，在提案达成一致之后（多数节点返回ACK），就可以认为这个命令已经达成了一致。</p>
+<p>和TCP一样，如果我们顺序的发布并表决提案，效率会非常低下（TCP停等模型）。所以，Multi Paxos采用类似滑动窗口的方案，每次对N个提案进行表决，以增加表决的带宽。</p>
+<p>和TCP不同的是，如果某些序号的TCP包在传输中丢失，最坏的情况是我们会RST这条链接，其它的工作都交给应用层逻辑来解决。</p>
+<p>但是对于Multi Paxos来说，如果某些提案没有被表决，那么就会在日志中留下空洞（gap）。这会直接影响系统的一致性。如果恰巧这个时候发生了Leader失效，那么新选举出来的Leader节点就要处理日志中的空洞。</p>
+<p>解决空洞的原理也很简单，就是Leader向所有成员询问，对于这个提案，是否已经有达成共识的值。如果有的话，就使用这个值。如果没有，就用一个no-op（无操作）命令来填补这个空位。但是，对于实际工程中来说，我们还需要解决未达成共识时值的冲突等情况。</p>
+<h2 id="raft">为什么我们还需要Raft？</h2>
+<p>Multi-Paxos在现实的工程当中更多的是一种符号。因为理论与实践上的隔阂是如此之大，如果想在工程意义上实现一个可用的Multi-Paxos算法，必然会在原算法的基础上进行一系列的魔改，这些魔改虽然均声称自己实现了Multi-Paxos算法，但是这些算法大多不能被证明是正确的。</p>
+<p>Raft的目标是，即让算法满足工程化需要，又能保证其正确性。</p>
+<blockquote>
+<p>Raft论文当中说Paxos算法难以理解，我并不这么觉得。因为Paxos论文里面把困难的部分都一笔带过了。只剩下简单的那部分了。</p>
+</blockquote>
+<h2 id="raft-vs-paxos">Raft vs. Paxos</h2>
+<h3 id="leader">Leader选举</h3>
+<p>在Paxos论文中，Leader选举被视作一种特殊的“提案选举”。只需要Proposer和Acceptor进行一轮或多轮（取决于运气）投票，就可以确定Leader。</p>
+<p>但在实际工程中，我们需要考虑以下的问题：</p>
+<ol>
+<li>
+<p>如何判断Leader是否存活</p>
+</li>
+<li>
+<p>是否每一个节点都有资格担当Leader</p>
+</li>
+</ol>
+<h4 id="leader_1">Leader的任期</h4>
+<p>Leader在被选举出来之后，都会被赋予一个任期编号（term）。在任期里，Leader会向所有成员发送心跳包以延续自己的任期。</p>
+<p>如果Leader失效无法发送心跳包的话，成员就会产生一个“选举超时”，此时就会重新触发一轮选举。</p>
+<p>选举的流程和Basic-Paxos算法类似，proposer向所有成员发送“我要当老大”的提案，成员们会酌情回复。如果得到了多数成员的肯定，这个proposer就是下一个任期的Leader了。</p>
+<p>从本质上说，每一个任期的Leader选举，都是一个独立的Basic-Paxos实例。任期号相当于Paxos里面的提案编号。</p>
+<h4 id="leader_2">Leader资格的认定</h4>
+<p>Raft采用强一致性的模型，对于已经ACK的用户请求，要尽力保证其状态不丢失。</p>
+<blockquote>
+<p>如果你问我，现在来一核弹把机房炸了，数据都丢了，那你怎么能保证强一致性。         <br>
+其实这个问题非常简单。很明显，我们保证了丢数据的强一致性。</p>
+</blockquote>
+<p>所以我们要选出一个Leader，使其能够包含所有已经ACK的提案。当一个proposer向其它节点发送提案时，就会收到其它节点的响应。因为一个已经ACK的提案必然被多数节点所认可，所以如果一个proposer没有包含所有被ACK的提案时，它的提案就会被其它包含更多状态的节点驳回。最后被选出来的Leader，一定是包含所有被ACK的状态的节点。</p>
+<h3 id="_2">日志复制</h3>
+<p>当Leader被选出后，Leader就会开始处理用户的请求。用户的请求可以看做一系列的命令，在接收到提案后，提案首先被分发到所有节点，节点的状态机顺序执行这些命令。在多数节点返回ACK后，这个命令就被视为“已提交”（commited）。</p>
+<p>上文中已经提到了一致性算法中的日志非常类似于网络协议中的TCP。即如果两个命令的ID一样，那么其内容必定也一样；如果两个节点都有认可了编号为p的命令，那么所有编号小于p的命令也必定保持一致。（被称为Log Matching Property）</p>
+<p>Raft为了简化算法的工程实现，把节点的状态抽象为严格append only的日志。即我们可以将日志指针向后或向前移动，来“回滚”或“更新”状态。但是绝对不允许在日志中间添加或删除日志条目。所以，在Leader发生变化时，如果leader和其他follower之间的日志不同，那么follower需要回滚日志以保持和leader日志的一致性。</p>
+<h3 id="_3">安全性</h3>
+<h4 id="_4">不归我管的事我不拿主意</h4>
+<p>前文我们说到，一个节点要成为Leader，一定要拥有所有已经被ACK的状态，否则就会被其它节点驳回。</p>
+<p>但是现实都会出现一些小小的意外。在系统的运行过程中，如果有一些提案只被少数节点认可，与此同时发起提案的Leader意外退出。那么在不同节点上的日志会产生“分叉”，那么我们如何解决日志当中的冲突呢？</p>
+<p>很明显，因为这些以少数节点认可的提案并没有被确认。所以我们无论是接受提案还是驳回提案，都不影响我们强一致性的要求。所以关键是处理冲突，使其不产生影响系统一致性的后效。</p>
+<p><img alt="" src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/18-12-02/Snipaste_2018-12-02_17-34-59.png"></p>
+<p>假设在Term1，最后一个提案是&rdquo;Value:3&rdquo;，这个提案并没有得到多数节点的认可，Leader就挂掉了。选出来了一个新Leader，Term数加1。在Term2，被提出的第一个提案是&rdquo;Value:1&rdquo;，这个提案也没有得到多数节点的认可，Leader也挂掉了。</p>
+<p>因为这两个分叉的提案都没有得到多数节点的认可，所以下一个Leader可能已经确认这两个提案，或者两个中的一个，也可能一个都没有确认。新的Leader在被选出后，需要面对的第一个问题是如何处理属于旧Term的提案。</p>
+<p>解决方案有两种：</p>
+<ol>
+<li>新Leader将日志中仍没有被多数节点认可的提案重新提出，直到被多数节点认可为止</li>
+<li>新Leader忽略属于旧的Term的提案，只提交属于本Term的提案；对于日志冲突，使用复制日志的方法解决，但不会显式认可旧Term的提案。</li>
+</ol>
+<p><img alt="" src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/18-12-02/Snipaste_2018-12-02_22-02-45.png"></p>
+<p>对于方案1，有一个隐含的问题。如上图所示，在时间点1，S2为Leader，标红的两个提案并没有被确认。此时如果Leader在时间点2重新提出&rdquo;Term1/Value3&rdquo;，并且得到了S1和S2的认可，那么这条提案已经被多数节点认可。但是在时间点3，S3被选举为了Leader。S1和S2需要回滚日志以保持与S3日志的一致。此时就出现了一种情况，那就是已经被确认的日志被回滚掉了，强一致性就不能满足了。</p>
+<p><img alt="" src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/18-12-02/Snipaste_2018-12-02_22-12-50.png"></p>
+<p>如果我们采用方案2，那么被选出的新Leader提出的第一个提案的Term一定为3。确认新提案的节点接下来会复制Leader的日志，回滚掉没有被认可的提案&rdquo;Term2/Value1&rdquo;。对于标绿的&rdquo;Term1/Value3&rdquo;，虽然被复制到了其它的节点上，但是这个值并不会被确认。这样一来，我们既保证了已经被确认的提案不会被回滚，又保证了日志的一致性。</p>
+<p>在具体实现中，“T3/V1”往往是一个空命令(no-op)。这样一来，即使没有写请求，Leader就可以更快的确认新的任期并同步Log了。</p>
+<h4 id="_5">如何证明</h4>
+<p>那么怎么保证上面的作法它是正确的呢？</p>
+<p>假设当前任期为T1，此时由于系统故障，我们选出了新的Leader - S2，并记Term为T2。因为我们严格遵守了Log Matching Property。</p>
+<p>那么，对于以下两种情况：</p>
+<ol>
+<li>T2的Leader和Voter的Log中最后一个提案的编号是一致的，那么可以知道他们日志中的提案都是完全一致的</li>
+<li>T2中Leader的Log比Voter更新，那么Leader一定包含比Voter更多的提案；否则Voter就不会给Leader投票</li>
+</ol>
+<p>我们都可以证明，对于前一个Term已经被确认的提案，一定会被包含在后一个Term的日志中。也就是说，一个被确认的提案不会中途丢失。</p>
+<h2 id="_6">成员变化</h2>
+<p>以上我们的讨论都基于系统的节点不会发生变更，但是在现实工程中，我们很难对此进行任何保证。所以一个实用的系统，一定能解决成员变化的问题。</p>
+<p>成员变化问题的本质是系统中不能同时出现两个Leader。</p>
+<p>在Raft中，我们将过渡期的配置称为“共同一致”（joint consensus），一但它被确认，说明系统已经过渡到了新的成员配置。</p>
+<p>具体的策略如下：</p>
+<ol>
+<li>系统中只有旧的配置C_old，新加入的成员不可能成为Leader</li>
+<li>当前系统的Leader接受到新的配置C_new。然后Leader向所有节点发起修改配置为C_old+new的提案。</li>
+<li>即使这个时间点Leader挂掉了，新的Leader也只会拥有旧配置C_old或者过渡期配置C_old+new。这取决于Leader选举的时机（和运气）。</li>
+<li>当过渡期配置C_old+new被多数节点确认后，Leader向所有节点发起修改配置为C_new的提案。</li>
+<li>如果这个时间点Leader挂掉了，新Leader会从拥有C_old+new和C_new的节点中选出。新的Leader仍然可以进行配置的变更，而不影响整个系统的安全性。</li>
+<li>直到C_new被确认，配置更换宣告完成。</li>
+</ol>
+<p>“共同一致”允许节点无需考虑安全性的情况下，在任意时间进行配置的更换。配置的更换也不会影响客户端的请求。</p>
+<p>以上我们解决的是安全性问题，但是在实际工程中我们还需要兼顾效率问题。</p>
+<p>例如新加入的节点可以视作“non-voting members”，只同步数据，不能对提案进行投票。直到数据同步基本完成，才进行配置变更。这样避免了新的节点由于缺少Log不能及时的处理提案。</p>
+<p>又如新的成员列表中，不包含原先的Leader节点。在旧Leader认可了新的配置提案之后，就可以退位让贤，让其它节点选举出新的Leader。</p>
+<p>以及被清除出成员列表的节点，不会收到后续的心跳，它们会认为Leader已经失效，所以自己跳出来竞选Leader。这样一来，就会触发新的（无意义 的）Leader选举，影响系统的可用性。解决方案是，如果一个节点在一个时间段内收到了Leader的心跳，那么就会忽略Leader的竞选请求。这样既不会影响正常的选举，又可以屏蔽无效的选举请求。</p>
+<h2 id="_7">快照</h2>
+<p>我们的提案越来越多，日志也越来越长。随之而来的是漫长的恢复时间以及磁盘空间的浪费。快照技术可以帮我们清除旧的无用日志，只保留有用的状态信息。</p>
+<p>在Raft算法中，每个节点都能自主的生成快照。好处是避免Leader分发快照造成的效率降低，也简化了Leader的功能和职责。又由于日志的“TCP特性”，所以不同节点上，只要保证提案编号一致，那么其内容就可以保证一致。</p>
+<h2 id="_8">客户端交互</h2>
+<p>由于客户端不了解系统内部的选举情况，所以在开始通信时，会随机选一台节点发送请求。如果这个节点不是Leader，就会拒绝这个请求，会告知客户端哪个节点是当前任期的Leader。如果Leader失效，客户端请求超时，就会重新随机选择节点，获取新任Leader信息。</p>
+<p>对于客户端发送的写请求，Leader需要记录其唯一的请求ID，以避免客户端发送的重复请求。</p>
+<p>对于客户端发送的读请求，Leader需要再次确认它是仍是当前任期的Leader，避免向客户端发送过期数据。如果对数据正确性和时效性的敏感性不高，就可以向系统中的任意节点发送请求，</p>
+<h2 id="_9">写在后面</h2>
+<p>Paxos的亮点在于把复杂的东西说简单了。而Raft的亮点是把简单的东西具体化，使之成为能落地的工程项目。</p>
+<p>但是Paxos做为一种Quorum协议（俗称P2P），其工程复杂性是难以避免的。Raft在Paxos协议上面加入了很多限制以简化实现，但是想要完整的实现其功能仍不是一件容易的事。（有兴趣的同学可以<a href="https://pdos.csail.mit.edu/6.824/labs/lab-raft.html">挑战一下自己</a>）</p>
+<p>下面一篇文章我们会换一种新思路，学习PecificA算法，看一看如何使用Paxos实现一个主从复制协议。</p>
+<h2 id="_10">写在更后面</h2>
+<p>个人觉得，Raft论文的一个更大亮点是充分的思考了Paxos/Multi-Paxos在工程实践上的缺陷。思考并提出有价值的质疑，而不是被他人的观点带着走，真的是最重要的能力之一了。</p>
+<p>大胆猜测是因为有足够的理解能力，有额外的带宽去发问？这是一个有意思的问题。</p>
+            </div>
+            <!-- /.entry-content -->
+    <hr/>
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+            var disqus_config = function () {
+                this.language = "zhs";
+
+                        this.page.identifier = '2018-12-05-paxos-raft-pecifaca[1]';
+                        this.page.url = 'https://wizmann.top/paxos-raft-pecifaca[1].html';
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="https://github.com/wizmann"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="https://wizmann.top//feeds/all.atom.xml"><i class="fa fa-rss-square fa-lg"></i> rss</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://wizmann.top/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/cpp.html">cpp</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/algorithm.html">algorithm</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/suan-fa.html">算法</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/codeforces.html">codeforces</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/c.html">C++</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/fen-bu-shi-xi-tong.html">分布式系统</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/ti-jie.html">题解</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/udp.html">UDP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/cas.html">cas</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rpc.html">rpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-xi-tong.html">数据系统</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-ku.html">数据库</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/leetcode.html">Leetcode</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/interview.html">interview</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multithread.html">multithread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/jian-suo-zeng-qiang-sheng-cheng.html">检索增强生成</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xian-liao.html">闲聊</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rag.html">RAG</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/modern-cpp.html">modern cpp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/protocol.html">protocol</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multi-thread.html">multi-thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/yi-zhi-xing.html">一致性</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/networking.html">networking</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/storage.html">storage</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xin-xi-jian-suo.html">信息检索</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/stup.html">STUP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/distributed-system.html">Distributed System</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/phxrpc.html">phxrpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/memory-barrier.html">memory-barrier</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/system-design.html">System Design</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/thread.html">thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/llm.html">LLM</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/tcp.html">tcp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/duo-xian-cheng.html">多线程</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/gong-kai-ke.html">公开课</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spinpromela.html">SPIN/Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/promela.html">Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/storage-system.html">storage system</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/google.html">Google</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/bing-fa-bian-cheng.html">并发编程</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/induction.html">induction</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/raft.html">raft</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/ucontext.html">ucontext</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/paxos.html">paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cse351.html">CSE351</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cmpxchg.html">cmpxchg</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/basic-paxos.html">basic paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/solution.html">Solution</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/azure.html">azure</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/async.html">async</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/3d-printing.html">3D printing</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/shu-ju-mi-ji-xing-ying-yong-xi-tong.html">数据密集型应用系统</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spin.html">SPIN</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-mo-xing.html">数据模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yi-zhi-xing-xie-yi.html">一致性协议</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/zi-fu-chuan-zhong-xie-xi-tong.html">字符串重写系统</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-xing-dp.html">树形DP</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-bian-cheng.html">编译期编程</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/mutex.html">mutex</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yuan-lei.html">元类</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon.html">CppCon</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon2024.html">CppCon2024</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dda-yin.html">3D打印</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/led.html">LED</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nei-cun-mo-xing.html">内存模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-shi-wu.html">分布式事务</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/diy.html">DIY</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/excrt.html">excrt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/segment-tree.html">segment-tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-lian-pou-fen.html">树链剖分</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/an-quan-xing.html">安全性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dp.html">dp</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bing-fa.html">并发</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/qi-fa-shi-he-bing.html">启发式合并</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/semaphore.html">semaphore</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-gong-shi.html">分布式共识</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nosql.html">nosql</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/post.html">Post</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-bian-ma.html">数据编码</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/litmus.html">litmus</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fan-she.html">反射</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/si-suo.html">死锁</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/hash.html">hash</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/partitioning.html">partitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/xian-duan-shu.html">线段树</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/volatile.html">volatile</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-jie-gou.html">数据结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/ab.html">A=B</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/tu-ling-wan-bei-xing.html">图灵完备性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/suo-yin-jie-gou.html">索引结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/repartitioning.html">repartitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/thue.html">Thue</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/crt.html">crt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/herb-sutter.html">Herb Sutter</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/condition_variable.html">condition_variable</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dsu-on-tree.html">DSU on Tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/math.html">math</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-you-hua.html">编译器优化</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/deng-ju-she-ji.html">灯具设计</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dmo-xing.html">3D模型</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2025 Wizmann
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://wizmann.top/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://wizmann.top/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://wizmann.top/theme/js/respond.min.js"></script>
+
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-46053117-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+
+</body>
+</html>

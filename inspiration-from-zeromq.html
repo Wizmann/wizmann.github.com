@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="zhs" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>ZeroMQ启示录 - Maerlyn's Rainbow</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <link href="https://wizmann.top/statistics/favicon.png" rel="icon">
+
+<link rel="canonical" href="https://wizmann.top/inspiration-from-zeromq.html">
+
+        <meta name="author" content="Wizmann" />
+        <meta name="keywords" content="zeromq,distributed system,system-design" />
+        <meta name="description" content="ØMQ是一个消息系统 ZeroMQ是一个消息系统，也被称为“消息中间件”。它被广泛的用于经济、游戏、嵌入式等领域。 什么是消息系统 打个比方，消息系统就像我们使用的 …" />
+
+        <meta property="og:site_name" content="Maerlyn's Rainbow" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="ZeroMQ启示录"/>
+        <meta property="og:url" content="https://wizmann.top/inspiration-from-zeromq.html"/>
+        <meta property="og:description" content="ØMQ是一个消息系统 ZeroMQ是一个消息系统，也被称为“消息中间件”。它被广泛的用于经济、游戏、嵌入式等领域。 什么是消息系统 打个比方，消息系统就像我们使用的 …"/>
+        <meta property="article:published_time" content="2015-04-07" />
+            <meta property="article:section" content="Blog" />
+            <meta property="article:tag" content="zeromq" />
+            <meta property="article:tag" content="distributed system" />
+            <meta property="article:tag" content="system-design" />
+            <meta property="article:author" content="Wizmann" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://wizmann.top/theme/css/bootstrap.flatly.min.css" type="text/css"/>
+    <link href="https://wizmann.top/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://wizmann.top/theme/css/pygments/solarizedlight.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://wizmann.top/theme/css/style.css" type="text/css"/>
+
+        <link href="https://wizmann.top/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow ATOM Feed"/>
+
+        <link href="https://wizmann.top/feeds/blog.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow Blog ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://wizmann.top/" class="navbar-brand">
+Maerlyn's Rainbow            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="/category/blog.html">Blog</a></li>
+                    <li><a href="https://vijos.org/d/wizmann/p">Online Judge</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://wizmann.top/inspiration-from-zeromq.html"
+                       rel="bookmark"
+                       title="Permalink to ZeroMQ启示录">
+                        ZeroMQ启示录
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2015-04-07T10:01:34+08:00"> 2015-04-07</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://wizmann.top/tag/zeromq.html">zeromq</a>
+        /
+	<a href="https://wizmann.top/tag/distributed-system.html">distributed system</a>
+        /
+	<a href="https://wizmann.top/tag/system-design.html">system-design</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h2 id="mq">ØMQ是一个消息系统</h2>
+<p>ZeroMQ是一个消息系统，也被称为“消息中间件”。它被广泛的用于经济、游戏、嵌入式等领域。</p>
+<h3 id="_1">什么是消息系统</h3>
+<p>打个比方，消息系统就像我们使用的IM软件一样。首先，一方决定将消息发往何处（一对一或一对多）。然后将信息打包，点击发送按钮。之后，IM系统会帮你料理剩余的事务。</p>
+<p>但是，它们也有很大的不同点。IM系统对于消息系统似乎太低效了一点。另外，消息系统是没有用户界面（GUI）的。在错误发生时，消息的另一端也不会有人来智能的介入处理。</p>
+<p>所以，我们可以这样下定义。消息系统是具有高效性和容错性的消息传递解决方案。</p>
+<h3 id="zeromq">ZeroMQ的起源和发展</h3>
+<p>ZeroMQ最先的设想是实现一个炒鸡快的用于证券交易的消息系统，所以在设计初期的关注点就是在极致的优化上。</p>
+<p>第一年的工作重点，在于发明性能测试的方法，和设计高效架构。</p>
+<p>之后，大约在第二年，工作重点转移到实现一个通用的消息系统，以应用于分布式系统，使其可以利用<strong>不同的编程语言</strong>，使用<strong>不同方式</strong>，来传递<strong>各种模式</strong>的信息。</p>
+<h2 id="1-vs">启示1：独立应用 vs. 程序库</h2>
+<p>ZeroMQ是一个程序库，不是一个消息服务器。这样设计的主要原因是：性能。</p>
+<p>使用一个中间消息服务器（Broker），每一条消息都会被在网络上传递两次（Sender-&gt;Broker-&gt;Receiver)。这样的设计会影响时延和吞吐量。更严重的是，如果所有消息都通过中间服务器，那么这个点就会成为整个系统的瓶颈。</p>
+<p>使用中间消息服务器的另一个弊端，是不利于大规模部署。对于证券交易来说（ZeroMQ最初的应用场景），跨组织的消息传输是不可避免的。这样一来，中央集权式的消息传输就不在有效了。</p>
+<p>所以，我们缩小消息系统的粒度，使之成为一个程序库。使其更轻量，更易于部署。同样，更轻量的消息系统可以实现更复杂的拓扑结构。</p>
+<p>获得的启示：对于一个新项目来说，如果可能，尽量把它实现为一个程序库。将一个新库联编到原有程序中，只需要少量的人力，也提供了足够的灵活性。</p>
+<h2 id="2">启示2：全局状态</h2>
+<p>对于程序库来说，全局状态往往不能正确的工作。</p>
+<p>由于一个程序库可能被一个应用程序加载多次，这就不能保证只有独一无二的全局状态。</p>
+<p>ZeroMQ的解决方法是由库的调用者显式的维护一个“环境”，如图所示。<code>libA</code>和<code>libB</code>都有其独有的“环境”信息。</p>
+<p><img alt="Alt text" src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/71080471bf8bbf4d4e186c353d6b512c"></p>
+<p>获得的启示：不要在程序库中使用全局状态。如果你这么做了，当库恰好需要在同一个进程中实例化两次时，它很可能会崩溃。</p>
+<h2 id="3">启示3：性能</h2>
+<p><img alt="Alt text" src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/4ae6721a94012d877709075558562f2b"></p>
+<p>ZeroMQ在最初设计时，性能调优就是首要的目标。做为一个消息系统，其性能指标主要有两个：吞吐量和延时。</p>
+<p>但是我们怎么度量它们呢？</p>
+<p>如上图所示，A向B发送信息。B在6秒内接收到了5条信息，因此吞吐量为0.83消息/秒，平均时延为1.2秒。</p>
+<p>如果我们换一种计量方式，A向B发送消息，对于单条信息来说，其平均时延为3秒。A花费2秒，发送了所有的消息；B花费了4秒，接收到了所有的消息。所以A的吞吐量为2.5消息/秒，B的吞吐量为1.25消息/秒。这个数据与我们上面得出的数据相差甚远。</p>
+<p>由此，我们可以看出，使用不同的计量标准，对于我们估计系统的性能，会带来很大的不同。</p>
+<p>时延只有在两个节点通信时，才可能发生。所以，并不能有“某节点的时延”这种度量标准的出现。同样，我们可以对多条消息的时延进行平均，但是并不能有“一个消息流的平均时延”。</p>
+<p>吞吐量，与时延不同，只能在单个节点上进行度量。所以，并不能有“节点间的吞吐量”这种度量方法。</p>
+<p>获得的启示：深入了解你所要解决的问题。否则，你会在解决问题时会引入（错误的）假定和玄学，写出有缺陷的复杂代码。</p>
+<h2 id="4">启示4：关键路径</h2>
+<p>代码中经常被调用的代码，被称为<strong>关键路径</strong>。</p>
+<p>对于ZeroMQ来说，建立链接与内存申请都不是影响性能的最主要因素。因为ZeroMQ使用长链接进行通信，所以建立链接的开销均摊到每一条信息微乎其微。同样，ZeroMQ使用高效的内存维护机制，尽可能少的向系统直接申请内存空间。</p>
+<p>获得的启示：只在系统的关键路径上做优化。否则只是浪费时间。</p>
+<h2 id="5">启示5：内存申请</h2>
+<p>对于一个高效的系统来说，高效的处理内存的方法往往是在内存申请与内存拷贝之间寻求一个平衡。</p>
+<p>对于小型数据来说，直接拷贝数据，即“深拷贝”，的开销更小。而对于大型数据来说，所谓“浅拷贝”的开销更小。</p>
+<p><img alt="Alt text" src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/48deb1742653d61ba04f6e9591f71902"></p>
+<p>ZeroMQ使用透明的方式来处理两种不同的场景。并且，对于规模较大的数据，使用引用计数的策略，最大限度的复用与节省内存使用。</p>
+<p>获得的启示：当我们优化性能时，不要假定只有一个全局最优解。在不同的场景下，最优解的定义可能大不相同。</p>
+<h2 id="6">启示6：批处理</h2>
+<p>对于一个高性能消息系统来说，系统调用的绝对数量就是系统的瓶颈。这其实是一个很普遍的问题，消息在调用栈之间传递，会带来不可忽略的性能损失。所以，在构建一个高性能系统时，应该尽量避免消息在栈间的传递。</p>
+<p>如下图所示，对于四条消息，我们需要遍历整个网络栈四次。</p>
+<p><img alt="Alt text" src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/b99f65135b0f0e840131c58d2cc57896"></p>
+<p>然而，如果我们将这些消息打包成一条消息。我们只需要遍历网络栈一次。</p>
+<p><img alt="Alt text" src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/cd2ea1ae7a71443b3ff85ebbc7cb1c3b"></p>
+<p>在这里，我们的策略与TCP/IP协议中的Nagle算法类似。Nagle算法是为了充分利用带宽，而ZeroMQ的Batching策略是为了均摊网络栈的时间开销。</p>
+<p>具体的实现如下:</p>
+<ul>
+<li>当消息的频率没有超过网络栈的带宽时，ZeroMQ会把所有batching关掉，以CPU利用率来换取低时延。</li>
+<li>当消息的频率超过网线栈的带宽时，ZeroMQ会启用batching，以时延为代价来优化吞吐量。</li>
+<li>当消息队列中的消息过多时，ZeroMQ会采用更激进的batching策略。因为消息的堆积造成的时延增长已经不可避免，索性将更多的信息打包，这样可以更快的清空消息的积压。</li>
+</ul>
+<p>另外，batching策略只应该被应用于顶层。在顶层采用batching之后，低层的batching就没有意义了。</p>
+<p>获得的启示：<br>
+* 在一个异步系统中，想要获得最佳的响应时间，应该把底层的batching策略转移到顶层。<br>
+* batching只应该在新数据到来的速度超过系统带宽时才采用。</p>
+<h2 id="7">启示7：整体架构</h2>
+<p><img alt="Alt text" src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/22f7b30fb17c9a128bbb6dd66ad27a13"></p>
+<p>用户利用“socket”与ZeroMQ进行交互，一个socket可以同多个peer进行交互。</p>
+<p>socket存在于用户线程中。而一些工作线程会处理异步的交互过程，如：从网络读取消息，将消息放入队列，接受新的连接请求等。</p>
+<p>session负责与ZeroMQ中的socket进行交互，engine负责网络交互。session只有一种，而engine根据使用的协议不同，可以有很多种。</p>
+<p>session与socket之间使用pipe进行通信，pipe被实现为线程安全的双端队列，用来在线程间传递信息。</p>
+<p>获得的启示：学习了整体的设计思路（笑</p>
+<h2 id="8">启示8：并发模型</h2>
+<p>高效的ZeroMQ必然要利用多核的计算资源，而传统的多线程模型会引入锁、信号量等线程同步机制，会影响系统的整体性能。而使用独立的线程又会引入上下文切换的开销。</p>
+<p>ZeroMQ使用的并发模型是Actor，其目标是完全避免锁的使用，让所有的组件全速运行。</p>
+<p>每一个CPU核心只有一个worker线程，所有内部对象都是线程专有的，这样就完全避免了锁的使用。</p>
+<p>这样一来，许多对象都要分享有限个数的worker。所以，系统应当是全异步的。因为每一个worker的阻塞，都会阻塞其它使用worker的对象。</p>
+<p>获得的启示：Actor模型是极致解决性能与扩展性问题的方法。但是，如果你不是在使用ZeroMQ或Erlang，你需要手写许多相关的Test Case来测试系统的正确性和稳定性。另外，如果你无法应对模型中的复杂模块（如ZeroMQ的shutdown），请不要轻易尝试使用Actor模型。</p>
+<h2 id="9">启示9：无锁算法</h2>
+<p>无锁算法使用简单的方法进行线程间的通信，而不依赖内核级的同步原语。无锁算法的关键是CPU中的原子操作，例如compare-and-swap（CAS）操作。但是，要记住，无锁操作并不是真正的“无锁”，而是把锁操作放到了较为高效的硬件层。</p>
+<p>ZeroMQ使用一个无锁队列在用户线程与工作线程间进行消息传递。ZeroMQ中的无锁队列有如下特点：</p>
+<p>第一，每一个队列为“一写一读”。当有一对多的读写需求存在时，ZeroMQ会创建多条队列。这样的设计使得我们不用关心多线程读写带来的同步问题，有利于我们对其性能的优化。</p>
+<p>第二，即使无锁算法比传统的锁算法要快很多，但是其代价仍然是过高的（尤其是在CPU核心之间的通信）。所以，我们仍然依赖于“batching”算法，将昂贵的同步操作均摊到多条消息上。在从队列真正的读写操作之前，加入一次预处理（pre-write / pre-read），将消息打个包，发申通。</p>
+<p><img alt="Alt text" src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/9d97e2979db40e413e43cf7d642d1570"></p>
+<p>获得的启示：无锁算法是非常精巧的，如果可能的话，尽量使用成熟的设计。如果你需要极致的性能，不要仅仅依赖于无锁算法。尽管无锁算法非常快，你仍然可以通过batching策略优化它。（另外，加钱上船也可以。）</p>
+<h2 id="10api">启示10：API设计</h2>
+<p><strong>设计API，就像设计一款产品。</strong></p>
+<p>用户对于一个程序库的第一感觉来自于用户接口。ZeroMQ简化了自己的用户接口，将其由原来的“炒鸡复杂一不小心坑死你的企业级消息框架”变为了“想发消息调用下就OK”的极易上手的入门级产品。</p>
+<p>另外一个重要的方面，ZeroMQ使用了广为使用的BSD Sockets API。这样做的优点是：</p>
+<ul>
+<li>这是一个大家都熟知的API，学习曲线相当平缓</li>
+<li>使ZeroMQ与现有的技术连接起来，有利于复用已用的框架与设计</li>
+<li>最重要的是，使用一个成熟与久经考验的框架，可以避免踩前人踩过的坑、</li>
+</ul>
+<p>获得的启示：除了代码复用之外，我们还可以以一种更一般的方法，复用成熟的技术。当你设计一个新产品时，借鉴一下类似的产品（腾讯！）。不要犯“在这里还没有被发明”（Not Invented Here）综合症。复用一切合适的想法、API、框架抽象。允许用户使用已有的知识，同时也可以让我们规避未知的风险。</p>
+<h2 id="11">启示11：消息模式</h2>
+<p>ZeroMQ的设计思路是<strong>专注于一个领域，把它做到最好</strong>。因为，大而全的产品只能给领域专家来使用，而小而精的产品的受众则是任何受过训练的程序员。</p>
+<div class="highlight"><pre><span></span><code><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">socket</span><span class="w"> </span><span class="p">(</span><span class="n">REQ</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">connect</span><span class="w"> </span><span class="p">(</span><span class="s">&quot;tcp://192.168.0.111:5555&quot;</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">send</span><span class="w"> </span><span class="p">(</span><span class="s">&quot;Hello World!&quot;</span><span class="p">)</span>
+<span class="n">reply</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">recv</span><span class="w"> </span><span class="p">()</span>
+</code></pre></div>
+
+<p>当我们要给用户提供更一般性的解决方案时，一个技术栈，栈的每一层可以有不同的实现，从而适应不同人群的需要。</p>
+<p>这和Internet栈的设计思路非常相似：TCP可以解决基于链接的、可靠的数据流传输，UDP可以解决不可靠的数据包传输，SCTP可以解决多用户数据流传输问题等等。</p>
+<p>这样一来，所有的解决方案都是正交的，我们可以利用其中好的设计，也可以没有额外代价的抛弃不好的设计。</p>
+<p>获得的启示：当解决一个复杂且多面化的问题时，单个通用型的解决方案可能并不是最好的方式。相反，我们可以把问题的领域想象成一个抽象层，并基于这个层次提供多个实现，每种实现只致力于解决一种定义良好的情况。</p>
+<p>当我们这么做时，确定问题的粒度非常重要。如果粒度过细，软件的一般性就会受到限制。如果粒度过粗，那么产品就会变得非常复杂，给用户带来模糊和混乱的感觉。</p>
+<h2 id="_2">后记</h2>
+<ul>
+<li>原文链接：http://www.aosabook.org/en/zeromq.html</li>
+<li>中文翻译：http://www.ituring.com.cn/article/4669</li>
+</ul>
+<p>本文中借鉴了中文翻译的部分词句，对此表示感谢。</p>
+            </div>
+            <!-- /.entry-content -->
+    <hr/>
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+            var disqus_config = function () {
+                this.language = "zhs";
+
+                        this.page.identifier = '2015-04-07-inspiration-from-zeromq';
+                        this.page.url = 'https://wizmann.top/inspiration-from-zeromq.html';
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="https://github.com/wizmann"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="https://wizmann.top//feeds/all.atom.xml"><i class="fa fa-rss-square fa-lg"></i> rss</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://wizmann.top/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/cpp.html">cpp</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/algorithm.html">algorithm</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/suan-fa.html">算法</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/codeforces.html">codeforces</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/c.html">C++</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/fen-bu-shi-xi-tong.html">分布式系统</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/ti-jie.html">题解</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/udp.html">UDP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/cas.html">cas</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rpc.html">rpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-xi-tong.html">数据系统</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-ku.html">数据库</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/leetcode.html">Leetcode</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/interview.html">interview</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multithread.html">multithread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/jian-suo-zeng-qiang-sheng-cheng.html">检索增强生成</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xian-liao.html">闲聊</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rag.html">RAG</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/modern-cpp.html">modern cpp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/protocol.html">protocol</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multi-thread.html">multi-thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/yi-zhi-xing.html">一致性</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/networking.html">networking</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/storage.html">storage</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xin-xi-jian-suo.html">信息检索</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/stup.html">STUP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/distributed-system.html">Distributed System</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/phxrpc.html">phxrpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/memory-barrier.html">memory-barrier</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/system-design.html">System Design</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/thread.html">thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/llm.html">LLM</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/tcp.html">tcp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/duo-xian-cheng.html">多线程</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/gong-kai-ke.html">公开课</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spinpromela.html">SPIN/Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/promela.html">Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/storage-system.html">storage system</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/google.html">Google</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/bing-fa-bian-cheng.html">并发编程</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/induction.html">induction</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/raft.html">raft</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/ucontext.html">ucontext</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/paxos.html">paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cse351.html">CSE351</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cmpxchg.html">cmpxchg</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/basic-paxos.html">basic paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/solution.html">Solution</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/azure.html">azure</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/async.html">async</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/3d-printing.html">3D printing</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/shu-ju-mi-ji-xing-ying-yong-xi-tong.html">数据密集型应用系统</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spin.html">SPIN</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-mo-xing.html">数据模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yi-zhi-xing-xie-yi.html">一致性协议</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/zi-fu-chuan-zhong-xie-xi-tong.html">字符串重写系统</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-xing-dp.html">树形DP</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-bian-cheng.html">编译期编程</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/mutex.html">mutex</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yuan-lei.html">元类</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon.html">CppCon</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon2024.html">CppCon2024</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dda-yin.html">3D打印</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/led.html">LED</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nei-cun-mo-xing.html">内存模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-shi-wu.html">分布式事务</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/diy.html">DIY</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/excrt.html">excrt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/segment-tree.html">segment-tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-lian-pou-fen.html">树链剖分</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/an-quan-xing.html">安全性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dp.html">dp</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bing-fa.html">并发</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/qi-fa-shi-he-bing.html">启发式合并</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/semaphore.html">semaphore</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-gong-shi.html">分布式共识</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nosql.html">nosql</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/post.html">Post</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-bian-ma.html">数据编码</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/litmus.html">litmus</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fan-she.html">反射</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/si-suo.html">死锁</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/hash.html">hash</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/partitioning.html">partitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/xian-duan-shu.html">线段树</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/volatile.html">volatile</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-jie-gou.html">数据结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/ab.html">A=B</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/tu-ling-wan-bei-xing.html">图灵完备性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/suo-yin-jie-gou.html">索引结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/repartitioning.html">repartitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/thue.html">Thue</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/crt.html">crt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/herb-sutter.html">Herb Sutter</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/condition_variable.html">condition_variable</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dsu-on-tree.html">DSU on Tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/math.html">math</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-you-hua.html">编译器优化</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/deng-ju-she-ji.html">灯具设计</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dmo-xing.html">3D模型</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2025 Wizmann
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://wizmann.top/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://wizmann.top/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://wizmann.top/theme/js/respond.min.js"></script>
+
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-46053117-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+
+</body>
+</html>

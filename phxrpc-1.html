@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="zhs" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>自定义你的stream buffer - phxrpc阅读笔记(1) - Maerlyn's Rainbow</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <link href="https://wizmann.top/statistics/favicon.png" rel="icon">
+
+<link rel="canonical" href="https://wizmann.top/phxrpc-1.html">
+
+        <meta name="author" content="Wizmann" />
+        <meta name="keywords" content="System Design,RPC,streambuf,C++,phxrpc" />
+        <meta name="description" content="写在前面 phxrpc是微信团队开源的一个轻量级RPC框架。 我对RPC这些东西了解不多，看到phxrpc的代码相对简单，而且还在初步开发阶段（在本文写作时，版本号是0.8）。所以想 …" />
+
+        <meta property="og:site_name" content="Maerlyn's Rainbow" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="自定义你的stream buffer - phxrpc阅读笔记(1)"/>
+        <meta property="og:url" content="https://wizmann.top/phxrpc-1.html"/>
+        <meta property="og:description" content="写在前面 phxrpc是微信团队开源的一个轻量级RPC框架。 我对RPC这些东西了解不多，看到phxrpc的代码相对简单，而且还在初步开发阶段（在本文写作时，版本号是0.8）。所以想 …"/>
+        <meta property="article:published_time" content="2016-09-28" />
+            <meta property="article:section" content="Blog" />
+            <meta property="article:tag" content="System Design" />
+            <meta property="article:tag" content="RPC" />
+            <meta property="article:tag" content="streambuf" />
+            <meta property="article:tag" content="C++" />
+            <meta property="article:tag" content="phxrpc" />
+            <meta property="article:author" content="Wizmann" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://wizmann.top/theme/css/bootstrap.flatly.min.css" type="text/css"/>
+    <link href="https://wizmann.top/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://wizmann.top/theme/css/pygments/solarizedlight.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://wizmann.top/theme/css/style.css" type="text/css"/>
+
+        <link href="https://wizmann.top/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow ATOM Feed"/>
+
+        <link href="https://wizmann.top/feeds/blog.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow Blog ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://wizmann.top/" class="navbar-brand">
+Maerlyn's Rainbow            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="/category/blog.html">Blog</a></li>
+                    <li><a href="https://vijos.org/d/wizmann/p">Online Judge</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://wizmann.top/phxrpc-1.html"
+                       rel="bookmark"
+                       title="Permalink to 自定义你的stream buffer - phxrpc阅读笔记(1)">
+                        自定义你的stream buffer - phxrpc阅读笔记(1)
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2016-09-28T22:35:55+08:00"> 2016-09-28</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://wizmann.top/tag/system-design.html">System Design</a>
+        /
+	<a href="https://wizmann.top/tag/rpc.html">RPC</a>
+        /
+	<a href="https://wizmann.top/tag/streambuf.html">streambuf</a>
+        /
+	<a href="https://wizmann.top/tag/c.html">C++</a>
+        /
+	<a href="https://wizmann.top/tag/phxrpc.html">phxrpc</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h2 id="_1">写在前面</h2>
+<p><a href="https://github.com/tencent-wechat/phxrpc">phxrpc</a>是微信团队开源的一个轻量级RPC框架。</p>
+<p>我对RPC这些东西了解不多，看到phxrpc的代码相对简单，而且还在初步开发阶段（在本文写作时，版本号是0.8）。所以想读一读，提高一下姿势水平。</p>
+<p>就是这样。</p>
+<h2 id="stream-buffer">自定义stream buffer</h2>
+<p><code>network/socket_stream_base.[h|cpp]</code>中的<code>class BaseTcpStreamBuf</code>继承了<code>std::streambuf</code>，自定义了一个流缓冲区，用于接收/发送TCP数据包。</p>
+<p>这个用法比较新颖（或者是我见识少），网上的资料也不多。这里翻译一篇<a href="http://www.mr-edd.co.uk/blog/beginners_guide_streambuf">介绍文章</a>，学习一下新姿势。</p>
+<h2 id="a-beginners-guide-to-writing-a-custom-stream-buffer">A beginner&rsquo;s guide to writing a custom stream buffer</h2>
+<p>流(streams)是STL中提供的一个重要的抽象概念。著名的“Hello world”程序，便是使用了std::cout将字符串写入标准输出流(stdout)。</p>
+<p>流当然可以做比cin/cout更有意思的事。这篇文章我们会研究如何扩展C++流，来实现自定义的流缓冲区(stream buffer)。p.s. 建议本文的读者至少要有基础的C++知识。</p>
+<p>C++标准库为磁盘文件操作提供了基础的接口，如<code>std::fstream</code>，<code>std::ifstream</code>和<code>std::ofstream</code>。我们还有<code>stringstream</code>，可以像流一样操作字符串。</p>
+<div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="n">ostringstream</span><span class="w"> </span><span class="n">oss</span><span class="p">;</span>
+<span class="n">oss</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Hello, world!</span><span class="se">\\</span><span class="s">n&quot;</span><span class="p">;</span>
+<span class="n">oss</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">123</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="err">&#39;\\</span><span class="n">n</span><span class="err">&#39;</span><span class="p">;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">oss</span><span class="p">.</span><span class="n">str</span><span class="p">();</span>
+</code></pre></div>
+
+<p>相似的，我们可以从<code>std::istringstream</code>中使用<code>&gt;&gt;</code>操作符读取数据。</p>
+<p>Boost库中的<code>lexical_cast</code>正是使用了这种机制，让用户可以使用统一的方式将一个对象(object)转换为字符串表示。</p>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="n">boost</span><span class="o">::</span><span class="n">lexical_cast</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+<span class="n">string</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lexical_cast</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">s</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;5&quot;</span><span class="p">);</span>
+</code></pre></div>
+
+<p>流缓冲区有着很强的灵活性，可以满足不同的“缓冲并传输字符（串）”需求，比如文件操作、字符串操作、命令行(Console)操作等。我们可以从网络、闪存(Flash memory)等不同设备，使用同样的接口获取流式字符串。“流缓冲区”与“流”是正交的，所以我们可以自由的交换、更改(swap and change)流所使用的缓冲区，或者将其重定向到其它地方。我认为C++中的流，正是“策略模式”(strategy design pattern)的一个良好范例。</p>
+<p>比如，我们可以重定向标准日志流<code>std::clog</code>到一个字符串流：</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iomanip&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;string&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;sstream&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">ostringstream</span><span class="w"> </span><span class="n">oss</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Make clog use the buffer from oss</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">streambuf</span><span class="w"> </span><span class="o">*</span><span class="n">former_buff</span><span class="w"> </span><span class="o">=</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">clog</span><span class="p">.</span><span class="n">rdbuf</span><span class="p">(</span><span class="n">oss</span><span class="p">.</span><span class="n">rdbuf</span><span class="p">());</span>
+
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">clog</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;This will appear in oss!&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">flush</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">oss</span><span class="p">.</span><span class="n">str</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="err">&#39;\\</span><span class="n">n</span><span class="err">&#39;</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Give clog back its previous buffer</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">clog</span><span class="p">.</span><span class="n">rdbuf</span><span class="p">(</span><span class="n">former_buff</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>不过，自定义一个流缓冲区却是有一点tricky，或者说有一点吓人，尤其是当你第一次尝试的时候。所以本文意在提供一些流缓冲的实现范例。</p>
+<p>首先我们来看一下流缓冲区的一些基本概念。所有的流缓冲区继承自<code>std::streambuf</code>，并且需要覆盖一些虚函数来实现自定义功能。<code>std::streambuf</code>是“顺序读取设备”的一个抽象，即我们可以从中顺序的读取字符序列。在特定的场景下，我们可以重填(re-fill)、冲洗(flush)以及清空(empty)一个缓冲区。</p>
+<p>当我们向一个<code>ostream</code>中插入数据时，数据将会被写入缓冲区中的一个数组。当数组上溢(overflow)时，数组中的数据将会被冲洗(flush)到目标接受者，之后这个数组的状态将会重置，以便存储后续的字符。</p>
+<p>当我们从一个<code>istream</code>中获取数据时，数据从缓冲区的数组中读出。当数组下溢时(underflow)，没有数据可读，我们会从数据源重新拉取信息来填充缓冲区，之后这个数组的状态也将被重置。</p>
+<p>我们使用6个指针，来维护缓冲区的内部状态。输入和输出缓冲各使用3个指针。</p>
+<h3 id="_2">维护输出缓冲区的状态</h3>
+<ul>
+<li>
+<p>put base pointer   <br>
+输出基指针，用来指定缓冲区内部数组的第一个元素。可以使用<code>std::streambuf::pbase()</code>来获取</p>
+</li>
+<li>
+<p>put pointer   <br>
+输出指针，用来指向内部数组下一个写入的地址。可以使用<code>std::streambuf::pptr()</code>来获取</p>
+</li>
+<li>
+<p>end put pointer   <br>
+输出哨兵指针，指向内部数组最后一个再后面一个(one-past-the-last-element)的地址（译注：类似<code>std::vector::end()</code>）。可以使用<code>std::streambuf:epptr()</code>来获取</p>
+</li>
+</ul>
+<p><img alt="" src="http://i1.piimg.com/567571/630a89fe635e1635.png"></p>
+<p>一般来说，基指针和哨兵指针不会改变，在使用时，以输出指针维护内部状态。</p>
+<h3 id="_3">维护输入缓冲区的状态</h3>
+<p>输入缓冲区和状态维护和输出缓冲区类似，我们有：</p>
+<ul>
+<li>end back pointer  <br>
+输入基指针，指向缓冲区数组内的最后一个字符。可以使用<code>std::streambuf::eback()</code>来获取</li>
+<li>get pointer   <br>
+输入指针，指向缓冲区下一个读取的字符地址。可以使用<code>std::streambuf::gptr()</code>来获取</li>
+<li>end get pointer    <br>
+输入哨兵指针，批号向内部数组最后一个再后面一个(one-past-the-last-element)的地址。可以使用<code>std::streambuf::egptr()</code>来获取</li>
+</ul>
+<p><img alt="" src="https://github.com/Wizmann/assets/raw/master/wizmann-pic/16-9-27/33500590.jpg"></p>
+<p>同样，基指针和哨兵指针在流缓冲区的生命周期中也不会改变。</p>
+<p>由于输入缓冲区要支持<code>putback()</code>操作，即将读出的字符重新放回缓冲区，所以输入缓冲区比输出缓冲区更复杂一点。通常来说，<code>putback()</code>操作支持放回一个字符即可。</p>
+<p>一个<code>std::streambuf</code>可以同时支持输入输出两种操作，所以我们不需要我分别实现<code>std::istreambuf</code>和<code>std::ostreambuf</code>。<code>std::fstream</code>是一个良好的例子。但是，实现一个全功能的缓冲区相对更复杂一些，所以我就不趟浑水啦~ ：）</p>
+<p>同时，流缓冲区也可以支持宽字符(wide character)。<code>std::streambuf</code>是<code>std::basic_streambuf&lt;char&gt;</code>的别名，如果你需要宽字符流缓冲区，可以使用<code>std::basic_streambuf&lt;wchar_t&gt;</code>。</p>
+<h3 id="1-c">例1：文件缓冲区 —— 与C代码集成</h3>
+<p>假设我们需要调用一个历史悠久的库，一个文件操作函数会返回给一个<code>FILE*</code>指针，但是我们想用C++的流接口来读写数据。我们先从读文件开始，用<code>std::istream</code>包装<code>FILE*</code>的读操作。</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;streambuf&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;vector&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdlib&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdio&gt;</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">FILE_buffer</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">streambuf</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">public</span><span class="o">:</span>
+<span class="w">        </span><span class="k">explicit</span><span class="w"> </span><span class="n">FILE_buffer</span><span class="p">(</span><span class="kt">FILE</span><span class="w"> </span><span class="o">*</span><span class="n">fptr</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="w"> </span><span class="n">buff_sz</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">256</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="w"> </span><span class="n">put_back</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">private</span><span class="o">:</span>
+<span class="w">        </span><span class="c1">// overrides base class underflow()</span>
+<span class="w">        </span><span class="n">int_type</span><span class="w"> </span><span class="n">underflow</span><span class="p">();</span>
+
+<span class="w">        </span><span class="c1">// copy ctor and assignment not implemented;</span>
+<span class="w">        </span><span class="c1">// copying not allowed</span>
+<span class="w">        </span><span class="n">FILE_buffer</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">FILE_buffer</span><span class="w"> </span><span class="o">&amp;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">FILE_buffer</span><span class="w"> </span><span class="o">&amp;</span><span class="k">operator</span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">FILE_buffer</span><span class="w"> </span><span class="o">&amp;</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">private</span><span class="o">:</span>
+<span class="w">        </span><span class="kt">FILE</span><span class="w"> </span><span class="o">*</span><span class="n">fptr_</span><span class="p">;</span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="w"> </span><span class="n">put_back_</span><span class="p">;</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">char</span><span class="o">&gt;</span><span class="w"> </span><span class="n">buffer_</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<p>由于功能简单，我们只需要实现构造函数以及<code>underflow</code>接口就可以实现我们的功能。</p>
+<p>构造函数指定了读取文件的<code>FILE*</code>指针，以及内部缓冲数组的大小。数组大小由两个参数决定：<br>
+* put-back area size       <br>
+* buffer size</p>
+<p>我们使用<code>std::vector&lt;char&gt;</code>做为缓冲区域。<code>put_back_</code>变量用于存储&rdquo;put-back&rdquo;区域的大小。</p>
+<p>以下是构造函数的实现：</p>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="p">;</span>
+
+<span class="n">FILE_buffer</span><span class="o">::</span><span class="n">FILE_buffer</span><span class="p">(</span><span class="kt">FILE</span><span class="w"> </span><span class="o">*</span><span class="n">fptr</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">buff_sz</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">put_back</span><span class="p">)</span><span class="w"> </span><span class="o">:</span>
+<span class="w">    </span><span class="n">fptr_</span><span class="p">(</span><span class="n">fptr</span><span class="p">),</span>
+<span class="w">    </span><span class="n">put_back_</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">max</span><span class="p">(</span><span class="n">put_back</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="p">(</span><span class="mi">1</span><span class="p">))),</span>
+<span class="w">    </span><span class="n">buffer_</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">max</span><span class="p">(</span><span class="n">buff_sz</span><span class="p">,</span><span class="w"> </span><span class="n">put_back_</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">put_back_</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">end</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">buffer_</span><span class="p">.</span><span class="n">front</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">buffer_</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+<span class="w">    </span><span class="n">setg</span><span class="p">(</span><span class="n">end</span><span class="p">,</span><span class="w"> </span><span class="n">end</span><span class="p">,</span><span class="w"> </span><span class="n">end</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>在初始化列表中，我们将缓冲区的常量进行赋值。之后使用<code>std::streambuf::setg()</code>来初始化输出缓冲区。</p>
+<p><code>setg()</code>的三个参数分别代表<code>eback()</code>，<code>gptr()</code>，<code>egptr()</code>三个内部指针的值。一开始，我们将它们都指向同一个地址。表明buffer是空的，在下一次读取时，会重新填充缓冲区。</p>
+<p><code>underflow()</code>会返回数据源中当前的字符。一般来说，会返回buffer中的下一个可用字符。然后当buffer为空时，<code>underflow()</code>应该重新填充缓冲区数组，在本例中，即从<code>FILE*</code>中读取字符。当缓冲区重填后，我们需要再次调用<code>setg()</code>更新流缓冲区的状态。</p>
+<p>当数据源中的数据读完(depleted)后，<code>underflow()</code>会返回一个<code>traits_type::eof()</code>。这里要注意，<code>underflow()</code>的返回值是<code>int_type</code>，这个值足够装下<code>eof()</code>，同时也足够装下任何的字符。</p>
+<div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="n">streambuf</span><span class="o">::</span><span class="n">int_type</span><span class="w"> </span><span class="nf">FILE_buffer::underflow</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gptr</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">egptr</span><span class="p">())</span><span class="w"> </span><span class="c1">// buffer not exhausted</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">traits_type</span><span class="o">::</span><span class="n">to_int_type</span><span class="p">(</span><span class="o">*</span><span class="n">gptr</span><span class="p">());</span>
+
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">base</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">buffer_</span><span class="p">.</span><span class="n">front</span><span class="p">();</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">base</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">eback</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">base</span><span class="p">)</span><span class="w"> </span><span class="c1">// true when this isn&#39;t the first fill</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Make arrangements for putback characters</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">memmove</span><span class="p">(</span><span class="n">base</span><span class="p">,</span><span class="w"> </span><span class="n">egptr</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">put_back_</span><span class="p">,</span><span class="w"> </span><span class="n">put_back_</span><span class="p">);</span>
+<span class="w">        </span><span class="n">start</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">put_back_</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// start is now the start of the buffer, proper.</span>
+<span class="w">    </span><span class="c1">// Read from fptr_ in to the provided buffer</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">fread</span><span class="p">(</span><span class="n">start</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">buffer_</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">(</span><span class="n">start</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">base</span><span class="p">),</span><span class="w"> </span><span class="n">fptr_</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">traits_type</span><span class="o">::</span><span class="n">eof</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">// Set buffer pointers</span>
+<span class="w">    </span><span class="n">setg</span><span class="p">(</span><span class="n">base</span><span class="p">,</span><span class="w"> </span><span class="n">start</span><span class="p">,</span><span class="w"> </span><span class="n">start</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">n</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">traits_type</span><span class="o">::</span><span class="n">to_int_type</span><span class="p">(</span><span class="o">*</span><span class="n">gptr</span><span class="p">());</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>函数的第一行，首先判断buffer是否耗尽。如果否，则返回当前字符，即<code>*gptr()</code>。如果是，则进行重填(re-fill)操作。</p>
+<p>回想一下我们在构造函数中的实现，三个状态指针全都指向缓冲区的末尾。如果我们调用<code>underflow()</code>时，发现状态指针并非如此，则说明缓冲区已经被填充了至少一次。</p>
+<p>现在我们考虑重填操作，我们<code>memmove</code>最后<code>put_back_</code>个字符到buffer的末尾，用做&rdquo;put-back area&rdquo;。（我们不用<code>memcopy</code>因为我们的buffer比较小，`memmove()的效率会更高一些）</p>
+<blockquote>
+<p>译注：实际上，<code>memcopy</code>与<code>memmove</code>各有所长。<code>memcopy</code>不需要判断内存overlap的情况，即如果源区间与目标区间有重叠，那么得到的结果会是错的。而<code>memmove</code>由于是移动语义，所以在移动步长较小时，可以只操作cache。所以二者各有所长，要根据具体情况判断优劣。Stackoverflow上有更详细的<a href="http://stackoverflow.com/questions/28623895/why-is-memmove-faster-than-memcpy">讨论</a></p>
+</blockquote>
+<p>我们处理完&rdquo;put-back area&rdquo;之后，就可以使用<code>fread()</code>函数来重填缓冲区了。如果读不到数据，则意味着文件已经读到了结尾（当然这是一种简化情况，但在现实中99.9%的读取失败都是因为文件结束）。</p>
+<p>在<code>fread()</code>成功读取数据之后，我们通知streambuf更新内部的三个状态指针。之后返回buffer当前的指针。</p>
+<p>这就是我们的流缓冲区的基本实现，希望这并不是太难。当然我们还可以添加更多的功能。特别的是我们可以在缓冲区里面进行查找。如果你想实现它的话，可以试试重写<code>std::streambuf::seekoff()</code>和<code>std::streambuf::seekpos</code>虚成员函数。</p>
+<p>我们也可以实现写缓冲区。不过，在你们读完第三个例子之后，你们就可以轻松愉快的实现自己的版本了，不骗你。</p>
+<h3 id="2">例2：读取内存中的数组</h3>
+<p>本例中，我们要使用<code>std::istream</code>包装内存中的一个只读数组，并且格式化的进行读入。这个例子和上一个例子有一点不同的是，我们并不需要一个真正的缓冲数组，从源数组一次性读取就好了。</p>
+<p>想象中的实现是这个样式儿的：</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">char_array_buffer</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">streambuf</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">public</span><span class="o">:</span>
+<span class="w">        </span><span class="n">char_array_buffer</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">begin</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">end</span><span class="p">)</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="n">setg</span><span class="p">(</span><span class="n">begin</span><span class="p">,</span><span class="w"> </span><span class="n">begin</span><span class="p">,</span><span class="w"> </span><span class="n">end</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="n">int_type</span><span class="w"> </span><span class="n">underflow</span><span class="p">()</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w">  </span><span class="n">gptr</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">egptr</span><span class="p">()</span><span class="w"> </span><span class="o">?</span>
+<span class="w">                    </span><span class="n">traits_type</span><span class="o">::</span><span class="n">eof</span><span class="p">()</span><span class="w"> </span><span class="o">:</span>
+<span class="w">                    </span><span class="n">traits_type</span><span class="o">::</span><span class="n">to_int_type</span><span class="p">(</span><span class="o">*</span><span class="n">gptr</span><span class="p">());</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<p>但是，这并没有什么卵用。因为<code>setg()</code>函数只接受非常量(non-const)指针参数。这显而易见，如果一个缓冲区不可写，我们就不能提供&rdquo;put-back&rdquo;功能。所以我们要动一动手脚，重新实现一下这个类。</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;streambuf&gt;</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">char_array_buffer</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">streambuf</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">public</span><span class="o">:</span>
+<span class="w">        </span><span class="n">char_array_buffer</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">begin</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">end</span><span class="p">);</span>
+<span class="w">        </span><span class="k">explicit</span><span class="w"> </span><span class="n">char_array_buffer</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">str</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">private</span><span class="o">:</span>
+<span class="w">        </span><span class="n">int_type</span><span class="w"> </span><span class="n">underflow</span><span class="p">();</span>
+<span class="w">        </span><span class="n">int_type</span><span class="w"> </span><span class="nf">uflow</span><span class="p">();</span>
+<span class="w">        </span><span class="n">int_type</span><span class="w"> </span><span class="nf">pbackfail</span><span class="p">(</span><span class="n">int_type</span><span class="w"> </span><span class="n">ch</span><span class="p">);</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">streamsize</span><span class="w"> </span><span class="nf">showmanyc</span><span class="p">();</span>
+
+<span class="w">        </span><span class="c1">// copy ctor and assignment not implemented;</span>
+<span class="w">        </span><span class="c1">// copying not allowed</span>
+<span class="w">        </span><span class="n">char_array_buffer</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">char_array_buffer</span><span class="w"> </span><span class="o">&amp;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">char_array_buffer</span><span class="w"> </span><span class="o">&amp;</span><span class="k">operator</span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">char_array_buffer</span><span class="w"> </span><span class="o">&amp;</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">private</span><span class="o">:</span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">begin_</span><span class="p">;</span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">end_</span><span class="p">;</span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">current_</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<p>在这个版本中，我们重写了几个私有函数，这些函数都是从<code>std::streambuf</code>继承而来。</p>
+<p>第一个构造函数需要用户指定起止指针，而第二个构造函数只需要指定起始指针，之后我们会调用<code>std::strlen()</code>来判断字符串的大小。</p>
+<p>我们使用<code>uflow()</code>, <code>pbackfail()</code>和<code>showmanyc()</code>来维护缓冲区内部的状态，而不是调用<code>setg()</code>，因为buffer并不可写。</p>
+<p>在这个版本中，我们要手动维护<code>eback</code>, <code>gptr</code>, <code>egptr</code>三个指针。在构造函数中，我们将对其进行赋值。</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;char_array_buffer.hpp&quot;</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;functional&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cassert&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstring&gt;</span>
+
+<span class="n">char_array_buffer</span><span class="o">::</span><span class="n">char_array_buffer</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">begin</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">end</span><span class="p">)</span><span class="w"> </span><span class="o">:</span>
+<span class="w">    </span><span class="n">begin_</span><span class="p">(</span><span class="n">begin</span><span class="p">),</span>
+<span class="w">    </span><span class="n">end_</span><span class="p">(</span><span class="n">end</span><span class="p">),</span>
+<span class="w">    </span><span class="n">current_</span><span class="p">(</span><span class="n">begin_</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">assert</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">less_equal</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*&gt;</span><span class="p">()(</span><span class="n">begin_</span><span class="p">,</span><span class="w"> </span><span class="n">end_</span><span class="p">));</span>
+<span class="p">}</span>
+
+<span class="n">char_array_buffer</span><span class="o">::</span><span class="n">char_array_buffer</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">str</span><span class="p">)</span><span class="w"> </span><span class="o">:</span>
+<span class="w">    </span><span class="n">begin_</span><span class="p">(</span><span class="n">str</span><span class="p">),</span>
+<span class="w">    </span><span class="n">end_</span><span class="p">(</span><span class="n">begin_</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">strlen</span><span class="p">(</span><span class="n">str</span><span class="p">)),</span>
+<span class="w">    </span><span class="n">current_</span><span class="p">(</span><span class="n">begin_</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>之前我们使用<code>underflow()</code>来获取当前字符，但这次我们需要使用<code>uflow()</code>。因为<code>uflow()</code>需要同时执行两步操作，一是获取当前字符，二是让<code>gptr()</code>前进一步。但是又因为缓冲区由我们手动管理，<code>std::streambuf</code>并不能正确的执行管理操作。所以我们需要重写<code>uflow()</code>而不是<code>underflow()</code>。</p>
+<div class="highlight"><pre><span></span><code><span class="nx">char_array_buffer</span><span class="o">::</span><span class="nx">int_type</span><span class="w"> </span><span class="nx">char_array_buffer</span><span class="o">::</span><span class="nx">uflow</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">current_</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nx">end_</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">traits_type</span><span class="o">::</span><span class="nx">eof</span><span class="p">();</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">traits_type</span><span class="o">::</span><span class="nx">to_int_type</span><span class="p">(</span><span class="o">*</span><span class="nx">current_</span><span class="o">++</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>下一步我们还要实现<code>pbackfail()</code>。当我们调用<code>std::istream::unget()</code>或<code>std::istream::putback(ch)</code>时，我们会把已经读出的数据写回数组中。但是由于数组是只读的，所以我们只能模拟这种操作。</p>
+<p>在默认的实现中<code>pbackfail()</code>只会返回<code>traits_type::eof()</code>，而在我们的版本中，如果写回成功，将会返回写回的字符，不成功返回eof。</p>
+<div class="highlight"><pre><span></span><code><span class="n">char_array_buffer</span><span class="o">::</span><span class="n">int_type</span><span class="w"> </span><span class="nf">char_array_buffer::pbackfail</span><span class="p">(</span><span class="n">int_type</span><span class="w"> </span><span class="n">ch</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">current_</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">begin_</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">(</span><span class="n">ch</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">traits_type</span><span class="o">::</span><span class="n">eof</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">current_</span><span class="p">[</span><span class="mi">-1</span><span class="p">]))</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">traits_type</span><span class="o">::</span><span class="n">eof</span><span class="p">();</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">traits_type</span><span class="o">::</span><span class="n">to_int_type</span><span class="p">(</span><span class="o">*--</span><span class="n">current_</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>在<code>FILE_buffer</code>中，我们也可以考虑重写<code>pbackfail()</code>，来提供反向查找以及（用前面的数据）重填buffer的功能。</p>
+<p>最后一个重写的函数是<code>showmanyc()</code>，这个函数被<code>std::streambuf::in_avail()</code>调用，以判断当前有多少个字符可以返回。由于我们接管了状态指针，所以这个函数也要我们自己来实现啊。（译者：为什么要给自己找麻烦。。。）</p>
+<div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="n">streamsize</span><span class="w"> </span><span class="nf">char_array_buffer::showmanyc</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">assert</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">less_equal</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*&gt;</span><span class="p">()(</span><span class="n">current_</span><span class="p">,</span><span class="w"> </span><span class="n">end_</span><span class="p">));</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">end_</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">current_</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>由此可见，本例中的buffer比前面的要复杂一点点。这是因为我们接管了状态维护的工作。这使得我们更好的理解了<code>std::streambuf</code>内部是如何工作的。</p>
+<h3 id="3">例3：句首变大写的缓冲区</h3>
+<p>本例中我们将要实现一个将句首字符变大写的buffer。当然我们只考虑最基本的情况，移植到不同的区域和语言，其实是很琐碎的事情。（译者：文字编码坑的亲妈都不认了）</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;streambuf&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iosfwd&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdlib&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;vector&gt;</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">caps_buffer</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">streambuf</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">public</span><span class="o">:</span>
+<span class="w">        </span><span class="k">explicit</span><span class="w"> </span><span class="n">caps_buffer</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">ostream</span><span class="w"> </span><span class="o">&amp;</span><span class="n">sink</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="w"> </span><span class="n">buff_sz</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">256</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">protected</span><span class="o">:</span>
+<span class="w">        </span><span class="kt">bool</span><span class="w"> </span><span class="n">do_caps_and_flush</span><span class="p">();</span>
+
+<span class="w">    </span><span class="k">private</span><span class="o">:</span>
+<span class="w">        </span><span class="n">int_type</span><span class="w"> </span><span class="n">overflow</span><span class="p">(</span><span class="n">int_type</span><span class="w"> </span><span class="n">ch</span><span class="p">);</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="nf">sync</span><span class="p">();</span>
+
+<span class="w">        </span><span class="c1">// copy ctor and assignment not implemented;</span>
+<span class="w">        </span><span class="c1">// copying not allowed</span>
+<span class="w">        </span><span class="n">caps_buffer</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">caps_buffer</span><span class="w"> </span><span class="o">&amp;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">caps_buffer</span><span class="w"> </span><span class="o">&amp;</span><span class="k">operator</span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">caps_buffer</span><span class="w"> </span><span class="o">&amp;</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">private</span><span class="o">:</span>
+<span class="w">        </span><span class="kt">bool</span><span class="w"> </span><span class="n">cap_next_</span><span class="p">;</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">ostream</span><span class="w"> </span><span class="o">&amp;</span><span class="n">sink_</span><span class="p">;</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">char</span><span class="o">&gt;</span><span class="w"> </span><span class="n">buffer_</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<p>这里我们需要重写<code>overflow()</code>和<code>sync()</code>函数。<code>overflow()</code>在输入缓冲区满的时候被调用，并且在成功时返回任意非eof的值。</p>
+<p><code>sync()</code>的作用是把当前的buffer写入目标，即使当前buffer并未填满。<code>std::flush()</code>会调用<code>sync()</code>函数，当失败时返回-1。</p>
+<p>我们编写一个辅助函数<code>do_caps_and_flush()</code>，用来将小写变大写，并写入<code>sink_</code>输出流。我们再声明一个哨兵变量<code>cap_next_</code>来标识下一个字符是否需要小写变大写。</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;caps_buffer.hpp&quot;</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cctype&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;ostream&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;functional&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cassert&gt;</span>
+
+<span class="n">caps_buffer</span><span class="o">::</span><span class="n">caps_buffer</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">ostream</span><span class="w"> </span><span class="o">&amp;</span><span class="n">sink</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="w"> </span><span class="n">buff_sz</span><span class="p">)</span><span class="w"> </span><span class="o">:</span>
+<span class="w">    </span><span class="n">cap_next_</span><span class="p">(</span><span class="nb">true</span><span class="p">),</span>
+<span class="w">    </span><span class="n">sink_</span><span class="p">(</span><span class="n">sink</span><span class="p">),</span>
+<span class="w">    </span><span class="n">buffer_</span><span class="p">(</span><span class="n">buff_sz</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">sink_</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">base</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">buffer_</span><span class="p">.</span><span class="n">front</span><span class="p">();</span>
+<span class="w">    </span><span class="n">setp</span><span class="p">(</span><span class="n">base</span><span class="p">,</span><span class="w"> </span><span class="n">base</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">buffer_</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"> </span><span class="c1">// -1 to make overflow() easier</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><code>buffer_</code>的最小可能大小是1，同时我们也只需要维护两个指针，因为这里不需要像输入缓冲区一样的维护&rdquo;put-back area&rdquo;。</p>
+<p>我们把<code>buffer_</code>的大小设成<code>buff_sz + 1</code>，这样是为了<code>overflow()</code>被调用时，我们有一个额外的空间存储当前的字符。最后将缓冲区数组和最后一个字符一起刷新到<code>ostream</code>中。</p>
+<div class="highlight"><pre><span></span><code><span class="n">caps_buffer</span><span class="o">::</span><span class="n">int_type</span><span class="w"> </span><span class="nf">caps_buffer::overflow</span><span class="p">(</span><span class="n">int_type</span><span class="w"> </span><span class="n">ch</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sink_</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">traits_type</span><span class="o">::</span><span class="n">eof</span><span class="p">())</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">assert</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">less_equal</span><span class="o">&lt;</span><span class="kt">char</span><span class="w"> </span><span class="o">*&gt;</span><span class="p">()(</span><span class="n">pptr</span><span class="p">(),</span><span class="w"> </span><span class="n">epptr</span><span class="p">()));</span>
+<span class="w">        </span><span class="o">*</span><span class="n">pptr</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ch</span><span class="p">;</span>
+<span class="w">        </span><span class="n">pbump</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">do_caps_and_flush</span><span class="p">())</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">ch</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">traits_type</span><span class="o">::</span><span class="n">eof</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>第一步是把ch写入<code>buffer_</code>，并且使用<code>pbump(1)</code>将<code>pptr()</code>向前移一位。之后调用<code>do_caps_and_flush()</code>做一些脏活，之后返回一个字符声明调用成功。</p>
+<p><code>sync()</code>的实现也非常简单:</p>
+<div class="highlight"><pre><span></span><code><span class="kt">int</span><span class="w"> </span><span class="nf">caps_buffer::sync</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">do_caps_and_flush</span><span class="p">()</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>我们再看一看<code>do_caps_and_flush()</code>函数</p>
+<div class="highlight"><pre><span></span><code><span class="kt">bool</span><span class="w"> </span><span class="nf">caps_buffer::do_caps_and_flush</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pbase</span><span class="p">(),</span><span class="w"> </span><span class="o">*</span><span class="n">e</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pptr</span><span class="p">();</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">e</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">p</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">p</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;.&#39;</span><span class="p">)</span>
+<span class="w">            </span><span class="n">cap_next_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="w">        </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">isalpha</span><span class="p">(</span><span class="o">*</span><span class="n">p</span><span class="p">))</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cap_next_</span><span class="p">)</span>
+<span class="w">                </span><span class="o">*</span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">toupper</span><span class="p">(</span><span class="o">*</span><span class="n">p</span><span class="p">);</span>
+
+<span class="w">            </span><span class="n">cap_next_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="kt">ptrdiff_t</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pptr</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">pbase</span><span class="p">();</span>
+<span class="w">    </span><span class="n">pbump</span><span class="p">(</span><span class="o">-</span><span class="n">n</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">sink_</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="n">pbase</span><span class="p">(),</span><span class="w"> </span><span class="n">n</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>对于本例来说，内部的缓冲区并非必要，我们可以一个字符一个字符把数据发到<code>sink</code>中。但是我的观点是一个内部buffer仍有其用处。</p>
+<h3 id="boost-iostreams">介绍 Boost IOStreams 库</h3>
+<p>如果你是流缓冲区的新手，希望你已经对它有一点点了解了。本文中的例子都非常基础，但是你可以用它们做更多有意思的事情。但是当我实现更复杂的流缓冲区时，问题的复杂度却上升的很快。这时我发现了<code>Boost IOStreams</code>库，它为更复杂的缓冲区和流提供了必要的框架支持。</p>
+<p>它允许你解耦数据源，数据输出，过滤器以及其它一些概念。在我们的最后一个例子中，我们硬编码数据输出到<code>std::ostream</code>中。如果我们要输出到一个没有流接口的类呢？<code>Boost IOStreams</code>库提供了更多的灵活性，将一坨紧耦合的代码分解成独立的抽象概念。</p>
+<h3 id="_4">扩展阅读</h3>
+<ul>
+<li>The C++ Standard Library by Nicolai M. Josuttis</li>
+<li>The C++ Standard, BS ISO/IEC 14882:2003 (Second Edition)</li>
+<li><a href="http://www.dinkumware.com/manuals/">Dinkum Compleat Reference online</a></li>
+</ul>
+            </div>
+            <!-- /.entry-content -->
+    <hr/>
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+            var disqus_config = function () {
+                this.language = "zhs";
+
+                        this.page.identifier = '2016-09-28-phxrpc-1';
+                        this.page.url = 'https://wizmann.top/phxrpc-1.html';
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="https://github.com/wizmann"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="https://wizmann.top//feeds/all.atom.xml"><i class="fa fa-rss-square fa-lg"></i> rss</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://wizmann.top/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/cpp.html">cpp</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/algorithm.html">algorithm</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/suan-fa.html">算法</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/codeforces.html">codeforces</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/c.html">C++</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/fen-bu-shi-xi-tong.html">分布式系统</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/ti-jie.html">题解</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/udp.html">UDP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/cas.html">cas</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rpc.html">rpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-xi-tong.html">数据系统</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-ku.html">数据库</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/leetcode.html">Leetcode</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/interview.html">interview</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multithread.html">multithread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/jian-suo-zeng-qiang-sheng-cheng.html">检索增强生成</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xian-liao.html">闲聊</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rag.html">RAG</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/modern-cpp.html">modern cpp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/protocol.html">protocol</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multi-thread.html">multi-thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/yi-zhi-xing.html">一致性</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/networking.html">networking</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/storage.html">storage</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xin-xi-jian-suo.html">信息检索</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/stup.html">STUP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/distributed-system.html">Distributed System</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/phxrpc.html">phxrpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/memory-barrier.html">memory-barrier</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/system-design.html">System Design</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/thread.html">thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/llm.html">LLM</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/tcp.html">tcp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/duo-xian-cheng.html">多线程</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/gong-kai-ke.html">公开课</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spinpromela.html">SPIN/Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/promela.html">Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/storage-system.html">storage system</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/google.html">Google</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/bing-fa-bian-cheng.html">并发编程</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/induction.html">induction</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/raft.html">raft</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/ucontext.html">ucontext</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/paxos.html">paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cse351.html">CSE351</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cmpxchg.html">cmpxchg</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/basic-paxos.html">basic paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/solution.html">Solution</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/azure.html">azure</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/async.html">async</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/3d-printing.html">3D printing</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/shu-ju-mi-ji-xing-ying-yong-xi-tong.html">数据密集型应用系统</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spin.html">SPIN</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-mo-xing.html">数据模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yi-zhi-xing-xie-yi.html">一致性协议</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/zi-fu-chuan-zhong-xie-xi-tong.html">字符串重写系统</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-xing-dp.html">树形DP</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-bian-cheng.html">编译期编程</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/mutex.html">mutex</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yuan-lei.html">元类</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon.html">CppCon</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon2024.html">CppCon2024</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dda-yin.html">3D打印</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/led.html">LED</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nei-cun-mo-xing.html">内存模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-shi-wu.html">分布式事务</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/diy.html">DIY</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/excrt.html">excrt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/segment-tree.html">segment-tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-lian-pou-fen.html">树链剖分</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/an-quan-xing.html">安全性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dp.html">dp</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bing-fa.html">并发</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/qi-fa-shi-he-bing.html">启发式合并</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/semaphore.html">semaphore</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-gong-shi.html">分布式共识</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nosql.html">nosql</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/post.html">Post</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-bian-ma.html">数据编码</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/litmus.html">litmus</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fan-she.html">反射</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/si-suo.html">死锁</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/hash.html">hash</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/partitioning.html">partitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/xian-duan-shu.html">线段树</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/volatile.html">volatile</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-jie-gou.html">数据结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/ab.html">A=B</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/tu-ling-wan-bei-xing.html">图灵完备性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/suo-yin-jie-gou.html">索引结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/repartitioning.html">repartitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/thue.html">Thue</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/crt.html">crt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/herb-sutter.html">Herb Sutter</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/condition_variable.html">condition_variable</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dsu-on-tree.html">DSU on Tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/math.html">math</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-you-hua.html">编译器优化</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/deng-ju-she-ji.html">灯具设计</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dmo-xing.html">3D模型</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2025 Wizmann
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://wizmann.top/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://wizmann.top/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://wizmann.top/theme/js/respond.min.js"></script>
+
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-46053117-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+
+</body>
+</html>

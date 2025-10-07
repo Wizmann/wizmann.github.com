@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="zhs" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>浅淡TCP BBR - Maerlyn's Rainbow</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <link href="https://wizmann.top/statistics/favicon.png" rel="icon">
+
+<link rel="canonical" href="https://wizmann.top/bbr-intro.html">
+
+        <meta name="author" content="Wizmann" />
+        <meta name="keywords" content="tcp,networking,bbr" />
+        <meta name="description" content="背景 在一对跨地域的机器（美国&lt;-&gt;香港），使用TCP（Cubic拥塞控制算法）通信throughput最高2MB/s，丢包率0.02%。使用UDP通信throughput最高能达到140MB/s。 这是一个非常典型的长肥管道（LFN），并且丢包 …" />
+
+        <meta property="og:site_name" content="Maerlyn's Rainbow" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="浅淡TCP BBR"/>
+        <meta property="og:url" content="https://wizmann.top/bbr-intro.html"/>
+        <meta property="og:description" content="背景 在一对跨地域的机器（美国&lt;-&gt;香港），使用TCP（Cubic拥塞控制算法）通信throughput最高2MB/s，丢包率0.02%。使用UDP通信throughput最高能达到140MB/s。 这是一个非常典型的长肥管道（LFN），并且丢包 …"/>
+        <meta property="article:published_time" content="2021-08-17" />
+            <meta property="article:section" content="Blog" />
+            <meta property="article:tag" content="tcp" />
+            <meta property="article:tag" content="networking" />
+            <meta property="article:tag" content="bbr" />
+            <meta property="article:author" content="Wizmann" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://wizmann.top/theme/css/bootstrap.flatly.min.css" type="text/css"/>
+    <link href="https://wizmann.top/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://wizmann.top/theme/css/pygments/solarizedlight.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://wizmann.top/theme/css/style.css" type="text/css"/>
+
+        <link href="https://wizmann.top/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow ATOM Feed"/>
+
+        <link href="https://wizmann.top/feeds/blog.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow Blog ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://wizmann.top/" class="navbar-brand">
+Maerlyn's Rainbow            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="/category/blog.html">Blog</a></li>
+                    <li><a href="https://vijos.org/d/wizmann/p">Online Judge</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://wizmann.top/bbr-intro.html"
+                       rel="bookmark"
+                       title="Permalink to 浅淡TCP BBR">
+                        浅淡TCP BBR
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2021-08-17T00:00:00+08:00"> 2021-08-17</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://wizmann.top/tag/tcp.html">tcp</a>
+        /
+	<a href="https://wizmann.top/tag/networking.html">networking</a>
+        /
+	<a href="https://wizmann.top/tag/bbr.html">bbr</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h2 id="_1">背景</h2>
+<p>在一对跨地域的机器（美国&lt;-&gt;香港），使用TCP（Cubic拥塞控制算法）通信throughput最高2MB/s，丢包率0.02%。使用UDP通信throughput最高能达到140MB/s。</p>
+<p>这是一个非常典型的长肥管道（LFN），并且丢包率比较高。尝试使用BBR算法后，throughput可达50MB/s+（Windows系统，通信协议使用用户态MsQuic）。</p>
+<h2 id="loss-based-congestion-control-algorithm">Loss-based Congestion Control Algorithm</h2>
+<p>Reno和Cubic是比较经典的，用于TCP的拥塞控制算法。这一类算法使用的是基于丢包反馈的思想，即一旦产生了丢包，就认为链路上产生了拥塞。先将拥塞窗口减半，再进入快速恢复模式。</p>
+<p>在快速恢复完成后中，就又会重新进入拥塞避免阶段。</p>
+<p><img alt="TCP-Reno-Cubic" src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/21-08-16/2021-08-16_23-07-29.png"></p>
+<p>Reno当收到一个ACK包时，会将拥塞窗口增大一个MSS，窗口大小线性增长。而Cubic使用的是一个基于上次拥塞事件产生时间的三次函数，所以拥塞窗口能更快速的恢复到拥塞事件发生之前的大小。</p>
+<p>但无论是Reno还是Cubic，在遭遇高丢包率的时候，其拥塞控制窗口的大小会一直处于一个非常小的状态。</p>
+<p>在RTT较大时，拥塞窗口的大小增长速度更加缓慢，使得带宽利用率长时间维持在一个较低的状态。</p>
+<p>下图为Cubic在有丢包（0.002%, 0.02%, 0.2%, 1%, 2%），高延时（200ms RTT）的网络条件下throughput数据。</p>
+<p><img alt="cubic-bandwidth" src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/21-08-17/2021-08-17_00-18-45.png"></p>
+<h2 id="bbr-congestion-based-congestion-control">BBR - Congestion-based Congestion Control</h2>
+<p>不同于Reno和Cubic，BBR并没有使用“丢包”做为拥塞产生的信号，而是构建了一个反馈系统，通过时延的变化来确定链路上是否发生了拥塞。</p>
+<h3 id="_2">拥塞产生的三个阶段</h3>
+<p><img alt="BBR-3-stages" src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/21-08-17/2021-08-17_00-58-34.png"></p>
+<ul>
+<li>
+<p>App Limited 应用限制阶段  <br>
+在此阶段，数据传输速率由用户程序决定。用户程序并没有利用所有的带宽，RTT维持稳定</p>
+</li>
+<li>
+<p>Bandwidth Limited 带宽限制阶段            <br>
+在此阶段，数据传输速率由链路带宽所决定，有效吞吐量等于链路带宽。但由于链路缓存的存在，发送端的发送速率可以略大于链路带宽。此时数据开始在链路缓存上堆积，RTT增加</p>
+</li>
+<li>
+<p>Buffer Limited 缓冲区限制阶段           <br>
+当链路缓存无法容纳所有的数据包时，就会产生丢包</p>
+</li>
+</ul>
+<p>Loss-based拥塞控制算法会在阶段3的时候产生“拥塞”信号，但是此时大概率为时已晚。因为链路缓存堆积的数据已经开始影响RTT，并且各个节点之间的缓存大小差异，还会导致短时间内的持续丢包，使得拥塞窗口大小急剧减小。</p>
+<p>而BBR会将拥塞控制在阶段1和阶段2的交界处，这样可以最大化利用带宽，并且使得链路时延最小。</p>
+<h3 id="_3">确定拥塞窗口的大小</h3>
+<p>从理论上分析，要使一条连接同时保持最高throughput和最小的延迟，那么其发送速率一定等于网络带宽。此时，在途的数据大小BDP = BtlBw × RTprop，就可以用满链路的带宽而不产生拥塞。</p>
+<p>BDP意为“带宽时延乘积”。而BtlBw意为“瓶颈带宽”，即为整条链路中，带宽最小的部分。RTprop意为“链路固有传输延迟”。</p>
+<blockquote>
+<p>RTT（往返时延）与RTprop（链路固有传输延迟）的区别是：RTT包括了收发两端应用层的时延，而RTprop只包含网络传播的时延</p>
+</blockquote>
+<p>不凑巧的是，在通信中我们几乎无法直接确定BtlBw和RTprop。BBR建立了一个模型来对其进行估计。公式如下：</p>
+<p><img alt="rtprop-hat" src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/21-08-17/2021-08-17_10-02-28.png"></p>
+<p>η代表的是网络队列的抖动、接收方ACK时延等等。</p>
+<p><img alt="btlbw-hat" src="https://raw.githubusercontent.com/Wizmann/assets/master/wizmann-pic/21-08-17/2021-08-17_10-04-06.png"></p>
+<p>但是，时延与带宽无法同时探测。因为探测时延时，我们必然要减慢发包速度，排空队列避免拥塞；而探测带宽时，我们需要尽量占满带宽，以检测ACK速率是否发生变化。所以时延与带宽的探测需要交替进行。</p>
+<h4 id="probertt-">ProbeRTT - 时延探测</h4>
+<p>BBR每10秒钟会进入时延探测状态。在此状态下，BBR会限制拥塞窗口的大小到4个MSS（<a href="https://blog.csdn.net/dog250/article/details/72042516">为什么？</a>）。当收到ACK包后，会更新MinRTT的取样值。</p>
+<h4 id="probebw-">ProbeBW - 带宽探测</h4>
+<p>BBR大部分时间都会处于ProbeBW状态。</p>
+<p>BBR通过计算包的发送时间与收到ACK时间的差来确定带宽，使用“送达速度”来拟合带宽。</p>
+<p><img alt="bw-probe-pacing" src="https://raw.githubusercontent.com/Wizmann/assets/6b0dcc0d2f7b2446ea0c3ca6faec29da6f28dc7e/wizmann-pic/21-08-17/image.png"></p>
+<p>同时，BBR会采用gain cycle来随机微调（+25%, -25%, 不变）发送速率，以实时检测链路上带宽的变化。（图中的绿线看起来像心电图的部分）</p>
+<h3 id="_4">性能比较</h3>
+<p>这里是Cubic与BBR在有丢包（0.002%, 0.02%, 0.2%, 1%, 2%），高延时（200ms RTT）的网络条件下的throughput对比。</p>
+<p><img alt="perf-bbr-cubic" src="https://raw.githubusercontent.com/Wizmann/assets/8a78e8e7c7193f4bf5d6de01997f21491f3794ab/wizmann-pic/21-08-17/Snipaste_2021-08-17_14-54-21.png"></p>
+<h2 id="_5">杂项</h2>
+<p>在Linux系统下，可以使用tc命令模拟不同的网络状态。</p>
+<p>例如100ms延迟（RTT=2*延迟），1%丢包率：</p>
+<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>tc<span class="w"> </span>qdisc<span class="w"> </span>add<span class="w"> </span>dev<span class="w"> </span>lo<span class="w"> </span>root<span class="w"> </span>handle<span class="w"> </span><span class="m">1</span>:0<span class="w"> </span>netem<span class="w"> </span>delay<span class="w"> </span>100msec<span class="w"> </span>loss<span class="w"> </span><span class="m">1</span>%
+</code></pre></div>
+
+<p>在Windows下可以使用<a href="http://jagt.github.io/clumsy/">Clumsy</a>进行模拟，但是有怀疑其会严重影响网络性能，效果有待进一步测试。</p>
+<p>在Linux系统下，可以使用以下命令替换系统congestion control算法。</p>
+<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>sysctl<span class="w"> </span>-w<span class="w"> </span>net.ipv4.tcp_congestion_control<span class="o">=</span>cubic
+sudo<span class="w"> </span>sysctl<span class="w"> </span>-w<span class="w"> </span>net.ipv4.tcp_congestion_control<span class="o">=</span>bbr
+</code></pre></div>
+
+<h2 id="references">References</h2>
+<ul>
+<li><a href="https://juejin.cn/post/6844904065759969287">浅谈TCP/IP传输层TCP BBR算法</a></li>
+<li><a href="https://en.wikipedia.org/wiki/CUBIC_TCP">CUBIC TCP</a></li>
+<li><a href="https://queue.acm.org/detail.cfm?id=3022184">BBR: Congestion-Based Congestion Control</a></li>
+<li><a href="https://github.com/facebookincubator/mvfst">facebookincubator/mvfst</a></li>
+<li><a href="https://blog.csdn.net/dog250/article/details/72042516">使用TCP时序图解释BBR拥塞控制算法的几个细节</a></li>
+</ul>
+            </div>
+            <!-- /.entry-content -->
+    <hr/>
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+            var disqus_config = function () {
+                this.language = "zhs";
+
+                        this.page.identifier = '2021-08-17-bbr-intro';
+                        this.page.url = 'https://wizmann.top/bbr-intro.html';
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="https://github.com/wizmann"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="https://wizmann.top//feeds/all.atom.xml"><i class="fa fa-rss-square fa-lg"></i> rss</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://wizmann.top/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/cpp.html">cpp</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/algorithm.html">algorithm</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/suan-fa.html">算法</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/codeforces.html">codeforces</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/c.html">C++</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/fen-bu-shi-xi-tong.html">分布式系统</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/ti-jie.html">题解</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/udp.html">UDP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/cas.html">cas</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rpc.html">rpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-xi-tong.html">数据系统</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-ku.html">数据库</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/leetcode.html">Leetcode</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/interview.html">interview</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multithread.html">multithread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/jian-suo-zeng-qiang-sheng-cheng.html">检索增强生成</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xian-liao.html">闲聊</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rag.html">RAG</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/modern-cpp.html">modern cpp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/protocol.html">protocol</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multi-thread.html">multi-thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/yi-zhi-xing.html">一致性</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/networking.html">networking</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/storage.html">storage</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xin-xi-jian-suo.html">信息检索</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/stup.html">STUP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/distributed-system.html">Distributed System</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/phxrpc.html">phxrpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/memory-barrier.html">memory-barrier</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/system-design.html">System Design</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/thread.html">thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/llm.html">LLM</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/tcp.html">tcp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/duo-xian-cheng.html">多线程</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/gong-kai-ke.html">公开课</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spinpromela.html">SPIN/Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/promela.html">Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/storage-system.html">storage system</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/google.html">Google</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/bing-fa-bian-cheng.html">并发编程</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/induction.html">induction</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/raft.html">raft</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/ucontext.html">ucontext</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/paxos.html">paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cse351.html">CSE351</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cmpxchg.html">cmpxchg</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/basic-paxos.html">basic paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/solution.html">Solution</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/azure.html">azure</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/async.html">async</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/3d-printing.html">3D printing</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/shu-ju-mi-ji-xing-ying-yong-xi-tong.html">数据密集型应用系统</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spin.html">SPIN</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-mo-xing.html">数据模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yi-zhi-xing-xie-yi.html">一致性协议</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/zi-fu-chuan-zhong-xie-xi-tong.html">字符串重写系统</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-xing-dp.html">树形DP</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-bian-cheng.html">编译期编程</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/mutex.html">mutex</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yuan-lei.html">元类</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon.html">CppCon</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon2024.html">CppCon2024</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dda-yin.html">3D打印</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/led.html">LED</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nei-cun-mo-xing.html">内存模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-shi-wu.html">分布式事务</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/diy.html">DIY</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/excrt.html">excrt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/segment-tree.html">segment-tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-lian-pou-fen.html">树链剖分</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/an-quan-xing.html">安全性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dp.html">dp</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bing-fa.html">并发</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/qi-fa-shi-he-bing.html">启发式合并</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/semaphore.html">semaphore</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-gong-shi.html">分布式共识</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nosql.html">nosql</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/post.html">Post</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-bian-ma.html">数据编码</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/litmus.html">litmus</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fan-she.html">反射</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/si-suo.html">死锁</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/hash.html">hash</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/partitioning.html">partitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/xian-duan-shu.html">线段树</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/volatile.html">volatile</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-jie-gou.html">数据结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/ab.html">A=B</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/tu-ling-wan-bei-xing.html">图灵完备性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/suo-yin-jie-gou.html">索引结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/repartitioning.html">repartitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/thue.html">Thue</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/crt.html">crt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/herb-sutter.html">Herb Sutter</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/condition_variable.html">condition_variable</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dsu-on-tree.html">DSU on Tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/math.html">math</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-you-hua.html">编译器优化</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/deng-ju-she-ji.html">灯具设计</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dmo-xing.html">3D模型</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2025 Wizmann
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://wizmann.top/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://wizmann.top/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://wizmann.top/theme/js/respond.min.js"></script>
+
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-46053117-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+
+</body>
+</html>

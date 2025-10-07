@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="zhs" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>从字符串替换到图灵机：A=B 的完备性构造 - Maerlyn's Rainbow</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <link href="https://wizmann.top/statistics/favicon.png" rel="icon">
+
+<link rel="canonical" href="https://wizmann.top/ab-turing-completeness.html">
+
+        <meta name="author" content="Wizmann" />
+        <meta name="keywords" content="图灵完备性,字符串重写系统,A=B,Thue,Post" />
+        <meta name="description" content="0. 背景：A=B 是什么 A=B 是在一款解谜游戏中引入的一种极简编程语言。它的语法只有一种形式： A = B 含义是“在字符串中 …" />
+
+        <meta property="og:site_name" content="Maerlyn's Rainbow" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="从字符串替换到图灵机：A=B 的完备性构造"/>
+        <meta property="og:url" content="https://wizmann.top/ab-turing-completeness.html"/>
+        <meta property="og:description" content="0. 背景：A=B 是什么 A=B 是在一款解谜游戏中引入的一种极简编程语言。它的语法只有一种形式： A = B 含义是“在字符串中 …"/>
+        <meta property="article:published_time" content="2025-10-01" />
+            <meta property="article:section" content="理论计算机" />
+            <meta property="article:tag" content="图灵完备性" />
+            <meta property="article:tag" content="字符串重写系统" />
+            <meta property="article:tag" content="A=B" />
+            <meta property="article:tag" content="Thue" />
+            <meta property="article:tag" content="Post" />
+            <meta property="article:author" content="Wizmann" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://wizmann.top/theme/css/bootstrap.flatly.min.css" type="text/css"/>
+    <link href="https://wizmann.top/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://wizmann.top/theme/css/pygments/solarizedlight.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://wizmann.top/theme/css/style.css" type="text/css"/>
+
+        <link href="https://wizmann.top/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow ATOM Feed"/>
+
+        <link href="https://wizmann.top/feeds/li-lun-ji-suan-ji.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow 理论计算机 ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://wizmann.top/" class="navbar-brand">
+Maerlyn's Rainbow            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="/category/blog.html">Blog</a></li>
+                    <li><a href="https://vijos.org/d/wizmann/p">Online Judge</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://wizmann.top/ab-turing-completeness.html"
+                       rel="bookmark"
+                       title="Permalink to 从字符串替换到图灵机：A=B 的完备性构造">
+                        从字符串替换到图灵机：A=B 的完备性构造
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2025-10-01T10:00:00+08:00"> 2025-10-01</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://wizmann.top/tag/tu-ling-wan-bei-xing.html">图灵完备性</a>
+        /
+	<a href="https://wizmann.top/tag/zi-fu-chuan-zhong-xie-xi-tong.html">字符串重写系统</a>
+        /
+	<a href="https://wizmann.top/tag/ab.html">A=B</a>
+        /
+	<a href="https://wizmann.top/tag/thue.html">Thue</a>
+        /
+	<a href="https://wizmann.top/tag/post.html">Post</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h2 id="0-ab">0. 背景：A=B 是什么</h2>
+<p>A=B 是在一款<a href="https://store.steampowered.com/app/1720850/AB/">解谜游戏</a>中引入的一种极简编程语言。它的语法只有一种形式：</p>
+<div class="highlight"><pre><span></span><code>A = B
+</code></pre></div>
+
+<p>含义是“在字符串中找到子串 <code>A</code>，并把它替换为 <code>B</code>”。程序运行过程如下：</p>
+<ol>
+<li>从输入串开始；</li>
+<li>逐条检查规则，从<strong>第一条规则</strong>开始，寻找<strong>第一个匹配的左部</strong>；</li>
+<li>一旦找到，就立即执行替换；</li>
+<li>然后从头再来（回到规则表开头）；</li>
+<li>如果没有任何规则可用，则程序停机，并输出当前字符串。</li>
+</ol>
+<p>在游戏后期，会出现扩展关键字（如 <code>(start)</code> 匹配开头、<code>(end)</code> 匹配结尾、<code>(once)</code> 限制只替换一次、<code>(return)</code> 表示立即输出并停机），它们能让表达力更强。但关键是：<strong>即使完全不依赖这些扩展，A=B 也已经足够强大，可以达到图灵完备性</strong>。</p>
+<h3 id="_1">什么是“图灵完备”？</h3>
+<p><strong>图灵完备</strong>表示该系统能模拟任意图灵机：只要时间与存储足够，任何可计算的算法都能实现。直观地，它意味着：</p>
+<ul>
+<li>能够存储和操作任意量的信息；</li>
+<li>能够分支（条件判断）；</li>
+<li>能够循环（无限计算，直到停机）。</li>
+</ul>
+<p>证明 A=B 图灵完备，就是证明它并非“替换小游戏”，而是具备通用计算能力的编程语言。</p>
+<h2 id="1">1. 理论背景：字符串重写系统为何图灵完备？</h2>
+<p>早在 20 世纪初，数学家 <strong>Axel Thue</strong> 就提出了<strong>字符串重写系统</strong>（Thue system），研究如何通过规则替换来生成和变换字符串。后来，<strong>Emil Post</strong> 进一步发展出 <strong>Post 规范系统</strong>，并证明这类系统足以表达任意可计算过程。</p>
+<p>核心结论是：<strong>半 Thue 系统（Semi-Thue system，即字符串重写系统）能够模拟任意图灵机</strong>。其思路是将“图灵机的一个配置（状态 + 带子内容）”编码成一个字符串，再用重写规则逐步执行机器的转移函数。</p>
+<p>下面是维基百科条目给出的一个<strong>标准构造</strong>：</p>
+<ul>
+<li>
+<p>用字母表中的若干符号表示带子符号（<span class="math">\(S_k\)</span>）；</p>
+</li>
+<li>
+<p>用一个<strong>唯一的</strong>状态标记（<span class="math">\(q_i\)</span>）表示当前机内状态，并保证它在配置中<strong>恰好出现一次</strong>。其右侧符号即为当前读头所在位置的带子符号；</p>
+</li>
+<li>
+<p><strong>向右移动的转移</strong><br>
+在图灵机里，<em>“向右移动”</em> 的意思是：读写头在处理完当前位置后，<strong>把读写位置移动到右边的一个格子</strong>。</p>
+</li>
+</ul>
+<div class="math">$$
+  \delta(q_i, S_k) = (q_j, S_l, \rightarrow)
+  $$</div>
+<p>对应的重写规则是</p>
+<div class="math">$$
+  q_i S_k \to S_l q_j
+  $$</div>
+<p><strong>解释：</strong></p>
+<ul>
+<li><span class="math">\(\delta\)</span>：转移函数；</li>
+<li><span class="math">\(q_i\)</span>：当前状态；</li>
+<li><span class="math">\(S_k\)</span>：当前读到的符号；</li>
+<li><span class="math">\(S_l\)</span>：要写回去的新符号；</li>
+<li><span class="math">\(q_j\)</span>：更新后的状态；</li>
+<li><span class="math">\(\rightarrow\)</span>：表示读头右移；</li>
+<li>
+<p>规则的含义是：把「状态 + 符号」替换为「新符号 + 新状态」，等价于完成写入并把状态标记移动到右边。</p>
+</li>
+<li>
+<p><strong>向左移动的转移</strong><br>
+  在图灵机里，<em>“向左移动”</em> 的意思是：读写头在处理完当前位置后，<strong>把读写位置移动到左边的一个格子</strong>。</p>
+</li>
+</ul>
+<div class="math">$$
+  \delta(q_i, S_k) = (q_j, S_l, \leftarrow)
+  $$</div>
+<p>对应一簇规则（需对左邻符号 <span class="math">\(S_p\)</span> 枚举）：</p>
+<div class="math">$$
+  S_p q_i S_k \to q_j S_p S_l
+  $$</div>
+<p><strong>解释：</strong></p>
+<ul>
+<li>当读头左移时，必须知道左边的符号 <span class="math">\(S_p\)</span>；</li>
+<li>左邻符号 + 状态标记 + 当前符号，一起被替换成「新状态 + 左邻符号 + 新符号」；</li>
+<li>
+<p>这使得状态标记成功左移，同时完成写入操作。</p>
+</li>
+<li>
+<p><strong>无限带子的处理</strong><br>
+为了模拟“无限长”的带子，需要在两端加哨兵符号 <span class="math">\(h\)</span>，并加入特殊的延展规则，使得机器在靠近边界时可以“创造”新的空白格子，从而对应无限内存的假设。</p>
+</li>
+</ul>
+<p>由于<strong>每次重写都必须包含且仅包含一个 <span class="math">\(q_i\)</span></strong>，所以在任意时刻都只有<strong>唯一可用的匹配位置</strong>。整个替换过程严格对应图灵机的一步步执行。因此，字符串重写系统具备完整的计算能力，也就是<strong>图灵完备</strong>。</p>
+<h2 id="2-ab">2. 核心命题与证明纲要（把任意图灵机编译成 A=B 程序）</h2>
+<p><strong>命题.</strong> A=B（即使不用任何关键字）也是图灵完备的。</p>
+<p><strong>证明思路（构造式归约）</strong><br>
+给定任意一台<strong>确定性的</strong>单带图灵机：</p>
+<div class="math">$$
+M = (Q, \Gamma, \sqcup, \delta, q_0, q_{\text{halt}})
+$$</div>
+<p><strong>解释：</strong></p>
+<ul>
+<li><span class="math">\(Q\)</span>：有限的状态集合；</li>
+<li><span class="math">\(\Gamma\)</span>：带子符号集合；</li>
+<li><span class="math">\(\sqcup\)</span>：空白符；</li>
+<li><span class="math">\(\delta\)</span>：转移函数，定义“遇到某符号时怎么写、状态怎么变、头怎么动”；</li>
+<li><span class="math">\(q_0\)</span>：初始状态；</li>
+<li><span class="math">\(q_{\text{halt}}\)</span>：停机状态。</li>
+</ul>
+<p>构造一组 A=B 规则，使其在任意初始输入编码上<strong>逐步等价</strong>地重写到 <span class="math">\(M\)</span> 的后续配置，直到停机。</p>
+<ol>
+<li><strong>编码配置</strong><br>
+   用字符串来编码一台机器的状态：</li>
+</ol>
+<div class="math">$$
+   h , L , q_i , R , h
+   $$</div>
+<p><strong>解释：</strong></p>
+<ul>
+<li><span class="math">\(L\)</span>：读头左边的带内容；</li>
+<li><span class="math">\(R\)</span>：读头当前位置以及右边的内容；</li>
+<li><span class="math">\(q_i\)</span>：当前状态，只出现一次；</li>
+<li>两端的 <span class="math">\(h\)</span> 是哨兵，确保机器永远不会“掉出带子”。</li>
+</ul>
+<ol start="2">
+<li><strong>生成规则</strong><br>
+   对每条转移 <span class="math">\(\delta(q_i,S_k) = (q_j,S_l,\text{dir})\)</span>，生成对应的 A=B 规则：</li>
+</ol>
+<ul>
+<li>
+<p>右移：<br>
+<div class="math">$$
+    q_i S_k \to S_l q_j
+    $$</div>
+</p>
+</li>
+<li>
+<p>左移（对所有 <span class="math">\(S_p \in \Gamma\)</span>）：<br>
+<div class="math">$$
+    S_p q_i S_k \to q_j S_p S_l
+    $$</div>
+</p>
+</li>
+<li>
+<p>遇到带子右端（<span class="math">\(S_0=\sqcup\)</span>）：<br>
+<div class="math">$$
+    h q_i S_k \to h q_j S_0 S_l
+    $$</div>
+</p>
+</li>
+</ul>
+<p>如果进入停机状态 <span class="math">\(q_{\text{halt}}\)</span>，没有进一步规则匹配，程序就自然停机。即使没有 <code>(return)</code>，停机时当前字符串就是输出。</p>
+<ol start="3">
+<li><strong>正确性</strong><br>
+  * <strong>唯一匹配位置</strong>：每个串里只有一个 <span class="math">\(q_i\)</span>，所以只有一个规则能触发；这与 A=B 的“从左到右、按顺序找”完全兼容。<br>
+  * <strong>一步对应</strong>：每条替换规则严格模拟图灵机的一步（写入、移动、更新状态）。<br>
+  * <strong>停机</strong>：进入 <span class="math">\(q_{\text{halt}}\)</span> 后没有规则匹配，A=B 程序停机。</li>
+</ol>
+<p>因此，A=B 可以模拟任意图灵机，所以它是<strong>图灵完备的</strong>。 <span class="math">\(\square\)</span></p>
+<hr>
+<h2 id="3">3. 举例：计数器程序（用例证法说明完备性）</h2>
+<p>上节我们给出了严格的归约证明，这里再展示一个<strong>具体程序</strong>：</p>
+<p><strong>把输入的二进制数（<span class="math">\(1 \leq n  \leq 63\)</span>）转换成对应数量的 <code>a</code></strong></p>
+<h3 id="_2">程序规则</h3>
+<div class="highlight"><pre><span></span><code><span class="mf">0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">$</span><span class="n">X$</span>
+<span class="mf">1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">$</span><span class="n">Y$</span>
+<span class="err">$$</span><span class="w"> </span><span class="o">=</span>
+<span class="n">YXXXXX$</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">XXXXX$aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</span>
+<span class="n">YXXXX$</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">XXXX$aaaaaaaaaaaaaaaa</span>
+<span class="n">YXXX$</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">XXX$aaaaaaaa</span>
+<span class="n">YXX$</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">XX$aaaa</span>
+<span class="n">YX$</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">X$a</span>
+<span class="n">Y$</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">X$a</span>
+<span class="err">$</span><span class="n">X</span><span class="w"> </span><span class="o">=</span>
+<span class="err">$</span><span class="w"> </span><span class="o">=</span>
+</code></pre></div>
+
+<hr>
+<h3 id="_3">与图灵机构造的对应关系</h3>
+<ol>
+<li><strong>字母表（Alphabet）</strong><ul>
+<li>符号集合 <span class="math">\(\Gamma\)</span>：<code>0,1,X,Y,$,a</code>。</li>
+<li>就像图灵机带子上的有限符号集。</li>
+</ul>
+</li>
+<li><strong>状态（States）</strong><ul>
+<li>在一般构造中，状态由 <span class="math">\(q_i\)</span> 标记。</li>
+<li>在这里，「状态」由当前匹配的模式体现：<ul>
+<li>匹配 <code>YXXX$</code> = “状态 = 等待展开 8 个 a”；</li>
+<li>匹配 <code>YX$</code> = “状态 = 等待展开 2 个 a”。</li>
+</ul>
+</li>
+<li>所以规则本身就扮演了转移函数 <span class="math">\(\delta\)</span>。</li>
+</ul>
+</li>
+<li><strong>读写头（Head）</strong><ul>
+<li>在 A=B 里没有显式的“头”，但每次替换只能在<strong>一个匹配窗口</strong>里发生：</li>
+<li>例如 <code>YXXX$ → XXX$aaaaaaaa</code>：可以看成<strong>读写头在 Y 上</strong>，读到右边 3 个 X 和 <code>$</code>，然后写出 <code>a</code> 并右移。</li>
+<li>例如 <code>YX$ → X$a</code>：可以看成<strong>读写头在 Y 上</strong>，它左边的 X 会被保留，头位置连带移动到右边继续展开。</li>
+</ul>
+</li>
+<li><strong>右移的体现</strong><ul>
+<li>替换 <code>YXXX$ → XXX$aaaaaaaa</code>：</li>
+<li>相当于图灵机在 Y 所在格写入若干 a；</li>
+<li>然后状态标记（匹配窗口）自动“滑到右边的 $”处，继续执行。</li>
+<li>这对应于「写入后头向右移」。</li>
+</ul>
+</li>
+<li><strong>左移的体现</strong><ul>
+<li>在展开尾部规则 <code>Y$ → X$a</code> 中：<ul>
+<li>当 Y 已经贴近 <code>$</code> 时，替换会把 <code>$</code>左边的 X 替出来，并在 Y 的左边补上 a；</li>
+<li>这等价于<strong>把读写头往左看一格</strong>，再进行展开。</li>
+</ul>
+</li>
+<li>整个效果就和「写入后头左移」一致。</li>
+</ul>
+</li>
+<li><strong>带子与哨兵（Tape &amp; Sentinel）</strong><ul>
+<li>符号 <code>$</code> 就是带子的边界标记；</li>
+<li>末尾两条规则会逐步清理辅助符号，等价于无限带的“空白格”处理。</li>
+</ul>
+</li>
+</ol>
+<div class="highlight"><pre><span></span><code>$X =
+$ =
+</code></pre></div>
+
+<h3 id="_4">为什么这个例子能说明图灵完备性？</h3>
+<ul>
+<li><strong>存储</strong>：输入二进制串被转写成 Y/X/$ 的带子配置。</li>
+<li><strong>分支</strong>：不同的规则（<code>YXXX$</code>, <code>YXX$</code>, <code>YX$</code>, …）体现条件分支。</li>
+<li><strong>循环</strong>：展开过程需要不断触发相同的规则，直到消耗完所有 Y，体现迭代。</li>
+<li><strong>左/右移动</strong>：匹配窗口的替换效果对应于头在带子上左右移动。</li>
+<li><strong>停机</strong>：当所有符号都归约成 <code>a</code>，再无规则可用时，程序自然停机。</li>
+</ul>
+<p>所以，这个计数器程序已经在完整地模拟图灵机的运行：</p>
+<ul>
+<li><strong>字母表</strong> → <code>{0,1,X,Y,$,a}</code>；</li>
+<li><strong>状态</strong> → 匹配模式决定；</li>
+<li><strong>读写头</strong> → 当前匹配窗口位置决定；</li>
+<li><strong>左右移动</strong> → 替换结果把窗口推到左/右；</li>
+<li><strong>停机</strong> → 无规则可用。</li>
+</ul>
+<p>这说明 A=B 并非“看似字符串替换”，而是真正能模拟一台图灵机。</p>
+<h2 id="4">4. 顺序/左端优先会不会削弱能力？</h2>
+<p>不会。因为在构造中我们保证了<strong>唯一状态标记 <span class="math">\(q_i\)</span></strong>：</p>
+<ul>
+<li>每条规则都包含且仅包含一个 <span class="math">\(q_i\)</span>；</li>
+<li>串中也只有一个 <span class="math">\(q_i\)</span>；</li>
+<li>因此始终只有唯一匹配。</li>
+</ul>
+<p>所以，不管是左端优先还是其他策略，运行轨迹都是唯一的，能力不受影响。</p>
+<hr>
+<h2 id="5">5. 关系图（理论坐标系）</h2>
+<ul>
+<li><strong>A=B</strong>：一个带优先级与锚点关键字的字符串替换语言。</li>
+<li><strong>Semi-Thue / SRS</strong>：字符串重写系统，图灵完备。</li>
+<li><strong>Post 规范系统</strong>：可化归为 SRS，同样图灵完备。</li>
+<li><strong>Thue 语言</strong>：非确定性重写为核心的怪诞语言，图灵完备。</li>
+</ul>
+<hr>
+<h2 id="6">6. 结语</h2>
+<ul>
+<li><strong>形式化</strong>：任意图灵机都能编译成 A=B 规则，逐步等价执行 → 图灵完备。</li>
+<li><strong>直观例子</strong>：A+B 展现了进位传播，A–B 展现了借位传播；它们分别是<strong>算术电路的基石</strong>，而算术电路+控制逻辑=通用机。</li>
+</ul>
+<p>因此，A=B 不只是一个小游戏，而是一个极简却<strong>图灵完备</strong>的语言。</p>
+<p>p.s. <a href="/A2B.html">一些参考解法</a></p>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/latest.js?config=TeX-AMS-MML_HTMLorMML';
+
+    var configscript = document.createElement('script');
+    configscript.type = 'text/x-mathjax-config';
+    configscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'none' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        availableFonts: ['STIX', 'TeX']," +
+        "        preferredFont: 'STIX'," +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(configscript);
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
+            </div>
+            <!-- /.entry-content -->
+    <hr/>
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+            var disqus_config = function () {
+                this.language = "zhs";
+
+                        this.page.identifier = '2025-10-01-ab-turing-completeness';
+                        this.page.url = 'https://wizmann.top/ab-turing-completeness.html';
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="https://github.com/wizmann"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="https://wizmann.top//feeds/all.atom.xml"><i class="fa fa-rss-square fa-lg"></i> rss</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://wizmann.top/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/cpp.html">cpp</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/algorithm.html">algorithm</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/suan-fa.html">算法</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/codeforces.html">codeforces</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/c.html">C++</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/fen-bu-shi-xi-tong.html">分布式系统</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/ti-jie.html">题解</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/udp.html">UDP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/cas.html">cas</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rpc.html">rpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-xi-tong.html">数据系统</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-ku.html">数据库</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/leetcode.html">Leetcode</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/interview.html">interview</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multithread.html">multithread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/jian-suo-zeng-qiang-sheng-cheng.html">检索增强生成</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xian-liao.html">闲聊</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rag.html">RAG</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/modern-cpp.html">modern cpp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/protocol.html">protocol</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multi-thread.html">multi-thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/yi-zhi-xing.html">一致性</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/networking.html">networking</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/storage.html">storage</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xin-xi-jian-suo.html">信息检索</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/stup.html">STUP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/distributed-system.html">Distributed System</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/phxrpc.html">phxrpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/memory-barrier.html">memory-barrier</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/system-design.html">System Design</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/thread.html">thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/llm.html">LLM</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/tcp.html">tcp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/duo-xian-cheng.html">多线程</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/gong-kai-ke.html">公开课</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spinpromela.html">SPIN/Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/promela.html">Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/storage-system.html">storage system</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/google.html">Google</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/bing-fa-bian-cheng.html">并发编程</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/induction.html">induction</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/raft.html">raft</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/ucontext.html">ucontext</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/paxos.html">paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cse351.html">CSE351</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cmpxchg.html">cmpxchg</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/basic-paxos.html">basic paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/solution.html">Solution</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/azure.html">azure</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/async.html">async</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/3d-printing.html">3D printing</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/shu-ju-mi-ji-xing-ying-yong-xi-tong.html">数据密集型应用系统</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spin.html">SPIN</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-mo-xing.html">数据模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yi-zhi-xing-xie-yi.html">一致性协议</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/zi-fu-chuan-zhong-xie-xi-tong.html">字符串重写系统</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-xing-dp.html">树形DP</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-bian-cheng.html">编译期编程</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/mutex.html">mutex</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yuan-lei.html">元类</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon.html">CppCon</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon2024.html">CppCon2024</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dda-yin.html">3D打印</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/led.html">LED</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nei-cun-mo-xing.html">内存模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-shi-wu.html">分布式事务</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/diy.html">DIY</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/excrt.html">excrt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/segment-tree.html">segment-tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-lian-pou-fen.html">树链剖分</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/an-quan-xing.html">安全性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dp.html">dp</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bing-fa.html">并发</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/qi-fa-shi-he-bing.html">启发式合并</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/semaphore.html">semaphore</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-gong-shi.html">分布式共识</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nosql.html">nosql</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/post.html">Post</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-bian-ma.html">数据编码</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/litmus.html">litmus</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fan-she.html">反射</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/si-suo.html">死锁</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/hash.html">hash</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/partitioning.html">partitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/xian-duan-shu.html">线段树</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/volatile.html">volatile</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-jie-gou.html">数据结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/ab.html">A=B</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/tu-ling-wan-bei-xing.html">图灵完备性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/suo-yin-jie-gou.html">索引结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/repartitioning.html">repartitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/thue.html">Thue</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/crt.html">crt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/herb-sutter.html">Herb Sutter</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/condition_variable.html">condition_variable</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dsu-on-tree.html">DSU on Tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/math.html">math</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-you-hua.html">编译器优化</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/deng-ju-she-ji.html">灯具设计</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dmo-xing.html">3D模型</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2025 Wizmann
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://wizmann.top/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://wizmann.top/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://wizmann.top/theme/js/respond.min.js"></script>
+
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-46053117-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+
+</body>
+</html>

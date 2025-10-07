@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="zhs" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>使用 SPIN/Promela 对多线程 Concurrent FIFO Queue 进行建模与验证 - Maerlyn's Rainbow</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <link href="https://wizmann.top/statistics/favicon.png" rel="icon">
+
+<link rel="canonical" href="https://wizmann.top/SPIN-Promela-Concurrent-Queue-1.html">
+
+        <meta name="author" content="Wizmann" />
+        <meta name="keywords" content="SPIN,Promela,SPIN/Promela,多线程,multi-thread,Queue,FIFO" />
+        <meta name="description" content="引言 并发编程中设计和验证多线程数据结构是一项极大的挑战，即使是实现一个简单的数据结构（见《实现一个无锁消息 …" />
+
+        <meta property="og:site_name" content="Maerlyn's Rainbow" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="使用 SPIN/Promela 对多线程 Concurrent FIFO Queue 进行建模与验证"/>
+        <meta property="og:url" content="https://wizmann.top/SPIN-Promela-Concurrent-Queue-1.html"/>
+        <meta property="og:description" content="引言 并发编程中设计和验证多线程数据结构是一项极大的挑战，即使是实现一个简单的数据结构（见《实现一个无锁消息 …"/>
+        <meta property="article:published_time" content="2023-12-17" />
+            <meta property="article:section" content="Blog" />
+            <meta property="article:tag" content="SPIN" />
+            <meta property="article:tag" content="Promela" />
+            <meta property="article:tag" content="SPIN/Promela" />
+            <meta property="article:tag" content="多线程" />
+            <meta property="article:tag" content="multi-thread" />
+            <meta property="article:tag" content="Queue" />
+            <meta property="article:tag" content="FIFO" />
+            <meta property="article:author" content="Wizmann" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://wizmann.top/theme/css/bootstrap.flatly.min.css" type="text/css"/>
+    <link href="https://wizmann.top/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://wizmann.top/theme/css/pygments/solarizedlight.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://wizmann.top/theme/css/style.css" type="text/css"/>
+
+        <link href="https://wizmann.top/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow ATOM Feed"/>
+
+        <link href="https://wizmann.top/feeds/blog.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow Blog ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://wizmann.top/" class="navbar-brand">
+Maerlyn's Rainbow            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="/category/blog.html">Blog</a></li>
+                    <li><a href="https://vijos.org/d/wizmann/p">Online Judge</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://wizmann.top/SPIN-Promela-Concurrent-Queue-1.html"
+                       rel="bookmark"
+                       title="Permalink to 使用 SPIN/Promela 对多线程 Concurrent FIFO Queue 进行建模与验证">
+                        使用 SPIN/Promela 对多线程 Concurrent FIFO Queue 进行建模与验证
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2023-12-17T00:00:00+08:00"> 2023-12-17</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://wizmann.top/tag/spin.html">SPIN</a>
+        /
+	<a href="https://wizmann.top/tag/promela.html">Promela</a>
+        /
+	<a href="https://wizmann.top/tag/spinpromela.html">SPIN/Promela</a>
+        /
+	<a href="https://wizmann.top/tag/duo-xian-cheng.html">多线程</a>
+        /
+	<a href="https://wizmann.top/tag/multi-thread.html">multi-thread</a>
+        /
+	<a href="https://wizmann.top/tag/queue.html">Queue</a>
+        /
+	<a href="https://wizmann.top/tag/fifo.html">FIFO</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h2 id="_1">引言</h2>
+<p>并发编程中设计和验证多线程数据结构是一项极大的挑战，即使是实现一个简单的数据结构（见<a href="/implement-non-blocking-queue.html">《实现一个无锁消息队列》</a>一文），都需要不少的脑力、讨论与实践才可以尽可能保证其正确性。</p>
+<p>本文尝试使用 SPIN/Promela 对多线程环境下的 Concurrent FIFO Queue 的一种实现进行建模与验证。</p>
+<h2 id="concurrent-fifo-queue">Concurrent FIFO Queue 的设计</h2>
+<p>为了保证多线程操作的正确性，我们采用了以下关键设计：</p>
+<ul>
+<li>Dummy Head 和 Dummy Tail 节点：引入这两个节点简化了队列操作逻辑，降低并发中的复杂性</li>
+<li>Dummy Tail Data 指针作为“锁”：这个方法确保多个线程不会同时操作尾节点，降低了对锁的依赖</li>
+<li>利用指针赋值的原子性：通过这种方式，减少了锁的使用，提高了效率</li>
+</ul>
+<h2 id="spinpromela">SPIN/Promela 建模中的考虑因素</h2>
+<p>在使用 SPIN/Promela 建模时，我们面临了几个挑战：</p>
+<ul>
+<li>静态内存管理：SPIN/Promela 缺乏动态内存操作，因此我们实现了一个极简的手动管理的静态内存堆栈。</li>
+<li>减少状态空间：队列的长度可以是无限的，这也就意味着无限的状态空间。因此，我们将队列的最大长度设为3，以减少状态的穷举空间。</li>
+<li>模拟CAS操作：由于缺少CAS指令，我们使用 do 循环和 atomic 块来模拟，同时开启 weak fairness 避免无限循环。（见<a href="/simple-cas-model-in-spin-promela.html">《在SPIN/Promela中模拟CAS》</a>一文）</li>
+<li>LTL表达式的使用：使用 LTL 表达式来穷举检查所有可能的程序状态，包括边缘情况。<ul>
+<li>LTL表达式偶尔会有一些”反直觉“的情况出现</li>
+<li>例如在程序验证路径中，虽然理论上队列大小可以为0~3当中的任意数。但是也存在一种可能，即队列大小可以在2和3之间反复变化。如果我们声明“<strong>永远</strong> <strong>最终</strong> 一定存在 queue size==1” 的表达式会失败，因为队列大小在这种“人造场景”下永远不会为1。</li>
+<li>这种情况要求我们非常精确地设计 LTL 表达式</li>
+</ul>
+</li>
+<li>代码与断言的结合：因为 LTL 表达式的表达能力有限，需要结合代码中的 assert 语句来进行更全面的验证</li>
+</ul>
+<h2 id="_2">代码示例</h2>
+<p>下面是我们用于建模和验证 Concurrent FIFO Queue 的 Promela 代码示例：</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#define MAX_CAPACITY 3</span>
+<span class="cp">#define NUM_NODES MAX_CAPACITY + 2</span>
+<span class="cp">#define EMPTY -1</span>
+<span class="cp">#define INVALID_PTR -1</span>
+
+<span class="cp">#define QUEUE_NOT_FULL (memptr &gt; 0)</span>
+<span class="cp">#define QUEUE_NOT_EMPTY (memptr &lt; MAX_CAPACITY)</span>
+<span class="cp">#define QUEUE_IS_EMPTY (memptr == MAX_CAPACITY)</span>
+<span class="cp">#define QUEUE_IS_FULL (memptr == 0)</span>
+
+<span class="cp">#define HEAD 0</span>
+
+<span class="kd">typedef</span><span class="w"> </span><span class="n">QueueNode</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">nextptr</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">data</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="c1">// 1 dummy head + 1 dummy tail + #(data nodes)</span>
+<span class="n">QueueNode</span><span class="w"> </span><span class="n">nodes</span><span class="p">[</span><span class="n">NUM_NODES</span><span class="p">];</span>
+
+<span class="c1">// data nodes + dummy tail</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">memory</span><span class="p">[</span><span class="n">MAX_CAPACITY</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">];</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">memptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAX_CAPACITY</span><span class="p">;</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">tail</span><span class="p">;</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">queue_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="kt">bool</span><span class="w"> </span><span class="n">running</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+
+<span class="kd">init</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">..</span><span class="w">  </span><span class="n">NUM_NODES</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">nodes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="na">nextptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">INVALID_PTR</span><span class="p">;</span>
+<span class="w">        </span><span class="n">nodes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="na">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">EMPTY</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">..</span><span class="w">  </span><span class="n">MAX_CAPACITY</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">memory</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">memory</span><span class="p">[</span><span class="n">MAX_CAPACITY</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">nodes</span><span class="p">[</span><span class="n">HEAD</span><span class="p">]</span><span class="o">.</span><span class="na">nextptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HEAD</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="n">tail</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HEAD</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">atomic</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="ow">run</span><span class="w"> </span><span class="n">worker</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="w">      </span><span class="ow">run</span><span class="w"> </span><span class="n">worker</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">running</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">inline</span><span class="w"> </span><span class="n">update_queue_size</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">d_step</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">cur</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HEAD</span><span class="p">;</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">        </span><span class="k">do</span>
+<span class="w">            </span><span class="o">::</span><span class="w"> </span><span class="n">nodes</span><span class="p">[</span><span class="n">cur</span><span class="p">]</span><span class="o">.</span><span class="na">nextptr</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">INVALID_PTR</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">size</span><span class="o">++</span><span class="p">;</span>
+<span class="w">                </span><span class="nf">assert</span><span class="p">(</span><span class="n">cur</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">INVALID_PTR</span><span class="p">);</span>
+<span class="w">                </span><span class="n">cur</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nodes</span><span class="p">[</span><span class="n">cur</span><span class="p">]</span><span class="o">.</span><span class="na">nextptr</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">            </span><span class="o">::</span><span class="w"> </span><span class="nb">else</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="k">break</span><span class="p">;</span>
+<span class="w">        </span><span class="k">od</span>
+<span class="w">        </span><span class="nf">assert</span><span class="p">(</span><span class="n">nodes</span><span class="p">[</span><span class="n">cur</span><span class="p">]</span><span class="o">.</span><span class="na">nextptr</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">INVALID_PTR</span><span class="p">);</span>
+<span class="w">        </span><span class="n">size</span><span class="o">--</span><span class="p">;</span><span class="w"> </span><span class="c1">// remove HEAD</span>
+<span class="w">        </span><span class="nf">assert</span><span class="p">(</span><span class="n">size</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">MAX_CAPACITY</span><span class="p">);</span>
+<span class="w">        </span><span class="n">queue_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">inline</span><span class="w"> </span><span class="n">enqueue</span><span class="p">(</span><span class="n">workerId</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">cur1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">INVALID_PTR</span><span class="p">;</span>
+<span class="w">    </span><span class="k">atomic</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span>
+<span class="w">        </span><span class="o">::</span><span class="w"> </span><span class="p">(</span><span class="n">memptr</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">cur1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">memory</span><span class="p">[</span><span class="n">memptr</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">];</span>
+<span class="w">            </span><span class="n">memory</span><span class="p">[</span><span class="n">memptr</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="w">            </span><span class="n">memptr</span><span class="o">--</span><span class="p">;</span>
+<span class="w">            </span><span class="nf">assert</span><span class="p">(</span><span class="n">nodes</span><span class="p">[</span><span class="n">cur1</span><span class="p">]</span><span class="o">.</span><span class="na">data</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">EMPTY</span><span class="p">);</span>
+<span class="w">            </span><span class="nf">assert</span><span class="p">(</span><span class="n">nodes</span><span class="p">[</span><span class="n">cur1</span><span class="p">]</span><span class="o">.</span><span class="na">nextptr</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">INVALID_PTR</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="o">::</span><span class="w"> </span><span class="nb">else</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="k">skip</span>
+<span class="w">        </span><span class="k">fi</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">if</span>
+<span class="w">    </span><span class="o">::</span><span class="w"> </span><span class="n">cur1</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">INVALID_PTR</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">do</span>
+<span class="w">        </span><span class="o">::</span><span class="w"> </span><span class="p">(</span><span class="nb">true</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// CAS</span>
+<span class="w">            </span><span class="k">atomic</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="k">if</span>
+<span class="w">                </span><span class="o">::</span><span class="w"> </span><span class="p">(</span><span class="n">nodes</span><span class="p">[</span><span class="n">tail</span><span class="p">]</span><span class="o">.</span><span class="na">data</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">EMPTY</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="n">nodes</span><span class="p">[</span><span class="n">tail</span><span class="p">]</span><span class="o">.</span><span class="na">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">workerId</span><span class="p">;</span>
+<span class="w">                    </span><span class="k">break</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">                </span><span class="o">::</span><span class="w"> </span><span class="nb">else</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="k">skip</span><span class="p">;</span>
+<span class="w">                </span><span class="k">fi</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">            </span><span class="n">update_queue_size</span><span class="p">();</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">od</span>
+
+<span class="w">        </span><span class="n">nodes</span><span class="p">[</span><span class="n">tail</span><span class="p">]</span><span class="o">.</span><span class="na">nextptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cur1</span><span class="p">;</span>
+<span class="w">        </span><span class="n">tail</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cur1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="o">::</span><span class="w"> </span><span class="nb">else</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="k">skip</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="p">}</span>
+
+<span class="kd">inline</span><span class="w"> </span><span class="n">dequeue</span><span class="p">(</span><span class="n">workerId</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">cur2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">INVALID_PTR</span><span class="p">;</span>
+<span class="w">    </span><span class="k">do</span>
+<span class="w">    </span><span class="o">::</span><span class="w"> </span><span class="p">(</span><span class="nb">true</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">nxt2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nodes</span><span class="p">[</span><span class="n">HEAD</span><span class="p">]</span><span class="o">.</span><span class="na">nextptr</span><span class="p">;</span>
+<span class="w">        </span><span class="n">cur2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">INVALID_PTR</span><span class="p">;</span>
+<span class="w">        </span><span class="k">if</span>
+<span class="w">        </span><span class="o">::</span><span class="w"> </span><span class="p">(</span><span class="n">nxt2</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">tail</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">cur2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nxt2</span><span class="p">;</span>
+<span class="w">            </span><span class="k">atomic</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">update_queue_size</span><span class="p">();</span>
+<span class="w">                </span><span class="k">if</span>
+<span class="w">                </span><span class="o">::</span><span class="w"> </span><span class="p">(</span><span class="n">nodes</span><span class="p">[</span><span class="n">HEAD</span><span class="p">]</span><span class="o">.</span><span class="na">nextptr</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">nxt2</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">nxt2</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">tail</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="n">nodes</span><span class="p">[</span><span class="n">HEAD</span><span class="p">]</span><span class="o">.</span><span class="na">nextptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nodes</span><span class="p">[</span><span class="n">cur2</span><span class="p">]</span><span class="o">.</span><span class="na">nextptr</span><span class="p">;</span>
+<span class="w">                    </span><span class="n">nodes</span><span class="p">[</span><span class="n">cur2</span><span class="p">]</span><span class="o">.</span><span class="na">nextptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">INVALID_PTR</span><span class="p">;</span>
+<span class="w">                    </span><span class="n">nodes</span><span class="p">[</span><span class="n">cur2</span><span class="p">]</span><span class="o">.</span><span class="na">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">EMPTY</span><span class="p">;</span>
+<span class="w">                    </span><span class="n">update_queue_size</span><span class="p">();</span>
+<span class="w">                    </span><span class="k">break</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">                </span><span class="o">::</span><span class="w"> </span><span class="nb">else</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="k">skip</span><span class="p">;</span>
+<span class="w">                </span><span class="k">fi</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="o">::</span><span class="w"> </span><span class="nb">else</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="k">break</span>
+<span class="w">        </span><span class="k">fi</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">od</span>
+
+<span class="w">    </span><span class="k">if</span>
+<span class="w">    </span><span class="o">::</span><span class="w"> </span><span class="p">(</span><span class="n">cur2</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">INVALID_PTR</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">d_step</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nf">assert</span><span class="p">(</span><span class="n">nodes</span><span class="p">[</span><span class="n">cur2</span><span class="p">]</span><span class="o">.</span><span class="na">nextptr</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">INVALID_PTR</span><span class="p">);</span>
+<span class="w">            </span><span class="nf">assert</span><span class="p">(</span><span class="n">nodes</span><span class="p">[</span><span class="n">cur2</span><span class="p">]</span><span class="o">.</span><span class="na">data</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">EMPTY</span><span class="p">);</span>
+<span class="w">            </span><span class="nf">assert</span><span class="p">(</span><span class="n">memptr</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">MAX_CAPACITY</span><span class="p">);</span>
+
+<span class="w">            </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+<span class="w">            </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">..</span><span class="w">  </span><span class="n">memptr</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nf">assert</span><span class="p">(</span><span class="n">memory</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">cur2</span><span class="p">);</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">            </span><span class="nf">assert</span><span class="p">(</span><span class="n">memory</span><span class="p">[</span><span class="n">memptr</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">-1</span><span class="p">);</span>
+
+<span class="w">            </span><span class="n">memory</span><span class="p">[</span><span class="n">memptr</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cur2</span><span class="p">;</span>
+<span class="w">            </span><span class="n">memptr</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="o">::</span><span class="w"> </span><span class="nb">else</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="k">skip</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="p">}</span>
+
+<span class="kd">proctype</span><span class="w"> </span><span class="n">worker</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">workerId</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="nl">end</span><span class="p">:</span>
+<span class="w">    </span><span class="k">do</span>
+<span class="w">    </span><span class="o">::</span><span class="w"> </span><span class="p">(</span><span class="n">QUEUE_NOT_FULL</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">enqueue</span><span class="p">(</span><span class="n">workerId</span><span class="p">);</span>
+<span class="w">    </span><span class="o">::</span><span class="w"> </span><span class="p">(</span><span class="n">QUEUE_NOT_EMPTY</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">dequeue</span><span class="p">(</span><span class="n">workerId</span><span class="p">);</span>
+<span class="w">    </span><span class="k">od</span>
+<span class="p">}</span>
+
+<span class="kd">ltl</span><span class="w"> </span><span class="n">valid_first_node</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">[]</span><span class="p">(</span><span class="w"> </span><span class="n">running</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">((</span><span class="n">nodes</span><span class="p">[</span><span class="n">HEAD</span><span class="p">]</span><span class="o">.</span><span class="na">nextptr</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">INVALID_PTR</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">nodes</span><span class="p">[</span><span class="n">HEAD</span><span class="p">]</span><span class="o">.</span><span class="na">nextptr</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_NODES</span><span class="p">))</span><span class="w"> </span><span class="p">);</span><span class="w"> </span><span class="p">}</span>
+<span class="kd">ltl</span><span class="w"> </span><span class="n">not_always_empty</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">[]</span><span class="p">(</span><span class="n">running</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">(</span><span class="n">QUEUE_IS_EMPTY</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="o">&lt;&gt;</span><span class="n">QUEUE_NOT_EMPTY</span><span class="p">));</span><span class="w"> </span><span class="p">};</span>
+<span class="kd">ltl</span><span class="w"> </span><span class="n">not_always_full</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">[]</span><span class="p">(</span><span class="n">running</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">(</span><span class="n">QUEUE_IS_FULL</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="o">&lt;&gt;</span><span class="n">QUEUE_NOT_FULL</span><span class="p">));</span><span class="w"> </span><span class="p">};</span>
+<span class="kd">ltl</span><span class="w"> </span><span class="n">size_change_by_1</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">[]</span><span class="p">(</span><span class="n">running</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">(</span>
+<span class="w">                            </span><span class="p">(</span><span class="n">queue_size</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">U</span><span class="w"> </span><span class="n">queue_size</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">||</span>
+<span class="w">                            </span><span class="p">(</span><span class="n">queue_size</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">U</span><span class="w"> </span><span class="p">(</span><span class="n">queue_size</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">queue_size</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">))</span><span class="w"> </span><span class="o">||</span>
+<span class="w">                            </span><span class="p">(</span><span class="n">queue_size</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">U</span><span class="w"> </span><span class="p">(</span><span class="n">queue_size</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">queue_size</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">3</span><span class="p">))</span><span class="w"> </span><span class="o">||</span>
+<span class="w">                            </span><span class="p">(</span><span class="n">queue_size</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">U</span><span class="w"> </span><span class="n">queue_size</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">)))</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+
+<h2 id="_3">讨论</h2>
+<h3 id="_4">混合编程的可能性</h3>
+<p>我们是否可以通过 Promela 与 C/C++ 的混合编程来解决模型中的一些困难？这种方法或许能提供更加灵活的解决方案，但代价又是什么呢？</p>
+<h3 id="ltl">LTL语句的合理性</h3>
+<p>在多线程环境下验证数据结构的正确性始终是一项艰巨的任务。对于代码中使用的LTL语句，是否需要继续完善以保证其在更多（甚至所有）场景下的正确性?</p>
+<h3 id="_5">对于其他实现的验证</h3>
+<p>在<a href="/implement-non-blocking-queue.html">《实现一个无锁消息队列》</a>一文中，涉及了更多的多线程队列模型，后续会对其进行验证。</p>
+<div class="alert alert-info" role="alert">本文大（划掉）部分内容由ChatGPT4生成</div>
+            </div>
+            <!-- /.entry-content -->
+    <hr/>
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+            var disqus_config = function () {
+                this.language = "zhs";
+
+                        this.page.identifier = '2023-12-17-SPIN-Promela-Concurrent-Queue-1';
+                        this.page.url = 'https://wizmann.top/SPIN-Promela-Concurrent-Queue-1.html';
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="https://github.com/wizmann"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="https://wizmann.top//feeds/all.atom.xml"><i class="fa fa-rss-square fa-lg"></i> rss</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://wizmann.top/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/cpp.html">cpp</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/algorithm.html">algorithm</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/suan-fa.html">算法</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/codeforces.html">codeforces</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/c.html">C++</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/fen-bu-shi-xi-tong.html">分布式系统</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/ti-jie.html">题解</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/udp.html">UDP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/cas.html">cas</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rpc.html">rpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-xi-tong.html">数据系统</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-ku.html">数据库</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/leetcode.html">Leetcode</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/interview.html">interview</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multithread.html">multithread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/jian-suo-zeng-qiang-sheng-cheng.html">检索增强生成</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xian-liao.html">闲聊</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rag.html">RAG</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/modern-cpp.html">modern cpp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/protocol.html">protocol</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multi-thread.html">multi-thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/yi-zhi-xing.html">一致性</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/networking.html">networking</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/storage.html">storage</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xin-xi-jian-suo.html">信息检索</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/stup.html">STUP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/distributed-system.html">Distributed System</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/phxrpc.html">phxrpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/memory-barrier.html">memory-barrier</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/system-design.html">System Design</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/thread.html">thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/llm.html">LLM</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/tcp.html">tcp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/duo-xian-cheng.html">多线程</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/gong-kai-ke.html">公开课</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spinpromela.html">SPIN/Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/promela.html">Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/storage-system.html">storage system</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/google.html">Google</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/bing-fa-bian-cheng.html">并发编程</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/induction.html">induction</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/raft.html">raft</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/ucontext.html">ucontext</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/paxos.html">paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cse351.html">CSE351</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cmpxchg.html">cmpxchg</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/basic-paxos.html">basic paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/solution.html">Solution</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/azure.html">azure</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/async.html">async</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/3d-printing.html">3D printing</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/shu-ju-mi-ji-xing-ying-yong-xi-tong.html">数据密集型应用系统</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spin.html">SPIN</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-mo-xing.html">数据模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yi-zhi-xing-xie-yi.html">一致性协议</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/zi-fu-chuan-zhong-xie-xi-tong.html">字符串重写系统</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-xing-dp.html">树形DP</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-bian-cheng.html">编译期编程</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/mutex.html">mutex</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yuan-lei.html">元类</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon.html">CppCon</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon2024.html">CppCon2024</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dda-yin.html">3D打印</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/led.html">LED</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nei-cun-mo-xing.html">内存模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-shi-wu.html">分布式事务</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/diy.html">DIY</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/excrt.html">excrt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/segment-tree.html">segment-tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-lian-pou-fen.html">树链剖分</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/an-quan-xing.html">安全性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dp.html">dp</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bing-fa.html">并发</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/qi-fa-shi-he-bing.html">启发式合并</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/semaphore.html">semaphore</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fen-bu-shi-gong-shi.html">分布式共识</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nosql.html">nosql</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/post.html">Post</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-bian-ma.html">数据编码</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/litmus.html">litmus</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fan-she.html">反射</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/si-suo.html">死锁</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/hash.html">hash</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/partitioning.html">partitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/xian-duan-shu.html">线段树</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/volatile.html">volatile</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-jie-gou.html">数据结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/ab.html">A=B</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/tu-ling-wan-bei-xing.html">图灵完备性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/suo-yin-jie-gou.html">索引结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/repartitioning.html">repartitioning</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/thue.html">Thue</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/crt.html">crt</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/herb-sutter.html">Herb Sutter</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/condition_variable.html">condition_variable</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dsu-on-tree.html">DSU on Tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/math.html">math</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-you-hua.html">编译器优化</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/deng-ju-she-ji.html">灯具设计</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dmo-xing.html">3D模型</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2025 Wizmann
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://wizmann.top/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://wizmann.top/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://wizmann.top/theme/js/respond.min.js"></script>
+
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-46053117-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+
+</body>
+</html>
