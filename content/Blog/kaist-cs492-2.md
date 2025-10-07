@@ -3,12 +3,7 @@ Date: 2025-10-06 10:00
 Tags: 并行计算, 并发, Rust, 系统编程
 Slug: kaist-cs492-2
 
-<div class="alert alert-warning" role="alert">
-  ⚠️ 本文根据视频字幕和 slides 由 AI 生成
-</div>
-
 [课程主页](https://github.com/kaist-cp/cs431)
-
 
 ## 基于锁的并发编程：**从共享内存到安全同步**
 
@@ -148,3 +143,6 @@ RAII 提供了自动化的资源管理思路，而 Rust 的类型系统进一步
 
 从这一讲开始，我们不再仅仅把锁看作一个编程技巧，而是把它看作一种“安全设计理念”的体现。它连接了编译器、类型系统与程序正确性，为理解更高级的并发机制（如无锁编程和内存模型）奠定了坚实基础。
 
+<div class="alert alert-warning" role="alert">
+  ⚠️ 本文根据视频字幕和 slides 由 AI 生成
+</div>
