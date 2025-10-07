@@ -6,10 +6,6 @@ Slug: volatile-in-cpp-cppcon-2024-notes
 > CppCon 2024 — What Volatile Means (and Doesn’t Mean), Ben Saks 
 > ([video][1], [slides][2])
 
-<div class="alert alert-warning" role="alert">
-  ⚠️ 本文根据视频字幕和 slides 由 AI 生成
-</div>
-
 ---
 
 ## 0. 背景与提纲
@@ -362,6 +358,11 @@ void touch(Counter& c1, Counter& c2, const HotPair* hp) {
 * `volatile` 的**唯一核心价值**：告诉编译器“这里的读写可能有副作用，请**别省略、别合并、别重排**这些访问”。它**不会**解决线程可见性/顺序/原子性问题。
 * **多线程通信**：请用同步原语/原子库/内存序；`volatile` 不适用。
 * **工程上**：若你怀疑编译器把 `volatile` 搞坏了，优先考虑**局部关优化 / 换编译器版本 / 非内联包裹**三种方法，并**确认没被内联**。
+ 
+<div class="alert alert-warning" role="alert">
+  ⚠️ 本文根据视频字幕和 slides 由 AI 生成
+</div>
+
 
 
 [1]: https://www.youtube.com/watch?v=GeblxEQIPFM&list=PLHTh1InhhwT6U7t1yP2K8AtTEKmcM3XU_&index=2&t=2s
