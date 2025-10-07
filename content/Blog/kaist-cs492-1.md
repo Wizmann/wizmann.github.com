@@ -3,10 +3,6 @@ Date: 2025-10-06 10:00
 Tags: 并行计算, 并发, Rust, 系统编程
 Slug: kaist-cs492-1
 
-<div class="alert alert-warning" role="alert">
-  ⚠️ 本文根据视频字幕和 slides 由 AI 生成
-</div>
-
 [课程主页](https://github.com/kaist-cp/cs431)
 
 ## 并发编程导论：走进平行计算的新时代
@@ -102,3 +98,8 @@ Slug: kaist-cs492-1
 * 锁与无锁编程的权衡；
 * Rust 语言中的所有权模型；
 * 以及如何在理论与实践中构建真正高效的并发系统。
+
+
+<div class="alert alert-warning" role="alert">
+  ⚠️ 本文根据视频字幕和 slides 由 AI 生成
+</div>
