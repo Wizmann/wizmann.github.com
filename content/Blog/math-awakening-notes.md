@@ -166,6 +166,3 @@ Competitive programming（LeetCode、Codeforces 等）是这套方法的天然�
 ---
 
 > *本文使用 GPT 和 Claude 大模型生成。*
-
-
-2. **嵌套代码块的注意事项**：上面外层用 ```` ```` （四个反引号）包裹，内层 prompt 用 ``` （三个反引号）。在 Pelican 渲染时一般没问题，但如果你的主题对嵌套代码块支持不好，可以把内层 prompt 的 ``` 改成缩进 4 空格的形式。
