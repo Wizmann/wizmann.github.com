@@ -1,0 +1,378 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Maerlyn's Rainbow - 算法与数据结构</title><link href="https://wizmann.top/" rel="alternate"/><link href="https://wizmann.top/feeds/suan-fa-yu-shu-ju-jie-gou.atom.xml" rel="self"/><id>https://wizmann.top/</id><updated>2025-12-27T21:00:00+08:00</updated><entry><title>Luogu P14761 - CCD 的序列【动态序列统计】（之二）</title><link href="https://wizmann.top/luogu-P14761-splay-2.html" rel="alternate"/><published>2025-12-27T21:00:00+08:00</published><updated>2025-12-27T21:00:00+08:00</updated><author><name>Wizmann</name></author><id>tag:wizmann.top,2025-12-27:/luogu-P14761-splay-2.html</id><summary type="html">&lt;p&gt;本文围绕隐式 Splay 的基本原理与实现方式，重点说明 splay 操作、旋转模式以及区间隔离的工程实现细节，并展示其在动态序列问题中的实际用法。&lt;/p&gt;</summary><content type="html">&lt;p&gt;在上一篇中，我们已经完成了整道题&lt;strong&gt;最关键的建模工作&lt;/strong&gt;：&lt;br&gt;
+把“匹配关系发生变更”转化为区间统计问题。问题最终被化简为：&lt;strong&gt;在一个动态变化的序列上，支持区间查询与任意位置插入&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;这一篇我们将会讨论：&lt;strong&gt;Splay 数据结构本身的功能与实现方式&lt;/strong&gt;，以及它为什么适合承载这个问题。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id="1-splay"&gt;1. Splay 是“自调整”的，而不是“显式平衡”的&lt;/h2&gt;
+&lt;p&gt;在 AVL、SBT 等平衡树中，我们的核心目标是维护某种平衡条件。一旦条件被破坏，就通过旋转把树“修回来”。也就是说，&lt;strong&gt;平衡是目标，旋转是手段&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;Splay 的思路是反过来的。它并不关心当前这棵树“是不是平衡”，而只关心一件事：&lt;strong&gt;把刚刚访问过的节点，拉到树的上层&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;直观理解就是：&lt;br&gt;
+经常被访问的节点，就应该离根更近；这样后续再访问它，代价自然更小。因此在 Splay 中，&lt;strong&gt;访问本身，就是结构调整的理由&lt;/strong&gt;。至于整棵树的形态是否平衡，并不是一个被显式维护的目标。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id="2-splay"&gt;2. 什么是 splay 操作&lt;/h2&gt;
+&lt;p&gt;&lt;code&gt;splay(x)&lt;/code&gt; 的含义非常直接：&lt;br&gt;
+&lt;strong&gt;通过一系列旋转，把节点 &lt;code&gt;x&lt;/code&gt; 拉到当前树的根节点（或某个指定节点之下）&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;需要注意的是：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;x&lt;/code&gt; 不一定是叶子；&lt;/li&gt;
+&lt;li&gt;整个过程中可能发生多次旋转；&lt;/li&gt;
+&lt;li&gt;每次旋转都只是普通的左旋或右旋。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Splay 的复杂性不在于旋转本身，而在于&lt;strong&gt;旋转顺序的选择&lt;/strong&gt;。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id="3-splay"&gt;3. Splay 中的三种经典旋转模式&lt;/h2&gt;
+&lt;p&gt;设当前要 splay 的节点是 &lt;code&gt;x&lt;/code&gt;，其父节点是 &lt;code&gt;p&lt;/code&gt;，祖父节点是 &lt;code&gt;g&lt;/code&gt;。根据 &lt;code&gt;x&lt;/code&gt;、&lt;code&gt;p&lt;/code&gt;、&lt;code&gt;g&lt;/code&gt; 三者之间的位置关系，旋转会分为三种典型情况。&lt;/p&gt;
+&lt;h3 id="zig"&gt;Zig（单旋）&lt;/h3&gt;
+&lt;p&gt;当 &lt;code&gt;p&lt;/code&gt; 本身就是根节点（即不存在祖父 &lt;code&gt;g&lt;/code&gt;）时，只需要一次旋转。&lt;/p&gt;
+&lt;p&gt;此时旋转的目标非常明确：&lt;br&gt;
+&lt;strong&gt;让 &lt;code&gt;x&lt;/code&gt; 成为新的根节点&lt;/strong&gt;。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;    p               x
+   / \             / \
+  x   C   ==&amp;gt;     A   p
+ / \                 / \
+A   B               B   C
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;旋转结束后，&lt;code&gt;x&lt;/code&gt; 被直接提升到了根位置，这是最简单的一种情况。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3 id="zig-zig"&gt;Zig-Zig（同向双旋）&lt;/h3&gt;
+&lt;p&gt;当 &lt;code&gt;x&lt;/code&gt; 和 &lt;code&gt;p&lt;/code&gt; 方向相同（同为左儿子，或同为右儿子）时，就会出现一条“歪着的链”。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;        g
+       /
+      p
+     /
+    x
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;这种结构如果只旋一次，无法有效把 &lt;code&gt;x&lt;/code&gt; 提到高位。因此需要连续两次旋转：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;先旋转 &lt;code&gt;p&lt;/code&gt; 与 &lt;code&gt;g&lt;/code&gt;；&lt;/li&gt;
+&lt;li&gt;再旋转 &lt;code&gt;x&lt;/code&gt; 与 &lt;code&gt;p&lt;/code&gt;。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;目标并不是单纯把 &lt;code&gt;x&lt;/code&gt; 提到根，而是&lt;strong&gt;整体压缩这条同向的访问路径&lt;/strong&gt;，让常访问的节点整体靠上。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;        g                 g                  x
+       / \               / \                / \
+      p   D   (1)       x   D    (2)       A   p
+     / \       ==&amp;gt;     / \       ==&amp;gt;          / \
+    x   C             A   p                  B   g
+   / \                   / \                    / \
+  A   B                 B   C                  C   D
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;hr&gt;
+&lt;h3 id="zig-zag"&gt;Zig-Zag（反向双旋）&lt;/h3&gt;
+&lt;p&gt;当 &lt;code&gt;x&lt;/code&gt; 和 &lt;code&gt;p&lt;/code&gt; 方向相反时，结构呈现出“拧着”的形态：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;        g
+       /
+      p
+       \
+        x
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;这种情况下，如果直接旋 &lt;code&gt;p&lt;/code&gt; 和 &lt;code&gt;g&lt;/code&gt;，结构会变得更糟。因此正确的顺序是：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;先旋转 &lt;code&gt;x&lt;/code&gt; 与 &lt;code&gt;p&lt;/code&gt;；&lt;/li&gt;
+&lt;li&gt;再旋转 &lt;code&gt;x&lt;/code&gt; 与 &lt;code&gt;g&lt;/code&gt;。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;目标是先把结构“拧正”，再把 &lt;code&gt;x&lt;/code&gt; 提到更高的位置。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;        g                 g                    x
+       / \               / \                  / \
+      p   D   (1)       x   D     (2)        p   g
+     / \       ==&amp;gt;     / \        ==&amp;gt;       / \ / \
+    A   x             p   C                A  B C  D
+       / \           / \
+      B   C         A   B
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;hr&gt;
+&lt;h2 id="4-splay"&gt;4. 为什么 Splay 不需要维护平衡条件&lt;/h2&gt;
+&lt;p&gt;直观地看：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;如果一棵树长期非常“歪”，&lt;/li&gt;
+&lt;li&gt;那说明你反复在访问某一侧的节点，&lt;/li&gt;
+&lt;li&gt;而 Splay 会不断把这些节点旋转到上层，&lt;/li&gt;
+&lt;li&gt;最终这条路径会被逐渐压缩。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;因此，&lt;strong&gt;坏结构往往对应“不常用”的访问路径，而常用路径会被不断优化&lt;/strong&gt;。这也是为什么：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;单次操作的复杂度可能很高；&lt;/li&gt;
+&lt;li&gt;但在一整段操作序列上，Splay 的&lt;strong&gt;均摊复杂度是 &lt;code&gt;O(log n)&lt;/code&gt;&lt;/strong&gt;。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;在竞赛环境中，这样的保证是足够可靠的。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id="5-splay-splay"&gt;5. 隐式 Splay 与普通 Splay 的区别&lt;/h2&gt;
+&lt;p&gt;普通 Splay 是一棵标准的 BST，节点中有显式的 key，满足左小右大的性质。&lt;/p&gt;
+&lt;p&gt;而在本题中使用的是&lt;strong&gt;隐式 Splay&lt;/strong&gt;。换句话说，&lt;strong&gt;节点本身不存 key，而是把整个序列按顺序映射到一棵 BST 的中序遍历上&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;于是：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;中序遍历顺序 = 序列顺序；&lt;/li&gt;
+&lt;li&gt;第 &lt;code&gt;k&lt;/code&gt; 个元素 = 中序遍历第 &lt;code&gt;k&lt;/code&gt; 个节点。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;这样一来：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;查找第 &lt;code&gt;k&lt;/code&gt; 个位置；&lt;/li&gt;
+&lt;li&gt;在第 &lt;code&gt;k&lt;/code&gt; 个位置插入；&lt;/li&gt;
+&lt;li&gt;查询区间 &lt;code&gt;[l, r]&lt;/code&gt;；&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;都可以统一转化为&lt;strong&gt;基于子树大小的树操作&lt;/strong&gt;。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id="6"&gt;6. 区间信息的维护&lt;/h2&gt;
+&lt;p&gt;在每个节点中，我们维护该节点所代表区间的信息。这一点与 AVL、SBT 等平衡树在旋转中维护区间信息并无本质区别。&lt;/p&gt;
+&lt;p&gt;旋转只会改变父子关系，不会破坏区间的连续性，因此只要在旋转后正确更新受影响节点的区间信息即可。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id="7-push_up"&gt;7. 为什么 &lt;code&gt;push_up&lt;/code&gt; 是“三段合并”&lt;/h2&gt;
+&lt;p&gt;在隐式 Splay 中，一个节点天然代表如下区间结构：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;[ 左子树 ] + [ 当前字符 ] + [ 右子树 ]
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;因此在更新节点信息时，只需要按顺序合并这三段区间：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;info = merge( merge(left, self), right )
+size = size(left) + 1 + size(right)
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;每一次旋转结束后，只需对被下沉和被提升的节点各执行一次 &lt;code&gt;push_up&lt;/code&gt;，区间信息就会自动恢复正确。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id="8"&gt;8. 总结&lt;/h2&gt;
+&lt;p&gt;到这里，Splay 的功能与实现已经足够清晰了。&lt;/p&gt;
+&lt;p&gt;在本题中，Splay 本身并不承担复杂的逻辑，它只是提供了一种能够支持动态序列插入与区间定位的结构。真正与题目模型直接相关的，是节点中维护的区间信息及其合并方式。&lt;/p&gt;</content><category term="算法与数据结构"/><category term="Splay"/><category term="隐式Splay"/><category term="平衡树"/><category term="动态序列"/><category term="括号序列"/></entry><entry><title>Luogu P14761 - CCD 的序列 【动态序列统计】 （之一）</title><link href="https://wizmann.top/luogu-P14761-splay-1.html" rel="alternate"/><published>2025-12-20T12:00:00+08:00</published><updated>2025-12-20T12:00:00+08:00</updated><author><name>Wizmann</name></author><id>tag:wizmann.top,2025-12-20:/luogu-P14761-splay-1.html</id><summary type="html">&lt;p&gt;通过区间统计模型与隐式 Splay 树，解决动态合法括号序列中“匹配发生变更”的统计问题。&lt;/p&gt;</summary><content type="html">&lt;h2 id="1"&gt;1. 题意概述&lt;/h2&gt;
+&lt;p&gt;&lt;a href="https://www.luogu.com.cn/problem/P14761"&gt;题目&lt;/a&gt;要求维护一个&lt;strong&gt;动态变化的合法括号序列&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;初始时序列为空。接下来进行 &lt;span class="math"&gt;\(n\)&lt;/span&gt; 次操作，每次操作给定两个整数 &lt;span class="math"&gt;\((l, r)\)&lt;/span&gt;（&lt;span class="math"&gt;\(0 \le l \le r \le |S|\)&lt;/span&gt;），表示：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;在当前序列的第 &lt;span class="math"&gt;\(l\)&lt;/span&gt; 个插入位置插入一个左括号 &lt;code&gt;'('&lt;/code&gt;；&lt;/li&gt;
+&lt;li&gt;在当前序列的第 &lt;span class="math"&gt;\(r\)&lt;/span&gt; 个插入位置插入一个右括号 &lt;code&gt;')'&lt;/code&gt;。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;题目保证：&lt;strong&gt;每次操作完成后，整个括号序列仍然是合法的&lt;/strong&gt;。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3 id="_1"&gt;匹配关系与“匹配发生变更”&lt;/h3&gt;
+&lt;p&gt;在一个合法括号序列中，每个括号都有且仅有一个与之匹配的括号，匹配关系由括号的嵌套结构唯一确定。&lt;/p&gt;
+&lt;p&gt;若某个括号在一次操作前匹配的是括号 &lt;span class="math"&gt;\(A\)&lt;/span&gt;，在操作后匹配对象变为括号 &lt;span class="math"&gt;\(B\)&lt;/span&gt;（且 &lt;span class="math"&gt;\(A \neq B\)&lt;/span&gt;），则称该括号的&lt;strong&gt;匹配发生了变更&lt;/strong&gt;。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3 id="_2"&gt;本题的核心问题&lt;/h3&gt;
+&lt;p&gt;在每一次插入操作完成后，需要输出：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;由于本次操作导致匹配对象发生变化的旧括号数量&lt;/strong&gt;&lt;br&gt;
+（不包括本次新插入的两个括号）&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;h2 id="2"&gt;2. 题目分析与建模：从匹配变化到区间统计&lt;/h2&gt;
+&lt;p&gt;本题的关键不在于维护“谁和谁匹配”，而在于&lt;strong&gt;如何刻画“哪些匹配会发生变化”&lt;/strong&gt;。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3 id="_3"&gt;插入操作的结构本质&lt;/h3&gt;
+&lt;p&gt;一次操作在原括号序列 &lt;span class="math"&gt;\(S\)&lt;/span&gt; 上同时插入一对新括号 &lt;code&gt;'('&lt;/code&gt; 和 &lt;code&gt;')'&lt;/code&gt;，并保证新序列仍然合法。&lt;/p&gt;
+&lt;p&gt;从结构角度看，这等价于：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;在原序列中，将一段连续子串整体包裹进一层新的括号中。&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;给定操作 &lt;span class="math"&gt;\((l, r)\)&lt;/span&gt;，被包裹的原有区间为：&lt;br&gt;
+&lt;/p&gt;
+&lt;div class="math"&gt;$$
+(l+1,\ r)
+$$&lt;/div&gt;
+&lt;hr&gt;
+&lt;h3 id="_4"&gt;哪些括号的匹配会发生变化？&lt;/h3&gt;
+&lt;p&gt;将原序列中的括号按其位置与匹配关系分类，可以发现：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;完全位于区间 &lt;span class="math"&gt;\((l+1, r)\)&lt;/span&gt; 外的括号，匹配关系不变；&lt;/li&gt;
+&lt;li&gt;匹配对象也完全位于区间 &lt;span class="math"&gt;\((l+1, r)\)&lt;/span&gt; 内的括号对，匹配关系不变；&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;一端在区间内、另一端在区间外的匹配对，其匹配关系一定会发生变化。&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;因此可以得到结论：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;一个旧括号的匹配发生变更，当且仅当它原本匹配的括号与它位于区间 &lt;span class="math"&gt;\((l+1, r)\)&lt;/span&gt; 的不同侧。&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;h3 id="_5"&gt;转化为区间统计问题&lt;/h3&gt;
+&lt;p&gt;于是，原问题可以被精确地重述为：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;在原括号序列中，统计区间 &lt;span class="math"&gt;\((l+1, r)\)&lt;/span&gt; 内，有多少括号是&lt;strong&gt;与区间外的括号直接匹配的&lt;/strong&gt;。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;为此，引入两个区间统计量：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;span class="math"&gt;\(open\)&lt;/span&gt;：区间内无法在区间内部完成匹配的左括号数量；&lt;/li&gt;
+&lt;li&gt;&lt;span class="math"&gt;\(close\)&lt;/span&gt;：区间内无法在区间内部完成匹配的右括号数量。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;显然：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;span class="math"&gt;\(open\)&lt;/span&gt; 个左括号必然向区间右侧寻找匹配；&lt;/li&gt;
+&lt;li&gt;&lt;span class="math"&gt;\(close\)&lt;/span&gt; 个右括号必然向区间左侧寻找匹配。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;因此，跨区间匹配对的数量为：&lt;br&gt;
+&lt;/p&gt;
+&lt;div class="math"&gt;$$
+open + close
+$$&lt;/div&gt;
+&lt;p&gt;而每一对这样的匹配，会导致两个旧括号的匹配关系发生变化。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3 id="_6"&gt;核心公式&lt;/h3&gt;
+&lt;p&gt;设区间 &lt;span class="math"&gt;\((l+1, r)\)&lt;/span&gt; 的统计结果为 &lt;span class="math"&gt;\((open, close)\)&lt;/span&gt;，则答案为：&lt;br&gt;
+&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\text{answer} = 2 \times (open + close)
+$$&lt;/div&gt;
+&lt;p&gt;这一步是整道题的&lt;strong&gt;建模核心&lt;/strong&gt;。&lt;br&gt;
+问题至此被转化为：&lt;strong&gt;如何动态维护括号序列，并支持区间 &lt;span class="math"&gt;\((open, close)\)&lt;/span&gt; 查询。&lt;/strong&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3 id="open-close"&gt;区间 &lt;span class="math"&gt;\((open, close)\)&lt;/span&gt; 在动态插入下的维护方式&lt;/h3&gt;
+&lt;p&gt;单个括号本身就是一个最小区间：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;'('&lt;/code&gt; 对应 &lt;span class="math"&gt;\((1,0)\)&lt;/span&gt;；&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;')'&lt;/code&gt; 对应 &lt;span class="math"&gt;\((0,1)\)&lt;/span&gt;。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;当相邻区间合并时，唯一可能产生的新匹配是：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;左区间剩余的 &lt;code&gt;'('&lt;/code&gt;；&lt;/li&gt;
+&lt;li&gt;与右区间剩余的 &lt;code&gt;')'&lt;/code&gt;。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;因此合并规则固定为：&lt;br&gt;
+&lt;/p&gt;
+&lt;div class="math"&gt;$$
+t = \min(open_L,, close_R)
+$$&lt;/div&gt;
+&lt;div class="math"&gt;$$
+\begin{aligned}
+open &amp;amp;= open_L + open_R - t, \\
+close &amp;amp;= close_L + close_R - t.
+\end{aligned}
+$$&lt;/div&gt;
+&lt;p&gt;一次插入操作，本质上只是向序列中插入新的最小区间 &lt;span class="math"&gt;\((1,0)\)&lt;/span&gt; 或 &lt;span class="math"&gt;\((0,1)\)&lt;/span&gt;，&lt;br&gt;
+原有区间内部的匹配关系不会被破坏，只需在插入位置附近按上述规则重新合并区间信息。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id="3-splay"&gt;3. 为什么需要平衡树，以及为什么选择 Splay&lt;/h2&gt;
+&lt;p&gt;经过建模后，问题转化为：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;动态维护一个序列，支持：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;任意位置插入元素；&lt;/li&gt;
+&lt;li&gt;任意区间 &lt;span class="math"&gt;\((open, close)\)&lt;/span&gt; 查询。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;h3 id="_7"&gt;朴素与线段树方案的不足&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;数组或字符串模拟，中间插入为 &lt;span class="math"&gt;\(O(n)\)&lt;/span&gt;，总复杂度 &lt;span class="math"&gt;\(O(n^2)\)&lt;/span&gt;；&lt;/li&gt;
+&lt;li&gt;普通线段树依赖静态下标，无法处理动态插入。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;因此需要一种&lt;strong&gt;支持动态序列维护&lt;/strong&gt;的数据结构。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3 id="splay"&gt;为什么选择隐式 Splay？&lt;/h3&gt;
+&lt;p&gt;隐式 Splay 具备以下特性：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;中序遍历顺序即为序列顺序；&lt;/li&gt;
+&lt;li&gt;通过子树大小隐式表示下标；&lt;/li&gt;
+&lt;li&gt;可以在节点中维护区间 &lt;span class="math"&gt;\((open, close)\)&lt;/span&gt;；&lt;/li&gt;
+&lt;li&gt;均摊时间复杂度为 &lt;span class="math"&gt;\(O(\log n)\)&lt;/span&gt;。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h3 id="_8"&gt;区间信息如何挂在树上？&lt;/h3&gt;
+&lt;p&gt;在这种序列型树结构中：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;每个节点维护的是“以自身为根的一段连续区间”的统计信息；&lt;/li&gt;
+&lt;li&gt;左子树、当前节点、右子树分别对应三段连续区间；&lt;/li&gt;
+&lt;li&gt;节点的 &lt;span class="math"&gt;\((open, close)\)&lt;/span&gt; 由这三部分按合并规则得到。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;当插入新节点或树结构调整时，只需在受影响节点处重新计算区间信息，即可保证整体正确性。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id="4-splay"&gt;4. Splay 树的基本性质（简述）&lt;/h2&gt;
+&lt;p&gt;Splay 树是一种&lt;strong&gt;自调整二叉搜索树&lt;/strong&gt;，通过访问后的一系列旋转操作，将常访问的节点逐渐拉近根节点。&lt;/p&gt;
+&lt;p&gt;隐式 Splay 不存储显式 key，而是通过子树大小隐式表示序列下标，因此非常适合处理“第 &lt;span class="math"&gt;\(k\)&lt;/span&gt; 个位置”“区间查询”等操作。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id="5"&gt;5. 实现思路与代码结构&lt;/h2&gt;
+&lt;p&gt;整体实现可以自然分为三层：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;括号段信息 &lt;span class="math"&gt;\((open, close)\)&lt;/span&gt; 的定义与合并；&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;隐式 Splay 的通用实现（维护 size 与区间信息）；&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;题目逻辑：查询区间 &lt;span class="math"&gt;\((l+1, r)\)&lt;/span&gt;，计算答案并插入新括号。&lt;/strong&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h3 id="_9"&gt;单点与区间信息&lt;/h3&gt;
+&lt;div class="math"&gt;$$
+\text{info}(c)=
+\begin{cases}
+(1,0), &amp;amp; c='(' \\
+(0,1), &amp;amp; c=')' \\
+(0,0), &amp;amp; \text{哨兵}
+\end{cases}
+$$&lt;/div&gt;
+&lt;p&gt;区间合并规则同第 2 节所述。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3 id="_10"&gt;区间查询与插入&lt;/h3&gt;
+&lt;p&gt;通过两次结构调整，将目标区间隔离为一棵子树，其根节点维护的 &lt;span class="math"&gt;\((open, close)\)&lt;/span&gt; 即为查询结果。&lt;/p&gt;
+&lt;p&gt;每次插入与查询的均摊复杂度均为 &lt;span class="math"&gt;\(O(\log n)\)&lt;/span&gt;。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3 id="_11"&gt;总体复杂度&lt;/h3&gt;
+&lt;p&gt;总时间复杂度：&lt;br&gt;
+&lt;/p&gt;
+&lt;div class="math"&gt;$$
+O(n \log n)
+$$&lt;/div&gt;
+&lt;hr&gt;
+&lt;h2 id="_12"&gt;结语&lt;/h2&gt;
+&lt;p&gt;解决问题的第一步，一定不是写出代码，而是：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;正确抽象“匹配发生变更”的含义；&lt;/li&gt;
+&lt;li&gt;找到稳定、可维护的区间结构量；&lt;/li&gt;
+&lt;li&gt;选择合适的数据结构承载这一结构。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;一旦模型建立，剩下只是工程实现问题。&lt;/p&gt;
+&lt;script type="text/javascript"&gt;if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width &lt; 768) ? "left" : align;
+        indent = (screen.width &lt; 768) ? "0em" : indent;
+        linebreak = (screen.width &lt; 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/latest.js?config=TeX-AMS-MML_HTMLorMML';
+
+    var configscript = document.createElement('script');
+    configscript.type = 'text/x-mathjax-config';
+    configscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'none' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        availableFonts: ['STIX', 'TeX']," +
+        "        preferredFont: 'STIX'," +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(configscript);
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+&lt;/script&gt;</content><category term="算法与数据结构"/><category term="括号序列"/><category term="Splay"/><category term="平衡树"/><category term="动态序列"/><category term="数据结构"/></entry></feed>

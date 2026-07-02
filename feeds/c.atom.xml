@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Maerlyn's Rainbow - C++</title><link href="https://wizmann.top/" rel="alternate"/><link href="https://wizmann.top/feeds/c.atom.xml" rel="self"/><id>https://wizmann.top/</id><updated>2025-09-29T10:00:00+08:00</updated><entry><title>展望未来十年：C++ 的下一步 —— Herb Sutter @ CppCon 2024</title><link href="https://wizmann.top/peering-forward-cpp-next-decade.html" rel="alternate"/><published>2025-09-29T10:00:00+08:00</published><updated>2025-09-29T10:00:00+08:00</updated><author><name>Wizmann</name></author><id>tag:wizmann.top,2025-09-29:/peering-forward-cpp-next-decade.html</id><summary type="html">&lt;div class="alert alert-warning" role="alert"&gt;
+  ⚠️ 本文根据视频字幕和 slides 由 AI 生成
+&lt;/div&gt;
+
+&lt;hr&gt;
+&lt;p&gt;Keynote：&lt;a href="https://github.com/CppCon/CppCon2024/blob/main/Presentations/Peering_Forward_Cpps_Next_Decade.pdf"&gt;&lt;strong&gt;Peering Forward: C++’s Next Decade&lt;/strong&gt;（CppCon 2024）&lt;/a&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id="tldr"&gt;TL;DR（官方脉络）&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;重大进展在路上&lt;/strong&gt;：&lt;code&gt;std::execution&lt;/code&gt; 并发/并行、类型与内存安全改 …&lt;/li&gt;&lt;/ul&gt;</summary><content type="html">&lt;div class="alert alert-warning" role="alert"&gt;
+  ⚠️ 本文根据视频字幕和 slides 由 AI 生成
+&lt;/div&gt;
+
+&lt;hr&gt;
+&lt;p&gt;Keynote：&lt;a href="https://github.com/CppCon/CppCon2024/blob/main/Presentations/Peering_Forward_Cpps_Next_Decade.pdf"&gt;&lt;strong&gt;Peering Forward: C++’s Next Decade&lt;/strong&gt;（CppCon 2024）&lt;/a&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id="tldr"&gt;TL;DR（官方脉络）&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;重大进展在路上&lt;/strong&gt;：&lt;code&gt;std::execution&lt;/code&gt; 并发/并行、类型与内存安全改进、反射 + 代码生成（“注入”）、Contracts；其中部分内容&lt;strong&gt;已进入 C++26&lt;/strong&gt; 的初始投票/合入节奏。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;主旋律&lt;/strong&gt;：把更多工作“左移”到编译期；以 &lt;strong&gt;安全性对标（parity）&lt;/strong&gt; 为目标（而非完美），逐步减少未定义行为；通过&lt;strong&gt;泛化带来简化&lt;/strong&gt;，让代码直接表达“意图”。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h2 id="1"&gt;1) 术语澄清：三种“安全”，别混了&lt;/h2&gt;
+&lt;p&gt;Herb 明确区分了三个层面的“安全”，并给出行业场景示例（ISO/IEC 23643:2020 术语脉络）：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Software security（网络/信息安全）&lt;/strong&gt;：让软件能抵御恶意攻击、保护资产（电网、医院、银行、个人数据等）。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Software safety（生命/功能安全）&lt;/strong&gt;：避免对人、财产、环境造成不可接受的风险（如医院设备、自动驾驶/武器）。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Programming language safety（语言/内存安全）&lt;/strong&gt;：对程序正确性的静态/动态保证，既能提升前两者，也能普遍提高质量。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Herb 把“内存安全攻击”称作一场&lt;strong&gt;进行中的冷战&lt;/strong&gt;，强调这既有现实紧迫性，也影响语言设计优先级。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id="2-c2629"&gt;2) 大方向：C++26/29 的主线与“安全对标”目标&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;优先处理的四大类问题&lt;/strong&gt;：类型、边界、初始化、生命周期（正好对应最严重的四类 CWE，且现代语言普遍做得更好）。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;“安全 Profile” 框架&lt;/strong&gt;（Stroustrup &amp;amp; Dos Reis）：把（多半已知的）静态安全规则&lt;strong&gt;上移到编译期&lt;/strong&gt;，可按“代码体积/模块”选择地逐步启用，并&lt;strong&gt;可增量演进&lt;/strong&gt;。给“Profile”下了明确定义：一组在编译期强制的规则，保证消除某类缺陷。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;采用策略&lt;/strong&gt;：仍旧坚持“默认性能与可控性”，同时做到“安全随处可用”，愿景是&lt;strong&gt;“今天：靠警惕；明天：可选择 opt-out”&lt;/strong&gt;。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h2 id="3-c26-erroneous-behavior"&gt;3) C++26 新武器：“erroneous behavior”（错误行为）&lt;/h2&gt;
+&lt;h3 id="31"&gt;3.1 背景与改变&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;读取未初始化局部变量，传统上是 &lt;strong&gt;UB（未定义行为）&lt;/strong&gt; —— 这会导致“时间旅行/泄密”等坏结果。C++26 将&lt;strong&gt;引入“错误行为（erroneous behavior）”&lt;/strong&gt; 的概念：&lt;strong&gt;行为被明确定义为“就是错”&lt;/strong&gt;，编译器需写入“错误值”，从而避免“UB 的魔法”破坏安全。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;量化收益&lt;/strong&gt;：预计可&lt;strong&gt;自动消除一大类（5%-10%）&lt;/strong&gt; 的漏洞/缺陷，而且&lt;strong&gt;无需改动旧代码，只要重编译即可&lt;/strong&gt;——这对“可采纳性”极为关键。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="32"&gt;3.2 小例子（信息泄露不再发生）&lt;/h3&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="k"&gt;auto&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;f1&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="kt"&gt;char&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;[]&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="sc"&gt;&amp;#39;s&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="sc"&gt;&amp;#39;e&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="sc"&gt;&amp;#39;c&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="sc"&gt;&amp;#39;r&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="sc"&gt;&amp;#39;e&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="sc"&gt;&amp;#39;t&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;};&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="k"&gt;auto&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;f2&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="kt"&gt;char&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;6&lt;/span&gt;&lt;span class="p"&gt;];&lt;/span&gt;&lt;span class="w"&gt;           &lt;/span&gt;&lt;span class="c1"&gt;// 未初始化&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="n"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;&lt;span class="w"&gt;            &lt;/span&gt;&lt;span class="c1"&gt;// C++26: 打印“错误值”（绝不会是 &amp;quot;secret&amp;quot;）&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="kt"&gt;int&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;f1&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;f2&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;如上示例中，旧世界里常见的“泄密”将不再发生。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;为什么不“统一零初始化”？Herb 给出的理由包括：零并不总是语义正确值，且会&lt;strong&gt;掩盖真实问题&lt;/strong&gt;（让静态/动态工具难以发现），还有成本因素（大对象清零）。需要时也可以&lt;strong&gt;显式 opt-out&lt;/strong&gt;：&lt;code&gt;int a [[indeterminate]];&lt;/code&gt;。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;h2 id="4"&gt;4) “初始化前置”与“边界安全”：从规范到工程可采纳&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;不要强行“声明即初始化”或“用模式填充”&lt;/strong&gt;：这类“塞入无意义写入”的做法会给优化与静态分析带来困境。真正想要的是&lt;strong&gt;“首次使用前必然完成初始化（definite initialization）”&lt;/strong&gt;。Herb 指出 C#、Ada 等已有实践，且在 &lt;strong&gt;Cpp2&lt;/strong&gt; 中已实现原型：&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;局部变量默认&lt;strong&gt;未初始化&lt;/strong&gt;（性能优先），但&lt;strong&gt;任一路径首次使用前必须完成构造&lt;/strong&gt;；&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;通过直接构造或“out 形参的填充函数”均可；&lt;/li&gt;
+&lt;li&gt;这样即可组合化地表达“初始化策略”。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;边界检查（Bounds）&lt;/strong&gt;：在 &lt;strong&gt;Cpp2&lt;/strong&gt; 的实证中，对&lt;strong&gt;连续容器的 &lt;code&gt;a[b]&lt;/code&gt;&lt;/strong&gt; 注入 &lt;code&gt;0 &amp;lt;= b &amp;amp;&amp;amp; b &amp;lt; size(a)&lt;/code&gt; 形式的&lt;strong&gt;调用点检查&lt;/strong&gt;，违例通过契约处理（可自定义）。无需改 STL 或大多数容器实现，也适用于 C 数组（在衰变前）。这类检查可通过将来标准的 &lt;strong&gt;“bounds Profile”&lt;/strong&gt; 一键启用（理念上“启用 Profile 并重编译”）。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;示例（越界检测理念）&lt;/strong&gt;：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="c1"&gt;//   int              a[] = {1,2,3};&lt;/span&gt;
+&lt;span class="c1"&gt;//   std::vector&amp;lt;int&amp;gt; a   = {1,2,3};&lt;/span&gt;
+
+&lt;span class="n"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]);&lt;/span&gt;&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="c1"&gt;// ok&lt;/span&gt;
+&lt;span class="n"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;]);&lt;/span&gt;&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="c1"&gt;// 触发边界违例（在 Cpp2 原型中通过契约报告）&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;hr&gt;
+&lt;h2 id="5-aka"&gt;5) “海啸将至”：反射 + 代码生成（a.k.a. 注入）&lt;/h2&gt;
+&lt;p&gt;Herb 认为 &lt;strong&gt;反射 + 生成&lt;/strong&gt; 将是&lt;strong&gt;未来十年最重要的语言能力&lt;/strong&gt;，与 &lt;code&gt;constexpr&lt;/code&gt; 一同构成“把更多意图抬到编译期”的关键通道；并强调 &lt;strong&gt;C++ 是我们想要的“编译期语言”，也是我们想要的“GPU 语言”&lt;/strong&gt;。&lt;/p&gt;
+&lt;h3 id="51-p2996"&gt;5.1 P2996：以“命令行解析器”为例&lt;/h3&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="k"&gt;struct&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nc"&gt;MyOpts&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;file_name&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s"&gt;&amp;quot;input.txt&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="c1"&gt;// --file_name &amp;lt;string&amp;gt;&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt;&lt;span class="w"&gt;         &lt;/span&gt;&lt;span class="n"&gt;count&lt;/span&gt;&lt;span class="w"&gt;     &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;&lt;span class="w"&gt;           &lt;/span&gt;&lt;span class="c1"&gt;// --count &amp;lt;int&amp;gt;&lt;/span&gt;
+&lt;span class="p"&gt;};&lt;/span&gt;
+
+&lt;span class="kt"&gt;int&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nf"&gt;main&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;argc&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="kt"&gt;char&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;argv&lt;/span&gt;&lt;span class="p"&gt;[])&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="n"&gt;MyOpts&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;opts&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;parse_options&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;MyOpts&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;vector&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string_view&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;argv&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;argv&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="n"&gt;argc&lt;/span&gt;&lt;span class="p"&gt;));&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;cout&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s"&gt;&amp;quot;opts.file=&amp;quot;&lt;/span&gt;&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;opts&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;file_name&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="sc"&gt;&amp;#39;\n&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;cout&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s"&gt;&amp;quot;opts.count=&amp;quot;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;opts&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;count&lt;/span&gt;&lt;span class="w"&gt;     &lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="sc"&gt;&amp;#39;\n&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;code&gt;parse_options&lt;/code&gt; 利用反射枚举数据成员、识别标识符、推导成员类型，并拼接生成解析逻辑（示例里可见 &lt;code&gt;nonstatic_data_members_of&lt;/code&gt;, &lt;code&gt;identifier_of&lt;/code&gt;, &lt;code&gt;type_of&lt;/code&gt;, 以及“&lt;strong&gt;splices&lt;/strong&gt;/注入语法”）。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;实现进展：已有 &lt;strong&gt;EDG&lt;/strong&gt; 与 &lt;strong&gt;Clang&lt;/strong&gt; 原型跟进 P2996（EDG：Daveed Vandevoorde；Clang：Dan Katz/Bloomberg；另有 Lock3、Circle、cppfront 等相关探索）。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id="52-p0707metafunctionsmetaclass"&gt;5.2 P0707（metafunctions/metaclass）：“接口”一键生成&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;手写接口类&lt;/strong&gt;（纯虚 + 析构 + 禁复制）：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="k"&gt;class&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nc"&gt;IFoo&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+&lt;span class="k"&gt;public&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="k"&gt;virtual&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt;&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="k"&gt;virtual&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="kt"&gt;void&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nf"&gt;g&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="k"&gt;virtual&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;~&lt;/span&gt;&lt;span class="n"&gt;IFoo&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="k"&gt;default&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="n"&gt;IFoo&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="k"&gt;default&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="n"&gt;IFoo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;IFoo&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="k"&gt;const&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="k"&gt;delete&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="kt"&gt;void&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="k"&gt;operator&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;IFoo&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="k"&gt;const&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="k"&gt;delete&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="p"&gt;};&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;用元类表达“意图”&lt;/strong&gt;：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="k"&gt;class&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;interface&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;IFoo&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt;&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="nf"&gt;f&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="kt"&gt;void&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nf"&gt;g&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="p"&gt;};&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;底层可由 &lt;code&gt;interface(...)&lt;/code&gt; 元函数在编译期&lt;strong&gt;反射原型并生成&lt;/strong&gt;上述纯虚骨架与语义约束。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;幻灯还给出了 &lt;code&gt;interface&lt;/code&gt; 的实现片段：使用 &lt;code&gt;identifier_of&lt;/code&gt;, &lt;code&gt;members_of&lt;/code&gt;, &lt;code&gt;return_type_of&lt;/code&gt;, &lt;code&gt;parameter_list_of&lt;/code&gt; 等元函数在编译期&lt;strong&gt;拼接类定义&lt;/strong&gt;。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id="53"&gt;5.3 “通过泛化获得简化”：三条“北极星”准则&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;源代码中所有信息都必须可反射&lt;/strong&gt;（包括属性、默认值等）。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;凡是能手写的源代码，都必须能生成&lt;/strong&gt;（类型、自由函数、对 &lt;code&gt;std::&lt;/code&gt; 模板的特化等）。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;所有代码（手写或生成）都必须可见&lt;/strong&gt;（可 pretty-print、可调试、可展开）。&lt;br&gt;
+   此处还延展到&lt;strong&gt;编译期产物&lt;/strong&gt;（如 &lt;code&gt;.winmd&lt;/code&gt; 等）也应能在编译期生成。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2 id="6-qtcom"&gt;6) 生态/工具的“可表达性扩展”：从 Qt/COM 到物理数据模型&lt;/h2&gt;
+&lt;p&gt;Herb 展示了若干“把外部代码生成/IDL/脚本&lt;strong&gt;收回到 C++ 源&lt;/strong&gt;”的&lt;strong&gt;草案式&lt;/strong&gt;思路：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Qt moc&lt;/strong&gt;：用 &lt;code&gt;class(Qclass) ...&lt;/code&gt; + &lt;code&gt;property/signal/slot&lt;/code&gt; 的语义化声明，代替额外的 &lt;code&gt;.moc&lt;/code&gt; 生成链路。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;COM/WinRT&lt;/strong&gt;：以 &lt;code&gt;class(rt_interface&amp;lt;...&amp;gt;)&lt;/code&gt; 形式表达 IDL 语义（比如 &lt;code&gt;property&amp;lt;UINT, SomeClass&amp;gt;&lt;/code&gt;），统一到编译期反射+生成。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;粒子物理的 podio&lt;/strong&gt;：将原本的 YAML 数据模型描述迁回到 &lt;strong&gt;&lt;code&gt;class(podio::datatype)&lt;/code&gt;&lt;/strong&gt; 里，用 &lt;code&gt;constexpr&lt;/code&gt; 静态字符串与生成管线&lt;strong&gt;在常规 C++ 编译中完成同等产物&lt;/strong&gt;。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h2 id="7"&gt;7) 更多实用范例&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;instrumented vector&lt;/strong&gt;：对模板实体执行 &lt;strong&gt;“identity+增强”&lt;/strong&gt; 的生成（示例在 &lt;code&gt;operator[]&lt;/code&gt; 包裹统计逻辑），说明“反射+生成”不仅能&lt;strong&gt;复制粘贴&lt;/strong&gt;，还能&lt;strong&gt;普遍地为一类实体注入横切逻辑&lt;/strong&gt;（计数、日志、检测等）。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;编译期 regex&lt;/strong&gt;：对比 &lt;strong&gt;CTRE&lt;/strong&gt; 与 &lt;strong&gt;cppfront 的 &lt;code&gt;@regex&lt;/code&gt;&lt;/strong&gt;，均通过编译期解析/生成专用匹配器以获高效实现，体现“&lt;strong&gt;把意图抬到编译期&lt;/strong&gt;”的性能与可维护性价值。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h2 id="8-gpu-constexpr-c"&gt;8) GPU 与 &lt;code&gt;constexpr&lt;/code&gt; 的共同语言：C++ 本体&lt;/h2&gt;
+&lt;p&gt;幻灯强调了一个观察：多年来 C++ 在 &lt;strong&gt;&lt;code&gt;constexpr&lt;/code&gt; 的可执行性&lt;/strong&gt; 与 &lt;strong&gt;GPU 编程模型&lt;/strong&gt; 的融合路径上不断前进，&lt;strong&gt;“C++ 就是我们想要的编译期语言，也是 GPU 语言”&lt;/strong&gt;，因此&lt;strong&gt;不要引入背离 C++ 本体的“特殊循环/方言”&lt;/strong&gt;，而是尽可能让&lt;strong&gt;同一语言&lt;/strong&gt;在不同阶段/目标上自然工作。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id="9"&gt;9) 风险与设计护栏&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;这类演进需要“&lt;strong&gt;北极星&lt;/strong&gt;”（目标用例的前瞻清单）与“&lt;strong&gt;护栏&lt;/strong&gt;”（防止底层碎片化导致拼不上整体图景）。&lt;/li&gt;
+&lt;li&gt;建议目标：&lt;strong&gt;P0707 元函数&lt;/strong&gt;、&lt;strong&gt;Andrei 的 instrumented_vector&lt;/strong&gt;、以及“&lt;strong&gt;反射+再生成任意类型（恒等变换）&lt;/strong&gt;”。&lt;/li&gt;
+&lt;li&gt;应&lt;strong&gt;吸取 C#、D、Lock3、cppfront&lt;/strong&gt; 等经验，避免“只顾底层细节而忽略端到端场景”。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h2 id="10-c"&gt;10) 结语：欢迎来到 C++ 的下一个十年&lt;/h2&gt;
+&lt;p&gt;Herb 的判断：&lt;strong&gt;反射+生成&lt;/strong&gt; 将主导下一个十年；&lt;br&gt;
+它会&lt;strong&gt;让难事变易&lt;/strong&gt;（如 复杂 Template MetaProgramming、表达式模板），也会&lt;strong&gt;让“原本做不到”的事成为可能&lt;/strong&gt;（如大规模生成式编程）。第一阶段的标准化蓝图&lt;strong&gt;已经在望&lt;/strong&gt;。&lt;/p&gt;</content><category term="C++"/><category term="C++"/><category term="CppCon"/><category term="Herb Sutter"/><category term="编译期编程"/><category term="安全性"/><category term="反射"/><category term="元类"/></entry></feed>

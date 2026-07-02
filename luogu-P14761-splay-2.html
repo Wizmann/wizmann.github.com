@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="zhs" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Luogu P14761 - CCD 的序列【动态序列统计】（之二） - Maerlyn's Rainbow</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <link href="https://wizmann.top/statistics/favicon.png" rel="icon">
+
+<link rel="canonical" href="https://wizmann.top/luogu-P14761-splay-2.html">
+
+        <meta name="author" content="Wizmann" />
+        <meta name="keywords" content="Splay,隐式Splay,平衡树,动态序列,括号序列" />
+        <meta name="description" content="本文围绕隐式 Splay 的基本原理与实现方式，重点说明 splay 操作、旋转模式以及区间隔离的工程实现细节，并展示其在动态序列问题中的实际用法。" />
+
+        <meta property="og:site_name" content="Maerlyn's Rainbow" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Luogu P14761 - CCD 的序列【动态序列统计】（之二）"/>
+        <meta property="og:url" content="https://wizmann.top/luogu-P14761-splay-2.html"/>
+        <meta property="og:description" content="本文围绕隐式 Splay 的基本原理与实现方式，重点说明 splay 操作、旋转模式以及区间隔离的工程实现细节，并展示其在动态序列问题中的实际用法。"/>
+        <meta property="article:published_time" content="2025-12-27" />
+            <meta property="article:section" content="算法与数据结构" />
+            <meta property="article:tag" content="Splay" />
+            <meta property="article:tag" content="隐式Splay" />
+            <meta property="article:tag" content="平衡树" />
+            <meta property="article:tag" content="动态序列" />
+            <meta property="article:tag" content="括号序列" />
+            <meta property="article:author" content="Wizmann" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://wizmann.top/theme/css/bootstrap.flatly.min.css" type="text/css"/>
+    <link href="https://wizmann.top/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://wizmann.top/theme/css/pygments/solarizedlight.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://wizmann.top/theme/css/style.css" type="text/css"/>
+
+        <link href="https://wizmann.top/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow ATOM Feed"/>
+
+        <link href="https://wizmann.top/feeds/suan-fa-yu-shu-ju-jie-gou.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maerlyn's Rainbow 算法与数据结构 ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://wizmann.top/" class="navbar-brand">
+Maerlyn's Rainbow            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="/category/blog.html">Blog</a></li>
+                    <li><a href="https://vijos.org/d/wizmann/p">Online Judge</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://wizmann.top/luogu-P14761-splay-2.html"
+                       rel="bookmark"
+                       title="Permalink to Luogu P14761 - CCD 的序列【动态序列统计】（之二）">
+                        Luogu P14761 - CCD 的序列【动态序列统计】（之二）
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2025-12-27T21:00:00+08:00"> 2025-12-27</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://wizmann.top/tag/splay.html">Splay</a>
+        /
+	<a href="https://wizmann.top/tag/yin-shi-splay.html">隐式Splay</a>
+        /
+	<a href="https://wizmann.top/tag/ping-heng-shu.html">平衡树</a>
+        /
+	<a href="https://wizmann.top/tag/dong-tai-xu-lie.html">动态序列</a>
+        /
+	<a href="https://wizmann.top/tag/gua-hao-xu-lie.html">括号序列</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p>在上一篇中，我们已经完成了整道题<strong>最关键的建模工作</strong>：<br>
+把“匹配关系发生变更”转化为区间统计问题。问题最终被化简为：<strong>在一个动态变化的序列上，支持区间查询与任意位置插入</strong>。</p>
+<p>这一篇我们将会讨论：<strong>Splay 数据结构本身的功能与实现方式</strong>，以及它为什么适合承载这个问题。</p>
+<hr>
+<h2 id="1-splay">1. Splay 是“自调整”的，而不是“显式平衡”的</h2>
+<p>在 AVL、SBT 等平衡树中，我们的核心目标是维护某种平衡条件。一旦条件被破坏，就通过旋转把树“修回来”。也就是说，<strong>平衡是目标，旋转是手段</strong>。</p>
+<p>Splay 的思路是反过来的。它并不关心当前这棵树“是不是平衡”，而只关心一件事：<strong>把刚刚访问过的节点，拉到树的上层</strong>。</p>
+<p>直观理解就是：<br>
+经常被访问的节点，就应该离根更近；这样后续再访问它，代价自然更小。因此在 Splay 中，<strong>访问本身，就是结构调整的理由</strong>。至于整棵树的形态是否平衡，并不是一个被显式维护的目标。</p>
+<hr>
+<h2 id="2-splay">2. 什么是 splay 操作</h2>
+<p><code>splay(x)</code> 的含义非常直接：<br>
+<strong>通过一系列旋转，把节点 <code>x</code> 拉到当前树的根节点（或某个指定节点之下）</strong>。</p>
+<p>需要注意的是：</p>
+<ul>
+<li><code>x</code> 不一定是叶子；</li>
+<li>整个过程中可能发生多次旋转；</li>
+<li>每次旋转都只是普通的左旋或右旋。</li>
+</ul>
+<p>Splay 的复杂性不在于旋转本身，而在于<strong>旋转顺序的选择</strong>。</p>
+<hr>
+<h2 id="3-splay">3. Splay 中的三种经典旋转模式</h2>
+<p>设当前要 splay 的节点是 <code>x</code>，其父节点是 <code>p</code>，祖父节点是 <code>g</code>。根据 <code>x</code>、<code>p</code>、<code>g</code> 三者之间的位置关系，旋转会分为三种典型情况。</p>
+<h3 id="zig">Zig（单旋）</h3>
+<p>当 <code>p</code> 本身就是根节点（即不存在祖父 <code>g</code>）时，只需要一次旋转。</p>
+<p>此时旋转的目标非常明确：<br>
+<strong>让 <code>x</code> 成为新的根节点</strong>。</p>
+<div class="highlight"><pre><span></span><code>    p               x
+   / \             / \
+  x   C   ==&gt;     A   p
+ / \                 / \
+A   B               B   C
+</code></pre></div>
+
+<p>旋转结束后，<code>x</code> 被直接提升到了根位置，这是最简单的一种情况。</p>
+<hr>
+<h3 id="zig-zig">Zig-Zig（同向双旋）</h3>
+<p>当 <code>x</code> 和 <code>p</code> 方向相同（同为左儿子，或同为右儿子）时，就会出现一条“歪着的链”。</p>
+<div class="highlight"><pre><span></span><code>        g
+       /
+      p
+     /
+    x
+</code></pre></div>
+
+<p>这种结构如果只旋一次，无法有效把 <code>x</code> 提到高位。因此需要连续两次旋转：</p>
+<ol>
+<li>先旋转 <code>p</code> 与 <code>g</code>；</li>
+<li>再旋转 <code>x</code> 与 <code>p</code>。</li>
+</ol>
+<p>目标并不是单纯把 <code>x</code> 提到根，而是<strong>整体压缩这条同向的访问路径</strong>，让常访问的节点整体靠上。</p>
+<div class="highlight"><pre><span></span><code>        g                 g                  x
+       / \               / \                / \
+      p   D   (1)       x   D    (2)       A   p
+     / \       ==&gt;     / \       ==&gt;          / \
+    x   C             A   p                  B   g
+   / \                   / \                    / \
+  A   B                 B   C                  C   D
+</code></pre></div>
+
+<hr>
+<h3 id="zig-zag">Zig-Zag（反向双旋）</h3>
+<p>当 <code>x</code> 和 <code>p</code> 方向相反时，结构呈现出“拧着”的形态：</p>
+<div class="highlight"><pre><span></span><code>        g
+       /
+      p
+       \
+        x
+</code></pre></div>
+
+<p>这种情况下，如果直接旋 <code>p</code> 和 <code>g</code>，结构会变得更糟。因此正确的顺序是：</p>
+<ol>
+<li>先旋转 <code>x</code> 与 <code>p</code>；</li>
+<li>再旋转 <code>x</code> 与 <code>g</code>。</li>
+</ol>
+<p>目标是先把结构“拧正”，再把 <code>x</code> 提到更高的位置。</p>
+<div class="highlight"><pre><span></span><code>        g                 g                    x
+       / \               / \                  / \
+      p   D   (1)       x   D     (2)        p   g
+     / \       ==&gt;     / \        ==&gt;       / \ / \
+    A   x             p   C                A  B C  D
+       / \           / \
+      B   C         A   B
+</code></pre></div>
+
+<hr>
+<h2 id="4-splay">4. 为什么 Splay 不需要维护平衡条件</h2>
+<p>直观地看：</p>
+<ul>
+<li>如果一棵树长期非常“歪”，</li>
+<li>那说明你反复在访问某一侧的节点，</li>
+<li>而 Splay 会不断把这些节点旋转到上层，</li>
+<li>最终这条路径会被逐渐压缩。</li>
+</ul>
+<p>因此，<strong>坏结构往往对应“不常用”的访问路径，而常用路径会被不断优化</strong>。这也是为什么：</p>
+<ul>
+<li>单次操作的复杂度可能很高；</li>
+<li>但在一整段操作序列上，Splay 的<strong>均摊复杂度是 <code>O(log n)</code></strong>。</li>
+</ul>
+<p>在竞赛环境中，这样的保证是足够可靠的。</p>
+<hr>
+<h2 id="5-splay-splay">5. 隐式 Splay 与普通 Splay 的区别</h2>
+<p>普通 Splay 是一棵标准的 BST，节点中有显式的 key，满足左小右大的性质。</p>
+<p>而在本题中使用的是<strong>隐式 Splay</strong>。换句话说，<strong>节点本身不存 key，而是把整个序列按顺序映射到一棵 BST 的中序遍历上</strong>。</p>
+<p>于是：</p>
+<ul>
+<li>中序遍历顺序 = 序列顺序；</li>
+<li>第 <code>k</code> 个元素 = 中序遍历第 <code>k</code> 个节点。</li>
+</ul>
+<p>这样一来：</p>
+<ul>
+<li>查找第 <code>k</code> 个位置；</li>
+<li>在第 <code>k</code> 个位置插入；</li>
+<li>查询区间 <code>[l, r]</code>；</li>
+</ul>
+<p>都可以统一转化为<strong>基于子树大小的树操作</strong>。</p>
+<hr>
+<h2 id="6">6. 区间信息的维护</h2>
+<p>在每个节点中，我们维护该节点所代表区间的信息。这一点与 AVL、SBT 等平衡树在旋转中维护区间信息并无本质区别。</p>
+<p>旋转只会改变父子关系，不会破坏区间的连续性，因此只要在旋转后正确更新受影响节点的区间信息即可。</p>
+<hr>
+<h2 id="7-push_up">7. 为什么 <code>push_up</code> 是“三段合并”</h2>
+<p>在隐式 Splay 中，一个节点天然代表如下区间结构：</p>
+<div class="highlight"><pre><span></span><code>[ 左子树 ] + [ 当前字符 ] + [ 右子树 ]
+</code></pre></div>
+
+<p>因此在更新节点信息时，只需要按顺序合并这三段区间：</p>
+<div class="highlight"><pre><span></span><code>info = merge( merge(left, self), right )
+size = size(left) + 1 + size(right)
+</code></pre></div>
+
+<p>每一次旋转结束后，只需对被下沉和被提升的节点各执行一次 <code>push_up</code>，区间信息就会自动恢复正确。</p>
+<hr>
+<h2 id="8">8. 总结</h2>
+<p>到这里，Splay 的功能与实现已经足够清晰了。</p>
+<p>在本题中，Splay 本身并不承担复杂的逻辑，它只是提供了一种能够支持动态序列插入与区间定位的结构。真正与题目模型直接相关的，是节点中维护的区间信息及其合并方式。</p>
+            </div>
+            <!-- /.entry-content -->
+    <hr/>
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+            var disqus_config = function () {
+                this.language = "zhs";
+
+                        this.page.identifier = '2025-12-27-luogu-P14761-splay-2';
+                        this.page.url = 'https://wizmann.top/luogu-P14761-splay-2.html';
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="https://github.com/wizmann"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="https://wizmann.top//feeds/all.atom.xml"><i class="fa fa-rss-square fa-lg"></i> rss</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://wizmann.top/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/c.html">C++</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/algorithm.html">algorithm</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/fen-bu-shi-xi-tong.html">分布式系统</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/ti-jie.html">题解</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/cpp.html">cpp</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/codeforces.html">codeforces</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://wizmann.top/tag/suan-fa.html">算法</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/cas.html">cas</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/interview.html">interview</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rpc.html">rpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/yi-zhi-xing.html">一致性</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xin-xi-jian-suo.html">信息检索</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multi-thread.html">multi-thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/distributed-system.html">Distributed System</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/thread.html">thread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/phxrpc.html">phxrpc</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/gong-kai-ke.html">公开课</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/rag.html">RAG</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/tcp.html">tcp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-ku.html">数据库</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/llm.html">LLM</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/networking.html">networking</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/storage.html">storage</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/modern-cpp.html">modern cpp</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/stup.html">STUP</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/jian-suo-zeng-qiang-sheng-cheng.html">检索增强生成</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/xian-liao.html">闲聊</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/memory-barrier.html">memory-barrier</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/multithread.html">multithread</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/leetcode.html">Leetcode</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/shu-ju-xi-tong.html">数据系统</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/system-design.html">System Design</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/protocol.html">protocol</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/duo-xian-cheng.html">多线程</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://wizmann.top/tag/udp.html">UDP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/basic-paxos.html">basic paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spin.html">SPIN</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/storage-system.html">storage system</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/promela.html">Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cmpxchg.html">cmpxchg</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/cse351.html">CSE351</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/solution.html">Solution</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/dong-tai-xu-lie.html">动态序列</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/ping-heng-shu.html">平衡树</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/ucontext.html">ucontext</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/induction.html">induction</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/google.html">Google</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/raft.html">raft</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/3d-printing.html">3D printing</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/shu-ju-mi-ji-xing-ying-yong-xi-tong.html">数据密集型应用系统</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/bing-fa-bian-cheng.html">并发编程</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/async.html">async</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/spinpromela.html">SPIN/Promela</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/splay.html">Splay</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/gua-hao-xu-lie.html">括号序列</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/paxos.html">paxos</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/azure.html">azure</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://wizmann.top/tag/shu-ju-jie-gou.html">数据结构</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/competitive-programming.html">competitive programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dsu-on-tree.html">DSU on Tree</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fan-she.html">反射</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/memory-model.html">Memory Model</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-lian-pou-fen.html">树链剖分</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bing-fa.html">并发</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon.html">CppCon</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/sram.html">SRAM</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-ju-zhong-xin.html">数据中心</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/ke-kao-xing.html">可靠性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-bian-cheng.html">编译期编程</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/si-suo.html">死锁</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/an-quan-xing.html">安全性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/atomic.html">Atomic</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/cppcon2024.html">CppCon2024</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/zi-fu-chuan-zhong-xie-xi-tong.html">字符串重写系统</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/ab.html">A=B</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/semaphore.html">semaphore</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/mpsc.html">MPSC</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/herb-sutter.html">Herb Sutter</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/dram.html">DRAM</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yin-shi-splay.html">隐式Splay</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/mutex.html">mutex</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/fang-fa-lun.html">方法论</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/yuan-lei.html">元类</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/lun-wen-yue-du.html">论文阅读</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/ren-zhi.html">认知</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/condition_variable.html">condition_variable</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/thue.html">Thue</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/qi-fa-shi-he-bing.html">启发式合并</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/chao-suan.html">超算</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/concurrency.html">Concurrency</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-xing-dp.html">树形DP</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/tu-ling-wan-bei-xing.html">图灵完备性</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/xue-xi-fang-fa.html">学习方法</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/nei-cun-mo-xing.html">内存模型</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/bian-yi-qi-you-hua.html">编译器优化</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/post.html">Post</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/lock-free.html">Lock-Free</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/3dda-yin.html">3D打印</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/shu-xue.html">数学</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://wizmann.top/tag/volatile.html">volatile</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2026 Wizmann
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://wizmann.top/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://wizmann.top/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://wizmann.top/theme/js/respond.min.js"></script>
+
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'wizmann'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-46053117-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+
+</body>
+</html>
